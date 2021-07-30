@@ -1,7 +1,7 @@
 using System;
 using System.Reflection;
 using StardewModdingAPI.Events;
-using StardewModdingAPI.Framework.Patching;
+using StardewModdingAPI.Internal.Patching;
 using StardewModdingAPI.Mods.ErrorHandler.Patches;
 using StardewValley;
 
@@ -28,7 +28,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler
             IMonitor monitorForGame = this.GetMonitorForGame();
 
             // apply patches
-            new GamePatcher(this.Monitor).Apply(
+            HarmonyPatcher.Apply(this.ModManifest.UniqueID, this.Monitor,
                 new DialoguePatcher(monitorForGame, this.Helper.Reflection),
                 new DictionaryPatcher(this.Helper.Reflection),
                 new EventPatcher(monitorForGame),

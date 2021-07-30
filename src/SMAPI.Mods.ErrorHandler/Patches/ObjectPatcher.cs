@@ -2,34 +2,34 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using HarmonyLib;
-using StardewModdingAPI.Framework.Patching;
+using StardewModdingAPI.Internal.Patching;
 using StardewValley;
 using SObject = StardewValley.Object;
 
 namespace StardewModdingAPI.Mods.ErrorHandler.Patches
 {
-    /// <summary>A Harmony patch for <see cref="SObject.getDescription"/> which intercepts crashes due to the item no longer existing.</summary>
+    /// <summary>Harmony patches for <see cref="SObject"/> which intercept crashes due to invalid items.</summary>
     /// <remarks>Patch methods must be static for Harmony to work correctly. See the Harmony documentation before renaming patch arguments.</remarks>
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Argument names are defined by Harmony and methods are named for clarity.")]
     [SuppressMessage("ReSharper", "IdentifierTypo", Justification = "Argument names are defined by Harmony and methods are named for clarity.")]
-    internal class ObjectPatcher : IHarmonyPatch
+    internal class ObjectPatcher : BasePatcher
     {
         /*********
         ** Public methods
         *********/
         /// <inheritdoc />
-        public void Apply(Harmony harmony)
+        public override void Apply(Harmony harmony, IMonitor monitor)
         {
             // object.getDescription
             harmony.Patch(
-                original: AccessTools.Method(typeof(SObject), nameof(SObject.getDescription)),
-                prefix: new HarmonyMethod(this.GetType(), nameof(ObjectPatcher.Before_Object_GetDescription))
+                original: this.RequireMethod<SObject>(nameof(SObject.getDescription)),
+                prefix: this.GetHarmonyMethod(nameof(ObjectPatcher.Before_Object_GetDescription))
             );
 
             // object.getDisplayName
             harmony.Patch(
-                original: AccessTools.Method(typeof(SObject), "loadDisplayName"),
-                finalizer: new HarmonyMethod(this.GetType(), nameof(ObjectPatcher.Finalize_Object_loadDisplayName))
+                original: this.RequireMethod<SObject>("loadDisplayName"),
+                finalizer: this.GetHarmonyMethod(nameof(ObjectPatcher.Finalize_Object_loadDisplayName))
             );
         }
 

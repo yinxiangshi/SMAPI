@@ -4,18 +4,18 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using HarmonyLib;
 using Microsoft.Xna.Framework.Content;
-using StardewModdingAPI.Framework.Patching;
+using StardewModdingAPI.Internal.Patching;
 using StardewValley;
 using StardewValley.Buildings;
 using StardewValley.Locations;
 
 namespace StardewModdingAPI.Mods.ErrorHandler.Patches
 {
-    /// <summary>A Harmony patch for <see cref="SaveGame"/> which prevents some errors due to broken save data.</summary>
+    /// <summary>Harmony patches for <see cref="SaveGame"/> which prevent some errors due to broken save data.</summary>
     /// <remarks>Patch methods must be static for Harmony to work correctly. See the Harmony documentation before renaming patch arguments.</remarks>
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Argument names are defined by Harmony and methods are named for clarity.")]
     [SuppressMessage("ReSharper", "IdentifierTypo", Justification = "Argument names are defined by Harmony and methods are named for clarity.")]
-    internal class SaveGamePatcher : IHarmonyPatch
+    internal class SaveGamePatcher : BasePatcher
     {
         /*********
         ** Fields
@@ -39,13 +39,12 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
             SaveGamePatcher.OnContentRemoved = onContentRemoved;
         }
 
-
         /// <inheritdoc />
-        public void Apply(Harmony harmony)
+        public override void Apply(Harmony harmony, IMonitor monitor)
         {
             harmony.Patch(
-                original: AccessTools.Method(typeof(SaveGame), nameof(SaveGame.loadDataToLocations)),
-                prefix: new HarmonyMethod(this.GetType(), nameof(SaveGamePatcher.Before_SaveGame_LoadDataToLocations))
+                original: this.RequireMethod<SaveGame>(nameof(SaveGame.loadDataToLocations)),
+                prefix: this.GetHarmonyMethod(nameof(SaveGamePatcher.Before_LoadDataToLocations))
             );
         }
 
@@ -56,7 +55,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         /// <summary>The method to call instead of <see cref="SaveGame.loadDataToLocations"/>.</summary>
         /// <param name="gamelocations">The game locations being loaded.</param>
         /// <returns>Returns whether to execute the original method.</returns>
-        private static bool Before_SaveGame_LoadDataToLocations(List<GameLocation> gamelocations)
+        private static bool Before_LoadDataToLocations(List<GameLocation> gamelocations)
         {
             bool removedAny =
                 SaveGamePatcher.RemoveBrokenBuildings(gamelocations)

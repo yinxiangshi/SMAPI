@@ -31,13 +31,14 @@ using StardewModdingAPI.Framework.Models;
 using StardewModdingAPI.Framework.ModHelpers;
 using StardewModdingAPI.Framework.ModLoading;
 using StardewModdingAPI.Framework.Networking;
-using StardewModdingAPI.Framework.Patching;
 using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Framework.Rendering;
 using StardewModdingAPI.Framework.Serialization;
 using StardewModdingAPI.Framework.StateTracking.Comparers;
 using StardewModdingAPI.Framework.StateTracking.Snapshots;
 using StardewModdingAPI.Framework.Utilities;
+using StardewModdingAPI.Internal;
+using StardewModdingAPI.Internal.Patching;
 using StardewModdingAPI.Patches;
 using StardewModdingAPI.Toolkit;
 using StardewModdingAPI.Toolkit.Framework.Clients.WebApi;
@@ -254,7 +255,7 @@ namespace StardewModdingAPI.Framework
 
                 // apply game patches
                 MiniMonoModHotfix.Apply();
-                new GamePatcher(this.Monitor).Apply(
+                HarmonyPatcher.Apply("SMAPI", this.Monitor,
                     new Game1Patcher(this.Reflection, this.OnLoadStageChanged),
                     new TitleMenuPatcher(this.OnLoadStageChanged)
                 );

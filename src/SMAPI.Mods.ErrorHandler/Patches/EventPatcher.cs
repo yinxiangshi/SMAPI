@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using HarmonyLib;
-using StardewModdingAPI.Framework.Patching;
+using StardewModdingAPI.Internal.Patching;
 using StardewValley;
 
 namespace StardewModdingAPI.Mods.ErrorHandler.Patches
@@ -10,7 +10,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
     /// <remarks>Patch methods must be static for Harmony to work correctly. See the Harmony documentation before renaming patch arguments.</remarks>
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Argument names are defined by Harmony and methods are named for clarity.")]
     [SuppressMessage("ReSharper", "IdentifierTypo", Justification = "Argument names are defined by Harmony and methods are named for clarity.")]
-    internal class EventPatcher : IHarmonyPatch
+    internal class EventPatcher : BasePatcher
     {
         /*********
         ** Fields
@@ -30,11 +30,11 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         }
 
         /// <inheritdoc />
-        public void Apply(Harmony harmony)
+        public override void Apply(Harmony harmony, IMonitor monitor)
         {
             harmony.Patch(
-                original: AccessTools.Method(typeof(Event), nameof(Event.LogErrorAndHalt)),
-                postfix: new HarmonyMethod(this.GetType(), nameof(EventPatcher.After_Event_LogErrorAndHalt))
+                original: this.RequireMethod<Event>(nameof(Event.LogErrorAndHalt)),
+                postfix: this.GetHarmonyMethod(nameof(EventPatcher.After_LogErrorAndHalt))
             );
         }
 
@@ -44,7 +44,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         *********/
         /// <summary>The method to call after <see cref="Event.LogErrorAndHalt"/>.</summary>
         /// <param name="e">The exception being logged.</param>
-        private static void After_Event_LogErrorAndHalt(Exception e)
+        private static void After_LogErrorAndHalt(Exception e)
         {
             EventPatcher.MonitorForGame.Log(e.ToString(), LogLevel.Error);
         }

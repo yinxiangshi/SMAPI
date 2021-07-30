@@ -2,17 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using HarmonyLib;
-using StardewModdingAPI.Framework;
-using StardewModdingAPI.Framework.Patching;
+using StardewModdingAPI.Internal;
+using StardewModdingAPI.Internal.Patching;
 using StardewValley;
 
 namespace StardewModdingAPI.Mods.ErrorHandler.Patches
 {
-    /// <summary>A Harmony patch for <see cref="NPC.parseMasterSchedule"/> which intercepts crashes due to invalid schedule data.</summary>
+    /// <summary>Harmony patches for <see cref="NPC"/> which intercept crashes due to invalid schedule data.</summary>
     /// <remarks>Patch methods must be static for Harmony to work correctly. See the Harmony documentation before renaming patch arguments.</remarks>
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Argument names are defined by Harmony and methods are named for clarity.")]
     [SuppressMessage("ReSharper", "IdentifierTypo", Justification = "Argument names are defined by Harmony and methods are named for clarity.")]
-    internal class NpcPatcher : IHarmonyPatch
+    internal class NpcPatcher : BasePatcher
     {
         /*********
         ** Fields
@@ -32,16 +32,16 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         }
 
         /// <inheritdoc />
-        public void Apply(Harmony harmony)
+        public override void Apply(Harmony harmony, IMonitor monitor)
         {
             harmony.Patch(
-                original: AccessTools.Property(typeof(NPC), nameof(NPC.CurrentDialogue)).GetMethod,
-                finalizer: new HarmonyMethod(this.GetType(), nameof(NpcPatcher.Finalize_NPC_CurrentDialogue))
+                original: this.RequireMethod<NPC>($"get_{nameof(NPC.CurrentDialogue)}"),
+                finalizer: this.GetHarmonyMethod(nameof(NpcPatcher.Finalize_CurrentDialogue))
             );
 
             harmony.Patch(
-                original: AccessTools.Method(typeof(NPC), nameof(NPC.parseMasterSchedule)),
-                finalizer: new HarmonyMethod(this.GetType(), nameof(NpcPatcher.Finalize_NPC_parseMasterSchedule))
+                original: this.RequireMethod<NPC>(nameof(NPC.parseMasterSchedule)),
+                finalizer: this.GetHarmonyMethod(nameof(NpcPatcher.Finalize_ParseMasterSchedule))
             );
         }
 
@@ -49,12 +49,12 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         /*********
         ** Private methods
         *********/
-        /// <summary>The method to call after <see cref="NPC.CurrentDialogue"/>.</summary>
+        /// <summary>The method to call when <see cref="NPC.CurrentDialogue"/> throws an exception.</summary>
         /// <param name="__instance">The instance being patched.</param>
         /// <param name="__result">The return value of the original method.</param>
         /// <param name="__exception">The exception thrown by the wrapped method, if any.</param>
         /// <returns>Returns the exception to throw, if any.</returns>
-        private static Exception Finalize_NPC_CurrentDialogue(NPC __instance, ref Stack<Dialogue> __result, Exception __exception)
+        private static Exception Finalize_CurrentDialogue(NPC __instance, ref Stack<Dialogue> __result, Exception __exception)
         {
             if (__exception == null)
                 return null;
@@ -71,7 +71,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         /// <param name="__result">The patched method's return value.</param>
         /// <param name="__exception">The exception thrown by the wrapped method, if any.</param>
         /// <returns>Returns the exception to throw, if any.</returns>
-        private static Exception Finalize_NPC_parseMasterSchedule(string rawData, NPC __instance, ref Dictionary<int, SchedulePathDescription> __result, Exception __exception)
+        private static Exception Finalize_ParseMasterSchedule(string rawData, NPC __instance, ref Dictionary<int, SchedulePathDescription> __result, Exception __exception)
         {
             if (__exception != null)
             {

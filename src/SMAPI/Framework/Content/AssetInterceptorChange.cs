@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using StardewModdingAPI.Internal;
 
 namespace StardewModdingAPI.Framework.Content
 {

@@ -2,18 +2,18 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using HarmonyLib;
-using StardewModdingAPI.Framework.Patching;
+using StardewModdingAPI.Internal.Patching;
 using StardewValley.GameData;
 using StardewValley.GameData.HomeRenovations;
 using StardewValley.GameData.Movies;
 
 namespace StardewModdingAPI.Mods.ErrorHandler.Patches
 {
-    /// <summary>A Harmony patch for <see cref="Dictionary{TKey,TValue}"/> which adds the accessed key to <see cref="KeyNotFoundException"/> exceptions.</summary>
+    /// <summary>Harmony patches for <see cref="Dictionary{TKey,TValue}"/> which add the accessed key to <see cref="KeyNotFoundException"/> exceptions.</summary>
     /// <remarks>Patch methods must be static for Harmony to work correctly. See the Harmony documentation before renaming patch arguments.</remarks>
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Argument names are defined by Harmony and methods are named for clarity.")]
     [SuppressMessage("ReSharper", "IdentifierTypo", Justification = "Argument names are defined by Harmony and methods are named for clarity.")]
-    internal class DictionaryPatcher : IHarmonyPatch
+    internal class DictionaryPatcher : BasePatcher
     {
         /*********
         ** Fields
@@ -33,7 +33,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         }
 
         /// <inheritdoc />
-        public void Apply(Harmony harmony)
+        public override void Apply(Harmony harmony, IMonitor monitor)
         {
             Type[] keyTypes = { typeof(int), typeof(string) };
             Type[] valueTypes = { typeof(int), typeof(string), typeof(HomeRenovation), typeof(MovieData), typeof(SpecialOrderData) };
@@ -45,8 +45,8 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
                     Type dictionaryType = typeof(Dictionary<,>).MakeGenericType(keyType, valueType);
 
                     harmony.Patch(
-                        original: AccessTools.Method(dictionaryType, "get_Item"),
-                        finalizer: new HarmonyMethod(this.GetType(), nameof(DictionaryPatcher.Finalize_GetItem))
+                        original: AccessTools.Method(dictionaryType, "get_Item") ?? throw new InvalidOperationException($"Can't find method {PatchHelper.GetMethodString(dictionaryType, "get_Item")} to patch."),
+                        finalizer: this.GetHarmonyMethod(nameof(DictionaryPatcher.Finalize_GetItem))
                     );
                 }
             }
@@ -63,19 +63,13 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         private static Exception Finalize_GetItem(object key, Exception __exception)
         {
             if (__exception is KeyNotFoundException)
-                AddKeyTo(__exception, key?.ToString());
+            {
+                DictionaryPatcher.Reflection
+                    .GetField<string>(__exception, "_message")
+                    .SetValue($"{__exception.Message}\nkey: '{key}'");
+            }
 
             return __exception;
-        }
-
-        /// <summary>Add the accessed key to an exception message.</summary>
-        /// <param name="exception">The exception to modify.</param>
-        /// <param name="key">The dictionary key.</param>
-        private static void AddKeyTo(Exception exception, string key)
-        {
-            DictionaryPatcher.Reflection
-                .GetField<string>(exception, "_message")
-                .SetValue($"{exception.Message}\nkey: '{key}'");
         }
     }
 }

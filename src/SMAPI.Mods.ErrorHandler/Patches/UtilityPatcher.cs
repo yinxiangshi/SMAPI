@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using HarmonyLib;
-using StardewModdingAPI.Framework.Patching;
+using StardewModdingAPI.Internal.Patching;
 using StardewValley;
 
 namespace StardewModdingAPI.Mods.ErrorHandler.Patches
@@ -10,17 +10,17 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
     /// <remarks>Patch methods must be static for Harmony to work correctly. See the Harmony documentation before renaming patch arguments.</remarks>
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Argument names are defined by Harmony and methods are named for clarity.")]
     [SuppressMessage("ReSharper", "IdentifierTypo", Justification = "Argument names are defined by Harmony and methods are named for clarity.")]
-    internal class UtilityPatcher : IHarmonyPatch
+    internal class UtilityPatcher : BasePatcher
     {
         /*********
         ** Public methods
         *********/
         /// <inheritdoc />
-        public void Apply(Harmony harmony)
+        public override void Apply(Harmony harmony, IMonitor monitor)
         {
             harmony.Patch(
-                original: AccessTools.Method(typeof(Utility), nameof(Utility.getItemFromStandardTextDescription)),
-                finalizer: new HarmonyMethod(this.GetType(), nameof(UtilityPatcher.Finalize_Utility_GetItemFromStandardTextDescription))
+                original: this.RequireMethod<Utility>(nameof(Utility.getItemFromStandardTextDescription)),
+                finalizer: this.GetHarmonyMethod(nameof(UtilityPatcher.Finalize_GetItemFromStandardTextDescription))
             );
         }
 
@@ -28,12 +28,12 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         /*********
         ** Private methods
         *********/
-        /// <summary>The method to call instead of <see cref="Utility.getItemFromStandardTextDescription"/>.</summary>
+        /// <summary>The method to call when <see cref="Utility.getItemFromStandardTextDescription"/> throws an exception.</summary>
         /// <param name="description">The item text description to parse.</param>
         /// <param name="delimiter">The delimiter by which to split the text description.</param>
         /// <param name="__exception">The exception thrown by the wrapped method, if any.</param>
         /// <returns>Returns the exception to throw, if any.</returns>
-        private static Exception Finalize_Utility_GetItemFromStandardTextDescription(string description, char delimiter, ref Exception __exception)
+        private static Exception Finalize_GetItemFromStandardTextDescription(string description, char delimiter, ref Exception __exception)
         {
             return __exception != null
                 ? new FormatException($"Failed to parse item text description \"{description}\" with delimiter \"{delimiter}\".", __exception)

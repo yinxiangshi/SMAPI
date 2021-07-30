@@ -2,16 +2,16 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using HarmonyLib;
 using StardewModdingAPI.Enums;
-using StardewModdingAPI.Framework.Patching;
+using StardewModdingAPI.Internal.Patching;
 using StardewValley.Menus;
 
 namespace StardewModdingAPI.Patches
 {
-    /// <summary>Harmony patches which notify SMAPI for save creation load stages.</summary>
+    /// <summary>Harmony patches for <see cref="TitleMenu"/> which notify SMAPI when a new character was created.</summary>
     /// <remarks>Patch methods must be static for Harmony to work correctly. See the Harmony documentation before renaming patch arguments.</remarks>
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Argument names are defined by Harmony and methods are named for clarity.")]
     [SuppressMessage("ReSharper", "IdentifierTypo", Justification = "Argument names are defined by Harmony and methods are named for clarity.")]
-    internal class TitleMenuPatcher : IHarmonyPatch
+    internal class TitleMenuPatcher : BasePatcher
     {
         /*********
         ** Fields
@@ -31,12 +31,11 @@ namespace StardewModdingAPI.Patches
         }
 
         /// <inheritdoc />
-        public void Apply(Harmony harmony)
+        public override void Apply(Harmony harmony, IMonitor monitor)
         {
-            // detect CreatedBasicInfo
             harmony.Patch(
-                original: AccessTools.Method(typeof(TitleMenu), nameof(TitleMenu.createdNewCharacter)),
-                prefix: new HarmonyMethod(this.GetType(), nameof(TitleMenuPatcher.Before_TitleMenu_CreatedNewCharacter))
+                original: this.RequireMethod<TitleMenu>(nameof(TitleMenu.createdNewCharacter)),
+                prefix: this.GetHarmonyMethod(nameof(TitleMenuPatcher.Before_CreatedNewCharacter))
             );
         }
 
@@ -44,10 +43,10 @@ namespace StardewModdingAPI.Patches
         /*********
         ** Private methods
         *********/
-        /// <summary>Called before <see cref="TitleMenu.createdNewCharacter"/>.</summary>
+        /// <summary>The method to call before <see cref="TitleMenu.createdNewCharacter"/>.</summary>
         /// <returns>Returns whether to execute the original method.</returns>
         /// <remarks>This method must be static for Harmony to work correctly. See the Harmony documentation before renaming arguments.</remarks>
-        private static bool Before_TitleMenu_CreatedNewCharacter()
+        private static bool Before_CreatedNewCharacter()
         {
             TitleMenuPatcher.OnStageChanged(LoadStage.CreatedBasicInfo);
             return true;
