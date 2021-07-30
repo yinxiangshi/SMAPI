@@ -1,3 +1,4 @@
+using System;
 using System.Reflection;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework;
@@ -71,12 +72,17 @@ namespace StardewModdingAPI.Mods.ErrorHandler
         /// <summary>Get the monitor with which to log game errors.</summary>
         private IMonitor GetMonitorForGame()
         {
-            SCore core = SCore.Instance;
-            LogManager logManager = core.GetType().GetField("LogManager", BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(core) as LogManager;
-            if (logManager == null)
-                this.Monitor.Log("Can't access SMAPI's internal log manager. Some game errors may be reported as being from Error Handler.", LogLevel.Error);
+            // get SMAPI core
+            Type coreType = Type.GetType("StardewModdingAPI.Framework.SCore, StardewModdingAPI", throwOnError: false)
+                ?? throw new InvalidOperationException("Can't access SMAPI's core type. This mod may not work correctly.");
+            object core = coreType.GetProperty("Instance", BindingFlags.Static | BindingFlags.NonPublic)?.GetValue(null)
+                ?? throw new InvalidOperationException("Can't access SMAPI's core instance. This mod may not work correctly.");
 
-            return logManager?.MonitorForGame ?? this.Monitor;
+            // get monitor
+            MethodInfo getMonitorForGame = coreType.GetMethod("GetMonitorForGame")
+                ?? throw new InvalidOperationException("Can't access the SMAPI's 'GetMonitorForGame' method. This mod may not work correctly.");
+
+            return (IMonitor)getMonitorForGame.Invoke(core, new object[0]) ?? this.Monitor;
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using HarmonyLib;
+using Microsoft.Xna.Framework.Content;
 using StardewModdingAPI.Framework.Exceptions;
 using StardewModdingAPI.Framework.Patching;
 using StardewValley;
@@ -82,7 +83,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
                     {
                         BluePrint _ = new BluePrint(building.buildingType.Value);
                     }
-                    catch (SContentLoadException)
+                    catch (ContentLoadException)
                     {
                         LoadErrorPatch.Monitor.Log($"Removed invalid building type '{building.buildingType.Value}' in {location.Name} ({building.tileX}, {building.tileY}) to avoid a crash when loading save '{Constants.SaveFolderName}'. (Did you remove a custom building mod?)", LogLevel.Warn);
                         location.buildings.Remove(building);

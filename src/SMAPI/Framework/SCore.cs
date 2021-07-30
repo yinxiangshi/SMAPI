@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -308,6 +309,14 @@ namespace StardewModdingAPI.Framework
                     this.Monitor.Log($"The game ended, but SMAPI wasn't able to dispose correctly. Technical details: {ex}", LogLevel.Error);
                 }
             }
+        }
+
+        /// <summary>Get the core logger and monitor on behalf of the game.</summary>
+        /// <remarks>This method is called using reflection by the ErrorHandler mod to log game errors.</remarks>
+        [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "Used via reflection")]
+        public IMonitor GetMonitorForGame()
+        {
+            return this.LogManager.MonitorForGame;
         }
 
         /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
