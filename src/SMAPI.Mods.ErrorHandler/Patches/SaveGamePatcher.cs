@@ -57,25 +57,40 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         /// <returns>Returns whether to execute the original method.</returns>
         private static bool Before_LoadDataToLocations(List<GameLocation> gamelocations)
         {
-            bool removedAny =
-                SaveGamePatcher.RemoveBrokenBuildings(gamelocations)
-                | SaveGamePatcher.RemoveInvalidNpcs(gamelocations);
+            IDictionary<string, string> npcs = Game1.content.Load<Dictionary<string, string>>("Data\\NPCDispositions");
 
-            if (removedAny)
+            if (SaveGamePatcher.RemoveBrokenContent(gamelocations, npcs))
                 SaveGamePatcher.OnContentRemoved();
 
             return true;
         }
 
-        /// <summary>Remove buildings which don't exist in the game data.</summary>
+        /// <summary>Remove content which no longer exists in the game data.</summary>
         /// <param name="locations">The current game locations.</param>
-        private static bool RemoveBrokenBuildings(IEnumerable<GameLocation> locations)
+        /// <param name="npcs">The NPC data.</param>
+        private static bool RemoveBrokenContent(IEnumerable<GameLocation> locations, IDictionary<string, string> npcs)
         {
             bool removedAny = false;
 
-            foreach (BuildableGameLocation location in locations.OfType<BuildableGameLocation>())
+            foreach (GameLocation location in locations)
+                removedAny |= SaveGamePatcher.RemoveBrokenContent(location, npcs);
+
+            return removedAny;
+        }
+
+        /// <summary>Remove content which no longer exists in the game data.</summary>
+        /// <param name="location">The current game location.</param>
+        /// <param name="npcs">The NPC data.</param>
+        private static bool RemoveBrokenContent(GameLocation location, IDictionary<string, string> npcs)
+        {
+            bool removedAny = false;
+            if (location == null)
+                return false;
+
+            // check buildings
+            if (location is BuildableGameLocation buildableLocation)
             {
-                foreach (Building building in location.buildings.ToArray())
+                foreach (Building building in buildableLocation.buildings.ToArray())
                 {
                     try
                     {
@@ -84,58 +99,34 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
                     catch (ContentLoadException)
                     {
                         SaveGamePatcher.Monitor.Log($"Removed invalid building type '{building.buildingType.Value}' in {location.Name} ({building.tileX}, {building.tileY}) to avoid a crash when loading save '{Constants.SaveFolderName}'. (Did you remove a custom building mod?)", LogLevel.Warn);
-                        location.buildings.Remove(building);
+                        buildableLocation.buildings.Remove(building);
+                        removedAny = true;
+                        continue;
+                    }
+
+                    SaveGamePatcher.RemoveBrokenContent(building.indoors.Value, npcs);
+                }
+            }
+
+            // check NPCs
+            foreach (NPC npc in location.characters.ToArray())
+            {
+                if (npc.isVillager() && !npcs.ContainsKey(npc.Name))
+                {
+                    try
+                    {
+                        npc.reloadSprite(); // this won't crash for special villagers like Bouncer
+                    }
+                    catch
+                    {
+                        SaveGamePatcher.Monitor.Log($"Removed invalid villager '{npc.Name}' in {location.Name} ({npc.getTileLocation()}) to avoid a crash when loading save '{Constants.SaveFolderName}'. (Did you remove a custom NPC mod?)", LogLevel.Warn);
+                        location.characters.Remove(npc);
                         removedAny = true;
                     }
                 }
             }
 
             return removedAny;
-        }
-
-        /// <summary>Remove NPCs which don't exist in the game data.</summary>
-        /// <param name="locations">The current game locations.</param>
-        private static bool RemoveInvalidNpcs(IEnumerable<GameLocation> locations)
-        {
-            bool removedAny = false;
-
-            IDictionary<string, string> data = Game1.content.Load<Dictionary<string, string>>("Data\\NPCDispositions");
-            foreach (GameLocation location in SaveGamePatcher.GetAllLocations(locations))
-            {
-                foreach (NPC npc in location.characters.ToArray())
-                {
-                    if (npc.isVillager() && !data.ContainsKey(npc.Name))
-                    {
-                        try
-                        {
-                            npc.reloadSprite(); // this won't crash for special villagers like Bouncer
-                        }
-                        catch
-                        {
-                            SaveGamePatcher.Monitor.Log($"Removed invalid villager '{npc.Name}' in {location.Name} ({npc.getTileLocation()}) to avoid a crash when loading save '{Constants.SaveFolderName}'. (Did you remove a custom NPC mod?)", LogLevel.Warn);
-                            location.characters.Remove(npc);
-                            removedAny = true;
-                        }
-                    }
-                }
-            }
-
-            return removedAny;
-        }
-
-        /// <summary>Get all locations, including building interiors.</summary>
-        /// <param name="locations">The main game locations.</param>
-        private static IEnumerable<GameLocation> GetAllLocations(IEnumerable<GameLocation> locations)
-        {
-            foreach (GameLocation location in locations)
-            {
-                yield return location;
-                if (location is BuildableGameLocation buildableLocation)
-                {
-                    foreach (GameLocation interior in buildableLocation.buildings.Select(p => p.indoors.Value).Where(p => p != null))
-                        yield return interior;
-                }
-            }
         }
     }
 }
