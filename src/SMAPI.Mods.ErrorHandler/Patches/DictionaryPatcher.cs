@@ -13,7 +13,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
     /// <remarks>Patch methods must be static for Harmony to work correctly. See the Harmony documentation before renaming patch arguments.</remarks>
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Argument names are defined by Harmony and methods are named for clarity.")]
     [SuppressMessage("ReSharper", "IdentifierTypo", Justification = "Argument names are defined by Harmony and methods are named for clarity.")]
-    internal class DictionaryPatches : IHarmonyPatch
+    internal class DictionaryPatcher : IHarmonyPatch
     {
         /*********
         ** Fields
@@ -27,9 +27,9 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="reflector">Simplifies access to private code.</param>
-        public DictionaryPatches(IReflectionHelper reflector)
+        public DictionaryPatcher(IReflectionHelper reflector)
         {
-            DictionaryPatches.Reflection = reflector;
+            DictionaryPatcher.Reflection = reflector;
         }
 
         /// <inheritdoc />
@@ -46,7 +46,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
 
                     harmony.Patch(
                         original: AccessTools.Method(dictionaryType, "get_Item"),
-                        finalizer: new HarmonyMethod(this.GetType(), nameof(DictionaryPatches.Finalize_GetItem))
+                        finalizer: new HarmonyMethod(this.GetType(), nameof(DictionaryPatcher.Finalize_GetItem))
                     );
                 }
             }
@@ -73,7 +73,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         /// <param name="key">The dictionary key.</param>
         private static void AddKeyTo(Exception exception, string key)
         {
-            DictionaryPatches.Reflection
+            DictionaryPatcher.Reflection
                 .GetField<string>(exception, "_message")
                 .SetValue($"{exception.Message}\nkey: '{key}'");
         }

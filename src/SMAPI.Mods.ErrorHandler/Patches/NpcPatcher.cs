@@ -12,7 +12,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
     /// <remarks>Patch methods must be static for Harmony to work correctly. See the Harmony documentation before renaming patch arguments.</remarks>
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Argument names are defined by Harmony and methods are named for clarity.")]
     [SuppressMessage("ReSharper", "IdentifierTypo", Justification = "Argument names are defined by Harmony and methods are named for clarity.")]
-    internal class ScheduleErrorPatch : IHarmonyPatch
+    internal class NpcPatcher : IHarmonyPatch
     {
         /*********
         ** Fields
@@ -26,9 +26,9 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="monitorForGame">Writes messages to the console and log file on behalf of the game.</param>
-        public ScheduleErrorPatch(IMonitor monitorForGame)
+        public NpcPatcher(IMonitor monitorForGame)
         {
-            ScheduleErrorPatch.MonitorForGame = monitorForGame;
+            NpcPatcher.MonitorForGame = monitorForGame;
         }
 
         /// <inheritdoc />
@@ -36,12 +36,12 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         {
             harmony.Patch(
                 original: AccessTools.Property(typeof(NPC), nameof(NPC.CurrentDialogue)).GetMethod,
-                finalizer: new HarmonyMethod(this.GetType(), nameof(ScheduleErrorPatch.Finalize_NPC_CurrentDialogue))
+                finalizer: new HarmonyMethod(this.GetType(), nameof(NpcPatcher.Finalize_NPC_CurrentDialogue))
             );
 
             harmony.Patch(
                 original: AccessTools.Method(typeof(NPC), nameof(NPC.parseMasterSchedule)),
-                finalizer: new HarmonyMethod(this.GetType(), nameof(ScheduleErrorPatch.Finalize_NPC_parseMasterSchedule))
+                finalizer: new HarmonyMethod(this.GetType(), nameof(NpcPatcher.Finalize_NPC_parseMasterSchedule))
             );
         }
 
@@ -59,7 +59,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
             if (__exception == null)
                 return null;
 
-            ScheduleErrorPatch.MonitorForGame.Log($"Failed loading current dialogue for NPC {__instance.Name}:\n{__exception.GetLogSummary()}", LogLevel.Error);
+            NpcPatcher.MonitorForGame.Log($"Failed loading current dialogue for NPC {__instance.Name}:\n{__exception.GetLogSummary()}", LogLevel.Error);
             __result = new Stack<Dialogue>();
 
             return null;
@@ -75,7 +75,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         {
             if (__exception != null)
             {
-                ScheduleErrorPatch.MonitorForGame.Log($"Failed parsing schedule for NPC {__instance.Name}:\n{rawData}\n{__exception.GetLogSummary()}", LogLevel.Error);
+                NpcPatcher.MonitorForGame.Log($"Failed parsing schedule for NPC {__instance.Name}:\n{rawData}\n{__exception.GetLogSummary()}", LogLevel.Error);
                 __result = new Dictionary<int, SchedulePathDescription>();
             }
 

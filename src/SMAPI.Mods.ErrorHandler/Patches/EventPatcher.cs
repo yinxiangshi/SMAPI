@@ -10,7 +10,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
     /// <remarks>Patch methods must be static for Harmony to work correctly. See the Harmony documentation before renaming patch arguments.</remarks>
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Argument names are defined by Harmony and methods are named for clarity.")]
     [SuppressMessage("ReSharper", "IdentifierTypo", Justification = "Argument names are defined by Harmony and methods are named for clarity.")]
-    internal class EventPatches : IHarmonyPatch
+    internal class EventPatcher : IHarmonyPatch
     {
         /*********
         ** Fields
@@ -24,9 +24,9 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="monitorForGame">Writes messages to the console and log file on behalf of the game.</param>
-        public EventPatches(IMonitor monitorForGame)
+        public EventPatcher(IMonitor monitorForGame)
         {
-            EventPatches.MonitorForGame = monitorForGame;
+            EventPatcher.MonitorForGame = monitorForGame;
         }
 
         /// <inheritdoc />
@@ -34,7 +34,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         {
             harmony.Patch(
                 original: AccessTools.Method(typeof(Event), nameof(Event.LogErrorAndHalt)),
-                postfix: new HarmonyMethod(this.GetType(), nameof(EventPatches.After_Event_LogErrorAndHalt))
+                postfix: new HarmonyMethod(this.GetType(), nameof(EventPatcher.After_Event_LogErrorAndHalt))
             );
         }
 
@@ -46,7 +46,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         /// <param name="e">The exception being logged.</param>
         private static void After_Event_LogErrorAndHalt(Exception e)
         {
-            EventPatches.MonitorForGame.Log(e.ToString(), LogLevel.Error);
+            EventPatcher.MonitorForGame.Log(e.ToString(), LogLevel.Error);
         }
     }
 }

@@ -4,7 +4,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using HarmonyLib;
 using Microsoft.Xna.Framework.Content;
-using StardewModdingAPI.Framework.Exceptions;
 using StardewModdingAPI.Framework.Patching;
 using StardewValley;
 using StardewValley.Buildings;
@@ -16,7 +15,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
     /// <remarks>Patch methods must be static for Harmony to work correctly. See the Harmony documentation before renaming patch arguments.</remarks>
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Argument names are defined by Harmony and methods are named for clarity.")]
     [SuppressMessage("ReSharper", "IdentifierTypo", Justification = "Argument names are defined by Harmony and methods are named for clarity.")]
-    internal class LoadErrorPatch : IHarmonyPatch
+    internal class SaveGamePatcher : IHarmonyPatch
     {
         /*********
         ** Fields
@@ -34,10 +33,10 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         /// <summary>Construct an instance.</summary>
         /// <param name="monitor">Writes messages to the console and log file.</param>
         /// <param name="onContentRemoved">A callback invoked when custom content is removed from the save data to avoid a crash.</param>
-        public LoadErrorPatch(IMonitor monitor, Action onContentRemoved)
+        public SaveGamePatcher(IMonitor monitor, Action onContentRemoved)
         {
-            LoadErrorPatch.Monitor = monitor;
-            LoadErrorPatch.OnContentRemoved = onContentRemoved;
+            SaveGamePatcher.Monitor = monitor;
+            SaveGamePatcher.OnContentRemoved = onContentRemoved;
         }
 
 
@@ -46,7 +45,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         {
             harmony.Patch(
                 original: AccessTools.Method(typeof(SaveGame), nameof(SaveGame.loadDataToLocations)),
-                prefix: new HarmonyMethod(this.GetType(), nameof(LoadErrorPatch.Before_SaveGame_LoadDataToLocations))
+                prefix: new HarmonyMethod(this.GetType(), nameof(SaveGamePatcher.Before_SaveGame_LoadDataToLocations))
             );
         }
 
@@ -60,11 +59,11 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         private static bool Before_SaveGame_LoadDataToLocations(List<GameLocation> gamelocations)
         {
             bool removedAny =
-                LoadErrorPatch.RemoveBrokenBuildings(gamelocations)
-                | LoadErrorPatch.RemoveInvalidNpcs(gamelocations);
+                SaveGamePatcher.RemoveBrokenBuildings(gamelocations)
+                | SaveGamePatcher.RemoveInvalidNpcs(gamelocations);
 
             if (removedAny)
-                LoadErrorPatch.OnContentRemoved();
+                SaveGamePatcher.OnContentRemoved();
 
             return true;
         }
@@ -85,7 +84,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
                     }
                     catch (ContentLoadException)
                     {
-                        LoadErrorPatch.Monitor.Log($"Removed invalid building type '{building.buildingType.Value}' in {location.Name} ({building.tileX}, {building.tileY}) to avoid a crash when loading save '{Constants.SaveFolderName}'. (Did you remove a custom building mod?)", LogLevel.Warn);
+                        SaveGamePatcher.Monitor.Log($"Removed invalid building type '{building.buildingType.Value}' in {location.Name} ({building.tileX}, {building.tileY}) to avoid a crash when loading save '{Constants.SaveFolderName}'. (Did you remove a custom building mod?)", LogLevel.Warn);
                         location.buildings.Remove(building);
                         removedAny = true;
                     }
@@ -102,7 +101,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
             bool removedAny = false;
 
             IDictionary<string, string> data = Game1.content.Load<Dictionary<string, string>>("Data\\NPCDispositions");
-            foreach (GameLocation location in LoadErrorPatch.GetAllLocations(locations))
+            foreach (GameLocation location in SaveGamePatcher.GetAllLocations(locations))
             {
                 foreach (NPC npc in location.characters.ToArray())
                 {
@@ -114,7 +113,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
                         }
                         catch
                         {
-                            LoadErrorPatch.Monitor.Log($"Removed invalid villager '{npc.Name}' in {location.Name} ({npc.getTileLocation()}) to avoid a crash when loading save '{Constants.SaveFolderName}'. (Did you remove a custom NPC mod?)", LogLevel.Warn);
+                            SaveGamePatcher.Monitor.Log($"Removed invalid villager '{npc.Name}' in {location.Name} ({npc.getTileLocation()}) to avoid a crash when loading save '{Constants.SaveFolderName}'. (Did you remove a custom NPC mod?)", LogLevel.Warn);
                             location.characters.Remove(npc);
                             removedAny = true;
                         }

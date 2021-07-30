@@ -14,7 +14,7 @@ namespace StardewModdingAPI.Patches
     /// <remarks>Patch methods must be static for Harmony to work correctly. See the Harmony documentation before renaming patch arguments.</remarks>
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Argument names are defined by Harmony and methods are named for clarity.")]
     [SuppressMessage("ReSharper", "IdentifierTypo", Justification = "Argument names are defined by Harmony and methods are named for clarity.")]
-    internal class LoadContextPatch : IHarmonyPatch
+    internal class Game1Patcher : IHarmonyPatch
     {
         /*********
         ** Fields
@@ -35,10 +35,10 @@ namespace StardewModdingAPI.Patches
         /// <summary>Construct an instance.</summary>
         /// <param name="reflection">Simplifies access to private code.</param>
         /// <param name="onStageChanged">A callback to invoke when the load stage changes.</param>
-        public LoadContextPatch(Reflector reflection, Action<LoadStage> onStageChanged)
+        public Game1Patcher(Reflector reflection, Action<LoadStage> onStageChanged)
         {
-            LoadContextPatch.Reflection = reflection;
-            LoadContextPatch.OnStageChanged = onStageChanged;
+            Game1Patcher.Reflection = reflection;
+            Game1Patcher.OnStageChanged = onStageChanged;
         }
 
         /// <inheritdoc />
@@ -47,20 +47,20 @@ namespace StardewModdingAPI.Patches
             // detect CreatedInitialLocations and SaveAddedLocations
             harmony.Patch(
                 original: AccessTools.Method(typeof(Game1), nameof(Game1.AddModNPCs)),
-                prefix: new HarmonyMethod(this.GetType(), nameof(LoadContextPatch.Before_Game1_AddModNPCs))
+                prefix: new HarmonyMethod(this.GetType(), nameof(Game1Patcher.Before_Game1_AddModNPCs))
             );
 
             // detect CreatedLocations, and track IsInLoadForNewGame
             harmony.Patch(
                 original: AccessTools.Method(typeof(Game1), nameof(Game1.loadForNewGame)),
-                prefix: new HarmonyMethod(this.GetType(), nameof(LoadContextPatch.Before_Game1_LoadForNewGame)),
-                postfix: new HarmonyMethod(this.GetType(), nameof(LoadContextPatch.After_Game1_LoadForNewGame))
+                prefix: new HarmonyMethod(this.GetType(), nameof(Game1Patcher.Before_Game1_LoadForNewGame)),
+                postfix: new HarmonyMethod(this.GetType(), nameof(Game1Patcher.After_Game1_LoadForNewGame))
             );
 
             // detect ReturningToTitle
             harmony.Patch(
                 original: AccessTools.Method(typeof(Game1), nameof(Game1.CleanupReturningToTitle)),
-                prefix: new HarmonyMethod(this.GetType(), nameof(LoadContextPatch.Before_Game1_CleanupReturningToTitle))
+                prefix: new HarmonyMethod(this.GetType(), nameof(Game1Patcher.Before_Game1_CleanupReturningToTitle))
             );
         }
 
@@ -75,9 +75,9 @@ namespace StardewModdingAPI.Patches
         {
             // When this method is called from Game1.loadForNewGame, it happens right after adding the vanilla
             // locations but before initializing them.
-            if (LoadContextPatch.IsInLoadForNewGame)
+            if (Game1Patcher.IsInLoadForNewGame)
             {
-                LoadContextPatch.OnStageChanged(LoadContextPatch.IsCreating()
+                Game1Patcher.OnStageChanged(Game1Patcher.IsCreating()
                     ? LoadStage.CreatedInitialLocations
                     : LoadStage.SaveAddedLocations
                 );
@@ -91,7 +91,7 @@ namespace StardewModdingAPI.Patches
         /// <remarks>This method must be static for Harmony to work correctly. See the Harmony documentation before renaming arguments.</remarks>
         private static bool Before_Game1_CleanupReturningToTitle()
         {
-            LoadContextPatch.OnStageChanged(LoadStage.ReturningToTitle);
+            Game1Patcher.OnStageChanged(LoadStage.ReturningToTitle);
             return true;
         }
 
@@ -100,7 +100,7 @@ namespace StardewModdingAPI.Patches
         /// <remarks>This method must be static for Harmony to work correctly. See the Harmony documentation before renaming arguments.</remarks>
         private static bool Before_Game1_LoadForNewGame()
         {
-            LoadContextPatch.IsInLoadForNewGame = true;
+            Game1Patcher.IsInLoadForNewGame = true;
             return true;
         }
 
@@ -108,10 +108,10 @@ namespace StardewModdingAPI.Patches
         /// <remarks>This method must be static for Harmony to work correctly. See the Harmony documentation before renaming arguments.</remarks>
         private static void After_Game1_LoadForNewGame()
         {
-            LoadContextPatch.IsInLoadForNewGame = false;
+            Game1Patcher.IsInLoadForNewGame = false;
 
-            if (LoadContextPatch.IsCreating())
-                LoadContextPatch.OnStageChanged(LoadStage.CreatedLocations);
+            if (Game1Patcher.IsCreating())
+                Game1Patcher.OnStageChanged(LoadStage.CreatedLocations);
         }
 
         /// <summary>Get whether the save file is currently being created.</summary>
@@ -119,7 +119,7 @@ namespace StardewModdingAPI.Patches
         {
             return
                 (Game1.currentMinigame is Intro) // creating save with intro
-                || (Game1.activeClickableMenu is TitleMenu menu && LoadContextPatch.Reflection.GetField<bool>(menu, "transitioningCharacterCreationMenu").GetValue()); // creating save, skipped intro
+                || (Game1.activeClickableMenu is TitleMenu menu && Game1Patcher.Reflection.GetField<bool>(menu, "transitioningCharacterCreationMenu").GetValue()); // creating save, skipped intro
         }
     }
 }

@@ -11,7 +11,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
     /// <remarks>Patch methods must be static for Harmony to work correctly. See the Harmony documentation before renaming patch arguments.</remarks>
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Argument names are defined by Harmony and methods are named for clarity.")]
     [SuppressMessage("ReSharper", "IdentifierTypo", Justification = "Argument names are defined by Harmony and methods are named for clarity.")]
-    internal class GameLocationPatches : IHarmonyPatch
+    internal class GameLocationPatcher : IHarmonyPatch
     {
         /*********
         ** Fields
@@ -25,9 +25,9 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="monitorForGame">Writes messages to the console and log file on behalf of the game.</param>
-        public GameLocationPatches(IMonitor monitorForGame)
+        public GameLocationPatcher(IMonitor monitorForGame)
         {
-            GameLocationPatches.MonitorForGame = monitorForGame;
+            GameLocationPatcher.MonitorForGame = monitorForGame;
         }
 
         /// <inheritdoc />
@@ -35,11 +35,11 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         {
             harmony.Patch(
                 original: AccessTools.Method(typeof(GameLocation), nameof(GameLocation.checkEventPrecondition)),
-                finalizer: new HarmonyMethod(this.GetType(), nameof(GameLocationPatches.Finalize_GameLocation_CheckEventPrecondition))
+                finalizer: new HarmonyMethod(this.GetType(), nameof(GameLocationPatcher.Finalize_GameLocation_CheckEventPrecondition))
             );
             harmony.Patch(
                 original: AccessTools.Method(typeof(GameLocation), nameof(GameLocation.updateSeasonalTileSheets)),
-                finalizer: new HarmonyMethod(this.GetType(), nameof(GameLocationPatches.Before_GameLocation_UpdateSeasonalTileSheets))
+                finalizer: new HarmonyMethod(this.GetType(), nameof(GameLocationPatcher.Before_GameLocation_UpdateSeasonalTileSheets))
             );
         }
 
@@ -57,7 +57,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
             if (__exception != null)
             {
                 __result = -1;
-                GameLocationPatches.MonitorForGame.Log($"Failed parsing event precondition ({precondition}):\n{__exception.InnerException}", LogLevel.Error);
+                GameLocationPatcher.MonitorForGame.Log($"Failed parsing event precondition ({precondition}):\n{__exception.InnerException}", LogLevel.Error);
             }
 
             return null;
@@ -71,7 +71,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         private static Exception Before_GameLocation_UpdateSeasonalTileSheets(GameLocation __instance, Map map, Exception __exception)
         {
             if (__exception != null)
-                GameLocationPatches.MonitorForGame.Log($"Failed updating seasonal tilesheets for location '{__instance.NameOrUniqueName}': \n{__exception}", LogLevel.Error);
+                GameLocationPatcher.MonitorForGame.Log($"Failed updating seasonal tilesheets for location '{__instance.NameOrUniqueName}': \n{__exception}", LogLevel.Error);
 
             return null;
         }

@@ -11,7 +11,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
     /// <remarks>Patch methods must be static for Harmony to work correctly. See the Harmony documentation before renaming patch arguments.</remarks>
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Argument names are defined by Harmony and methods are named for clarity.")]
     [SuppressMessage("ReSharper", "IdentifierTypo", Justification = "Argument names are defined by Harmony and methods are named for clarity.")]
-    internal class DialogueErrorPatch : IHarmonyPatch
+    internal class DialoguePatcher : IHarmonyPatch
     {
         /*********
         ** Fields
@@ -29,10 +29,10 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         /// <summary>Construct an instance.</summary>
         /// <param name="monitorForGame">Writes messages to the console and log file on behalf of the game.</param>
         /// <param name="reflector">Simplifies access to private code.</param>
-        public DialogueErrorPatch(IMonitor monitorForGame, IReflectionHelper reflector)
+        public DialoguePatcher(IMonitor monitorForGame, IReflectionHelper reflector)
         {
-            DialogueErrorPatch.MonitorForGame = monitorForGame;
-            DialogueErrorPatch.Reflection = reflector;
+            DialoguePatcher.MonitorForGame = monitorForGame;
+            DialoguePatcher.Reflection = reflector;
         }
 
         /// <inheritdoc />
@@ -40,7 +40,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         {
             harmony.Patch(
                 original: AccessTools.Constructor(typeof(Dialogue), new[] { typeof(string), typeof(NPC) }),
-                finalizer: new HarmonyMethod(this.GetType(), nameof(DialogueErrorPatch.Finalize_Dialogue_Constructor))
+                finalizer: new HarmonyMethod(this.GetType(), nameof(DialoguePatcher.Finalize_Dialogue_Constructor))
             );
         }
 
@@ -60,11 +60,11 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
             {
                 // log message
                 string name = !string.IsNullOrWhiteSpace(speaker?.Name) ? speaker.Name : null;
-                DialogueErrorPatch.MonitorForGame.Log($"Failed parsing dialogue string{(name != null ? $" for {name}" : "")}:\n{masterDialogue}\n{__exception.GetLogSummary()}", LogLevel.Error);
+                DialoguePatcher.MonitorForGame.Log($"Failed parsing dialogue string{(name != null ? $" for {name}" : "")}:\n{masterDialogue}\n{__exception.GetLogSummary()}", LogLevel.Error);
 
                 // set default dialogue
-                IReflectedMethod parseDialogueString = DialogueErrorPatch.Reflection.GetMethod(__instance, "parseDialogueString");
-                IReflectedMethod checkForSpecialDialogueAttributes = DialogueErrorPatch.Reflection.GetMethod(__instance, "checkForSpecialDialogueAttributes");
+                IReflectedMethod parseDialogueString = DialoguePatcher.Reflection.GetMethod(__instance, "parseDialogueString");
+                IReflectedMethod checkForSpecialDialogueAttributes = DialoguePatcher.Reflection.GetMethod(__instance, "checkForSpecialDialogueAttributes");
                 parseDialogueString.Invoke("...");
                 checkForSpecialDialogueAttributes.Invoke();
             }

@@ -29,16 +29,16 @@ namespace StardewModdingAPI.Mods.ErrorHandler
 
             // apply patches
             new GamePatcher(this.Monitor).Apply(
-                new DialogueErrorPatch(monitorForGame, this.Helper.Reflection),
-                new DictionaryPatches(this.Helper.Reflection),
-                new EventPatches(monitorForGame),
-                new GameLocationPatches(monitorForGame),
-                new IClickablePatcher(),
-                new ObjectErrorPatch(),
-                new LoadErrorPatch(this.Monitor, this.OnSaveContentRemoved),
-                new ScheduleErrorPatch(monitorForGame),
-                new SpriteBatchValidationPatches(),
-                new UtilityErrorPatches()
+                new DialoguePatcher(monitorForGame, this.Helper.Reflection),
+                new DictionaryPatcher(this.Helper.Reflection),
+                new EventPatcher(monitorForGame),
+                new GameLocationPatcher(monitorForGame),
+                new IClickableMenuPatcher(),
+                new NpcPatcher(monitorForGame),
+                new ObjectPatcher(),
+                new SaveGamePatcher(this.Monitor, this.OnSaveContentRemoved),
+                new SpriteBatchPatcher(),
+                new UtilityPatcher()
             );
 
             // hook events

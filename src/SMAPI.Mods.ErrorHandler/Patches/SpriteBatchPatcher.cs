@@ -10,7 +10,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
     /// <remarks>Patch methods must be static for Harmony to work correctly. See the Harmony documentation before renaming patch arguments.</remarks>
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Argument names are defined by Harmony and methods are named for clarity.")]
     [SuppressMessage("ReSharper", "IdentifierTypo", Justification = "Argument names are defined by Harmony and methods are named for clarity.")]
-    internal class SpriteBatchValidationPatches : IHarmonyPatch
+    internal class SpriteBatchPatcher : IHarmonyPatch
     {
         /*********
         ** Public methods
@@ -22,7 +22,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
                 original: Constants.GameFramework == GameFramework.Xna
                     ? AccessTools.Method(typeof(SpriteBatch), "InternalDraw")
                     : AccessTools.Method(typeof(SpriteBatch), "CheckValid", new[] { typeof(Texture2D) }),
-                postfix: new HarmonyMethod(this.GetType(), nameof(SpriteBatchValidationPatches.After_SpriteBatch_CheckValid))
+                postfix: new HarmonyMethod(this.GetType(), nameof(SpriteBatchPatcher.After_SpriteBatch_CheckValid))
             );
         }
 

@@ -11,7 +11,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
     /// <remarks>Patch methods must be static for Harmony to work correctly. See the Harmony documentation before renaming patch arguments.</remarks>
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Argument names are defined by Harmony and methods are named for clarity.")]
     [SuppressMessage("ReSharper", "IdentifierTypo", Justification = "Argument names are defined by Harmony and methods are named for clarity.")]
-    internal class IClickablePatcher : IHarmonyPatch
+    internal class IClickableMenuPatcher : IHarmonyPatch
     {
         /*********
         ** Public methods
@@ -21,7 +21,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         {
             harmony.Patch(
                 original: AccessTools.Method(typeof(IClickableMenu), nameof(IClickableMenu.drawToolTip)),
-                prefix: new HarmonyMethod(this.GetType(), nameof(IClickablePatcher.Before_IClickableMenu_DrawTooltip))
+                prefix: new HarmonyMethod(this.GetType(), nameof(IClickableMenuPatcher.Before_IClickableMenu_DrawTooltip))
             );
         }
 

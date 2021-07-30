@@ -10,7 +10,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
     /// <remarks>Patch methods must be static for Harmony to work correctly. See the Harmony documentation before renaming patch arguments.</remarks>
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Argument names are defined by Harmony and methods are named for clarity.")]
     [SuppressMessage("ReSharper", "IdentifierTypo", Justification = "Argument names are defined by Harmony and methods are named for clarity.")]
-    internal class UtilityErrorPatches : IHarmonyPatch
+    internal class UtilityPatcher : IHarmonyPatch
     {
         /*********
         ** Public methods
@@ -20,7 +20,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         {
             harmony.Patch(
                 original: AccessTools.Method(typeof(Utility), nameof(Utility.getItemFromStandardTextDescription)),
-                finalizer: new HarmonyMethod(this.GetType(), nameof(UtilityErrorPatches.Finalize_Utility_GetItemFromStandardTextDescription))
+                finalizer: new HarmonyMethod(this.GetType(), nameof(UtilityPatcher.Finalize_Utility_GetItemFromStandardTextDescription))
             );
         }
 
