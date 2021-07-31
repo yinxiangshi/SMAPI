@@ -43,7 +43,7 @@ namespace StardewModdingAPI.Internal.Patching
         /// <param name="generics">The method generic types, or <c>null</c> if it's not generic.</param>
         public static string GetMethodString(Type type, string name, Type[] parameters = null, Type[] generics = null)
         {
-            StringBuilder str = new();
+            StringBuilder str = new StringBuilder();
 
             // type
             str.Append(type.FullName);
