@@ -15,6 +15,7 @@
   * Updated Harmony 1.2.0.1 to 2.1.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
   * SMAPI now intercepts `KeyNotFoundException` dictionary errors and adds the key to the error message to simplify troubleshooting. (Due to Harmony limitations, this only works for the dictionary types used by the game.)
   * Fixed error loading `.xnb` files from the local mod folder since SMAPI 3.0.
+  * Fixed reloading a map not correctly reapplying interior doors.
 
 ## 3.11.0
 Released 09 July 2021 for Stardew Valley 1.5.4 or later. See [release highlights](https://www.patreon.com/posts/53514295).
