@@ -9,6 +9,7 @@
   * Added `removable` option to the `world_clear` console command (thanks to bladeoflight16!).
   * Fixed handling of Unicode characters in console commands.
   * Fixed intermittent error if a mod fetches mod-provided APIs asynchronously.
+  * Fixed crash when creating a farm name containing characters that aren't allowed in a folder path.
 
 * For mod authors:
   * Updated Harmony 1.2.0.1 to 2.1.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).

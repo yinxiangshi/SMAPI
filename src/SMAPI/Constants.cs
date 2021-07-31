@@ -351,9 +351,16 @@ namespace StardewModdingAPI
             DirectoryInfo folder = null;
             foreach (string saveName in new[] { rawSaveName, new string(rawSaveName.Where(char.IsLetterOrDigit).ToArray()) })
             {
-                folder = new DirectoryInfo(Path.Combine(Constants.SavesPath, $"{saveName}_{saveID}"));
-                if (folder.Exists)
-                    return folder;
+                try
+                {
+                    folder = new DirectoryInfo(Path.Combine(Constants.SavesPath, $"{saveName}_{saveID}"));
+                    if (folder.Exists)
+                        return folder;
+                }
+                catch (ArgumentException)
+                {
+                    // ignore invalid path
+                }
             }
 
             // if save doesn't exist yet, return the default one we expect to be created
