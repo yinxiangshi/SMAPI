@@ -19,6 +19,4 @@
   <ItemGroup>
     <ProjectReference Include="..\SMAPI.Toolkit.CoreInterfaces\SMAPI.Toolkit.CoreInterfaces.csproj" />
   </ItemGroup>
-
-  <Import Project="..\..\build\common.targets" />
 </Project>
