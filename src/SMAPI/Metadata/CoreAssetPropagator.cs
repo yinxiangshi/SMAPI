@@ -5,9 +5,9 @@ using System.IO;
 using System.Linq;
 using Microsoft.Xna.Framework.Graphics;
 using Netcode;
-using StardewModdingAPI.Framework;
 using StardewModdingAPI.Framework.ContentManagers;
 using StardewModdingAPI.Framework.Reflection;
+using StardewModdingAPI.Internal;
 using StardewModdingAPI.Toolkit.Utilities;
 using StardewValley;
 using StardewValley.BellsAndWhistles;
@@ -938,16 +938,17 @@ namespace StardewModdingAPI.Metadata
             // reload map
             location.interiorDoors.Clear(); // prevent errors when doors try to update tiles which no longer exist
             location.reloadMap();
-            location.updateWarps();
+
+            // reload interior doors
+            location.interiorDoors.Clear();
+            location.interiorDoors.ResetSharedState(); // load doors from map properties
+            location.interiorDoors.ResetLocalState(); // reapply door tiles
+
+            // reapply map changes (after reloading doors so they apply theirs too)
             location.MakeMapModifications(force: true);
 
-            // update interior doors
-            location.interiorDoors.Clear();
-            foreach (var entry in new InteriorDoorDictionary(location))
-                location.interiorDoors.Add(entry);
-
-            // update doors
-            location.doors.Clear();
+            // update for changes
+            location.updateWarps();
             location.updateDoors();
         }
 

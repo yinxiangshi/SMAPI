@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using StardewModdingAPI.Framework.Commands;
 using StardewModdingAPI.Framework.Models;
 using StardewModdingAPI.Framework.ModLoading;
+using StardewModdingAPI.Internal;
 using StardewModdingAPI.Internal.ConsoleWriting;
 using StardewModdingAPI.Toolkit.Framework.ModData;
 using StardewModdingAPI.Toolkit.Utilities;
@@ -106,6 +108,10 @@ namespace StardewModdingAPI.Framework.Logging
             if (writeToConsole)
                 output.OnMessageIntercepted += message => this.HandleConsoleMessage(this.MonitorForGame, message);
             Console.SetOut(output);
+
+            // enable Unicode handling
+            Console.InputEncoding = Encoding.Unicode;
+            Console.OutputEncoding = Encoding.Unicode;
         }
 
         /// <summary>Get a monitor instance derived from SMAPI's current settings.</summary>
@@ -258,7 +264,7 @@ namespace StardewModdingAPI.Framework.Logging
                     break;
 
                 // path too long exception
-                case PathTooLongException:
+                case PathTooLongException _:
                     {
                         string[] affectedPaths = PathUtilities.GetTooLongPaths(Constants.ModsPath).ToArray();
                         string message = affectedPaths.Any()

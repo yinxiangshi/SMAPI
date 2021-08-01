@@ -11,6 +11,7 @@ using StardewModdingAPI.Framework.Input;
 using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Framework.StateTracking.Snapshots;
 using StardewModdingAPI.Framework.Utilities;
+using StardewModdingAPI.Internal;
 using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.BellsAndWhistles;

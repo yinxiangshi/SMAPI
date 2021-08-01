@@ -1,11 +1,23 @@
 ← [README](README.md)
 
 # Release notes
-<!--
-## Future release
+## 3.12.0
+01 August 2021 for Stardew Valley 1.5.4 or later. See [release highlights](https://www.patreon.com/posts/54388616).
+
+* For players:
+  * Added save recovery when content mods leave null objects in the save (in _Error Handler_).
+  * Added error if the wrong SMAPI bitness is installed (e.g. 32-bit SMAPI with 64-bit game).
+  * Added error if some SMAPI files aren't updated correctly.
+  * Added `removable` option to the `world_clear` console command (in _Console Commands_, thanks to bladeoflight16!).
+  * Fixed handling of Unicode characters in console commands.
+  * Fixed intermittent error if a mod gets mod-provided APIs asynchronously.
+  * Fixed crash when creating a farm name containing characters that aren't allowed in a folder path.
+
 * For mod authors:
-  * Migrated to Harmony 2.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).
--->
+  * **Updated Harmony 1.2.0.1 to 2.1.0 (see [_migrate to Harmony 2.0_](https://stardewvalleywiki.com/Modding:Migrate_to_Harmony_2.0) for more info).**
+  * SMAPI now intercepts `KeyNotFoundException` errors and adds the key to the error message to simplify troubleshooting. (Due to Harmony limitations, this only works for the dictionary types used by the game.)
+  * Fixed error loading `.xnb` files from the local mod folder.
+  * Fixed reloading a map not correctly reapplying interior doors.
 
 ## 3.11.0
 Released 09 July 2021 for Stardew Valley 1.5.4 or later. See [release highlights](https://www.patreon.com/posts/53514295).

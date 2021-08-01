@@ -9,6 +9,7 @@ using StardewModdingAPI.Framework.Content;
 using StardewModdingAPI.Framework.Exceptions;
 using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Framework.Utilities;
+using StardewModdingAPI.Internal;
 using StardewValley;
 using xTile;
 

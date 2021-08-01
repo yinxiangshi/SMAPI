@@ -61,7 +61,7 @@ namespace StardewModdingAPI
         internal static int? LogScreenId { get; set; }
 
         /// <summary>SMAPI's current raw semantic version.</summary>
-        internal static string RawApiVersion = "3.11.0";
+        internal static string RawApiVersion = "3.12.0";
     }
 
     /// <summary>Contains SMAPI's constants and assumptions.</summary>
@@ -351,9 +351,16 @@ namespace StardewModdingAPI
             DirectoryInfo folder = null;
             foreach (string saveName in new[] { rawSaveName, new string(rawSaveName.Where(char.IsLetterOrDigit).ToArray()) })
             {
-                folder = new DirectoryInfo(Path.Combine(Constants.SavesPath, $"{saveName}_{saveID}"));
-                if (folder.Exists)
-                    return folder;
+                try
+                {
+                    folder = new DirectoryInfo(Path.Combine(Constants.SavesPath, $"{saveName}_{saveID}"));
+                    if (folder.Exists)
+                        return folder;
+                }
+                catch (ArgumentException)
+                {
+                    // ignore invalid path
+                }
             }
 
             // if save doesn't exist yet, return the default one we expect to be created

@@ -1,4 +1,3 @@
-#if HARMONY_2
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -41,4 +40,3 @@ namespace StardewModdingAPI.Framework.ModLoading.RewriteFacades
         }
     }
 }
-#endif

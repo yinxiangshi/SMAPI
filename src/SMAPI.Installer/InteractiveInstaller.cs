@@ -9,6 +9,7 @@ using StardewModdingApi.Installer.Enums;
 using StardewModdingAPI.Installer.Framework;
 using StardewModdingAPI.Internal.ConsoleWriting;
 using StardewModdingAPI.Toolkit;
+using StardewModdingAPI.Toolkit.Framework;
 using StardewModdingAPI.Toolkit.Framework.ModScanning;
 using StardewModdingAPI.Toolkit.Utilities;
 
@@ -571,7 +572,7 @@ namespace StardewModdingApi.Installer
         /// <param name="executablePath">The absolute path to the executable file.</param>
         private bool Is64Bit(string executablePath)
         {
-            return AssemblyName.GetAssemblyName(executablePath).ProcessorArchitecture != ProcessorArchitecture.X86;
+            return LowLevelEnvironmentUtility.Is64BitAssembly(executablePath);
         }
 
         /// <summary>Get the display text for a color scheme.</summary>

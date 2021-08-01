@@ -1,7 +1,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <!--set general build properties -->
-    <Version>3.11.0</Version>
+    <Version>3.12.0</Version>
     <Product>SMAPI</Product>
     <LangVersion>latest</LangVersion>
     <AssemblySearchPaths>$(AssemblySearchPaths);{GAC}</AssemblySearchPaths>
@@ -38,7 +38,11 @@
     <Copy SourceFiles="$(TargetDir)\SMAPI.config.json" DestinationFiles="$(GamePath)\smapi-internal\config.json" />
     <Copy SourceFiles="$(TargetDir)\SMAPI.metadata.json" DestinationFiles="$(GamePath)\smapi-internal\metadata.json" />
     <Copy SourceFiles="$(TargetDir)\0Harmony.dll" DestinationFolder="$(GamePath)\smapi-internal" />
+    <Copy SourceFiles="$(TargetDir)\0Harmony.xml" DestinationFolder="$(GamePath)\smapi-internal" />
     <Copy SourceFiles="$(TargetDir)\Mono.Cecil.dll" DestinationFolder="$(GamePath)\smapi-internal" />
+    <Copy SourceFiles="$(TargetDir)\Mono.Cecil.Mdb.dll" DestinationFolder="$(GamePath)\smapi-internal" />
+    <Copy SourceFiles="$(TargetDir)\Mono.Cecil.Pdb.dll" DestinationFolder="$(GamePath)\smapi-internal" />
+    <Copy SourceFiles="$(TargetDir)\MonoMod.Common.dll" DestinationFolder="$(GamePath)\smapi-internal" />
     <Copy SourceFiles="$(TargetDir)\Newtonsoft.Json.dll" DestinationFolder="$(GamePath)\smapi-internal" />
     <Copy SourceFiles="$(TargetDir)\TMXTile.dll" DestinationFolder="$(GamePath)\smapi-internal" />
     <Copy SourceFiles="@(TranslationFiles)" DestinationFolder="$(GamePath)\smapi-internal\i18n" />

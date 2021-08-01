@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -30,13 +31,14 @@ using StardewModdingAPI.Framework.Models;
 using StardewModdingAPI.Framework.ModHelpers;
 using StardewModdingAPI.Framework.ModLoading;
 using StardewModdingAPI.Framework.Networking;
-using StardewModdingAPI.Framework.Patching;
 using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Framework.Rendering;
 using StardewModdingAPI.Framework.Serialization;
 using StardewModdingAPI.Framework.StateTracking.Comparers;
 using StardewModdingAPI.Framework.StateTracking.Snapshots;
 using StardewModdingAPI.Framework.Utilities;
+using StardewModdingAPI.Internal;
+using StardewModdingAPI.Internal.Patching;
 using StardewModdingAPI.Patches;
 using StardewModdingAPI.Toolkit;
 using StardewModdingAPI.Toolkit.Framework.Clients.WebApi;
@@ -46,6 +48,7 @@ using StardewModdingAPI.Toolkit.Utilities;
 using StardewModdingAPI.Utilities;
 using StardewValley;
 using xTile.Display;
+using MiniMonoModHotfix = MonoMod.Utils.MiniMonoModHotfix;
 using SObject = StardewValley.Object;
 
 namespace StardewModdingAPI.Framework
@@ -251,8 +254,10 @@ namespace StardewModdingAPI.Framework
                 StardewValley.GameRunner.instance = this.Game;
 
                 // apply game patches
-                new GamePatcher(this.Monitor).Apply(
-                    new LoadContextPatch(this.Reflection, this.OnLoadStageChanged)
+                MiniMonoModHotfix.Apply();
+                HarmonyPatcher.Apply("SMAPI", this.Monitor,
+                    new Game1Patcher(this.Reflection, this.OnLoadStageChanged),
+                    new TitleMenuPatcher(this.OnLoadStageChanged)
                 );
 
                 // add exit handler
@@ -306,6 +311,14 @@ namespace StardewModdingAPI.Framework
                     this.Monitor.Log($"The game ended, but SMAPI wasn't able to dispose correctly. Technical details: {ex}", LogLevel.Error);
                 }
             }
+        }
+
+        /// <summary>Get the core logger and monitor on behalf of the game.</summary>
+        /// <remarks>This method is called using reflection by the ErrorHandler mod to log game errors.</remarks>
+        [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "Used via reflection")]
+        public IMonitor GetMonitorForGame()
+        {
+            return this.LogManager.MonitorForGame;
         }
 
         /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
