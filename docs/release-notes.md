@@ -1,10 +1,12 @@
 ← [README](README.md)
 
 # Release notes
-## Upcoming release
+## 3.12.1
+Released 03 August 2021 for Stardew Valley 1.5.4 or later.
+
 * For players:
-  * The software conflict message added in SMAPI 3.11.0 now appears as a warning to simplify troubleshooting.
-  * Fixed error loading older Harmony mods for some players who launch the unofficial 64-bit Stardew Valley through Steam.
+  * The software conflict message is now shown as a warning to simplify troubleshooting.
+  * Fixed error loading older Harmony mods for some Windows players using unofficial 64-bit Stardew Valley.
   * Updated compatibility list.
 
 * For mod authors:
