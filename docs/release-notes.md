@@ -1,8 +1,19 @@
 ← [README](README.md)
 
 # Release notes
+## 3.12.1
+Released 03 August 2021 for Stardew Valley 1.5.4 or later.
+
+* For players:
+  * The software conflict message is now shown as a warning to simplify troubleshooting.
+  * Fixed error loading older Harmony mods for some Windows players using unofficial 64-bit Stardew Valley.
+  * Updated compatibility list.
+
+* For mod authors:
+  * Fixed `Constants.Save*` fields incorrect if the save's folder name and ID don't match.
+
 ## 3.12.0
-01 August 2021 for Stardew Valley 1.5.4 or later. See [release highlights](https://www.patreon.com/posts/54388616).
+Released 01 August 2021 for Stardew Valley 1.5.4 or later. See [release highlights](https://www.patreon.com/posts/54388616).
 
 * For players:
   * Added save recovery when content mods leave null objects in the save (in _Error Handler_).

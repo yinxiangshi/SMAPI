@@ -168,6 +168,60 @@
         },
 
         /*********
+        ** Broke in SMAPI 3.12.0
+        *********/
+        "PlatoTK": {
+            "ID": "Platonymous.PlatoTK",
+            "~1.9.3 | Status": "AssumeBroken",
+            "~1.9.3 | StatusReasonDetails": "fails to load with 'ReflectionTypeLoadException' error"
+        },
+        "Stardew Hack": {
+            "ID": "bcmpinc.StardewHack",
+            "~5.0.0 | Status": "AssumeBroken",
+            "~5.0.0 | StatusReasonDetails": "causes Harmony patching errors for other mods"
+        },
+        "Always Scroll Map": {
+            "ID": "bcmpinc.AlwaysScrollMap",
+            "~4.1.0 | Status": "AssumeBroken",
+            "~4.1.0 | StatusReasonDetails": "causes Harmony patching errors for other mods" // requested by the mod author
+        },
+        "Fix Animal Tools": {
+            "ID": "bcmpinc.FixAnimalTools",
+            "~4.1.0 | Status": "AssumeBroken",
+            "~4.1.0 | StatusReasonDetails": "causes Harmony patching errors for other mods" // requested by the mod author
+        },
+        "Harvest With Scythe (bcmpinc)": {
+            "ID": "bcmpinc.HarvestWithScythe",
+            "~4.1.0 | Status": "AssumeBroken",
+            "~4.1.0 | StatusReasonDetails": "causes Harmony patching errors for other mods" // requested by the mod author
+        },
+        "Grass Growth": {
+            "ID": "bcmpinc.GrassGrowth",
+            "~4.1.0 | Status": "AssumeBroken",
+            "~4.1.0 | StatusReasonDetails": "causes Harmony patching errors for other mods" // requested by the mod author
+        },
+        "Tilled Soil Decay": {
+            "ID": "bcmpinc.TilledSoilDecay",
+            "~4.1.0 | Status": "AssumeBroken",
+            "~4.1.0 | StatusReasonDetails": "causes Harmony patching errors for other mods" // requested by the mod author
+        },
+        "Movement Speed": {
+            "ID": "bcmpinc.MovementSpeed",
+            "~4.1.0 | Status": "AssumeBroken",
+            "~4.1.0 | StatusReasonDetails": "causes Harmony patching errors for other mods" // requested by the mod author
+        },
+        "Tree Spread": {
+            "ID": "bcmpinc.TreeSpread",
+            "~4.2.0 | Status": "AssumeBroken",
+            "~4.2.0 | StatusReasonDetails": "causes Harmony patching errors for other mods" // requested by the mod author
+        },
+        "Wear More Rings": {
+            "ID": "bcmpinc.WearMoreRings",
+            "~4.1.0 | Status": "AssumeBroken",
+            "~4.1.0 | StatusReasonDetails": "causes Harmony patching errors for other mods" // requested by the mod author
+        },
+
+        /*********
         ** Broke in SDV 1.5 (Content Patcher packs)
         *********/
         "mi.Mermaids": {
@@ -220,18 +274,6 @@
             "ID": "EpicBellyFlop45.MoreGrass",
             "~1.0.8 | Status": "AssumeBroken",
             "~1.0.8 | StatusReasonDetails": "crashes on save load"
-        },
-
-        "Movement Speed": {
-            "ID": "bcmpinc.MovementSpeed",
-            "~3.0.0 | Status": "AssumeBroken",
-            "~3.0.0 | StatusReasonDetails": "broken due to transpiler errors"
-        },
-
-        "Tree Spread": {
-            "ID": "bcmpinc.TreeSpread",
-            "~3.0.0 | Status": "AssumeBroken",
-            "~3.0.0 | StatusReasonDetails": "broken due to transpiler errors"
         },
 
         "TreeTransplant": {

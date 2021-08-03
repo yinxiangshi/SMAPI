@@ -257,6 +257,7 @@ namespace StardewModdingAPI.Framework
                 MiniMonoModHotfix.Apply();
                 HarmonyPatcher.Apply("SMAPI", this.Monitor,
                     new Game1Patcher(this.Reflection, this.OnLoadStageChanged),
+                    new SaveGamePatcher(this.OnSaveFileReading),
                     new TitleMenuPatcher(this.OnLoadStageChanged)
                 );
 
@@ -1101,6 +1102,13 @@ namespace StardewModdingAPI.Framework
                 this.EventManager.ReturnedToTitle.RaiseEmpty();
         }
 
+        /// <summary>Raised before the game begins reading a save file.</summary>
+        /// <param name="fileName">The save folder name.</param>
+        internal void OnSaveFileReading(string fileName)
+        {
+            Constants.LastRawSaveFileName = fileName;
+        }
+
         /// <summary>Apply fixes to the save after it's loaded.</summary>
         private void ApplySaveFixes()
         {
@@ -1315,7 +1323,7 @@ namespace StardewModdingAPI.Framework
                     .ToArray();
 
                 if (installedNames.Any())
-                    this.Monitor.Log($"   Found {string.Join(" and ", installedNames)} installed, which can conflict with SMAPI. If you experience errors or crashes, try disabling that software or adding an exception for SMAPI / Stardew Valley.");
+                    this.Monitor.Log($"Found {string.Join(" and ", installedNames)} installed, which may conflict with SMAPI. If you experience errors or crashes, try disabling that software or adding an exception for SMAPI and Stardew Valley.", LogLevel.Warn);
                 else
                     this.Monitor.Log("   None found!");
             }
