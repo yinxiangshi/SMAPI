@@ -61,6 +61,7 @@ namespace StardewModdingAPI.Framework.ModLoading
             this.AssemblyDefinitionResolver = this.TrackForDisposal(new AssemblyDefinitionResolver());
             this.AssemblyDefinitionResolver.AddSearchDirectory(Constants.ExecutionPath);
             this.AssemblyDefinitionResolver.AddSearchDirectory(Constants.InternalFilesPath);
+            this.AssemblyDefinitionResolver.Add(AssemblyDefinition.ReadAssembly(typeof(SGame).Assembly.Location)); // for some reason Mono.Cecil can't resolve SMAPI in very specific cases involving unofficial 64-bit Stardew Valley when launched through Steam (for some players only)
 
             // generate type => assembly lookup for types which should be rewritten
             this.TypeAssemblies = new Dictionary<string, Assembly>();

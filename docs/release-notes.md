@@ -4,6 +4,7 @@
 ## Upcoming release
 * For players:
   * The software conflict message added in SMAPI 3.11.0 now appears as a warning to simplify troubleshooting.
+  * Fixed error loading older Harmony mods for some players who launch the unofficial 64-bit Stardew Valley through Steam.
   * Updated compatibility list.
 
 * For mod authors:
