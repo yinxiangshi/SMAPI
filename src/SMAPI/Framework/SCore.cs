@@ -1323,7 +1323,7 @@ namespace StardewModdingAPI.Framework
                     .ToArray();
 
                 if (installedNames.Any())
-                    this.Monitor.Log($"   Found {string.Join(" and ", installedNames)} installed, which can conflict with SMAPI. If you experience errors or crashes, try disabling that software or adding an exception for SMAPI / Stardew Valley.");
+                    this.Monitor.Log($"Found {string.Join(" and ", installedNames)} installed, which may conflict with SMAPI. If you experience errors or crashes, try disabling that software or adding an exception for SMAPI and Stardew Valley.", LogLevel.Warn);
                 else
                     this.Monitor.Log("   None found!");
             }

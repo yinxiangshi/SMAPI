@@ -3,13 +3,14 @@
 # Release notes
 ## Upcoming release
 * For players:
+  * The software conflict message added in SMAPI 3.11.0 now appears as a warning to simplify troubleshooting.
   * Updated compatibility list.
 
 * For mod authors:
-  * Fixed save constants not set correctly in edge cases where the folder name doesn't match the save ID.
+  * Fixed `Constants.Save*` fields incorrect if the save's folder name and ID don't match.
 
 ## 3.12.0
-01 August 2021 for Stardew Valley 1.5.4 or later. See [release highlights](https://www.patreon.com/posts/54388616).
+Released 01 August 2021 for Stardew Valley 1.5.4 or later. See [release highlights](https://www.patreon.com/posts/54388616).
 
 * For players:
   * Added save recovery when content mods leave null objects in the save (in _Error Handler_).
