@@ -170,6 +170,11 @@
         /*********
         ** Broke in SMAPI 3.12.0
         *********/
+        "PlatoTK": {
+            "ID": "Platonymous.PlatoTK",
+            "~1.9.3 | Status": "AssumeBroken",
+            "~1.9.3 | StatusReasonDetails": "fails to load with 'ReflectionTypeLoadException' error"
+        },
         "Stardew Hack": {
             "ID": "bcmpinc.StardewHack",
             "~5.0.0 | Status": "AssumeBroken",
