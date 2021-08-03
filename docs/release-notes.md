@@ -1,6 +1,10 @@
 ← [README](README.md)
 
 # Release notes
+## Upcoming release
+* For mod authors:
+  * Fixed save constants not set correctly in edge cases where the folder name doesn't match the save ID.
+
 ## 3.12.0
 01 August 2021 for Stardew Valley 1.5.4 or later. See [release highlights](https://www.patreon.com/posts/54388616).
 
