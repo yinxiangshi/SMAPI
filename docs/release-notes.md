@@ -2,6 +2,9 @@
 
 # Release notes
 ## Upcoming release
+* For players:
+  * Updated compatibility list.
+
 * For mod authors:
   * Fixed save constants not set correctly in edge cases where the folder name doesn't match the save ID.
 

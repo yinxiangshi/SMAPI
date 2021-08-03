@@ -168,6 +168,15 @@
         },
 
         /*********
+        ** Broke in SMAPI 3.12.0
+        *********/
+        "Stardew Hack": {
+            "ID": "bcmpinc.StardewHack",
+            "~5.0.0 | Status": "AssumeBroken",
+            "~5.0.0 | StatusReasonDetails": "causes Harmony patching errors for other mods"
+        },
+
+        /*********
         ** Broke in SDV 1.5 (Content Patcher packs)
         *********/
         "mi.Mermaids": {
