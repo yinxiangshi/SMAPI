@@ -8,6 +8,7 @@
 * For mod authors:
   * Reversed the `Constants.Save*` fix in SMAPI 3.12.1.  
     _The change caused a number of other issues, and was only needed for edge cases where the save folder was invalid._
+  * Fixed `NullReferenceException` in SMAPI's error-handling when trying to handle an invalid `ReflectionTypeLoadException`.
 
 ## 3.12.1
 Released 03 August 2021 for Stardew Valley 1.5.4 or later.
