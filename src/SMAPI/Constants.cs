@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using StardewModdingAPI.Enums;
 using StardewModdingAPI.Framework;
@@ -163,9 +164,6 @@ namespace StardewModdingAPI
 
         /// <summary>The language code for non-translated mod assets.</summary>
         internal static LocalizedContentManager.LanguageCode DefaultLanguage { get; } = LocalizedContentManager.LanguageCode.en;
-
-        /// <summary>The name of the last save file loaded by the game.</summary>
-        internal static string LastRawSaveFileName { get; set; }
 
 
         /*********
@@ -343,9 +341,30 @@ namespace StardewModdingAPI
             if (Context.LoadStage == LoadStage.None)
                 return null;
 
-            // get save
-            string rawSaveName = Constants.LastRawSaveFileName;
-            return new DirectoryInfo(Path.Combine(Constants.SavesPath, rawSaveName));
+            // get basic info
+            string rawSaveName = Game1.GetSaveGameName(set_value: false);
+            ulong saveID = Context.LoadStage == LoadStage.SaveParsed
+                ? SaveGame.loaded.uniqueIDForThisGame
+                : Game1.uniqueIDForThisGame;
+
+            // get best match (accounting for rare case where folder name isn't sanitized)
+            DirectoryInfo folder = null;
+            foreach (string saveName in new[] { rawSaveName, new string(rawSaveName.Where(char.IsLetterOrDigit).ToArray()) })
+            {
+                try
+                {
+                    folder = new DirectoryInfo(Path.Combine(Constants.SavesPath, $"{saveName}_{saveID}"));
+                    if (folder.Exists)
+                        return folder;
+                }
+                catch (ArgumentException)
+                {
+                    // ignore invalid path
+                }
+            }
+
+            // if save doesn't exist yet, return the default one we expect to be created
+            return folder;
         }
     }
 }

@@ -1,6 +1,14 @@
 ← [README](README.md)
 
 # Release notes
+## Upcoming release
+* For players:
+  * Fixed error creating a new save or joining a multiplayer world in 3.12.1.
+
+* For mod authors:
+  * Reversed the `Constants.Save*` fix in SMAPI 3.12.1.  
+    _The change caused a number of other issues, and was only needed for edge cases where the save folder was invalid._
+
 ## 3.12.1
 Released 03 August 2021 for Stardew Valley 1.5.4 or later.
 

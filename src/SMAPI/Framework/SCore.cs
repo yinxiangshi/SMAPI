@@ -257,7 +257,6 @@ namespace StardewModdingAPI.Framework
                 MiniMonoModHotfix.Apply();
                 HarmonyPatcher.Apply("SMAPI", this.Monitor,
                     new Game1Patcher(this.Reflection, this.OnLoadStageChanged),
-                    new SaveGamePatcher(this.OnSaveFileReading),
                     new TitleMenuPatcher(this.OnLoadStageChanged)
                 );
 
@@ -1100,13 +1099,6 @@ namespace StardewModdingAPI.Framework
             this.EventManager.LoadStageChanged.Raise(new LoadStageChangedEventArgs(oldStage, newStage));
             if (newStage == LoadStage.None)
                 this.EventManager.ReturnedToTitle.RaiseEmpty();
-        }
-
-        /// <summary>Raised before the game begins reading a save file.</summary>
-        /// <param name="fileName">The save folder name.</param>
-        internal void OnSaveFileReading(string fileName)
-        {
-            Constants.LastRawSaveFileName = fileName;
         }
 
         /// <summary>Apply fixes to the save after it's loaded.</summary>
