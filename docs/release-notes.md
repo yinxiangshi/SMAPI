@@ -2,7 +2,7 @@
 
 # Release notes
 ## 3.12.2
-Released 04 August 2021 for Stardew Valley 1.5.4 or later.
+Released 05 August 2021 for Stardew Valley 1.5.4 or later.
 
 * For players:
   * Fixed error creating a new save or joining a multiplayer world in 3.12.1.
