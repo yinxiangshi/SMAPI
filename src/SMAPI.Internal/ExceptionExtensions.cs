@@ -19,9 +19,9 @@ namespace StardewModdingAPI.Internal
                     return $"Failed loading type '{ex.TypeName}': {exception}";
 
                 case ReflectionTypeLoadException ex:
-                    string summary = exception.ToString();
-                    foreach (Exception childEx in ex.LoaderExceptions)
-                        summary += $"\n\n{childEx.GetLogSummary()}";
+                    string summary = ex.ToString();
+                    foreach (Exception childEx in ex.LoaderExceptions ?? new Exception[0])
+                        summary += $"\n\n{childEx?.GetLogSummary()}";
                     return summary;
 
                 default:
