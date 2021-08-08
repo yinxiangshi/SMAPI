@@ -243,6 +243,17 @@ namespace StardewModdingAPI
             // case involving unofficial 64-bit Stardew Valley when launched through Steam (for some players only)
             // where Mono.Cecil can't resolve references to SMAPI.
             resolver.Add(AssemblyDefinition.ReadAssembly(typeof(SGame).Assembly.Location));
+
+            // make sure game assembly names can be resolved
+            // The game assembly can have one of three names depending how the mod was compiled:
+            //   - 'StardewValley': assembly name on Linux/macOS;
+            //   - 'Stardew Valley': assembly name on Windows;
+            //   - 'Netcode': an assembly that's separate on Windows only.
+            resolver.Add(AssemblyDefinition.ReadAssembly(typeof(Game1).Assembly.Location), "StardewValley", "Stardew Valley"
+#if !SMAPI_FOR_WINDOWS
+                , "Netcode"
+#endif
+            );
         }
 
         /// <summary>Get metadata for mapping assemblies to the current platform.</summary>

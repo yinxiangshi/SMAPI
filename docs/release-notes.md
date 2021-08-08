@@ -4,6 +4,7 @@
 ## Upcoming release
 * For mod authors:
   * Fixed rare `NullReferenceException` in SMAPI's error-handling.
+  * Internal changes to prepare for upcoming releases.
 
 ## 3.12.2
 Released 05 August 2021 for Stardew Valley 1.5.4 or later.
