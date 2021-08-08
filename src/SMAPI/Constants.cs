@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Mono.Cecil;
 using StardewModdingAPI.Enums;
 using StardewModdingAPI.Framework;
 using StardewModdingAPI.Framework.ModLoading;
@@ -227,6 +228,21 @@ namespace StardewModdingAPI
                 default:
                     return null;
             }
+        }
+
+        /// <summary>Configure the Mono.Cecil assembly resolver.</summary>
+        /// <param name="resolver">The assembly resolver.</param>
+        internal static void ConfigureAssemblyResolver(AssemblyDefinitionResolver resolver)
+        {
+            // add search paths
+            resolver.AddSearchDirectory(Constants.ExecutionPath);
+            resolver.AddSearchDirectory(Constants.InternalFilesPath);
+
+            // add SMAPI explicitly
+            // Normally this would be handled automatically by the search paths, but for some reason there's a specific
+            // case involving unofficial 64-bit Stardew Valley when launched through Steam (for some players only)
+            // where Mono.Cecil can't resolve references to SMAPI.
+            resolver.Add(AssemblyDefinition.ReadAssembly(typeof(SGame).Assembly.Location));
         }
 
         /// <summary>Get metadata for mapping assemblies to the current platform.</summary>
