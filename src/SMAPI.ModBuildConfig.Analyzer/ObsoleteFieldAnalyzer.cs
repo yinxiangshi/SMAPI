@@ -56,6 +56,9 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
         /// <param name="context">The analysis context.</param>
         public override void Initialize(AnalysisContext context)
         {
+            context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.Analyze | GeneratedCodeAnalysisFlags.ReportDiagnostics);
+            context.EnableConcurrentExecution();
+
             context.RegisterSyntaxNodeAction(
                 this.AnalyzeObsoleteFields,
                 SyntaxKind.SimpleMemberAccessExpression,
