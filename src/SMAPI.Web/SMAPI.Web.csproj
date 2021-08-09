@@ -2,7 +2,7 @@
   <PropertyGroup>
     <AssemblyName>SMAPI.Web</AssemblyName>
     <RootNamespace>StardewModdingAPI.Web</RootNamespace>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
