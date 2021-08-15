@@ -3,6 +3,7 @@
 # Release notes
 ## Upcoming release
 * For mod authors:
+  * Added `GetInAllLocales` method in translation API, to get a translation in every available locale.
   * Fixed rare `NullReferenceException` in SMAPI's error-handling.
   * Internal changes to prepare for upcoming releases.
 
