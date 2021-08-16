@@ -3,8 +3,9 @@
 # Release notes
 ## Upcoming release
 * For mod authors:
-  * Added `GetInAllLocales` method in translation API, to get a translation in every available locale.
-  * Fixed rare `NullReferenceException` in SMAPI's error-handling.
+  * Added `helper.Translation.GetInAllLocales` to get a translation in every available locale.
+  * Fixed `helper.Data.WriteJsonFile` not deleting the file if the model is null, unlike the other `Write*` methods.
+  * Fixed error-handling for `StackOverflowException` thrown on Linux/macOS.
   * Internal changes to prepare for upcoming releases.
 
 ## 3.12.2
