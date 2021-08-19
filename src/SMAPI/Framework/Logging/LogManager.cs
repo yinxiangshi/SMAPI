@@ -162,8 +162,6 @@ namespace StardewModdingAPI.Framework.Logging
             // keep console thread alive while the game is running
             while (continueWhile())
                 Thread.Sleep(1000 / 10);
-            if (inputThread.ThreadState == ThreadState.Running)
-                inputThread.Abort();
         }
 
         /// <summary>Show a 'press any key to exit' message, and exit when they press a key.</summary>
