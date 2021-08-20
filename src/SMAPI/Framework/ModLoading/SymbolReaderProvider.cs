@@ -21,7 +21,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         public ISymbolReader GetSymbolReader( ModuleDefinition module, string fileName )
         {
             if ( this.SymbolMapping.ContainsKey( module.Name ) )
-                return new NativePdbReaderProvider().GetSymbolReader( module, this.SymbolMapping[ module.Name ] );
+                return new MySymbolReader( module, this.SymbolMapping[ module.Name ] );
             
             return this.BaseProvider.GetSymbolReader( module, fileName );
         }
@@ -29,7 +29,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         public ISymbolReader GetSymbolReader( ModuleDefinition module, Stream symbolStream )
         {
             if ( this.SymbolMapping.ContainsKey( module.Name ) )
-                return new PortablePdbReaderProvider().GetSymbolReader( module, this.SymbolMapping[ module.Name ] );
+                return new MySymbolReader( module, this.SymbolMapping[ module.Name ] );
 
             return this.BaseProvider.GetSymbolReader( module, symbolStream );
         }
