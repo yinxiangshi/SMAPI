@@ -8,6 +8,9 @@
   * Fixed error-handling for `StackOverflowException` thrown on Linux/macOS.
   * Internal changes to prepare for upcoming releases.
 
+* For the web API:
+  * Fixed update checks recommending prerelease versions if the player has a working non-prerelease version.
+
 ## 3.12.2
 Released 05 August 2021 for Stardew Valley 1.5.4 or later.
 

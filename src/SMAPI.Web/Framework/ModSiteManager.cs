@@ -110,40 +110,69 @@ namespace StardewModdingAPI.Web.Framework
             main = null;
             preview = null;
 
-            ISemanticVersion ParseVersion(string raw)
+            // parse all versions from the mod page
+            IEnumerable<(string name, string description, ISemanticVersion version)> GetAllVersions()
             {
-                raw = this.NormalizeVersion(raw);
-                return this.GetMappedVersion(raw, mapRemoteVersions, allowNonStandardVersions);
-            }
-
-            if (mod != null)
-            {
-                // get mod version
-                if (subkey == null)
-                    main = ParseVersion(mod.Version);
-
-                // get file versions
-                foreach (IModDownload download in mod.Downloads)
+                if (mod != null)
                 {
-                    // check for subkey if specified
-                    if (subkey != null && download.Name?.Contains(subkey, StringComparison.OrdinalIgnoreCase) != true && download.Description?.Contains(subkey, StringComparison.OrdinalIgnoreCase) != true)
+                    ISemanticVersion ParseAndMapVersion(string raw)
+                    {
+                        raw = this.NormalizeVersion(raw);
+                        return this.GetMappedVersion(raw, mapRemoteVersions, allowNonStandardVersions);
+                    }
+
+                    // get mod version
+                    ISemanticVersion modVersion = ParseAndMapVersion(mod.Version);
+                    if (modVersion != null)
+                        yield return (name: null, description: null, version: ParseAndMapVersion(mod.Version));
+
+                    // get file versions
+                    foreach (IModDownload download in mod.Downloads)
+                    {
+                        ISemanticVersion cur = ParseAndMapVersion(download.Version);
+                        if (cur != null)
+                            yield return (download.Name, download.Description, cur);
+                    }
+                }
+            }
+            var versions = GetAllVersions()
+                .OrderByDescending(p => p.version, SemanticVersionComparer.Instance)
+                .ToArray();
+
+            // get main + preview versions
+            void TryGetVersions(out ISemanticVersion mainVersion, out ISemanticVersion previewVersion, Func<(string name, string description, ISemanticVersion version), bool> filter = null)
+            {
+                mainVersion = null;
+                previewVersion = null;
+
+                // get latest main + preview version
+                foreach (var entry in versions)
+                {
+                    if (filter?.Invoke(entry) == false)
                         continue;
 
-                    // parse version
-                    ISemanticVersion cur = ParseVersion(download.Version);
-                    if (cur == null)
-                        continue;
+                    if (entry.version.IsPrerelease())
+                        previewVersion ??= entry.version;
+                    else
+                        mainVersion ??= entry.version;
 
-                    // track highest versions
-                    if (main == null || cur.IsNewerThan(main))
-                        main = cur;
-                    if (cur.IsPrerelease() && (preview == null || cur.IsNewerThan(preview)))
-                        preview = cur;
+                    if (mainVersion != null)
+                        break; // any other values will be older
                 }
 
-                if (preview != null && !preview.IsNewerThan(main))
-                    preview = null;
+                // normalize values
+                if (previewVersion is not null)
+                {
+                    mainVersion ??= previewVersion; // if every version is prerelease, latest one is the main version
+                    if (!previewVersion.IsNewerThan(mainVersion))
+                        previewVersion = null;
+                }
             }
+
+            if (subkey is not null)
+                TryGetVersions(out main, out preview, entry => entry.name?.Contains(subkey, StringComparison.OrdinalIgnoreCase) == true || entry.description?.Contains(subkey, StringComparison.OrdinalIgnoreCase) == true);
+            if (main is null)
+                TryGetVersions(out main, out preview);
 
             return main != null;
         }
