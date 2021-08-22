@@ -272,7 +272,6 @@ namespace StardewModdingApi.Installer
                 DirectoryInfo bundleDir = new DirectoryInfo(this.BundlePath);
                 paths = new InstallerPaths(bundleDir, installDir, context.ExecutableName);
             }
-            Console.Clear();
 
 
             /*********
@@ -309,6 +308,7 @@ namespace StardewModdingApi.Installer
                     return;
                 }
             }
+            Console.Clear();
 
 
             /*********

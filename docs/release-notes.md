@@ -2,6 +2,9 @@
 
 # Release notes
 ## Upcoming release
+* For players:
+  * Fixed some installer errors now show info header.
+
 * For mod authors:
   * Added `helper.Translation.GetInAllLocales` to get a translation in every available locale.
   * Fixed `helper.Data.WriteJsonFile` not deleting the file if the model is null, unlike the other `Write*` methods.
