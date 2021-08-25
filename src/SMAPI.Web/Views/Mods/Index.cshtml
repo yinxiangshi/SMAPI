@@ -9,7 +9,7 @@
     TimeSpan staleAge = DateTimeOffset.UtcNow - Model.LastUpdated;
 
     bool hasBeta = Model.BetaVersion != null;
-    string betaLabel = "SDV @Model.BetaVersion only";
+    string betaLabel = $"SDV {Model.BetaVersion} only";
 }
 @section Head {
     <link rel="stylesheet" href="~/Content/css/mods.css?r=20200218" />
