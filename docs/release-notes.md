@@ -3,6 +3,7 @@
 # Release notes
 ## Upcoming release
 * For players:
+  * Added friendly error in 64-bit mode when a mod is 32-bit only.
   * Fixed some installer errors now show info header.
 
 * For mod authors:

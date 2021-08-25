@@ -46,5 +46,12 @@ namespace StardewModdingAPI.Toolkit.Utilities
         {
             return LowLevelEnvironmentUtility.GetExecutableName(platform.ToString());
         }
+
+        /// <summary>Get whether an executable is 64-bit.</summary>
+        /// <param name="path">The absolute path to the assembly file.</param>
+        public static bool Is64BitAssembly(string path)
+        {
+            return LowLevelEnvironmentUtility.Is64BitAssembly(path);
+        }
     }
 }
