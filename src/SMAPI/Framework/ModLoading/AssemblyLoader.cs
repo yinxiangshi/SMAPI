@@ -7,6 +7,7 @@ using Mono.Cecil;
 using Mono.Cecil.Cil;
 using StardewModdingAPI.Framework.Exceptions;
 using StardewModdingAPI.Framework.ModLoading.Framework;
+using StardewModdingAPI.Framework.ModLoading.Symbols;
 using StardewModdingAPI.Metadata;
 using StardewModdingAPI.Toolkit.Framework.ModData;
 using StardewModdingAPI.Toolkit.Utilities;

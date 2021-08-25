@@ -1,11 +1,9 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
-using Mono.Cecil.Pdb;
 
-namespace StardewModdingAPI.Framework.ModLoading
+namespace StardewModdingAPI.Framework.ModLoading.Symbols
 {
     internal class SymbolReaderProvider : ISymbolReaderProvider
     {
@@ -21,7 +19,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         public ISymbolReader GetSymbolReader( ModuleDefinition module, string fileName )
         {
             if ( this.SymbolMapping.ContainsKey( module.Name ) )
-                return new MySymbolReader( module, this.SymbolMapping[ module.Name ] );
+                return new SymbolReader( module, this.SymbolMapping[ module.Name ] );
             
             return this.BaseProvider.GetSymbolReader( module, fileName );
         }
@@ -29,7 +27,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         public ISymbolReader GetSymbolReader( ModuleDefinition module, Stream symbolStream )
         {
             if ( this.SymbolMapping.ContainsKey( module.Name ) )
-                return new MySymbolReader( module, this.SymbolMapping[ module.Name ] );
+                return new SymbolReader( module, this.SymbolMapping[ module.Name ] );
 
             return this.BaseProvider.GetSymbolReader( module, symbolStream );
         }

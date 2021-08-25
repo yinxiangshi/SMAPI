@@ -1,22 +1,18 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Cecil.Pdb;
 
-namespace StardewModdingAPI.Framework.ModLoading
+namespace StardewModdingAPI.Framework.ModLoading.Symbols
 {
-    internal class MySymbolReader : ISymbolReader
+    internal class SymbolReader : ISymbolReader
     {
         private ModuleDefinition Module;
         private Stream Stream;
         private ISymbolReader Using;
 
-        public MySymbolReader( ModuleDefinition module, Stream stream )
+        public SymbolReader( ModuleDefinition module, Stream stream )
         {
             this.Module = module;
             this.Stream = stream;
@@ -49,7 +45,7 @@ namespace StardewModdingAPI.Framework.ModLoading
 
         public MethodDebugInformation Read( MethodDefinition method )
         {
-            return Using.Read( method );
+            return this.Using.Read( method );
         }
     }
 }

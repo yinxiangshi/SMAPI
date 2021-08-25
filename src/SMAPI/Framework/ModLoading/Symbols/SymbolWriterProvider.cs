@@ -1,11 +1,8 @@
-using System;
-using System.Collections.Generic;
 using System.IO;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
-using Mono.Cecil.Pdb;
 
-namespace StardewModdingAPI.Framework.ModLoading
+namespace StardewModdingAPI.Framework.ModLoading.Symbols
 {
     internal class SymbolWriterProvider : ISymbolWriterProvider
     {
