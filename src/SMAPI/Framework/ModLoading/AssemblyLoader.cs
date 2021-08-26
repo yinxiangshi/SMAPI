@@ -239,7 +239,7 @@ namespace StardewModdingAPI.Framework.ModLoading
             {
                 FileInfo symbolsFile = new FileInfo(Path.Combine(Path.GetDirectoryName(file.FullName)!, Path.GetFileNameWithoutExtension(file.FullName)) + ".pdb");
                 if (symbolsFile.Exists)
-                    this.SymbolReaderProvider.TryAddSymbolData(file.Name, this.TrackForDisposal(symbolsFile.OpenRead()));
+                    this.SymbolReaderProvider.TryAddSymbolData(file.Name, () => this.TrackForDisposal(symbolsFile.OpenRead()));
             }
             AssemblyDefinition assembly = this.TrackForDisposal(AssemblyDefinition.ReadAssembly(readStream, new ReaderParameters(ReadingMode.Immediate) { AssemblyResolver = assemblyResolver, InMemory = true, ReadSymbols = true, SymbolReaderProvider = this.SymbolReaderProvider }));
 

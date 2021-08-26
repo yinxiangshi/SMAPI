@@ -24,10 +24,11 @@ namespace StardewModdingAPI.Framework.ModLoading.Symbols
         *********/
         /// <summary>Add the symbol file for a given assembly name, if it's not already registered.</summary>
         /// <param name="fileName">The assembly file name.</param>
-        /// <param name="symbolStream">The raw file stream for the symbols.</param>
-        public void AddSymbolData(string fileName, Stream symbolStream)
+        /// <param name="getSymbolStream">Get the raw file stream for the symbols.</param>
+        public void TryAddSymbolData(string fileName, Func<Stream> getSymbolStream)
         {
-            this.SymbolsByAssemblyPath.Add(fileName, symbolStream);
+            if (!this.SymbolsByAssemblyPath.ContainsKey(fileName))
+                this.SymbolsByAssemblyPath.Add(fileName, getSymbolStream());
         }
 
         /// <summary>Get a symbol reader for a given module and assembly name.</summary>
