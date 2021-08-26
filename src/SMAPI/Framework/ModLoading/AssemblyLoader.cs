@@ -7,6 +7,7 @@ using Mono.Cecil;
 using Mono.Cecil.Cil;
 using StardewModdingAPI.Framework.Exceptions;
 using StardewModdingAPI.Framework.ModLoading.Framework;
+using StardewModdingAPI.Framework.ModLoading.Symbols;
 using StardewModdingAPI.Metadata;
 using StardewModdingAPI.Toolkit.Framework.ModData;
 using StardewModdingAPI.Toolkit.Utilities;
@@ -33,6 +34,12 @@ namespace StardewModdingAPI.Framework.ModLoading
 
         /// <summary>A minimal assembly definition resolver which resolves references to known loaded assemblies.</summary>
         private readonly AssemblyDefinitionResolver AssemblyDefinitionResolver;
+
+        /// <summary>Provides assembly symbol readers for Mono.Cecil.</summary>
+        private readonly SymbolReaderProvider SymbolReaderProvider = new SymbolReaderProvider();
+
+        /// <summary>Provides assembly symbol writers for Mono.Cecil.</summary>
+        private readonly SymbolWriterProvider SymbolWriterProvider = new SymbolWriterProvider();
 
         /// <summary>The objects to dispose as part of this instance.</summary>
         private readonly HashSet<IDisposable> Disposables = new HashSet<IDisposable>();
@@ -134,20 +141,12 @@ namespace StardewModdingAPI.Framework.ModLoading
                     if (!oneAssembly)
                         this.Monitor.Log($"      Loading {assembly.File.Name} (rewritten)...", LogLevel.Trace);
 
-                    // load PDB file if present
-                    byte[] symbols;
-                    {
-                        string symbolsPath = Path.Combine(Path.GetDirectoryName(assemblyPath), Path.GetFileNameWithoutExtension(assemblyPath)) + ".pdb";
-                        symbols = File.Exists(symbolsPath)
-                            ? File.ReadAllBytes(symbolsPath)
-                            : null;
-                    }
-
                     // load assembly
-                    using MemoryStream outStream = new MemoryStream();
-                    assembly.Definition.Write(outStream);
-                    byte[] bytes = outStream.ToArray();
-                    lastAssembly = Assembly.Load(bytes, symbols);
+                    using MemoryStream outAssemblyStream = new MemoryStream();
+                    using MemoryStream outSymbolStream = new MemoryStream();
+                    assembly.Definition.Write(outAssemblyStream, new WriterParameters { WriteSymbols = true, SymbolStream = outSymbolStream, SymbolWriterProvider = this.SymbolWriterProvider });
+                    byte[] bytes = outAssemblyStream.ToArray();
+                    lastAssembly = Assembly.Load(bytes, outSymbolStream.ToArray());
                 }
                 else
                 {
@@ -234,10 +233,15 @@ namespace StardewModdingAPI.Framework.ModLoading
             if (!file.Exists)
                 yield break; // not a local assembly
 
-            // read assembly
+            // read assembly and symbols
             byte[] assemblyBytes = File.ReadAllBytes(file.FullName);
             Stream readStream = this.TrackForDisposal(new MemoryStream(assemblyBytes));
-            AssemblyDefinition assembly = this.TrackForDisposal(AssemblyDefinition.ReadAssembly(readStream, new ReaderParameters(ReadingMode.Immediate) { AssemblyResolver = assemblyResolver, InMemory = true }));
+            {
+                FileInfo symbolsFile = new FileInfo(Path.Combine(Path.GetDirectoryName(file.FullName)!, Path.GetFileNameWithoutExtension(file.FullName)) + ".pdb");
+                if (symbolsFile.Exists)
+                    this.SymbolReaderProvider.TryAddSymbolData(file.Name, () => this.TrackForDisposal(symbolsFile.OpenRead()));
+            }
+            AssemblyDefinition assembly = this.TrackForDisposal(AssemblyDefinition.ReadAssembly(readStream, new ReaderParameters(ReadingMode.Immediate) { AssemblyResolver = assemblyResolver, InMemory = true, ReadSymbols = true, SymbolReaderProvider = this.SymbolReaderProvider }));
 
             // skip if already visited
             if (visitedAssemblyNames.Contains(assembly.Name.Name))
