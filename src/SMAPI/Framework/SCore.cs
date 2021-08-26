@@ -1704,12 +1704,21 @@ namespace StardewModdingAPI.Framework
             // load as mod
             else
             {
+                // get mod info
                 IManifest manifest = mod.Manifest;
+                string assemblyPath = Path.Combine(mod.DirectoryPath, manifest.EntryDll);
+
+                // assert 64-bit
+#if SMAPI_FOR_WINDOWS_64BIT_HACK
+                if (!EnvironmentUtility.Is64BitAssembly(assemblyPath))
+                {
+                    errorReasonPhrase = "it needs to be updated for 64-bit mode.";
+                    failReason = ModFailReason.LoadFailed;
+                    return false;
+                }
+#endif
 
                 // load mod
-                string assemblyPath = manifest?.EntryDll != null
-                    ? Path.Combine(mod.DirectoryPath, manifest.EntryDll)
-                    : null;
                 Assembly modAssembly;
                 try
                 {

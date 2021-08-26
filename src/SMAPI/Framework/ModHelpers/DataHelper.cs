@@ -58,7 +58,11 @@ namespace StardewModdingAPI.Framework.ModHelpers
                 throw new InvalidOperationException($"You must call {nameof(IMod.Helper)}.{nameof(IModHelper.Data)}.{nameof(this.WriteJsonFile)} with a relative path (without directory climbing).");
 
             path = Path.Combine(this.ModFolderPath, PathUtilities.NormalizePath(path));
-            this.JsonHelper.WriteJsonFile(path, data);
+
+            if (data != null)
+                this.JsonHelper.WriteJsonFile(path, data);
+            else
+                File.Delete(path);
         }
 
         /****

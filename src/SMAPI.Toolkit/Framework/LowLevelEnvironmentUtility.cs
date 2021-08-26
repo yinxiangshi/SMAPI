@@ -90,10 +90,10 @@ namespace StardewModdingAPI.Toolkit.Framework
         }
 
         /// <summary>Get whether an executable is 64-bit.</summary>
-        /// <param name="executablePath">The absolute path to the executable file.</param>
-        public static bool Is64BitAssembly(string executablePath)
+        /// <param name="path">The absolute path to the assembly file.</param>
+        public static bool Is64BitAssembly(string path)
         {
-            return AssemblyName.GetAssemblyName(executablePath).ProcessorArchitecture != ProcessorArchitecture.X86;
+            return AssemblyName.GetAssemblyName(path).ProcessorArchitecture != ProcessorArchitecture.X86;
         }
 
 

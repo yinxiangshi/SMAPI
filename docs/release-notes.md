@@ -1,8 +1,27 @@
 ← [README](README.md)
 
 # Release notes
+## 3.12.3
+Released 25 August 2021 for Stardew Valley 1.5.4 or later.
+
+* For players:
+  * Added friendly error in 64-bit mode when a mod is 32-bit only.
+  * Fixed console encoding issues on Linux/macOS.
+  * Fixed some installer errors not showing info header.
+
+* For mod authors:
+  * Added `helper.Translation.GetInAllLocales` to get a translation in every available locale.
+  * Fixed Visual Studio debugger crash when any mods are rewritten for compatibility (thanks to spacechase0!).
+  * Fixed `helper.Data.WriteJsonFile` not deleting the file if the model is null, unlike the other `Write*` methods.
+  * Fixed error-handling for `StackOverflowException` thrown on Linux/macOS.
+  * Internal changes to prepare for Stardew Valley 1.5.5.
+
+* For the web API:
+  * Fixed update checks not shown for prerelease mod versions when you have a SMAPI beta.
+  * Fixed update checks shown for prerelease mod versions if you have a working non-prerelease version.
+
 ## 3.12.2
-Released 04 August 2021 for Stardew Valley 1.5.4 or later.
+Released 05 August 2021 for Stardew Valley 1.5.4 or later.
 
 * For players:
   * Fixed error creating a new save or joining a multiplayer world in 3.12.1.

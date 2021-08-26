@@ -21,11 +21,17 @@ namespace StardewModdingAPI.Framework.ModLoading
         public void Add(params AssemblyDefinition[] assemblies)
         {
             foreach (AssemblyDefinition assembly in assemblies)
-            {
-                this.RegisterAssembly(assembly);
-                this.Lookup[assembly.Name.Name] = assembly;
-                this.Lookup[assembly.Name.FullName] = assembly;
-            }
+                this.Add(assembly, assembly.Name.Name, assembly.Name.FullName);
+        }
+
+        /// <summary>Add known assemblies to the resolver.</summary>
+        /// <param name="assembly">The assembly to add.</param>
+        /// <param name="names">The assembly names for which it should be returned.</param>
+        public void Add(AssemblyDefinition assembly, params string[] names)
+        {
+            this.RegisterAssembly(assembly);
+            foreach (string name in names)
+                this.Lookup[name] = assembly;
         }
 
         /// <summary>Resolve an assembly reference.</summary>

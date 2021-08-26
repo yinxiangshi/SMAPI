@@ -109,9 +109,12 @@ namespace StardewModdingAPI.Framework.Logging
                 output.OnMessageIntercepted += message => this.HandleConsoleMessage(this.MonitorForGame, message);
             Console.SetOut(output);
 
-            // enable Unicode handling
+            // enable Unicode handling on Windows
+            // (the terminal defaults to UTF-8 on Linux/macOS)
+#if SMAPI_FOR_WINDOWS
             Console.InputEncoding = Encoding.Unicode;
             Console.OutputEncoding = Encoding.Unicode;
+#endif
         }
 
         /// <summary>Get a monitor instance derived from SMAPI's current settings.</summary>
@@ -162,8 +165,6 @@ namespace StardewModdingAPI.Framework.Logging
             // keep console thread alive while the game is running
             while (continueWhile())
                 Thread.Sleep(1000 / 10);
-            if (inputThread.ThreadState == ThreadState.Running)
-                inputThread.Abort();
         }
 
         /// <summary>Show a 'press any key to exit' message, and exit when they press a key.</summary>

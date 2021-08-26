@@ -123,6 +123,10 @@ namespace StardewModdingAPI.Web.Controllers
             ModOverrideConfig overrides = this.Config.Value.ModOverrides.FirstOrDefault(p => p.ID.Equals(search.ID?.Trim(), StringComparison.OrdinalIgnoreCase));
             bool allowNonStandardVersions = overrides?.AllowNonStandardVersions ?? false;
 
+            // SMAPI versions with a '-beta' tag indicate major changes that may need beta mod versions.
+            // This doesn't apply to normal prerelease versions which have an '-alpha' tag.
+            bool isSmapiBeta = apiVersion.IsPrerelease() && apiVersion.PrereleaseTag.StartsWith("beta");
+
             // get latest versions
             ModEntryModel result = new ModEntryModel { ID = search.ID };
             IList<string> errors = new List<string>();
@@ -198,7 +202,7 @@ namespace StardewModdingAPI.Web.Controllers
                 List<ModEntryVersionModel> updates = new List<ModEntryVersionModel>();
                 if (this.IsRecommendedUpdate(installedVersion, main?.Version, useBetaChannel: true))
                     updates.Add(main);
-                if (this.IsRecommendedUpdate(installedVersion, optional?.Version, useBetaChannel: installedVersion.IsPrerelease() || search.IsBroken))
+                if (this.IsRecommendedUpdate(installedVersion, optional?.Version, useBetaChannel: isSmapiBeta || installedVersion.IsPrerelease() || search.IsBroken))
                     updates.Add(optional);
                 if (this.IsRecommendedUpdate(installedVersion, unofficial?.Version, useBetaChannel: true))
                     updates.Add(unofficial);

@@ -55,6 +55,12 @@ namespace StardewModdingAPI.Framework.ModHelpers
             return this.Translator.Get(key, tokens);
         }
 
+        /// <inheritdoc />
+        public IDictionary<string, Translation> GetInAllLocales(string key, bool withFallback = false)
+        {
+            return this.Translator.GetInAllLocales(key, withFallback);
+        }
+
         /// <summary>Set the translations to use.</summary>
         /// <param name="translations">The translations to use.</param>
         internal TranslationHelper SetTranslations(IDictionary<string, IDictionary<string, string>> translations)
