@@ -249,7 +249,7 @@ namespace StardewModdingAPI
             //   - 'StardewValley': assembly name on Linux/macOS;
             //   - 'Stardew Valley': assembly name on Windows;
             //   - 'Netcode': an assembly that's separate on Windows only.
-            resolver.Add(AssemblyDefinition.ReadAssembly(typeof(Game1).Assembly.Location), "StardewValley", "Stardew Valley"
+            resolver.AddWithExplicitNames(AssemblyDefinition.ReadAssembly(typeof(Game1).Assembly.Location), "StardewValley", "Stardew Valley"
 #if !SMAPI_FOR_WINDOWS
                 , "Netcode"
 #endif
