@@ -1,9 +1,11 @@
 ← [README](README.md)
 
 # Release notes
-## Upcoming release
+## 3.12.4
+Released 25 August 2021 for Stardew Valley 1.5.4 or later.
+
 * For players:
-  * Fixed error loading some mods which reference other mod DLLs in SMAPI 3.12.3.
+  * Fixed error loading some mods in SMAPI 3.12.3.
 
 ## 3.12.3
 Released 25 August 2021 for Stardew Valley 1.5.4 or later.
