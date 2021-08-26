@@ -1,7 +1,9 @@
 ← [README](README.md)
 
 # Release notes
-## Upcoming release
+## 3.12.5
+Released 26 August 2021 for Stardew Valley 1.5.4 or later.
+
 * Fixed some mods in unofficial 64-bit mode no longer loading after SMAPI 3.12.3.
 
 ## 3.12.4
