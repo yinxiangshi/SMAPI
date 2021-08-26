@@ -62,7 +62,7 @@ namespace StardewModdingAPI
         internal static int? LogScreenId { get; set; }
 
         /// <summary>SMAPI's current raw semantic version.</summary>
-        internal static string RawApiVersion = "3.12.3";
+        internal static string RawApiVersion = "3.12.4";
     }
 
     /// <summary>Contains SMAPI's constants and assumptions.</summary>
@@ -249,7 +249,7 @@ namespace StardewModdingAPI
             //   - 'StardewValley': assembly name on Linux/macOS;
             //   - 'Stardew Valley': assembly name on Windows;
             //   - 'Netcode': an assembly that's separate on Windows only.
-            resolver.Add(AssemblyDefinition.ReadAssembly(typeof(Game1).Assembly.Location), "StardewValley", "Stardew Valley"
+            resolver.AddWithExplicitNames(AssemblyDefinition.ReadAssembly(typeof(Game1).Assembly.Location), "StardewValley", "Stardew Valley"
 #if !SMAPI_FOR_WINDOWS
                 , "Netcode"
 #endif

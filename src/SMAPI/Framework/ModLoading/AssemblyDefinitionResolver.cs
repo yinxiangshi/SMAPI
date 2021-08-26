@@ -21,13 +21,13 @@ namespace StardewModdingAPI.Framework.ModLoading
         public void Add(params AssemblyDefinition[] assemblies)
         {
             foreach (AssemblyDefinition assembly in assemblies)
-                this.Add(assembly, assembly.Name.Name, assembly.Name.FullName);
+                this.AddWithExplicitNames(assembly, assembly.Name.Name, assembly.Name.FullName);
         }
 
-        /// <summary>Add known assemblies to the resolver.</summary>
+        /// <summary>Add a known assembly to the resolver with the given names. This overrides the assembly names that would normally be assigned.</summary>
         /// <param name="assembly">The assembly to add.</param>
         /// <param name="names">The assembly names for which it should be returned.</param>
-        public void Add(AssemblyDefinition assembly, params string[] names)
+        public void AddWithExplicitNames(AssemblyDefinition assembly, params string[] names)
         {
             this.RegisterAssembly(assembly);
             foreach (string name in names)
@@ -36,12 +36,18 @@ namespace StardewModdingAPI.Framework.ModLoading
 
         /// <summary>Resolve an assembly reference.</summary>
         /// <param name="name">The assembly name.</param>
-        public override AssemblyDefinition Resolve(AssemblyNameReference name) => this.ResolveName(name.Name) ?? base.Resolve(name);
+        public override AssemblyDefinition Resolve(AssemblyNameReference name)
+        {
+            return this.ResolveName(name.Name) ?? base.Resolve(name);
+        }
 
         /// <summary>Resolve an assembly reference.</summary>
         /// <param name="name">The assembly name.</param>
         /// <param name="parameters">The assembly reader parameters.</param>
-        public override AssemblyDefinition Resolve(AssemblyNameReference name, ReaderParameters parameters) => this.ResolveName(name.Name) ?? base.Resolve(name, parameters);
+        public override AssemblyDefinition Resolve(AssemblyNameReference name, ReaderParameters parameters)
+        {
+            return this.ResolveName(name.Name) ?? base.Resolve(name, parameters);
+        }
 
 
         /*********
