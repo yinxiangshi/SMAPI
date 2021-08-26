@@ -233,15 +233,28 @@ namespace StardewModdingAPI.Framework.ModLoading
             if (!file.Exists)
                 yield break; // not a local assembly
 
-            // read assembly and symbols
-            byte[] assemblyBytes = File.ReadAllBytes(file.FullName);
-            Stream readStream = this.TrackForDisposal(new MemoryStream(assemblyBytes));
+            // read assembly
+            AssemblyDefinition assembly;
             {
-                FileInfo symbolsFile = new FileInfo(Path.Combine(Path.GetDirectoryName(file.FullName)!, Path.GetFileNameWithoutExtension(file.FullName)) + ".pdb");
-                if (symbolsFile.Exists)
-                    this.SymbolReaderProvider.TryAddSymbolData(file.Name, () => this.TrackForDisposal(symbolsFile.OpenRead()));
+                byte[] assemblyBytes = File.ReadAllBytes(file.FullName);
+                Stream readStream = this.TrackForDisposal(new MemoryStream(assemblyBytes));
+
+                try
+                {
+                    // read assembly with symbols
+                    FileInfo symbolsFile = new FileInfo(Path.Combine(Path.GetDirectoryName(file.FullName)!, Path.GetFileNameWithoutExtension(file.FullName)) + ".pdb");
+                    if (symbolsFile.Exists)
+                        this.SymbolReaderProvider.TryAddSymbolData(file.Name, () => this.TrackForDisposal(symbolsFile.OpenRead()));
+                    assembly = this.TrackForDisposal(AssemblyDefinition.ReadAssembly(readStream, new ReaderParameters(ReadingMode.Immediate) { AssemblyResolver = assemblyResolver, InMemory = true, ReadSymbols = true, SymbolReaderProvider = this.SymbolReaderProvider }));
+                }
+                catch (SymbolsNotMatchingException ex)
+                {
+                    // read assembly without symbols
+                    this.Monitor.Log($"      Failed loading PDB for '{file.Name}'. Technical details:\n{ex}");
+                    readStream.Position = 0;
+                    assembly = this.TrackForDisposal(AssemblyDefinition.ReadAssembly(readStream, new ReaderParameters(ReadingMode.Immediate) { AssemblyResolver = assemblyResolver, InMemory = true }));
+                }
             }
-            AssemblyDefinition assembly = this.TrackForDisposal(AssemblyDefinition.ReadAssembly(readStream, new ReaderParameters(ReadingMode.Immediate) { AssemblyResolver = assemblyResolver, InMemory = true, ReadSymbols = true, SymbolReaderProvider = this.SymbolReaderProvider }));
 
             // skip if already visited
             if (visitedAssemblyNames.Contains(assembly.Name.Name))
