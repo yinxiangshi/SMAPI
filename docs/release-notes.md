@@ -9,6 +9,7 @@
 
 * For mod authors:
   * Added `helper.Translation.GetInAllLocales` to get a translation in every available locale.
+  * Fixed Visual Studio debugger crash when any mods are rewritten for compatibility (thanks to spacechase0!).
   * Fixed `helper.Data.WriteJsonFile` not deleting the file if the model is null, unlike the other `Write*` methods.
   * Fixed error-handling for `StackOverflowException` thrown on Linux/macOS.
   * Internal changes to prepare for upcoming releases.
