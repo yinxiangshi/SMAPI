@@ -35,8 +35,11 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <summary>A minimal assembly definition resolver which resolves references to known loaded assemblies.</summary>
         private readonly AssemblyDefinitionResolver AssemblyDefinitionResolver;
 
-        private readonly SymbolReaderProvider SymbolReaderProvider;
-        private readonly SymbolWriterProvider SymbolWriterProvider;
+        /// <summary>Provides assembly symbol readers for Mono.Cecil.</summary>
+        private readonly SymbolReaderProvider SymbolReaderProvider = new SymbolReaderProvider();
+
+        /// <summary>Provides assembly symbol writers for Mono.Cecil.</summary>
+        private readonly SymbolWriterProvider SymbolWriterProvider = new SymbolWriterProvider();
 
         /// <summary>The objects to dispose as part of this instance.</summary>
         private readonly HashSet<IDisposable> Disposables = new HashSet<IDisposable>();
@@ -64,9 +67,6 @@ namespace StardewModdingAPI.Framework.ModLoading
             // init resolver
             this.AssemblyDefinitionResolver = this.TrackForDisposal(new AssemblyDefinitionResolver());
             Constants.ConfigureAssemblyResolver(this.AssemblyDefinitionResolver);
-
-            this.SymbolReaderProvider = new SymbolReaderProvider();
-            this.SymbolWriterProvider = new SymbolWriterProvider();
 
             // generate type => assembly lookup for types which should be rewritten
             this.TypeAssemblies = new Dictionary<string, Assembly>();
@@ -121,7 +121,7 @@ namespace StardewModdingAPI.Framework.ModLoading
 
                 // rewrite assembly
                 bool changed = this.RewriteAssembly(mod, assembly.Definition, loggedMessages, logPrefix: "      ");
-                
+
                 // detect broken assembly reference
                 foreach (AssemblyNameReference reference in assembly.Definition.MainModule.AssemblyReferences)
                 {
@@ -142,10 +142,10 @@ namespace StardewModdingAPI.Framework.ModLoading
                         this.Monitor.Log($"      Loading {assembly.File.Name} (rewritten)...", LogLevel.Trace);
 
                     // load assembly
-                    using MemoryStream outStream = new MemoryStream();
+                    using MemoryStream outAssemblyStream = new MemoryStream();
                     using MemoryStream outSymbolStream = new MemoryStream();
-                    assembly.Definition.Write(outStream, new WriterParameters() { WriteSymbols = true, SymbolStream = outSymbolStream, SymbolWriterProvider = this.SymbolWriterProvider } );
-                    byte[] bytes = outStream.ToArray();
+                    assembly.Definition.Write(outAssemblyStream, new WriterParameters { WriteSymbols = true, SymbolStream = outSymbolStream, SymbolWriterProvider = this.SymbolWriterProvider });
+                    byte[] bytes = outAssemblyStream.ToArray();
                     lastAssembly = Assembly.Load(bytes, outSymbolStream.ToArray());
                 }
                 else
@@ -233,13 +233,13 @@ namespace StardewModdingAPI.Framework.ModLoading
             if (!file.Exists)
                 yield break; // not a local assembly
 
-            // read assembly and PDB (if present)
+            // read assembly and symbols
             byte[] assemblyBytes = File.ReadAllBytes(file.FullName);
             Stream readStream = this.TrackForDisposal(new MemoryStream(assemblyBytes));
             {
-                string symbolsPath = Path.Combine(Path.GetDirectoryName(file.FullName), Path.GetFileNameWithoutExtension(file.FullName)) + ".pdb";
-                if ( File.Exists( symbolsPath ) )
-                    this.SymbolReaderProvider.AddSymbolMapping( Path.GetFileName( file.FullName ), this.TrackForDisposal( new MemoryStream( File.ReadAllBytes( symbolsPath ) ) ) );
+                FileInfo symbolsFile = new FileInfo(Path.Combine(Path.GetDirectoryName(file.FullName)!, Path.GetFileNameWithoutExtension(file.FullName)) + ".pdb");
+                if (symbolsFile.Exists)
+                    this.SymbolReaderProvider.TryAddSymbolData(file.Name, this.TrackForDisposal(symbolsFile.OpenRead()));
             }
             AssemblyDefinition assembly = this.TrackForDisposal(AssemblyDefinition.ReadAssembly(readStream, new ReaderParameters(ReadingMode.Immediate) { AssemblyResolver = assemblyResolver, InMemory = true, ReadSymbols = true, SymbolReaderProvider = this.SymbolReaderProvider }));
 
