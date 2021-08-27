@@ -1,6 +1,10 @@
 ← [README](README.md)
 
 # Release notes
+## Upcoming release
+* For console commands:
+  * Added `hurry_all` command which immediately warps all NPCs to their scheduled positions.
+
 ## 3.12.5
 Released 26 August 2021 for Stardew Valley 1.5.4 or later.
 
