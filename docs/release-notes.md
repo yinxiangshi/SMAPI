@@ -4,6 +4,7 @@
 ## Upcoming release
 * For players:
   * Updated for Stardew Valley 1.5.5.
+  * Updated compatibility list.
   * Added `set_farm_type` [console command](https://stardewvalleywiki.com/Modding:Console_commands#Console_commands) to change the current farm type.
 
 * For mod authors:
