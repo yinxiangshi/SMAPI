@@ -7,8 +7,8 @@ using StardewModdingAPI.Framework.ModLoading.RewriteFacades;
 
 namespace StardewModdingAPI.Framework.ModLoading.Rewriters
 {
-    /// <summary>Rewrites Harmony 1.x assembly references to work with Harmony 2.x.</summary>
-    internal class Harmony1AssemblyRewriter : BaseInstructionHandler
+    /// <summary>Detects Harmony references, and rewrites Harmony 1.x assembly references to work with Harmony 2.x.</summary>
+    internal class HarmonyRewriter : BaseInstructionHandler
     {
         /*********
         ** Fields
@@ -16,19 +16,29 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         /// <summary>Whether any Harmony 1.x types were replaced.</summary>
         private bool ReplacedTypes;
 
+        /// <summary>Whether to rewrite Harmony 1.x code.</summary>
+        private readonly bool ShouldRewrite;
+
 
         /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        public Harmony1AssemblyRewriter()
-            : base(defaultPhrase: "Harmony 1.x") { }
+        public HarmonyRewriter(bool shouldRewrite = true)
+            : base(defaultPhrase: "Harmony 1.x")
+        {
+            this.ShouldRewrite = shouldRewrite;
+        }
 
         /// <inheritdoc />
         public override bool Handle(ModuleDefinition module, TypeReference type, Action<TypeReference> replaceWith)
         {
+            // detect Harmony
+            if (type.Scope is not AssemblyNameReference { Name: "0Harmony" } scope)
+                return false;
+
             // rewrite Harmony 1.x type to Harmony 2.0 type
-            if (type.Scope is AssemblyNameReference { Name: "0Harmony" } scope && scope.Version.Major == 1)
+            if (this.ShouldRewrite && scope.Version.Major == 1)
             {
                 Type targetType = this.GetMappedType(type);
                 replaceWith(module.ImportReference(targetType));
@@ -37,28 +47,32 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
                 return true;
             }
 
+            this.MarkFlag(InstructionHandleResult.DetectedGamePatch);
             return false;
         }
 
         /// <inheritdoc />
         public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction)
         {
-            // rewrite Harmony 1.x methods to Harmony 2.0
-            MethodReference methodRef = RewriteHelper.AsMethodReference(instruction);
-            if (this.TryRewriteMethodsToFacade(module, methodRef))
+            if (this.ShouldRewrite)
             {
-                this.OnChanged();
-                return true;
-            }
-
-            // rewrite renamed fields
-            FieldReference fieldRef = RewriteHelper.AsFieldReference(instruction);
-            if (fieldRef != null)
-            {
-                if (fieldRef.DeclaringType.FullName == "HarmonyLib.HarmonyMethod" && fieldRef.Name == "prioritiy")
+                // rewrite Harmony 1.x methods to Harmony 2.0
+                MethodReference methodRef = RewriteHelper.AsMethodReference(instruction);
+                if (this.TryRewriteMethodsToFacade(module, methodRef))
                 {
-                    fieldRef.Name = nameof(HarmonyMethod.priority);
                     this.OnChanged();
+                    return true;
+                }
+
+                // rewrite renamed fields
+                FieldReference fieldRef = RewriteHelper.AsFieldReference(instruction);
+                if (fieldRef != null)
+                {
+                    if (fieldRef.DeclaringType.FullName == "HarmonyLib.HarmonyMethod" && fieldRef.Name == "prioritiy")
+                    {
+                        fieldRef.Name = nameof(HarmonyMethod.priority);
+                        this.OnChanged();
+                    }
                 }
             }
 
