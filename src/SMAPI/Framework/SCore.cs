@@ -1732,7 +1732,7 @@ namespace StardewModdingAPI.Framework
                 {
                     errorReasonPhrase = "its DLL couldn't be loaded.";
 #if SMAPI_FOR_WINDOWS_64BIT_HACK
-                    if (!EnvironmentUtility.Is64BitAssembly(assemblyPath))
+                    if (ex is BadImageFormatException && !EnvironmentUtility.Is64BitAssembly(assemblyPath))
                         errorReasonPhrase = "it needs to be updated for 64-bit mode.";
 #endif
                     errorDetails = $"Error: {ex.GetLogSummary()}";

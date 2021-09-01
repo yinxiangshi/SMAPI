@@ -336,6 +336,13 @@ namespace StardewModdingAPI.Framework.ModLoading
             IInstructionHandler[] handlers = new InstructionMetadata().GetHandlers(this.ParanoidMode, platformChanged, this.RewriteMods).ToArray();
             RecursiveRewriter rewriter = new RecursiveRewriter(
                 module: module,
+                rewriteModule: curModule =>
+                {
+                    bool rewritten = false;
+                    foreach (IInstructionHandler handler in handlers)
+                        rewritten |= handler.Handle(curModule);
+                    return rewritten;
+                },
                 rewriteType: (type, replaceWith) =>
                 {
                     bool rewritten = false;
