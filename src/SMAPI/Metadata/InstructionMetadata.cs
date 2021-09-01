@@ -52,7 +52,9 @@ namespace StardewModdingAPI.Metadata
                 yield return new Harmony1AssemblyRewriter();
 
                 // rewrite for 64-bit mode
+#if SMAPI_FOR_WINDOWS_64BIT_HACK
                 yield return new ArchitectureAssemblyRewriter();
+#endif
             }
 
             /****
