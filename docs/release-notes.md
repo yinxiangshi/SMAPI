@@ -2,6 +2,9 @@
 
 # Release notes
 ## Upcoming release
+* For players:
+  * Improved mod compatibility in 64-bit mode (thanks to spacechase0!).
+
 * For console commands:
   * Added `hurry_all` command which immediately warps all NPCs to their scheduled positions.
 
