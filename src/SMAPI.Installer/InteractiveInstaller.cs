@@ -298,6 +298,14 @@ namespace StardewModdingApi.Installer
                 return;
             }
 
+            // not Stardew Valley 1.5.5+
+            if (File.Exists(Path.Combine(paths.GamePath, "Stardew Valley.dll")))
+            {
+                this.PrintError($"Oops! The detected game install path seems to be Stardew Valley 1.5.5 or later, but this version of SMAPI is only compatible up to Stardew Valley 1.5.4. Please check for a newer version of SMAPI: https://smapi.io.");
+                Console.ReadLine();
+                return;
+            }
+
             // game folder doesn't contain paths beyond the max limit
             {
                 string[] tooLongPaths = PathUtilities.GetTooLongPaths(Path.Combine(paths.GamePath, "Mods")).ToArray();

@@ -81,7 +81,7 @@ namespace StardewModdingAPI
         public static ISemanticVersion MinimumGameVersion { get; } = new GameVersion("1.5.4");
 
         /// <summary>The maximum supported version of Stardew Valley.</summary>
-        public static ISemanticVersion MaximumGameVersion { get; } = null;
+        public static ISemanticVersion MaximumGameVersion { get; } = new GameVersion("1.5.4");
 
         /// <summary>The target game platform.</summary>
         public static GamePlatform TargetPlatform { get; } = EarlyConstants.Platform;

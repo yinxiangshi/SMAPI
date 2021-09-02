@@ -88,6 +88,10 @@ namespace StardewModdingAPI
                 if (!File.Exists(Path.Combine(EarlyConstants.ExecutionPath, $"{EarlyConstants.GameAssemblyName}.exe")))
                     Program.PrintErrorAndExit("Oops! SMAPI can't find the game. Make sure you're running StardewModdingAPI.exe in your game folder.");
 
+                // Stardew Valley 1.5.5+
+                if (File.Exists(Path.Combine(EarlyConstants.ExecutionPath, "Stardew Valley.dll")))
+                    Program.PrintErrorAndExit("Oops! You're running Stardew Valley 1.5.5 or later, but this version of SMAPI is only compatible up to Stardew Valley 1.5.4. Please check for a newer version of SMAPI: https://smapi.io.");
+
                 // can't load file
                 Program.PrintErrorAndExit(
                     message: "Oops! SMAPI couldn't load the game executable. The technical details below may have more info.",
