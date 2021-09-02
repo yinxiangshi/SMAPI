@@ -170,6 +170,36 @@
         /*********
         ** Broke in SMAPI 3.12.0
         *********/
+        "Always Scroll Map": {
+            "ID": "bcmpinc.AlwaysScrollMap",
+            "~4.1.0 | Status": "AssumeBroken",
+            "~4.1.0 | StatusReasonDetails": "causes Harmony patching errors for other mods" // requested by the mod author
+        },
+        "Big Silo": {
+            "ID": "lperkins2.BigSilo",
+            "~0.0.3 | Status": "AssumeBroken",
+            "~0.0.3 | StatusReasonDetails": "not compatible with Harmony 2.x"
+        },
+        "Fix Animal Tools": {
+            "ID": "bcmpinc.FixAnimalTools",
+            "~4.1.0 | Status": "AssumeBroken",
+            "~4.1.0 | StatusReasonDetails": "causes Harmony patching errors for other mods" // requested by the mod author
+        },
+        "Grass Growth": {
+            "ID": "bcmpinc.GrassGrowth",
+            "~4.1.0 | Status": "AssumeBroken",
+            "~4.1.0 | StatusReasonDetails": "causes Harmony patching errors for other mods" // requested by the mod author
+        },
+        "Harvest With Scythe (bcmpinc)": {
+            "ID": "bcmpinc.HarvestWithScythe",
+            "~4.1.0 | Status": "AssumeBroken",
+            "~4.1.0 | StatusReasonDetails": "causes Harmony patching errors for other mods" // requested by the mod author
+        },
+        "Movement Speed": {
+            "ID": "bcmpinc.MovementSpeed",
+            "~4.1.0 | Status": "AssumeBroken",
+            "~4.1.0 | StatusReasonDetails": "causes Harmony patching errors for other mods" // requested by the mod author
+        },
         "PlatoTK": {
             "ID": "Platonymous.PlatoTK",
             "~1.9.3 | Status": "AssumeBroken",
@@ -180,33 +210,8 @@
             "~5.0.0 | Status": "AssumeBroken",
             "~5.0.0 | StatusReasonDetails": "causes Harmony patching errors for other mods"
         },
-        "Always Scroll Map": {
-            "ID": "bcmpinc.AlwaysScrollMap",
-            "~4.1.0 | Status": "AssumeBroken",
-            "~4.1.0 | StatusReasonDetails": "causes Harmony patching errors for other mods" // requested by the mod author
-        },
-        "Fix Animal Tools": {
-            "ID": "bcmpinc.FixAnimalTools",
-            "~4.1.0 | Status": "AssumeBroken",
-            "~4.1.0 | StatusReasonDetails": "causes Harmony patching errors for other mods" // requested by the mod author
-        },
-        "Harvest With Scythe (bcmpinc)": {
-            "ID": "bcmpinc.HarvestWithScythe",
-            "~4.1.0 | Status": "AssumeBroken",
-            "~4.1.0 | StatusReasonDetails": "causes Harmony patching errors for other mods" // requested by the mod author
-        },
-        "Grass Growth": {
-            "ID": "bcmpinc.GrassGrowth",
-            "~4.1.0 | Status": "AssumeBroken",
-            "~4.1.0 | StatusReasonDetails": "causes Harmony patching errors for other mods" // requested by the mod author
-        },
         "Tilled Soil Decay": {
             "ID": "bcmpinc.TilledSoilDecay",
-            "~4.1.0 | Status": "AssumeBroken",
-            "~4.1.0 | StatusReasonDetails": "causes Harmony patching errors for other mods" // requested by the mod author
-        },
-        "Movement Speed": {
-            "ID": "bcmpinc.MovementSpeed",
             "~4.1.0 | Status": "AssumeBroken",
             "~4.1.0 | StatusReasonDetails": "causes Harmony patching errors for other mods" // requested by the mod author
         },

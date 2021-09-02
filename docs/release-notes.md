@@ -5,6 +5,7 @@
 * For players:
   * Improved mod compatibility in 64-bit mode (thanks to spacechase0!).
   * Reducing load time when scanning/rewriting many mods for compatibility.
+  * Updated compatibility list.
 
 * For mod authors:
   * Fixed content packs created via `helper.ContentPacks.CreateFake` or `CreateTemporary` not initializing translations correctly.
