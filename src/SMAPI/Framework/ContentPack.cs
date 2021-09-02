@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using StardewModdingAPI.Framework.ModHelpers;
 using StardewModdingAPI.Toolkit.Serialization;
 using StardewModdingAPI.Toolkit.Utilities;
 
@@ -32,7 +33,10 @@ namespace StardewModdingAPI.Framework
         public IManifest Manifest { get; }
 
         /// <inheritdoc />
-        public ITranslationHelper Translation { get; }
+        public ITranslationHelper Translation => this.TranslationImpl;
+
+        /// <summary>The underlying translation helper.</summary>
+        internal TranslationHelper TranslationImpl { get; set; }
 
 
         /*********
@@ -44,12 +48,12 @@ namespace StardewModdingAPI.Framework
         /// <param name="content">Provides an API for loading content assets.</param>
         /// <param name="translation">Provides translations stored in the content pack's <c>i18n</c> folder.</param>
         /// <param name="jsonHelper">Encapsulates SMAPI's JSON file parsing.</param>
-        public ContentPack(string directoryPath, IManifest manifest, IContentHelper content, ITranslationHelper translation, JsonHelper jsonHelper)
+        public ContentPack(string directoryPath, IManifest manifest, IContentHelper content, TranslationHelper translation, JsonHelper jsonHelper)
         {
             this.DirectoryPath = directoryPath;
             this.Manifest = manifest;
             this.Content = content;
-            this.Translation = translation;
+            this.TranslationImpl = translation;
             this.JsonHelper = jsonHelper;
 
             foreach (string path in Directory.EnumerateFiles(this.DirectoryPath, "*", SearchOption.AllDirectories))

@@ -49,6 +49,7 @@ using StardewModdingAPI.Utilities;
 using StardewValley;
 using xTile.Display;
 using MiniMonoModHotfix = MonoMod.Utils.MiniMonoModHotfix;
+using PathUtilities = StardewModdingAPI.Toolkit.Utilities.PathUtilities;
 using SObject = StardewValley.Object;
 
 namespace StardewModdingAPI.Framework
@@ -1060,7 +1061,12 @@ namespace StardewModdingAPI.Framework
 
             // update mod translation helpers
             foreach (IModMetadata mod in this.ModRegistry.GetAll())
+            {
                 mod.Translations.SetLocale(locale, languageCode);
+
+                foreach (ContentPack contentPack in mod.GetFakeContentPacks())
+                    contentPack.TranslationImpl.SetLocale(locale, languageCode);
+            }
         }
 
         /// <summary>Raised when the low-level stage while loading a save changes.</summary>
@@ -1772,8 +1778,12 @@ namespace StardewModdingAPI.Framework
                         {
                             IMonitor packMonitor = this.LogManager.GetMonitor(packManifest.Name);
                             IContentHelper packContentHelper = new ContentHelper(contentCore, packDirPath, packManifest.UniqueID, packManifest.Name, packMonitor);
-                            ITranslationHelper packTranslationHelper = new TranslationHelper(packManifest.UniqueID, contentCore.GetLocale(), contentCore.Language);
-                            return new ContentPack(packDirPath, packManifest, packContentHelper, packTranslationHelper, this.Toolkit.JsonHelper);
+                            TranslationHelper packTranslationHelper = new TranslationHelper(packManifest.UniqueID, contentCore.GetLocale(), contentCore.Language);
+
+                            ContentPack contentPack = new ContentPack(packDirPath, packManifest, packContentHelper, packTranslationHelper, this.Toolkit.JsonHelper);
+                            this.ReloadTranslationsForTemporaryContentPack(mod, contentPack);
+                            mod.FakeContentPacks.Add(new WeakReference<ContentPack>(contentPack));
+                            return contentPack;
                         }
 
                         IModEvents events = new ModEvents(mod, this.EventManager);
@@ -1867,15 +1877,39 @@ namespace StardewModdingAPI.Framework
             // mod translations
             foreach (IModMetadata metadata in mods)
             {
-                var translations = this.ReadTranslationFiles(Path.Combine(metadata.DirectoryPath, "i18n"), out IList<string> errors);
-                if (errors.Any())
+                // top-level mod
                 {
-                    metadata.LogAsMod("Mod couldn't load some translation files:", LogLevel.Warn);
-                    foreach (string error in errors)
-                        metadata.LogAsMod($"  - {error}", LogLevel.Warn);
+                    var translations = this.ReadTranslationFiles(Path.Combine(metadata.DirectoryPath, "i18n"), out IList<string> errors);
+                    if (errors.Any())
+                    {
+                        metadata.LogAsMod("Mod couldn't load some translation files:", LogLevel.Warn);
+                        foreach (string error in errors)
+                            metadata.LogAsMod($"  - {error}", LogLevel.Warn);
+                    }
+
+                    metadata.Translations.SetTranslations(translations);
                 }
-                metadata.Translations.SetTranslations(translations);
+
+                // fake content packs
+                foreach (ContentPack pack in metadata.GetFakeContentPacks())
+                    this.ReloadTranslationsForTemporaryContentPack(metadata, pack);
             }
+        }
+
+        /// <summary>Load or reload translations for a temporary content pack created by a mod.</summary>
+        /// <param name="parentMod">The parent mod which created the content pack.</param>
+        /// <param name="contentPack">The content pack instance.</param>
+        private void ReloadTranslationsForTemporaryContentPack(IModMetadata parentMod, ContentPack contentPack)
+        {
+            var translations = this.ReadTranslationFiles(Path.Combine(contentPack.DirectoryPath, "i18n"), out IList<string> errors);
+            if (errors.Any())
+            {
+                parentMod.LogAsMod($"Generated content pack at '{PathUtilities.GetRelativePath(Constants.ModsPath, contentPack.DirectoryPath)}' couldn't load some translation files:", LogLevel.Warn);
+                foreach (string error in errors)
+                    parentMod.LogAsMod($"  - {error}", LogLevel.Warn);
+            }
+
+            contentPack.TranslationImpl.SetTranslations(translations);
         }
 
         /// <summary>Read translations from a directory containing JSON translation files.</summary>

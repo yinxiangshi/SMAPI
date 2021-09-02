@@ -6,6 +6,9 @@
   * Improved mod compatibility in 64-bit mode (thanks to spacechase0!).
   * Reducing load time when scanning/rewriting many mods for compatibility.
 
+* For mod authors:
+  * Fixed content packs created via `helper.ContentPacks.CreateFake` or `CreateTemporary` not initializing translations correctly.
+
 * For console commands:
   * Added `hurry_all` command which immediately warps all NPCs to their scheduled positions.
 
