@@ -10,6 +10,7 @@ using StardewModdingAPI.Framework;
 using StardewModdingAPI.Framework.ModLoading;
 using StardewModdingAPI.Toolkit;
 using StardewModdingAPI.Toolkit.Framework.ModData;
+using StardewModdingAPI.Toolkit.Framework.UpdateData;
 using StardewModdingAPI.Toolkit.Serialization.Models;
 using SemanticVersion = StardewModdingAPI.SemanticVersion;
 
@@ -489,7 +490,8 @@ namespace SMAPI.Tests.Core
                 EntryDll = entryDll ?? $"{Sample.String()}.dll",
                 ContentPackFor = contentPackForID != null ? new ManifestContentPackFor { UniqueID = contentPackForID } : null,
                 MinimumApiVersion = minimumApiVersion != null ? new SemanticVersion(minimumApiVersion) : null,
-                Dependencies = dependencies
+                Dependencies = dependencies ?? new IManifestDependency[0],
+                UpdateKeys = new string[0]
             };
         }
 
@@ -541,6 +543,7 @@ namespace SMAPI.Tests.Core
             mod.Setup(p => p.Manifest).Returns(this.GetManifest());
             mod.Setup(p => p.DirectoryPath).Returns(Path.GetTempPath());
             mod.Setup(p => p.DataRecord).Returns(modRecord);
+            mod.Setup(p => p.GetUpdateKeys(It.IsAny<bool>())).Returns(Enumerable.Empty<UpdateKey>());
         }
     }
 }
