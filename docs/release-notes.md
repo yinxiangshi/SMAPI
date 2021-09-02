@@ -9,10 +9,16 @@
   * Updated compatibility list.
 
 * For mod authors:
+  * Added `PathUtilities.NormalizeAssetName` and `PathUtilities.PreferredAssetSeparator` to prepare for the upcoming Stardew Valley 1.5.5.
   * Fixed content packs created via `helper.ContentPacks.CreateFake` or `CreateTemporary` not initializing translations correctly.
 
 * For console commands:
   * Added `hurry_all` command which immediately warps all NPCs to their scheduled positions.
+
+**Update note for mod authors:**  
+Stardew Valley 1.5.5 will change how asset names are formatted. If you use `PathUtilities.NormalizePath`
+to format asset names, you should switch to `PathUtilities.NormalizeAssetName` now so your code will
+continue working in the next game update.
 
 ## 3.12.5
 Released 26 August 2021 for Stardew Valley 1.5.4 or later.
