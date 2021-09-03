@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -8,6 +7,7 @@ using StardewModdingAPI.Toolkit.Framework.Clients.Wiki;
 using StardewModdingAPI.Toolkit.Framework.GameScanning;
 using StardewModdingAPI.Toolkit.Framework.ModData;
 using StardewModdingAPI.Toolkit.Framework.ModScanning;
+using StardewModdingAPI.Toolkit.Framework.UpdateData;
 using StardewModdingAPI.Toolkit.Serialization;
 
 namespace StardewModdingAPI.Toolkit
@@ -22,11 +22,11 @@ namespace StardewModdingAPI.Toolkit
         private readonly string UserAgent;
 
         /// <summary>Maps vendor keys (like <c>Nexus</c>) to their mod URL template (where <c>{0}</c> is the mod ID). This doesn't affect update checks, which defer to the remote web API.</summary>
-        private readonly IDictionary<string, string> VendorModUrls = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        private readonly IDictionary<ModSiteKey, string> VendorModUrls = new Dictionary<ModSiteKey, string>()
         {
-            ["Chucklefish"] = "https://community.playstarbound.com/resources/{0}",
-            ["GitHub"] = "https://github.com/{0}/releases",
-            ["Nexus"] = "https://www.nexusmods.com/stardewvalley/mods/{0}"
+            [ModSiteKey.Chucklefish] = "https://community.playstarbound.com/resources/{0}",
+            [ModSiteKey.GitHub] = "https://github.com/{0}/releases",
+            [ModSiteKey.Nexus] = "https://www.nexusmods.com/stardewvalley/mods/{0}"
         };
 
 
@@ -89,15 +89,12 @@ namespace StardewModdingAPI.Toolkit
         /// <param name="updateKey">The update key.</param>
         public string GetUpdateUrl(string updateKey)
         {
-            string[] parts = updateKey.Split(new[] { ':' }, 2);
-            if (parts.Length != 2)
+            UpdateKey parsed = UpdateKey.Parse(updateKey);
+            if (!parsed.LooksValid)
                 return null;
 
-            string vendorKey = parts[0].Trim();
-            string modID = parts[1].Trim();
-
-            if (this.VendorModUrls.TryGetValue(vendorKey, out string urlTemplate))
-                return string.Format(urlTemplate, modID);
+            if (this.VendorModUrls.TryGetValue(parsed.Site, out string urlTemplate))
+                return string.Format(urlTemplate, parsed.ID);
 
             return null;
         }

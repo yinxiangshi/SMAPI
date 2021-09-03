@@ -1,6 +1,30 @@
 ← [README](README.md)
 
 # Release notes
+## 3.12.6
+Released 03 September 2021 for Stardew Valley 1.5.4 or later.
+
+* For players:
+  * Added friendly error when using SMAPI 3.2._x_ with Stardew Valley 1.5.5 or later.
+  * Improved mod compatibility in 64-bit mode (thanks to spacechase0!).
+  * Reduced load time when scanning/rewriting many mods for compatibility.
+  * **Dropped support for unofficial 64-bit mode**. You can now use the [official 64-bit Stardew Valley 1.5.5 beta](https://stardewvalleywiki.com/Modding:Migrate_to_64-bit_on_Windows) instead.
+  * Updated compatibility list.
+
+* For mod authors:
+  * Added `PathUtilities.NormalizeAssetName` and `PathUtilities.PreferredAssetSeparator` to prepare for the upcoming Stardew Valley 1.5.5.
+  * **SMAPI no longer propagates changes to `Data/Bundles`.**  
+    _You can still load/edit the asset like usual, but if bundles have already been loaded for a save, SMAPI will no longer dynamically update the in-game bundles to reflect the changes. Unfortunately this caused bundle corruption when playing in non-English._
+  * Fixed content packs created via `helper.ContentPacks.CreateFake` or `CreateTemporary` not initializing translations correctly.
+
+* For console commands:
+  * Added `hurry_all` command which immediately warps all NPCs to their scheduled positions.
+
+**Update note for mod authors:**  
+Stardew Valley 1.5.5 will change how asset names are formatted. If you use `PathUtilities.NormalizePath`
+to format asset names, you should switch to `PathUtilities.NormalizeAssetName` now so your code will
+continue working in the next game update.
+
 ## 3.12.5
 Released 26 August 2021 for Stardew Valley 1.5.4 or later.
 

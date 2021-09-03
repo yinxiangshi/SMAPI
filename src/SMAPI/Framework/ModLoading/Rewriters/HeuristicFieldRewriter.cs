@@ -13,7 +13,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         ** Fields
         *********/
         /// <summary>The assembly names to which to rewrite broken references.</summary>
-        private readonly HashSet<string> RewriteReferencesToAssemblies;
+        private readonly ISet<string> RewriteReferencesToAssemblies;
 
 
         /*********
@@ -21,10 +21,10 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="rewriteReferencesToAssemblies">The assembly names to which to rewrite broken references.</param>
-        public HeuristicFieldRewriter(string[] rewriteReferencesToAssemblies)
+        public HeuristicFieldRewriter(ISet<string> rewriteReferencesToAssemblies)
             : base(defaultPhrase: "field changed to property") // ignored since we specify phrases
         {
-            this.RewriteReferencesToAssemblies = new HashSet<string>(rewriteReferencesToAssemblies);
+            this.RewriteReferencesToAssemblies = rewriteReferencesToAssemblies;
         }
 
         /// <inheritdoc />

@@ -1,18 +1,13 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <!--set general build properties -->
-    <Version>3.12.5</Version>
+    <Version>3.12.6</Version>
     <Product>SMAPI</Product>
     <LangVersion>latest</LangVersion>
     <AssemblySearchPaths>$(AssemblySearchPaths);{GAC}</AssemblySearchPaths>
 
-    <!--uncomment for 64-bit Stardew Valley on Windows-->
-    <!--<GamePath>D:\dev\SDV 64-bit\6125897</GamePath>
-    <DefineConstants>$(DefineConstants);SMAPI_FOR_WINDOWS_64BIT_HACK</DefineConstants>-->
-
     <!--set platform-->
-    <DefineConstants Condition="$(OS) == 'Windows_NT'">$(DefineConstants);SMAPI_FOR_WINDOWS</DefineConstants>
-    <DefineConstants Condition="$(OS) == 'Windows_NT' AND !$(DefineConstants.Contains(SMAPI_FOR_WINDOWS_64BIT_HACK))">$(DefineConstants);SMAPI_FOR_XNA</DefineConstants>
+    <DefineConstants Condition="$(OS) == 'Windows_NT'">$(DefineConstants);SMAPI_FOR_WINDOWS;SMAPI_FOR_XNA</DefineConstants>
   </PropertyGroup>
 
   <!--find game folder-->

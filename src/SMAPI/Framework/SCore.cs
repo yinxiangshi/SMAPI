@@ -12,10 +12,10 @@ using System.Security;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework;
 #if SMAPI_FOR_WINDOWS
 using Microsoft.Win32;
 #endif
-using Microsoft.Xna.Framework;
 #if SMAPI_FOR_XNA
 using System.Windows.Forms;
 #endif
@@ -49,6 +49,7 @@ using StardewModdingAPI.Utilities;
 using StardewValley;
 using xTile.Display;
 using MiniMonoModHotfix = MonoMod.Utils.MiniMonoModHotfix;
+using PathUtilities = StardewModdingAPI.Toolkit.Utilities.PathUtilities;
 using SObject = StardewValley.Object;
 
 namespace StardewModdingAPI.Framework
@@ -435,7 +436,7 @@ namespace StardewModdingAPI.Framework
             Game1.mapDisplayDevice = new SDisplayDevice(Game1.content, Game1.game1.GraphicsDevice);
 
             // log GPU info
-#if SMAPI_FOR_WINDOWS && !SMAPI_FOR_WINDOWS_64BIT_HACK
+#if SMAPI_FOR_WINDOWS
             this.Monitor.Log($"Running on GPU: {Game1.game1.GraphicsDevice?.Adapter?.Description ?? "<unknown>"}");
 #endif
         }
@@ -786,9 +787,6 @@ namespace StardewModdingAPI.Framework
 
                         this.Monitor.Log(context);
 
-                        // apply save fixes
-                        this.ApplySaveFixes();
-
                         // raise events
                         this.OnLoadStageChanged(LoadStage.Ready);
                         events.SaveLoaded.RaiseEmpty();
@@ -1060,7 +1058,12 @@ namespace StardewModdingAPI.Framework
 
             // update mod translation helpers
             foreach (IModMetadata mod in this.ModRegistry.GetAll())
+            {
                 mod.Translations.SetLocale(locale, languageCode);
+
+                foreach (ContentPack contentPack in mod.GetFakeContentPacks())
+                    contentPack.TranslationImpl.SetLocale(locale, languageCode);
+            }
         }
 
         /// <summary>Raised when the low-level stage while loading a save changes.</summary>
@@ -1099,40 +1102,6 @@ namespace StardewModdingAPI.Framework
             this.EventManager.LoadStageChanged.Raise(new LoadStageChangedEventArgs(oldStage, newStage));
             if (newStage == LoadStage.None)
                 this.EventManager.ReturnedToTitle.RaiseEmpty();
-        }
-
-        /// <summary>Apply fixes to the save after it's loaded.</summary>
-        private void ApplySaveFixes()
-        {
-            // get last SMAPI version used with this save
-            const string migrationKey = "Pathoschild.SMAPI/api-version";
-            if (!Game1.CustomData.TryGetValue(migrationKey, out string rawVersion) || !SemanticVersion.TryParse(rawVersion, out ISemanticVersion lastVersion))
-                lastVersion = new SemanticVersion(3, 8, 0);
-
-            // fix bundle corruption in SMAPI 3.8.0
-            // For non-English players who created a new save in SMAPI 3.8.0, bundle data was
-            // incorrectly translated which caused the code to crash whenever the game tried to
-            // read it.
-            if (lastVersion.IsOlderThan(new SemanticVersion(3, 8, 1)) && Game1.netWorldState?.Value?.BundleData != null)
-            {
-                var oldData = new Dictionary<string, string>(Game1.netWorldState.Value.BundleData);
-
-                try
-                {
-                    Game1.applySaveFix(SaveGame.SaveFixes.FixBotchedBundleData);
-                    bool changed = Game1.netWorldState.Value.BundleData.Any(p => oldData.TryGetValue(p.Key, out string oldValue) && oldValue != p.Value);
-                    if (changed)
-                        this.Monitor.Log("Found broken community center bundles and fixed them automatically.", LogLevel.Info);
-                }
-                catch (Exception ex)
-                {
-                    this.Monitor.Log("Failed to verify community center data.", LogLevel.Error); // should never happen
-                    this.Monitor.Log($"Technical details: {ex}");
-                }
-            }
-
-            // update last run
-            Game1.CustomData[migrationKey] = Constants.ApiVersion.ToString();
         }
 
         /// <summary>A callback invoked before <see cref="Game1.newDayAfterFade"/> runs.</summary>
@@ -1261,10 +1230,8 @@ namespace StardewModdingAPI.Framework
         /// <summary>Set the titles for the game and console windows.</summary>
         private void UpdateWindowTitles()
         {
-            string smapiVersion = $"{Constants.ApiVersion}{(EarlyConstants.IsWindows64BitHack ? " [64-bit]" : "")}";
-
-            string consoleTitle = $"SMAPI {smapiVersion} - running Stardew Valley {Constants.GameVersion}";
-            string gameTitle = $"Stardew Valley {Constants.GameVersion} - running SMAPI {smapiVersion}";
+            string consoleTitle = $"SMAPI {Constants.ApiVersion} - running Stardew Valley {Constants.GameVersion}";
+            string gameTitle = $"Stardew Valley {Constants.GameVersion} - running SMAPI {Constants.ApiVersion}";
 
             if (this.ModRegistry.AreAllModsLoaded)
             {
@@ -1731,10 +1698,10 @@ namespace StardewModdingAPI.Framework
                 catch (Exception ex)
                 {
                     errorReasonPhrase = "its DLL couldn't be loaded.";
-#if SMAPI_FOR_WINDOWS_64BIT_HACK
-                    if (!EnvironmentUtility.Is64BitAssembly(assemblyPath))
-                        errorReasonPhrase = "it needs to be updated for 64-bit mode.";
-#endif
+                    // re-enable in Stardew Valley 1.5.5
+                    //if (ex is BadImageFormatException && !EnvironmentUtility.Is64BitAssembly(assemblyPath))
+                    //    errorReasonPhrase = "it needs to be updated for 64-bit mode.";
+
                     errorDetails = $"Error: {ex.GetLogSummary()}";
                     failReason = ModFailReason.LoadFailed;
                     return false;
@@ -1772,8 +1739,12 @@ namespace StardewModdingAPI.Framework
                         {
                             IMonitor packMonitor = this.LogManager.GetMonitor(packManifest.Name);
                             IContentHelper packContentHelper = new ContentHelper(contentCore, packDirPath, packManifest.UniqueID, packManifest.Name, packMonitor);
-                            ITranslationHelper packTranslationHelper = new TranslationHelper(packManifest.UniqueID, contentCore.GetLocale(), contentCore.Language);
-                            return new ContentPack(packDirPath, packManifest, packContentHelper, packTranslationHelper, this.Toolkit.JsonHelper);
+                            TranslationHelper packTranslationHelper = new TranslationHelper(packManifest.UniqueID, contentCore.GetLocale(), contentCore.Language);
+
+                            ContentPack contentPack = new ContentPack(packDirPath, packManifest, packContentHelper, packTranslationHelper, this.Toolkit.JsonHelper);
+                            this.ReloadTranslationsForTemporaryContentPack(mod, contentPack);
+                            mod.FakeContentPacks.Add(new WeakReference<ContentPack>(contentPack));
+                            return contentPack;
                         }
 
                         IModEvents events = new ModEvents(mod, this.EventManager);
@@ -1867,15 +1838,39 @@ namespace StardewModdingAPI.Framework
             // mod translations
             foreach (IModMetadata metadata in mods)
             {
-                var translations = this.ReadTranslationFiles(Path.Combine(metadata.DirectoryPath, "i18n"), out IList<string> errors);
-                if (errors.Any())
+                // top-level mod
                 {
-                    metadata.LogAsMod("Mod couldn't load some translation files:", LogLevel.Warn);
-                    foreach (string error in errors)
-                        metadata.LogAsMod($"  - {error}", LogLevel.Warn);
+                    var translations = this.ReadTranslationFiles(Path.Combine(metadata.DirectoryPath, "i18n"), out IList<string> errors);
+                    if (errors.Any())
+                    {
+                        metadata.LogAsMod("Mod couldn't load some translation files:", LogLevel.Warn);
+                        foreach (string error in errors)
+                            metadata.LogAsMod($"  - {error}", LogLevel.Warn);
+                    }
+
+                    metadata.Translations.SetTranslations(translations);
                 }
-                metadata.Translations.SetTranslations(translations);
+
+                // fake content packs
+                foreach (ContentPack pack in metadata.GetFakeContentPacks())
+                    this.ReloadTranslationsForTemporaryContentPack(metadata, pack);
             }
+        }
+
+        /// <summary>Load or reload translations for a temporary content pack created by a mod.</summary>
+        /// <param name="parentMod">The parent mod which created the content pack.</param>
+        /// <param name="contentPack">The content pack instance.</param>
+        private void ReloadTranslationsForTemporaryContentPack(IModMetadata parentMod, ContentPack contentPack)
+        {
+            var translations = this.ReadTranslationFiles(Path.Combine(contentPack.DirectoryPath, "i18n"), out IList<string> errors);
+            if (errors.Any())
+            {
+                parentMod.LogAsMod($"Generated content pack at '{PathUtilities.GetRelativePath(Constants.ModsPath, contentPack.DirectoryPath)}' couldn't load some translation files:", LogLevel.Warn);
+                foreach (string error in errors)
+                    parentMod.LogAsMod($"  - {error}", LogLevel.Warn);
+            }
+
+            contentPack.TranslationImpl.SetTranslations(translations);
         }
 
         /// <summary>Read translations from a directory containing JSON translation files.</summary>

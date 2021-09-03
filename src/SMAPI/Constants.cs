@@ -39,14 +39,6 @@ namespace StardewModdingAPI
         /// <summary>The target game platform.</summary>
         internal static GamePlatform Platform { get; } = (GamePlatform)Enum.Parse(typeof(GamePlatform), LowLevelEnvironmentUtility.DetectPlatform());
 
-        /// <summary>Whether SMAPI is being compiled for Windows with a 64-bit Linux version of the game. This is highly specialized and shouldn't be used in most cases.</summary>
-        internal static bool IsWindows64BitHack { get; } =
-#if SMAPI_FOR_WINDOWS_64BIT_HACK
-            true;
-#else
-            false;
-#endif
-
         /// <summary>The game framework running the game.</summary>
         internal static GameFramework GameFramework { get; } =
 #if SMAPI_FOR_XNA
@@ -56,13 +48,13 @@ namespace StardewModdingAPI
 #endif
 
         /// <summary>The game's assembly name.</summary>
-        internal static string GameAssemblyName => EarlyConstants.Platform == GamePlatform.Windows && !EarlyConstants.IsWindows64BitHack ? "Stardew Valley" : "StardewValley";
+        internal static string GameAssemblyName => EarlyConstants.Platform == GamePlatform.Windows ? "Stardew Valley" : "StardewValley";
 
         /// <summary>The <see cref="Context.ScreenId"/> value which should appear in the SMAPI log, if any.</summary>
         internal static int? LogScreenId { get; set; }
 
         /// <summary>SMAPI's current raw semantic version.</summary>
-        internal static string RawApiVersion = "3.12.5";
+        internal static string RawApiVersion = "3.12.6";
     }
 
     /// <summary>Contains SMAPI's constants and assumptions.</summary>
@@ -81,7 +73,7 @@ namespace StardewModdingAPI
         public static ISemanticVersion MinimumGameVersion { get; } = new GameVersion("1.5.4");
 
         /// <summary>The maximum supported version of Stardew Valley.</summary>
-        public static ISemanticVersion MaximumGameVersion { get; } = null;
+        public static ISemanticVersion MaximumGameVersion { get; } = new GameVersion("1.5.4");
 
         /// <summary>The target game platform.</summary>
         public static GamePlatform TargetPlatform { get; } = EarlyConstants.Platform;
@@ -269,7 +261,7 @@ namespace StardewModdingAPI
             targetAssemblies.Add(typeof(StardewModdingAPI.IManifest).Assembly);
 
             // get changes for platform
-            if (Constants.Platform != Platform.Windows || EarlyConstants.IsWindows64BitHack)
+            if (Constants.Platform != Platform.Windows)
             {
                 removeAssemblyReferences.AddRange(new[]
                 {

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using StardewModdingAPI.Framework.ModHelpers;
 using StardewModdingAPI.Framework.ModLoading;
@@ -63,6 +64,9 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>The update-check metadata for this mod (if any).</summary>
         ModEntryModel UpdateCheckData { get; }
+
+        /// <summary>The fake content packs created by this mod, if any.</summary>
+        ISet<WeakReference<ContentPack>> FakeContentPacks { get; }
 
 
         /*********
@@ -135,5 +139,8 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>Get a relative path which includes the root folder name.</summary>
         string GetRelativePathWithRoot();
+
+        /// <summary>Get the currently live fake content packs created by this mod.</summary>
+        IEnumerable<ContentPack> GetFakeContentPacks();
     }
 }

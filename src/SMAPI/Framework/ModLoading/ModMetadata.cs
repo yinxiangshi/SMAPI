@@ -83,6 +83,9 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <inheritdoc />
         public bool IsContentPack => this.Manifest?.ContentPackFor != null;
 
+        /// <summary>The fake content packs created by this mod, if any.</summary>
+        public ISet<WeakReference<ContentPack>> FakeContentPacks { get; } = new HashSet<WeakReference<ContentPack>>();
+
 
         /*********
         ** Public methods
@@ -242,6 +245,21 @@ namespace StardewModdingAPI.Framework.ModLoading
         {
             string rootFolderName = Path.GetFileName(this.RootPath) ?? "";
             return Path.Combine(rootFolderName, this.RelativeDirectoryPath);
+        }
+
+        /// <summary>Get the currently live fake content packs created by this mod.</summary>
+        public IEnumerable<ContentPack> GetFakeContentPacks()
+        {
+            foreach (var reference in this.FakeContentPacks.ToArray())
+            {
+                if (!reference.TryGetTarget(out ContentPack pack))
+                {
+                    this.FakeContentPacks.Remove(reference);
+                    continue;
+                }
+
+                yield return pack;
+            }
         }
 
 

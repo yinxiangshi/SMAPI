@@ -300,10 +300,10 @@ namespace StardewModdingAPI.Framework.ModLoading
                     // remove old assembly reference
                     if (this.AssemblyMap.RemoveNames.Any(name => module.AssemblyReferences[i].Name == name))
                     {
-                        this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Rewriting {filename} for OS...");
                         platformChanged = true;
                         module.AssemblyReferences.RemoveAt(i);
                         i--;
+                        this.Monitor.LogOnce(loggedMessages, $"{logPrefix}Rewrote {filename} for OS...");
                     }
                 }
                 if (platformChanged)
@@ -336,6 +336,13 @@ namespace StardewModdingAPI.Framework.ModLoading
             IInstructionHandler[] handlers = new InstructionMetadata().GetHandlers(this.ParanoidMode, platformChanged, this.RewriteMods).ToArray();
             RecursiveRewriter rewriter = new RecursiveRewriter(
                 module: module,
+                rewriteModule: curModule =>
+                {
+                    bool rewritten = false;
+                    foreach (IInstructionHandler handler in handlers)
+                        rewritten |= handler.Handle(curModule);
+                    return rewritten;
+                },
                 rewriteType: (type, replaceWith) =>
                 {
                     bool rewritten = false;
@@ -387,7 +394,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                     break;
 
                 case InstructionHandleResult.DetectedGamePatch:
-                    template = $"{logPrefix}Detected game patcher ($phrase) in assembly {filename}.";
+                    template = $"{logPrefix}Detected game patcher in assembly {filename}."; // no need for phrase, which would confusingly be 'Harmony 1.x' here
                     mod.SetWarning(ModWarning.PatchesGame);
                     break;
 
@@ -431,13 +438,10 @@ namespace StardewModdingAPI.Framework.ModLoading
                 return;
 
             // format messages
-            if (handler.Phrases.Any())
-            {
-                foreach (string message in handler.Phrases)
-                    this.Monitor.LogOnce(loggedMessages, template.Replace("$phrase", message));
-            }
-            else
-                this.Monitor.LogOnce(loggedMessages, template.Replace("$phrase", handler.DefaultPhrase ?? handler.GetType().Name));
+            string phrase = handler.Phrases.Any()
+                ? string.Join(", ", handler.Phrases)
+                : handler.DefaultPhrase ?? handler.GetType().Name;
+            this.Monitor.LogOnce(loggedMessages, template.Replace("$phrase", phrase));
         }
 
         /// <summary>Get the correct reference to use for compatibility with the current platform.</summary>

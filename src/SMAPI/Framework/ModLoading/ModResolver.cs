@@ -5,6 +5,7 @@ using System.Linq;
 using StardewModdingAPI.Toolkit;
 using StardewModdingAPI.Toolkit.Framework.ModData;
 using StardewModdingAPI.Toolkit.Framework.ModScanning;
+using StardewModdingAPI.Toolkit.Framework.UpdateData;
 using StardewModdingAPI.Toolkit.Serialization.Models;
 using StardewModdingAPI.Toolkit.Utilities;
 
@@ -82,9 +83,9 @@ namespace StardewModdingAPI.Framework.ModLoading
 
                             // get update URLs
                             List<string> updateUrls = new List<string>();
-                            foreach (string key in mod.Manifest.UpdateKeys)
+                            foreach (UpdateKey key in mod.GetUpdateKeys(validOnly: true))
                             {
-                                string url = getUpdateUrl(key);
+                                string url = getUpdateUrl(key.ToString());
                                 if (url != null)
                                     updateUrls.Add(url);
                             }
