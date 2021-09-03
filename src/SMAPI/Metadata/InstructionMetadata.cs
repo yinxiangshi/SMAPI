@@ -48,13 +48,12 @@ namespace StardewModdingAPI.Metadata
                 yield return new HeuristicFieldRewriter(this.ValidateReferencesToAssemblies);
                 yield return new HeuristicMethodRewriter(this.ValidateReferencesToAssemblies);
 
+                // rewrite for 64-bit mode
+                // re-enable in Stardew Valley 1.5.5
+                //yield return new ArchitectureAssemblyRewriter();
+
                 // detect Harmony & rewrite for SMAPI 3.12 (Harmony 1.x => 2.0 update)
                 yield return new HarmonyRewriter();
-
-                // rewrite for 64-bit mode
-#if SMAPI_FOR_WINDOWS_64BIT_HACK
-                yield return new ArchitectureAssemblyRewriter();
-#endif
             }
             else
                 yield return new HarmonyRewriter(shouldRewrite: false);

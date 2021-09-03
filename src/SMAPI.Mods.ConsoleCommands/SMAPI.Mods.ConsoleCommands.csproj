@@ -19,7 +19,7 @@
 
   <!-- Windows only -->
   <ItemGroup Condition="'$(OS)' == 'Windows_NT'">
-    <Reference Include="Netcode" HintPath="$(GamePath)\Netcode.dll" Private="False" Condition="!$(DefineConstants.Contains(SMAPI_FOR_WINDOWS_64BIT_HACK))" />
+    <Reference Include="Netcode" HintPath="$(GamePath)\Netcode.dll" Private="False" />
   </ItemGroup>
 
   <!-- Game framework -->

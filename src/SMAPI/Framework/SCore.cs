@@ -12,10 +12,10 @@ using System.Security;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework;
 #if SMAPI_FOR_WINDOWS
 using Microsoft.Win32;
 #endif
-using Microsoft.Xna.Framework;
 #if SMAPI_FOR_XNA
 using System.Windows.Forms;
 #endif
@@ -436,7 +436,7 @@ namespace StardewModdingAPI.Framework
             Game1.mapDisplayDevice = new SDisplayDevice(Game1.content, Game1.game1.GraphicsDevice);
 
             // log GPU info
-#if SMAPI_FOR_WINDOWS && !SMAPI_FOR_WINDOWS_64BIT_HACK
+#if SMAPI_FOR_WINDOWS
             this.Monitor.Log($"Running on GPU: {Game1.game1.GraphicsDevice?.Adapter?.Description ?? "<unknown>"}");
 #endif
         }
@@ -1267,10 +1267,8 @@ namespace StardewModdingAPI.Framework
         /// <summary>Set the titles for the game and console windows.</summary>
         private void UpdateWindowTitles()
         {
-            string smapiVersion = $"{Constants.ApiVersion}{(EarlyConstants.IsWindows64BitHack ? " [64-bit]" : "")}";
-
-            string consoleTitle = $"SMAPI {smapiVersion} - running Stardew Valley {Constants.GameVersion}";
-            string gameTitle = $"Stardew Valley {Constants.GameVersion} - running SMAPI {smapiVersion}";
+            string consoleTitle = $"SMAPI {Constants.ApiVersion} - running Stardew Valley {Constants.GameVersion}";
+            string gameTitle = $"Stardew Valley {Constants.GameVersion} - running SMAPI {Constants.ApiVersion}";
 
             if (this.ModRegistry.AreAllModsLoaded)
             {
@@ -1737,10 +1735,10 @@ namespace StardewModdingAPI.Framework
                 catch (Exception ex)
                 {
                     errorReasonPhrase = "its DLL couldn't be loaded.";
-#if SMAPI_FOR_WINDOWS_64BIT_HACK
-                    if (ex is BadImageFormatException && !EnvironmentUtility.Is64BitAssembly(assemblyPath))
-                        errorReasonPhrase = "it needs to be updated for 64-bit mode.";
-#endif
+                    // re-enable in Stardew Valley 1.5.5
+                    //if (ex is BadImageFormatException && !EnvironmentUtility.Is64BitAssembly(assemblyPath))
+                    //    errorReasonPhrase = "it needs to be updated for 64-bit mode.";
+
                     errorDetails = $"Error: {ex.GetLogSummary()}";
                     failReason = ModFailReason.LoadFailed;
                     return false;

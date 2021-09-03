@@ -5,7 +5,8 @@
 * For players:
   * Added friendly error when using SMAPI 3.2._x_ with Stardew Valley 1.5.5 or later.
   * Improved mod compatibility in 64-bit mode (thanks to spacechase0!).
-  * Reducing load time when scanning/rewriting many mods for compatibility.
+  * Reduced load time when scanning/rewriting many mods for compatibility.
+  * **Dropped support for unofficial 64-bit mode**. You can now use the [official 64-bit Stardew Valley 1.5.5 beta](https://stardewvalleywiki.com/Modding:Migrate_to_64-bit_on_Windows) instead.
   * Updated compatibility list.
 
 * For mod authors:

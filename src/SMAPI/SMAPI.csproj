@@ -14,10 +14,6 @@
 
   <Import Project="..\..\build\common.targets" />
 
-  <PropertyGroup Condition="$(DefineConstants.Contains(SMAPI_FOR_WINDOWS_64BIT_HACK))">
-    <PlatformTarget>x64</PlatformTarget>
-  </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="LargeAddressAware" Version="1.0.5" />
     <PackageReference Include="Mono.Cecil" Version="0.11.4" />
@@ -39,7 +35,7 @@
 
   <!-- Windows only -->
   <ItemGroup Condition="'$(OS)' == 'Windows_NT'">
-    <Reference Include="Netcode" HintPath="$(GamePath)\Netcode.dll" Private="False" Condition="!$(DefineConstants.Contains(SMAPI_FOR_WINDOWS_64BIT_HACK))" />
+    <Reference Include="Netcode" HintPath="$(GamePath)\Netcode.dll" Private="False" />
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
 
