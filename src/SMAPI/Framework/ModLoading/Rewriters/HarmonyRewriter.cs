@@ -34,7 +34,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         public override bool Handle(ModuleDefinition module, TypeReference type, Action<TypeReference> replaceWith)
         {
             // detect Harmony
-            if (type.Scope is not AssemblyNameReference { Name: "0Harmony" } scope)
+            if (!(type.Scope is AssemblyNameReference scope) || scope.Name != "0Harmony")
                 return false;
 
             // rewrite Harmony 1.x type to Harmony 2.0 type
