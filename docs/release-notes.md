@@ -11,6 +11,8 @@
 
 * For mod authors:
   * Added `PathUtilities.NormalizeAssetName` and `PathUtilities.PreferredAssetSeparator` to prepare for the upcoming Stardew Valley 1.5.5.
+  * **SMAPI no longer propagates changes to `Data/Bundles`.**  
+    _You can still load/edit the asset like usual, but if bundles have already been loaded for a save, SMAPI will no longer dynamically update the in-game bundles to reflect the changes. Unfortunately this caused bundle corruption when playing in non-English._
   * Fixed content packs created via `helper.ContentPacks.CreateFake` or `CreateTemporary` not initializing translations correctly.
 
 * For console commands:
