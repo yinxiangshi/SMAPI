@@ -1,7 +1,9 @@
 ← [README](README.md)
 
 # Release notes
-## Upcoming release
+## 3.12.6
+Released 03 September 2021 for Stardew Valley 1.5.4 or later.
+
 * For players:
   * Added friendly error when using SMAPI 3.2._x_ with Stardew Valley 1.5.5 or later.
   * Improved mod compatibility in 64-bit mode (thanks to spacechase0!).
