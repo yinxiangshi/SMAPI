@@ -1891,9 +1891,9 @@ namespace StardewModdingAPI.Framework
                     string locale = Path.GetFileNameWithoutExtension(file.Name.ToLower().Trim());
                     try
                     {
-                        if (!jsonHelper.ReadJsonFileIfExists(file.FullName, out IDictionary<string, string> data))
+                        if (!jsonHelper.ReadJsonFileIfExists(file.FullName, out IDictionary<string, string> data) || data == null)
                         {
-                            errors.Add($"{file.Name} file couldn't be read"); // should never happen, since we're iterating files that exist
+                            errors.Add($"{file.Name} file couldn't be read"); // mainly happens when the file is corrupted or empty
                             continue;
                         }
 

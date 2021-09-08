@@ -1,6 +1,10 @@
 ← [README](README.md)
 
 # Release notes
+## Upcoming release
+* For players:
+  * Fixed crash loading mods if they have corrupted translation files.
+
 ## 3.12.6
 Released 03 September 2021 for Stardew Valley 1.5.4 or later.
 
