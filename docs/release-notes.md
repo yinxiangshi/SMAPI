@@ -6,6 +6,7 @@
   * Fixed crash loading mods with corrupted translation files.
 
 * For mod authors:
+  * Added asset propagation for `LooseSprites\Giftbox`.
   * Improved SMAPI's crossplatform read/writing of `Color`, `Point`, `Rectangle`, and `Vector2` in JSON to support nullable fields too.
 
 * For the web UI:

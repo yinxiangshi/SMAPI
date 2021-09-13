@@ -414,6 +414,10 @@ namespace StardewModdingAPI.Metadata
                     SpriteText.coloredTexture = content.Load<Texture2D>(key);
                     return true;
 
+                case "loosesprites\\giftbox": // Game1.LoadContent
+                    Game1.giftboxTexture = content.Load<Texture2D>(key);
+                    return true;
+
                 case "loosesprites\\nightbg": // Game1.LoadContent
                     Game1.nightbg = content.Load<Texture2D>(key);
                     return true;
