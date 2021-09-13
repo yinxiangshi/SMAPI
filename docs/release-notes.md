@@ -9,6 +9,7 @@
   * Improved SMAPI's crossplatform read/writing of `Color`, `Point`, `Rectangle`, and `Vector2` in JSON to support nullable fields too.
 
 * For the web UI:
+  * The mod compatibility list now shows the beta status by default (if any).
   * Fixed JSON validator line numbers sometimes incorrect.
 
 ## 3.12.6

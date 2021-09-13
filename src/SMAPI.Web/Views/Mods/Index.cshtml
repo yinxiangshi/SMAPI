@@ -45,7 +45,7 @@ else
 
             @if (hasBeta)
             {
-                <p id="beta-blurb" v-show="showAdvanced"><strong>Note:</strong> "@betaLabel" lines are for an unreleased version of SMAPI, not the stable version most players have. If a mod doesn't have that line, the info applies to both versions of SMAPI.</p>
+                <p id="beta-blurb"><strong>Note:</strong> "@betaLabel" lines are for the beta version of Stardew Valley, not the stable version most players have. If a mod doesn't have that line, the info applies to both versions.</p>
             }
         </div>
 
@@ -99,7 +99,7 @@ else
                     </td>
                     <td>
                         <div v-html="mod.Compatibility.Summary"></div>
-                        <div v-if="mod.BetaCompatibility" v-show="showAdvanced">
+                        <div v-if="mod.BetaCompatibility">
                             <strong v-if="mod.BetaCompatibility">@betaLabel:</strong>
                             <span v-html="mod.BetaCompatibility.Summary"></span>
                         </div>
