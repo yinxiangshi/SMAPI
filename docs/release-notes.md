@@ -3,7 +3,10 @@
 # Release notes
 ## Upcoming release
 * For players:
-  * Fixed crash loading mods if they have corrupted translation files.
+  * Fixed crash loading mods with corrupted translation files.
+
+* For mod authors:
+  * Improved SMAPI's crossplatform read/writing of `Color`, `Point`, `Rectangle`, and `Vector2` in JSON to support nullable fields too.
 
 ## 3.12.6
 Released 03 September 2021 for Stardew Valley 1.5.4 or later.
