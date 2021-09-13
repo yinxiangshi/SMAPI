@@ -8,6 +8,9 @@
 * For mod authors:
   * Improved SMAPI's crossplatform read/writing of `Color`, `Point`, `Rectangle`, and `Vector2` in JSON to support nullable fields too.
 
+* For the web UI:
+  * Fixed JSON validator line numbers sometimes incorrect.
+
 ## 3.12.6
 Released 03 September 2021 for Stardew Valley 1.5.4 or later.
 
