@@ -3,6 +3,7 @@
 # Release notes
 ## Upcoming release
 * For players:
+  * Added more progress updates in the log during startup.
   * Fixed crash loading mods with corrupted translation files.
 
 * For mod authors:
