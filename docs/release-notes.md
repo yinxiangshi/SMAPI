@@ -4,6 +4,7 @@
 ## Upcoming release
 * For players:
   * Added more progress updates in the log during startup.
+  * Simplified common asset load error message.
   * Fixed crash loading mods with corrupted translation files.
 
 * For mod authors:
