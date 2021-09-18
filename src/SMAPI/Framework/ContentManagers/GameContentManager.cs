@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Xna.Framework.Content;
@@ -205,28 +206,35 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <remarks>Derived from <see cref="LocalizedContentManager.Load{T}(string, LocalizedContentManager.LanguageCode)"/>.</remarks>
         private T RawLoad<T>(string assetName, LanguageCode language, bool useCache)
         {
-            // use cached key
-            if (language == this.Language && this.LocalizedAssetNames.TryGetValue(assetName, out string cachedKey))
-                return base.RawLoad<T>(cachedKey, useCache);
-
-            // try translated key
-            if (language != LocalizedContentManager.LanguageCode.en)
+            try
             {
-                string translatedKey = $"{assetName}.{this.GetLocale(language)}";
-                try
-                {
-                    T obj = base.RawLoad<T>(translatedKey, useCache);
-                    this.LocalizedAssetNames[assetName] = translatedKey;
-                    return obj;
-                }
-                catch (ContentLoadException)
-                {
-                    this.LocalizedAssetNames[assetName] = assetName;
-                }
-            }
+                // use cached key
+                if (language == this.Language && this.LocalizedAssetNames.TryGetValue(assetName, out string cachedKey))
+                    return base.RawLoad<T>(cachedKey, useCache);
 
-            // try base asset
-            return base.RawLoad<T>(assetName, useCache);
+                // try translated key
+                if (language != LocalizedContentManager.LanguageCode.en)
+                {
+                    string translatedKey = $"{assetName}.{this.GetLocale(language)}";
+                    try
+                    {
+                        T obj = base.RawLoad<T>(translatedKey, useCache);
+                        this.LocalizedAssetNames[assetName] = translatedKey;
+                        return obj;
+                    }
+                    catch (ContentLoadException)
+                    {
+                        this.LocalizedAssetNames[assetName] = assetName;
+                    }
+                }
+
+                // try base asset
+                return base.RawLoad<T>(assetName, useCache);
+            }
+            catch (ContentLoadException ex) when (ex.InnerException is FileNotFoundException innerEx && innerEx.InnerException == null)
+            {
+                throw new SContentLoadException($"Error loading \"{assetName}\": it isn't in the Content folder and no mod provided it.");
+            }
         }
 
         /// <summary>Parse an asset key that contains an explicit language into its asset name and language, if applicable.</summary>

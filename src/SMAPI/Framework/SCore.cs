@@ -289,7 +289,7 @@ namespace StardewModdingAPI.Framework
             this.UpdateWindowTitles();
 
             // start game
-            this.Monitor.Log("Starting game...", LogLevel.Debug);
+            this.Monitor.Log("Waiting for game to launch...", LogLevel.Debug);
             try
             {
                 this.IsGameRunning = true;
@@ -377,7 +377,7 @@ namespace StardewModdingAPI.Framework
 
             // load mods
             {
-                this.Monitor.Log("Loading mod metadata...");
+                this.Monitor.Log("Loading mod metadata...", LogLevel.Debug);
                 ModResolver resolver = new ModResolver();
 
                 // log loose files
@@ -1487,7 +1487,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="modDatabase">Handles access to SMAPI's internal mod metadata list.</param>
         private void LoadMods(IModMetadata[] mods, JsonHelper jsonHelper, ContentCoordinator contentCore, ModDatabase modDatabase)
         {
-            this.Monitor.Log("Loading mods...");
+            this.Monitor.Log("Loading mods...", LogLevel.Debug);
 
             // load mods
             IList<IModMetadata> skippedMods = new List<IModMetadata>();
@@ -1523,6 +1523,7 @@ namespace StardewModdingAPI.Framework
             this.ReloadTranslations(loaded);
 
             // initialize loaded non-content-pack mods
+            this.Monitor.Log("Launching mods...", LogLevel.Debug);
             foreach (IModMetadata metadata in loadedMods)
             {
                 // add interceptors
@@ -1572,6 +1573,8 @@ namespace StardewModdingAPI.Framework
 
             // unlock mod integrations
             this.ModRegistry.AreAllModsInitialized = true;
+
+            this.Monitor.Log("Mods loaded and ready!", LogLevel.Debug);
         }
 
         /// <summary>Raised after a mod adds or removes asset interceptors.</summary>
@@ -1891,9 +1894,9 @@ namespace StardewModdingAPI.Framework
                     string locale = Path.GetFileNameWithoutExtension(file.Name.ToLower().Trim());
                     try
                     {
-                        if (!jsonHelper.ReadJsonFileIfExists(file.FullName, out IDictionary<string, string> data))
+                        if (!jsonHelper.ReadJsonFileIfExists(file.FullName, out IDictionary<string, string> data) || data == null)
                         {
-                            errors.Add($"{file.Name} file couldn't be read"); // should never happen, since we're iterating files that exist
+                            errors.Add($"{file.Name} file couldn't be read"); // mainly happens when the file is corrupted or empty
                             continue;
                         }
 

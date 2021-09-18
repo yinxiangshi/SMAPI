@@ -90,21 +90,27 @@ namespace StardewModdingAPI.Web.Controllers
 
             // parse JSON
             JToken parsed;
-            try
             {
-                parsed = JToken.Parse(file.Content, new JsonLoadSettings
+                // load raw JSON
+                var settings = new JsonLoadSettings
                 {
                     DuplicatePropertyNameHandling = DuplicatePropertyNameHandling.Error,
                     CommentHandling = CommentHandling.Load
-                });
-            }
-            catch (JsonReaderException ex)
-            {
-                return this.View("Index", result.AddErrors(new JsonValidatorErrorModel(ex.LineNumber, ex.Path, ex.Message, ErrorType.None)));
-            }
+                };
+                try
+                {
+                    parsed = JToken.Parse(file.Content, settings);
+                }
+                catch (JsonReaderException ex)
+                {
+                    return this.View("Index", result.AddErrors(new JsonValidatorErrorModel(ex.LineNumber, ex.Path, ex.Message, ErrorType.None)));
+                }
 
-            // format JSON
-            result.SetContent(parsed.ToString(Formatting.Indented), expiry: file.Expiry, uploadWarning: file.Warning);
+                // format JSON
+                string formatted = parsed.ToString(Formatting.Indented);
+                result.SetContent(formatted, expiry: file.Expiry, uploadWarning: file.Warning);
+                parsed = JToken.Parse(formatted); // update line number references
+            }
 
             // skip if no schema selected
             if (schemaName == "none")

@@ -1,8 +1,25 @@
 ← [README](README.md)
 
 # Release notes
+## 3.12.7
+Released 18 September 2021 for Stardew Valley 1.5.4.
+
+* For players:
+  * Added more progress updates in the log during startup.
+  * Simplified asset load error message.
+  * Simplified exception logs.
+  * Fixed crash loading mods with corrupted translation files.
+
+* For mod authors:
+  * Added asset propagation for `LooseSprites\Giftbox`.
+  * Improved SMAPI's crossplatform read/writing of `Color`, `Point`, `Rectangle`, and `Vector2` in JSON to support nullable fields too.
+
+* For the web UI:
+  * The mod compatibility list now shows the beta status by default (if any).
+  * Fixed JSON validator line numbers sometimes incorrect.
+
 ## 3.12.6
-Released 03 September 2021 for Stardew Valley 1.5.4 or later.
+Released 03 September 2021 for Stardew Valley 1.5.4.
 
 * For players:
   * Added friendly error when using SMAPI 3.2._x_ with Stardew Valley 1.5.5 or later.
@@ -26,18 +43,18 @@ to format asset names, you should switch to `PathUtilities.NormalizeAssetName` n
 continue working in the next game update.
 
 ## 3.12.5
-Released 26 August 2021 for Stardew Valley 1.5.4 or later.
+Released 26 August 2021 for Stardew Valley 1.5.4.
 
 * Fixed some mods in unofficial 64-bit mode no longer loading after SMAPI 3.12.3.
 
 ## 3.12.4
-Released 25 August 2021 for Stardew Valley 1.5.4 or later.
+Released 25 August 2021 for Stardew Valley 1.5.4.
 
 * For players:
   * Fixed error loading some mods in SMAPI 3.12.3.
 
 ## 3.12.3
-Released 25 August 2021 for Stardew Valley 1.5.4 or later.
+Released 25 August 2021 for Stardew Valley 1.5.4.
 
 * For players:
   * Added friendly error in 64-bit mode when a mod is 32-bit only.
@@ -56,7 +73,7 @@ Released 25 August 2021 for Stardew Valley 1.5.4 or later.
   * Fixed update checks shown for prerelease mod versions if you have a working non-prerelease version.
 
 ## 3.12.2
-Released 05 August 2021 for Stardew Valley 1.5.4 or later.
+Released 05 August 2021 for Stardew Valley 1.5.4.
 
 * For players:
   * Fixed error creating a new save or joining a multiplayer world in 3.12.1.
@@ -67,7 +84,7 @@ Released 05 August 2021 for Stardew Valley 1.5.4 or later.
   * Fixed `NullReferenceException` in SMAPI's error-handling when trying to handle an invalid `ReflectionTypeLoadException`.
 
 ## 3.12.1
-Released 03 August 2021 for Stardew Valley 1.5.4 or later.
+Released 03 August 2021 for Stardew Valley 1.5.4.
 
 * For players:
   * The software conflict message is now shown as a warning to simplify troubleshooting.
@@ -78,7 +95,7 @@ Released 03 August 2021 for Stardew Valley 1.5.4 or later.
   * Fixed `Constants.Save*` fields incorrect if the save's folder name and ID don't match.
 
 ## 3.12.0
-Released 01 August 2021 for Stardew Valley 1.5.4 or later. See [release highlights](https://www.patreon.com/posts/54388616).
+Released 01 August 2021 for Stardew Valley 1.5.4. See [release highlights](https://www.patreon.com/posts/54388616).
 
 * For players:
   * Added save recovery when content mods leave null objects in the save (in _Error Handler_).
@@ -96,7 +113,7 @@ Released 01 August 2021 for Stardew Valley 1.5.4 or later. See [release highligh
   * Fixed reloading a map not correctly reapplying interior doors.
 
 ## 3.11.0
-Released 09 July 2021 for Stardew Valley 1.5.4 or later. See [release highlights](https://www.patreon.com/posts/53514295).
+Released 09 July 2021 for Stardew Valley 1.5.4. See [release highlights](https://www.patreon.com/posts/53514295).
 
 * For players:
   * Updated for Stardew Valley 1.4.5 multiplayer hotfix on Linux/macOS.
@@ -120,13 +137,13 @@ Released 09 July 2021 for Stardew Valley 1.5.4 or later. See [release highlights
   * Fixed JSON schema for `i18n` files requiring the wrong value for the `$schema` field.
 
 ## 3.10.1
-Released 03 May 2021 for Stardew Valley 1.5.4 or later.
+Released 03 May 2021 for Stardew Valley 1.5.4.
 
 * For players:
   * Fixed installer leaving an unneeded `StardewModdingAPI-x64.exe` file in 32-bit game folders.
 
 ## 3.10
-Released 03 May 2021 for Stardew Valley 1.5.4 or later. See [release highlights](https://www.patreon.com/posts/50764911).
+Released 03 May 2021 for Stardew Valley 1.5.4. See [release highlights](https://www.patreon.com/posts/50764911).
 
 * For players:
   * Added full support for the [unofficial 64-bit Stardew Valley patch](https://stardewvalleywiki.com/Modding:Migrate_to_64-bit_on_Windows), which removes memory limits. The installer detects which version of SMAPI you need, and SMAPI shows update alerts for Stardew64Installer if applicable.
@@ -151,7 +168,7 @@ Released 03 May 2021 for Stardew Valley 1.5.4 or later. See [release highlights]
   * Fixed update subkeys not working in file descriptions for Nexus mods marked as adult content.
 
 ## 3.9.5
-Released 21 March 2021 for Stardew Valley 1.5.4 or later.
+Released 21 March 2021 for Stardew Valley 1.5.4.
 
 * For players:
   * Added console command to reset community center bundles _(in Console Commands)_.
@@ -172,13 +189,13 @@ Released 21 March 2021 for Stardew Valley 1.5.4 or later.
     _Note: mods don't need to handle the difference in most cases, but some players may use MonoGame on Windows in upcoming versions. Mods which check `Constants.TargetPlatform` should review usages as needed._
 
 ## 3.9.4
-Released 07 March 2021 for Stardew Valley 1.5.4 or later.
+Released 07 March 2021 for Stardew Valley 1.5.4.
 
 * For players:
   * Fixed installer error if the `Mods` folder doesn't exist in 3.9.3.
 
 ## 3.9.3
-Released 07 March 2021 for Stardew Valley 1.5.4 or later.
+Released 07 March 2021 for Stardew Valley 1.5.4.
 
 * For players:
   * Added descriptive error if possible when a `PathTooLongException` crashes SMAPI or the installer.
@@ -194,7 +211,7 @@ Released 07 March 2021 for Stardew Valley 1.5.4 or later.
   * Updated the JSON validator/schema for Content Patcher 1.21.
 
 ## 3.9.2
-Released 21 February 2021 for Stardew Valley 1.5.4 or later.
+Released 21 February 2021 for Stardew Valley 1.5.4.
 
 * For players:
   * Added more aggressive memory optimization to reduce `OutOfMemoryException` errors with some mods.
@@ -217,14 +234,14 @@ Released 21 February 2021 for Stardew Valley 1.5.4 or later.
   * Fixed SMAPI toolkit defaulting the mod type incorrectly if a mod's `manifest.json` has neither `EntryDll` nor `ContentPackFor`. This only affects external tools, since SMAPI itself validates those fields separately.
 
 ## 3.9.1
-Released 25 January 2021 for Stardew Valley 1.5.4 or later.
+Released 25 January 2021 for Stardew Valley 1.5.4.
 
 * For players:
   * Fixed _tile contains an invalid TileSheet reference_ crash after mods change certain maps.
   * Fixed _patched game code_ issue shown for the bundled Error Handler mod.
 
 ## 3.9
-Released 22 January 2021 for Stardew Valley 1.5.4 or later. See [release highlights](https://www.patreon.com/posts/46553874).
+Released 22 January 2021 for Stardew Valley 1.5.4. See [release highlights](https://www.patreon.com/posts/46553874).
 
 * For players:
   * Updated for Stardew Valley 1.5.4.

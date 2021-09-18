@@ -22,7 +22,7 @@ namespace StardewModdingAPI.Toolkit.Serialization.Converters
         /// <param name="objectType">The object type.</param>
         public override bool CanConvert(Type objectType)
         {
-            return objectType == typeof(T);
+            return objectType == typeof(T) || Nullable.GetUnderlyingType(objectType) == typeof(T);
         }
 
         /// <summary>Writes the JSON representation of the object.</summary>
@@ -44,10 +44,15 @@ namespace StardewModdingAPI.Toolkit.Serialization.Converters
             string path = reader.Path;
             switch (reader.TokenType)
             {
+                case JsonToken.Null when Nullable.GetUnderlyingType(objectType) != null:
+                    return null;
+
                 case JsonToken.StartObject:
                     return this.ReadObject(JObject.Load(reader), path);
+
                 case JsonToken.String:
                     return this.ReadString(JToken.Load(reader).Value<string>(), path);
+
                 default:
                     throw new SParseException($"Can't parse {typeof(T).Name} from {reader.TokenType} node (path: {reader.Path}).");
             }
