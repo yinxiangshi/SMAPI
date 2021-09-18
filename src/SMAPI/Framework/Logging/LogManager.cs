@@ -406,6 +406,10 @@ namespace StardewModdingAPI.Framework.Logging
                 }
             }
 
+            // simplify exception messages
+            if (level == LogLevel.Error)
+                message = ExceptionHelper.SimplifyExtensionMessage(message);
+
             // forward to monitor
             gameMonitor.Log(message, level);
         }

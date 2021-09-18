@@ -1,10 +1,11 @@
 using System;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace StardewModdingAPI.Internal
 {
     /// <summary>Provides extension methods for handling exceptions.</summary>
-    internal static class ExceptionExtensions
+    internal static class ExceptionHelper
     {
         /*********
         ** Public methods
@@ -15,20 +16,26 @@ namespace StardewModdingAPI.Internal
         {
             try
             {
+                string message;
                 switch (exception)
                 {
                     case TypeLoadException ex:
-                        return $"Failed loading type '{ex.TypeName}': {exception}";
+                        message = $"Failed loading type '{ex.TypeName}': {exception}";
+                        break;
 
                     case ReflectionTypeLoadException ex:
                         string summary = ex.ToString();
                         foreach (Exception childEx in ex.LoaderExceptions ?? new Exception[0])
                             summary += $"\n\n{childEx?.GetLogSummary()}";
-                        return summary;
+                        message = summary;
+                        break;
 
                     default:
-                        return exception?.ToString() ?? $"<null exception>\n{Environment.StackTrace}";
+                        message = exception?.ToString() ?? $"<null exception>\n{Environment.StackTrace}";
+                        break;
                 }
+
+                return ExceptionHelper.SimplifyExtensionMessage(message);
             }
             catch (Exception ex)
             {
@@ -43,6 +50,27 @@ namespace StardewModdingAPI.Internal
             while (exception.InnerException != null)
                 exception = exception.InnerException;
             return exception;
+        }
+
+        /// <summary>Simplify common patterns in exception log messages that don't convey useful info.</summary>
+        /// <param name="message">The log message to simplify.</param>
+        public static string SimplifyExtensionMessage(string message)
+        {
+            // remove namespace for core exception types
+            message = Regex.Replace(
+                message,
+                @"(?:StardewModdingAPI\.Framework\.Exceptions|Microsoft\.Xna\.Framework|System|System\.IO)\.([a-zA-Z]+Exception):",
+                "$1:"
+            );
+
+            // remove unneeded root build paths for SMAPI and Stardew Valley
+            message = message
+                .Replace(@"C:\source\_Stardew\SMAPI\src\", "")
+                .Replace(@"C:\GitlabRunner\builds\Gq5qA5P4\0\ConcernedApe\", "");
+
+            // remove placeholder info in Linux/macOS stack traces
+            return message
+                .Replace(@"<filename unknown>:0", "");
         }
     }
 }
