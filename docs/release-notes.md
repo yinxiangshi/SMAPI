@@ -6,6 +6,7 @@
   * Updated for Stardew Valley 1.5.5.
   * Updated compatibility list.
   * Added `set_farm_type` [console command](https://stardewvalleywiki.com/Modding:Console_commands#Console_commands) to change the current farm type.
+  * Fixed installer window closing immediately if the installer crashed.
 
 * For mod authors:
   * Migrated to 64-bit MonoGame and .NET 5 on all platforms (see [migration guide for mod authors](https://stardewvalleywiki.com/Modding:Migrate_to_Stardew_Valley_1.5.5)).
