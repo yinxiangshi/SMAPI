@@ -216,6 +216,7 @@ namespace StardewModdingAPI.Web
 
                     // GitHub docs
                     [@"^/package(?:/?(.*))$"] = "https://github.com/Pathoschild/SMAPI/blob/develop/docs/technical/mod-package.md#$1",
+                    [@"^/release(?:/?(.*))$"] = "https://github.com/Pathoschild/SMAPI/blob/develop/docs/release-notes.md#$1",
 
                     // legacy redirects
                     [@"^/compat\.?$"] = "https://smapi.io/mods"
