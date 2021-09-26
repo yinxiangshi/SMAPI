@@ -1,6 +1,10 @@
 ← [README](README.md)
 
 # Release notes
+## Upcoming release
+* For players:
+  * Fixed mod edits to the farmhouse shifting the player down one tile in some cases.
+
 ## 3.12.7
 Released 18 September 2021 for Stardew Valley 1.5.4.
 

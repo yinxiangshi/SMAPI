@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Framework.ContentManagers;
 using StardewModdingAPI.Framework.Reflection;
@@ -908,6 +909,8 @@ namespace StardewModdingAPI.Metadata
         /// <param name="location">The location whose map to reload.</param>
         private void ReloadMap(GameLocation location)
         {
+            Vector2? playerPos = Game1.player?.Position;
+
             if (this.AggressiveMemoryOptimizations)
                 location.map.DisposeTileSheets(Game1.mapDisplayDevice);
 
@@ -926,6 +929,14 @@ namespace StardewModdingAPI.Metadata
             // update for changes
             location.updateWarps();
             location.updateDoors();
+
+            // reset player position
+            // The game may move the player as part of the map changes, even if they're not in that
+            // location. That's not needed in this case, and it can have weird effects like players
+            // warping onto the wrong tile (or even off-screen) if a patch changes the farmhouse
+            // map on location change.
+            if (playerPos.HasValue)
+                Game1.player.Position = playerPos.Value;
         }
 
         /// <summary>Reload the disposition data for matching NPCs.</summary>
