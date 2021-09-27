@@ -5,6 +5,9 @@
 * For players:
   * Fixed mod edits to the farmhouse shifting the player down one tile in some cases.
 
+* For mod authors:
+  * Fixed map tile rotations/flips not working for farmhands in split-screen mode.
+
 ## 3.12.7
 Released 18 September 2021 for Stardew Valley 1.5.4.
 

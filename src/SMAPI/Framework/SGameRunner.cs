@@ -94,7 +94,7 @@ namespace StardewModdingAPI.Framework
         public override Game1 CreateGameInstance(PlayerIndex playerIndex = PlayerIndex.One, int instanceIndex = 0)
         {
             SInputState inputState = new SInputState();
-            return new SGame(playerIndex, instanceIndex, this.Monitor, this.Reflection, this.Events, inputState, this.ModHooks, this.Multiplayer, this.ExitGameImmediately, this.OnPlayerInstanceUpdating);
+            return new SGame(playerIndex, instanceIndex, this.Monitor, this.Reflection, this.Events, inputState, this.ModHooks, this.Multiplayer, this.ExitGameImmediately, this.OnPlayerInstanceUpdating, this.OnGameContentLoaded);
         }
 
         /// <inheritdoc />
@@ -129,14 +129,6 @@ namespace StardewModdingAPI.Framework
         /*********
         ** Protected methods
         *********/
-        /// <summary>Load content when the game is launched.</summary>
-        protected override void LoadContent()
-        {
-            base.LoadContent();
-
-            this.OnGameContentLoaded();
-        }
-
         /// <summary>Perform cleanup logic when the game exits.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="args">The event args.</param>

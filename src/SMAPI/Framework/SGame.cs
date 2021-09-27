@@ -54,6 +54,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>Raised when the instance is updating its state (roughly 60 times per second).</summary>
         private readonly Action<SGame, GameTime, Action> OnUpdating;
 
+        /// <summary>Raised after the instance finishes loading its initial content.</summary>
+        private readonly Action OnContentLoaded;
+
 
         /*********
         ** Accessors
@@ -106,7 +109,8 @@ namespace StardewModdingAPI.Framework
         /// <param name="multiplayer">The core multiplayer logic.</param>
         /// <param name="exitGameImmediately">Immediately exit the game without saving. This should only be invoked when an irrecoverable fatal error happens that risks save corruption or game-breaking bugs.</param>
         /// <param name="onUpdating">Raised when the instance is updating its state (roughly 60 times per second).</param>
-        public SGame(PlayerIndex playerIndex, int instanceIndex, Monitor monitor, Reflector reflection, EventManager eventManager, SInputState input, SModHooks modHooks, SMultiplayer multiplayer, Action<string> exitGameImmediately, Action<SGame, GameTime, Action> onUpdating)
+        /// <param name="onContentLoaded">Raised after the game finishes loading its initial content.</param>
+        public SGame(PlayerIndex playerIndex, int instanceIndex, Monitor monitor, Reflector reflection, EventManager eventManager, SInputState input, SModHooks modHooks, SMultiplayer multiplayer, Action<string> exitGameImmediately, Action<SGame, GameTime, Action> onUpdating, Action onContentLoaded)
             : base(playerIndex, instanceIndex)
         {
             // init XNA
@@ -124,6 +128,7 @@ namespace StardewModdingAPI.Framework
             this.Reflection = reflection;
             this.ExitGameImmediately = exitGameImmediately;
             this.OnUpdating = onUpdating;
+            this.OnContentLoaded = onContentLoaded;
         }
 
         /// <summary>Get the current input state for a button.</summary>
@@ -138,6 +143,13 @@ namespace StardewModdingAPI.Framework
             return input.GetState(button);
         }
 
+        /// <inheritdoc />
+        protected override void LoadContent()
+        {
+            base.LoadContent();
+
+            this.OnContentLoaded();
+        }
 
         /*********
         ** Protected methods
