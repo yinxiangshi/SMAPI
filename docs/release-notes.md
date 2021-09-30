@@ -8,6 +8,9 @@
 * For mod authors:
   * Fixed map tile rotations/flips not working for farmhands in split-screen mode.
 
+* For the web UI:
+  * The mod compatibility list now shows separate beta stats when 'show advanced info' is enabled.
+
 ## 3.12.7
 Released 18 September 2021 for Stardew Valley 1.5.4.
 
