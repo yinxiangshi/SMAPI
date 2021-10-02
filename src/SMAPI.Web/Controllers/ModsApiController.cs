@@ -291,7 +291,7 @@ namespace StardewModdingAPI.Web.Controllers
                 .ToList();
 
             // apply overrides from wiki
-            if (entry.Overrides?.ChangeUpdateKeys?.HasChanges == true)
+            if (entry?.Overrides?.ChangeUpdateKeys?.HasChanges == true)
             {
                 List<string> newKeys = updateKeys.Select(p => p.ToString()).ToList();
                 entry.Overrides.ChangeUpdateKeys.Apply(newKeys);
