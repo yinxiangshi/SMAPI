@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -87,11 +86,14 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
         /****
         ** Version mappings
         ****/
-        /// <summary>Maps local versions to a semantic version for update checks.</summary>
-        public IDictionary<string, string> MapLocalVersions { get; set; }
+        /// <summary>A serialized change descriptor to apply to the local version during update checks (see <see cref="ChangeDescriptor"/>).</summary>
+        public string ChangeLocalVersions { get; set; }
 
-        /// <summary>Maps remote versions to a semantic version for update checks.</summary>
-        public IDictionary<string, string> MapRemoteVersions { get; set; }
+        /// <summary>A serialized change descriptor to apply to the remote version during update checks (see <see cref="ChangeDescriptor"/>).</summary>
+        public string ChangeRemoteVersions { get; set; }
+
+        /// <summary>A serialized change descriptor to apply to the update keys during update checks (see <see cref="ChangeDescriptor"/>).</summary>
+        public string ChangeUpdateKeys { get; set; }
 
 
         /*********
@@ -137,8 +139,9 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
                 this.BetaCompatibilitySummary = wiki.BetaCompatibility?.Summary;
                 this.BetaBrokeIn = wiki.BetaCompatibility?.BrokeIn;
 
-                this.MapLocalVersions = wiki.MapLocalVersions;
-                this.MapRemoteVersions = wiki.MapRemoteVersions;
+                this.ChangeLocalVersions = wiki.Overrides?.ChangeLocalVersions?.ToString();
+                this.ChangeRemoteVersions = wiki.Overrides?.ChangeRemoteVersions?.ToString();
+                this.ChangeUpdateKeys = wiki.Overrides?.ChangeUpdateKeys?.ToString();
             }
 
             // internal DB data
@@ -147,17 +150,6 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
                 this.ID = this.ID.Union(db.FormerIDs).ToArray();
                 this.Name ??= db.DisplayName;
             }
-        }
-
-        /// <summary>Get update keys based on the metadata.</summary>
-        public IEnumerable<string> GetUpdateKeys()
-        {
-            if (this.NexusID.HasValue)
-                yield return $"Nexus:{this.NexusID}";
-            if (this.ChucklefishID.HasValue)
-                yield return $"Chucklefish:{this.ChucklefishID}";
-            if (this.GitHubRepo != null)
-                yield return $"GitHub:{this.GitHubRepo}";
         }
     }
 }

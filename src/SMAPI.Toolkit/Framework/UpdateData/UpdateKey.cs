@@ -89,6 +89,16 @@ namespace StardewModdingAPI.Toolkit.Framework.UpdateData
             return new UpdateKey(raw, site, id, subkey);
         }
 
+        /// <summary>Parse a raw update key if it's valid.</summary>
+        /// <param name="raw">The raw update key to parse.</param>
+        /// <param name="parsed">The parsed update key, if valid.</param>
+        /// <returns>Returns whether the update key was successfully parsed.</returns>
+        public static bool TryParse(string raw, out UpdateKey parsed)
+        {
+            parsed = UpdateKey.Parse(raw);
+            return parsed.LooksValid;
+        }
+
         /// <summary>Get a string that represents the current object.</summary>
         public override string ToString()
         {

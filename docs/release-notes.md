@@ -9,6 +9,7 @@
   * Fixed map tile rotations/flips not working for farmhands in split-screen mode.
 
 * For the web UI:
+  * Added support for unified [mod data overrides](https://stardewvalleywiki.com/Modding:Mod_compatibility#Mod_data_overrides) defined on the wiki.
   * The mod compatibility list now shows separate beta stats when 'show advanced info' is enabled.
 
 ## 3.12.7
