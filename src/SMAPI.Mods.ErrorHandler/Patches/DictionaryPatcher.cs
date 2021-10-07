@@ -48,6 +48,11 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
                         original: AccessTools.Method(dictionaryType, "get_Item") ?? throw new InvalidOperationException($"Can't find method {PatchHelper.GetMethodString(dictionaryType, "get_Item")} to patch."),
                         finalizer: this.GetHarmonyMethod(nameof(DictionaryPatcher.Finalize_GetItem))
                     );
+
+                    harmony.Patch(
+                        original: AccessTools.Method(dictionaryType, "Add") ?? throw new InvalidOperationException($"Can't find method {PatchHelper.GetMethodString(dictionaryType, "Add")} to patch."),
+                        finalizer: this.GetHarmonyMethod(nameof(DictionaryPatcher.Finalize_Add))
+                    );
                 }
             }
         }
@@ -63,13 +68,31 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         private static Exception Finalize_GetItem(object key, Exception __exception)
         {
             if (__exception is KeyNotFoundException)
-            {
-                DictionaryPatcher.Reflection
-                    .GetField<string>(__exception, "_message")
-                    .SetValue($"{__exception.Message}\nkey: '{key}'");
-            }
+                DictionaryPatcher.AddKey(__exception, key);
 
             return __exception;
+        }
+
+        /// <summary>The method to call after a dictionary insert throws an exception.</summary>
+        /// <param name="key">The dictionary key being inserted.</param>
+        /// <param name="__exception">The exception thrown by the wrapped method, if any.</param>
+        /// <returns>Returns the exception to throw, if any.</returns>
+        private static Exception Finalize_Add(object key, Exception __exception)
+        {
+            if (__exception is ArgumentException)
+                DictionaryPatcher.AddKey(__exception, key);
+
+            return __exception;
+        }
+
+        /// <summary>Add the dictionary key to an exception message.</summary>
+        /// <param name="exception">The exception whose message to edit.</param>
+        /// <param name="key">The dictionary key.</param>
+        private static void AddKey(Exception exception, object key)
+        {
+            DictionaryPatcher.Reflection
+                .GetField<string>(exception, "_message")
+                .SetValue($"{exception.Message}\nkey: '{key}'");
         }
     }
 }

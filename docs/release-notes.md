@@ -6,6 +6,7 @@
   * Fixed mod edits to the farmhouse shifting the player down one tile in some cases.
 
 * For mod authors:
+  * SMAPI now intercepts dictionary duplicate-key errors and adds the key to the error message to simplify troubleshooting. (Due to Harmony limitations, this only works for the dictionary types used by the game.)
   * Fixed map tile rotations/flips not working for farmhands in split-screen mode.
   * Fixed barn/coop exit warps being reset when you edit their interior map.
 
