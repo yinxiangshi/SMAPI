@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 
 namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
 {
@@ -180,7 +179,7 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
                 errors = rawErrors.ToArray();
             }
             else
-                errors = Array.Empty<string>();
+                errors = new string[0];
 
             // build model
             return new ChangeDescriptor(
