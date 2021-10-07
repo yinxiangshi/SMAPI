@@ -7,6 +7,7 @@
 
 * For mod authors:
   * Fixed map tile rotations/flips not working for farmhands in split-screen mode.
+  * Fixed barn/coop exit warps being reset when you edit their interior map.
 
 * For the web UI:
   * Added support for unified [mod data overrides](https://stardewvalleywiki.com/Modding:Mod_compatibility#Mod_data_overrides) defined on the wiki.

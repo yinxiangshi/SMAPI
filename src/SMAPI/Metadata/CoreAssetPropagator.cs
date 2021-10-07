@@ -184,8 +184,10 @@ namespace StardewModdingAPI.Metadata
 
                 if (!ignoreWorld)
                 {
-                    foreach (GameLocation location in this.GetLocations())
+                    foreach (LocationInfo info in this.GetLocationsWithInfo())
                     {
+                        GameLocation location = info.Location;
+
                         if (!string.IsNullOrWhiteSpace(location.mapPath.Value) && this.NormalizeAssetNameIgnoringEmpty(location.mapPath.Value) == key)
                         {
                             static ISet<string> GetWarpSet(GameLocation location)
@@ -196,7 +198,7 @@ namespace StardewModdingAPI.Metadata
                             }
 
                             var oldWarps = GetWarpSet(location);
-                            this.ReloadMap(location);
+                            this.ReloadMap(info);
                             var newWarps = GetWarpSet(location);
 
                             changedWarps = changedWarps || oldWarps.Count != newWarps.Count || oldWarps.Any(p => !newWarps.Contains(p));
@@ -906,9 +908,10 @@ namespace StardewModdingAPI.Metadata
         }
 
         /// <summary>Reload the map for a location.</summary>
-        /// <param name="location">The location whose map to reload.</param>
-        private void ReloadMap(GameLocation location)
+        /// <param name="locationInfo">The location whose map to reload.</param>
+        private void ReloadMap(LocationInfo locationInfo)
         {
+            GameLocation location = locationInfo.Location;
             Vector2? playerPos = Game1.player?.Position;
 
             if (this.AggressiveMemoryOptimizations)
@@ -929,6 +932,7 @@ namespace StardewModdingAPI.Metadata
             // update for changes
             location.updateWarps();
             location.updateDoors();
+            locationInfo.ParentBuilding?.updateInteriorWarps();
 
             // reset player position
             // The game may move the player as part of the map changes, even if they're not in that
@@ -1213,6 +1217,13 @@ namespace StardewModdingAPI.Metadata
         /// <param name="buildingInteriors">Whether to also get the interior locations for constructable buildings.</param>
         private IEnumerable<GameLocation> GetLocations(bool buildingInteriors = true)
         {
+            return this.GetLocationsWithInfo(buildingInteriors).Select(info => info.Location);
+        }
+
+        /// <summary>Get all locations in the game.</summary>
+        /// <param name="buildingInteriors">Whether to also get the interior locations for constructable buildings.</param>
+        private IEnumerable<LocationInfo> GetLocationsWithInfo(bool buildingInteriors = true)
+        {
             // get available root locations
             IEnumerable<GameLocation> rootLocations = Game1.locations;
             if (SaveGame.loaded?.locations != null)
@@ -1221,7 +1232,7 @@ namespace StardewModdingAPI.Metadata
             // yield root + child locations
             foreach (GameLocation location in rootLocations)
             {
-                yield return location;
+                yield return new(location, null);
 
                 if (buildingInteriors && location is BuildableGameLocation buildableLocation)
                 {
@@ -1229,7 +1240,7 @@ namespace StardewModdingAPI.Metadata
                     {
                         GameLocation indoors = building.indoors.Value;
                         if (indoors != null)
-                            yield return indoors;
+                            yield return new(indoors, building);
                     }
                 }
             }
@@ -1316,6 +1327,32 @@ namespace StardewModdingAPI.Metadata
 
             // remove key from cache
             return BuildingPainter.paintMaskLookup.Remove(key);
+        }
+
+        /// <summary>Metadata about a location used in asset propagation.</summary>
+        private readonly struct LocationInfo
+        {
+            /*********
+            ** Accessors
+            *********/
+            /// <summary>The location instance.</summary>
+            public GameLocation Location { get; }
+
+            /// <summary>The building which contains the location, if any.</summary>
+            public Building ParentBuilding { get; }
+
+
+            /*********
+            ** Public methods
+            *********/
+            /// <summary>Construct an instance.</summary>
+            /// <param name="location">The location instance.</param>
+            /// <param name="parentBuilding">The building which contains the location, if any.</param>
+            public LocationInfo(GameLocation location, Building parentBuilding)
+            {
+                this.Location = location;
+                this.ParentBuilding = parentBuilding;
+            }
         }
     }
 }
