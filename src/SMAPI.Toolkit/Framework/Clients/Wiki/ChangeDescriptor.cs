@@ -86,7 +86,7 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
             // add values
             if (this.Add.Any())
             {
-                HashSet<string> curValues = new(values.Select(p => p?.Trim() ?? string.Empty), StringComparer.OrdinalIgnoreCase);
+                HashSet<string> curValues = new HashSet<string>(values.Select(p => p?.Trim() ?? string.Empty), StringComparer.OrdinalIgnoreCase);
                 foreach (string add in this.Add)
                 {
                     if (!curValues.Contains(add))
@@ -130,10 +130,10 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
             // parse each change in the descriptor
             if (!string.IsNullOrWhiteSpace(descriptor))
             {
-                List<string> rawErrors = new();
+                List<string> rawErrors = new List<string>();
                 foreach (string rawEntry in descriptor.Split(','))
                 {
-                    // normalzie entry
+                    // normalize entry
                     string entry = rawEntry.Trim();
                     if (entry == string.Empty)
                         continue;

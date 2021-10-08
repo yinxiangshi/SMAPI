@@ -57,7 +57,7 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
                 betaVersion = null;
 
             // parse mod data overrides
-            Dictionary<string, WikiDataOverrideEntry> overrides = new(StringComparer.OrdinalIgnoreCase);
+            Dictionary<string, WikiDataOverrideEntry> overrides = new Dictionary<string, WikiDataOverrideEntry>(StringComparer.OrdinalIgnoreCase);
             {
                 HtmlNodeCollection modNodes = doc.DocumentNode.SelectNodes("//table[@id='mod-overrides-list']//tr[@class='mod']");
                 if (modNodes == null)

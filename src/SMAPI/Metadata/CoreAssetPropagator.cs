@@ -1232,7 +1232,7 @@ namespace StardewModdingAPI.Metadata
             // yield root + child locations
             foreach (GameLocation location in rootLocations)
             {
-                yield return new(location, null);
+                yield return new LocationInfo(location, null);
 
                 if (buildingInteriors && location is BuildableGameLocation buildableLocation)
                 {
@@ -1240,7 +1240,7 @@ namespace StardewModdingAPI.Metadata
                     {
                         GameLocation indoors = building.indoors.Value;
                         if (indoors != null)
-                            yield return new(indoors, building);
+                            yield return new LocationInfo(indoors, building);
                     }
                 }
             }
