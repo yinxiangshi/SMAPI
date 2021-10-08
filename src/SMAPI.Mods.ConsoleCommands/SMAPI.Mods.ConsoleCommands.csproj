@@ -2,7 +2,7 @@
   <PropertyGroup>
     <AssemblyName>ConsoleCommands</AssemblyName>
     <RootNamespace>StardewModdingAPI.Mods.ConsoleCommands</RootNamespace>
-    <TargetFramework>net45</TargetFramework>
+    <TargetFramework>net452</TargetFramework>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
 
