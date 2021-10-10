@@ -69,4 +69,7 @@ Korean     | ✓ [fully translated](../src/SMAPI/i18n/ko.json)
 Portuguese | ✓ [fully translated](../src/SMAPI/i18n/pt.json)
 Russian    | ✓ [fully translated](../src/SMAPI/i18n/ru.json)
 Spanish    | ✓ [fully translated](../src/SMAPI/i18n/es.json)
+Thai¹      | ✓ [fully translated](../src/SMAPI/i18n/th.json)
 Turkish    | ✓ [fully translated](../src/SMAPI/i18n/tr.json)
+
+¹ Requires [Stardew Valley - THAI](https://www.nexusmods.com/stardewvalley/mods/7052) or similar.

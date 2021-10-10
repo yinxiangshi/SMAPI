@@ -4,6 +4,8 @@
 ## Upcoming release
 * For players:
   * Fixed mod edits to the farmhouse shifting the player down one tile in some cases.
+  * Improved translations. Thanks to ellipszist (added Thai)!  
+    _Note: Thai requires Stardew Valley 1.5.5 and the [Thai mod](https://www.nexusmods.com/stardewvalley/mods/7052)._
 
 * For mod authors:
   * SMAPI now intercepts dictionary duplicate-key errors and adds the key to the error message to simplify troubleshooting. (Due to Harmony limitations, this only works for the dictionary types used by the game.)
