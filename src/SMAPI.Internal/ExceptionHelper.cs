@@ -65,7 +65,7 @@ namespace StardewModdingAPI.Internal
 
             // remove unneeded root build paths for SMAPI and Stardew Valley
             message = message
-                .Replace(@"C:\source\_Stardew\SMAPI\src\", "")
+                .Replace(@"E:\source\_Stardew\SMAPI\src\", "")
                 .Replace(@"C:\GitlabRunner\builds\Gq5qA5P4\0\ConcernedApe\", "");
 
             // remove placeholder info in Linux/macOS stack traces
