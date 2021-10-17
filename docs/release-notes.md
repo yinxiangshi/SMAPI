@@ -1,11 +1,13 @@
 ← [README](README.md)
 
 # Release notes
-## Upcoming release
+## 3.12.8
+Released 18 October 2021 for Stardew Valley 1.5.4.
+
 * For players:
   * Fixed mod edits to the farmhouse shifting the player down one tile in some cases.
   * Improved translations. Thanks to ellipszist (added Thai) and Zangorr (added Polish)!  
-    _(These are custom languages which require Stardew Valley 1.5.5 and the [Polish](https://www.nexusmods.com/stardewvalley/mods/3616) or [Thai](https://www.nexusmods.com/stardewvalley/mods/7052) mod.)_
+    _These are custom languages which require Stardew Valley 1.5.5 and the [Polish](https://www.nexusmods.com/stardewvalley/mods/3616) or [Thai](https://www.nexusmods.com/stardewvalley/mods/7052) mod._
 
 * For mod authors:
   * SMAPI now intercepts dictionary duplicate-key errors and adds the key to the error message to simplify troubleshooting. (Due to Harmony limitations, this only works for the dictionary types used by the game.)
