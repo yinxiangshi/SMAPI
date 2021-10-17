@@ -6,6 +6,7 @@ using System.Net;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 using Pathoschild.Http.Client;
+using StardewModdingAPI.Toolkit.Framework.UpdateData;
 
 namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
 {
@@ -55,13 +56,33 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
             if (betaVersion == stableVersion)
                 betaVersion = null;
 
-            // find mod entries
-            HtmlNodeCollection modNodes = doc.DocumentNode.SelectNodes("//table[@id='mod-list']//tr[@class='mod']");
-            if (modNodes == null)
-                throw new InvalidOperationException("Can't parse wiki compatibility list, no mods found.");
+            // parse mod data overrides
+            Dictionary<string, WikiDataOverrideEntry> overrides = new Dictionary<string, WikiDataOverrideEntry>(StringComparer.OrdinalIgnoreCase);
+            {
+                HtmlNodeCollection modNodes = doc.DocumentNode.SelectNodes("//table[@id='mod-overrides-list']//tr[@class='mod']");
+                if (modNodes == null)
+                    throw new InvalidOperationException("Can't parse wiki compatibility list, no mod data overrides section found.");
 
-            // parse
-            WikiModEntry[] mods = this.ParseEntries(modNodes).ToArray();
+                foreach (var entry in this.ParseOverrideEntries(modNodes))
+                {
+                    if (entry.Ids?.Any() != true || !entry.HasChanges)
+                        continue;
+
+                    foreach (string id in entry.Ids)
+                        overrides[id] = entry;
+                }
+            }
+
+            // parse mod entries
+            WikiModEntry[] mods;
+            {
+                HtmlNodeCollection modNodes = doc.DocumentNode.SelectNodes("//table[@id='mod-list']//tr[@class='mod']");
+                if (modNodes == null)
+                    throw new InvalidOperationException("Can't parse wiki compatibility list, no mods found.");
+                mods = this.ParseModEntries(modNodes, overrides).ToArray();
+            }
+
+            // build model
             return new WikiModList
             {
                 StableVersion = stableVersion,
@@ -82,7 +103,8 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
         *********/
         /// <summary>Parse valid mod compatibility entries.</summary>
         /// <param name="nodes">The HTML compatibility entries.</param>
-        private IEnumerable<WikiModEntry> ParseEntries(IEnumerable<HtmlNode> nodes)
+        /// <param name="overridesById">The mod data overrides to apply, if any.</param>
+        private IEnumerable<WikiModEntry> ParseModEntries(IEnumerable<HtmlNode> nodes, IDictionary<string, WikiDataOverrideEntry> overridesById)
         {
             foreach (HtmlNode node in nodes)
             {
@@ -103,9 +125,6 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
                 string contentPackFor = this.GetAttribute(node, "data-content-pack-for");
                 string devNote = this.GetAttribute(node, "data-dev-note");
                 string pullRequestUrl = this.GetAttribute(node, "data-pr");
-                IDictionary<string, string> mapLocalVersions = this.GetAttributeAsVersionMapping(node, "data-map-local-versions");
-                IDictionary<string, string> mapRemoteVersions = this.GetAttributeAsVersionMapping(node, "data-map-remote-versions");
-                string[] changeUpdateKeys = this.GetAttributeAsCsv(node, "data-change-update-keys");
 
                 // parse stable compatibility
                 WikiCompatibilityInfo compatibility = new WikiCompatibilityInfo
@@ -134,6 +153,11 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
                     }
                 }
 
+                // find data overrides
+                WikiDataOverrideEntry overrides = ids
+                    .Select(id => overridesById.TryGetValue(id, out overrides) ? overrides : null)
+                    .FirstOrDefault(p => p != null);
+
                 // yield model
                 yield return new WikiModEntry
                 {
@@ -154,10 +178,31 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
                     Warnings = warnings,
                     PullRequestUrl = pullRequestUrl,
                     DevNote = devNote,
-                    ChangeUpdateKeys = changeUpdateKeys,
-                    MapLocalVersions = mapLocalVersions,
-                    MapRemoteVersions = mapRemoteVersions,
+                    Overrides = overrides,
                     Anchor = anchor
+                };
+            }
+        }
+
+        /// <summary>Parse valid mod data override entries.</summary>
+        /// <param name="nodes">The HTML mod data override entries.</param>
+        private IEnumerable<WikiDataOverrideEntry> ParseOverrideEntries(IEnumerable<HtmlNode> nodes)
+        {
+            foreach (HtmlNode node in nodes)
+            {
+                yield return new WikiDataOverrideEntry
+                {
+                    Ids = this.GetAttributeAsCsv(node, "data-id"),
+                    ChangeLocalVersions = this.GetAttributeAsChangeDescriptor(node, "data-local-version",
+                        raw => SemanticVersion.TryParse(raw, out ISemanticVersion version) ? version.ToString() : raw
+                    ),
+                    ChangeRemoteVersions = this.GetAttributeAsChangeDescriptor(node, "data-remote-version",
+                        raw => SemanticVersion.TryParse(raw, out ISemanticVersion version) ? version.ToString() : raw
+                    ),
+
+                    ChangeUpdateKeys = this.GetAttributeAsChangeDescriptor(node, "data-update-keys",
+                        raw => UpdateKey.TryParse(raw, out UpdateKey key) ? key.ToString() : raw
+                    )
                 };
             }
         }
@@ -172,6 +217,18 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
                 return null;
 
             return WebUtility.HtmlDecode(value);
+        }
+
+        /// <summary>Get an attribute value and parse it as a change descriptor.</summary>
+        /// <param name="element">The element whose attributes to read.</param>
+        /// <param name="name">The attribute name.</param>
+        /// <param name="formatValue">Format an raw entry value when applying changes.</param>
+        private ChangeDescriptor GetAttributeAsChangeDescriptor(HtmlNode element, string name, Func<string, string> formatValue)
+        {
+            string raw = this.GetAttribute(element, name);
+            return raw != null
+                ? ChangeDescriptor.Parse(raw, out _, formatValue)
+                : null;
         }
 
         /// <summary>Get an attribute value and parse it as a comma-delimited list of strings.</summary>
@@ -219,28 +276,6 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
             if (raw != null && int.TryParse(raw, out int value))
                 return value;
             return null;
-        }
-
-        /// <summary>Get an attribute value and parse it as a version mapping.</summary>
-        /// <param name="element">The element whose attributes to read.</param>
-        /// <param name="name">The attribute name.</param>
-        private IDictionary<string, string> GetAttributeAsVersionMapping(HtmlNode element, string name)
-        {
-            // get raw value
-            string raw = this.GetAttribute(element, name);
-            if (raw?.Contains("→") != true)
-                return null;
-
-            // parse
-            // Specified on the wiki in the form "remote version → mapped version; another remote version → mapped version"
-            IDictionary<string, string> map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-            foreach (string pair in raw.Split(';'))
-            {
-                string[] versions = pair.Split('→');
-                if (versions.Length == 2 && !string.IsNullOrWhiteSpace(versions[0]) && !string.IsNullOrWhiteSpace(versions[1]))
-                    map[versions[0].Trim()] = versions[1].Trim();
-            }
-            return map;
         }
 
         /// <summary>Get the text of an element with the given class name.</summary>

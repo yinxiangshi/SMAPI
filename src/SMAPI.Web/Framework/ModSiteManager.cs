@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using StardewModdingAPI.Toolkit;
+using StardewModdingAPI.Toolkit.Framework.Clients.Wiki;
 using StardewModdingAPI.Toolkit.Framework.UpdateData;
 using StardewModdingAPI.Web.Framework.Clients;
 
@@ -55,9 +56,9 @@ namespace StardewModdingAPI.Web.Framework
         /// <summary>Parse version info for the given mod page info.</summary>
         /// <param name="page">The mod page info.</param>
         /// <param name="subkey">The optional update subkey to match in available files. (If no file names or descriptions contain the subkey, it'll be ignored.)</param>
-        /// <param name="mapRemoteVersions">Maps remote versions to a semantic version for update checks.</param>
+        /// <param name="mapRemoteVersions">The changes to apply to remote versions for update checks.</param>
         /// <param name="allowNonStandardVersions">Whether to allow non-standard versions.</param>
-        public ModInfoModel GetPageVersions(IModPage page, string subkey, bool allowNonStandardVersions, IDictionary<string, string> mapRemoteVersions)
+        public ModInfoModel GetPageVersions(IModPage page, string subkey, bool allowNonStandardVersions, ChangeDescriptor mapRemoteVersions)
         {
             // get base model
             ModInfoModel model = new ModInfoModel()
@@ -79,9 +80,9 @@ namespace StardewModdingAPI.Web.Framework
 
         /// <summary>Get a semantic local version for update checks.</summary>
         /// <param name="version">The version to parse.</param>
-        /// <param name="map">A map of version replacements.</param>
+        /// <param name="map">Changes to apply to the raw version, if any.</param>
         /// <param name="allowNonStandard">Whether to allow non-standard versions.</param>
-        public ISemanticVersion GetMappedVersion(string version, IDictionary<string, string> map, bool allowNonStandard)
+        public ISemanticVersion GetMappedVersion(string version, ChangeDescriptor map, bool allowNonStandard)
         {
             // try mapped version
             string rawNewVersion = this.GetRawMappedVersion(version, map, allowNonStandard);
@@ -102,10 +103,10 @@ namespace StardewModdingAPI.Web.Framework
         /// <param name="mod">The mod to check.</param>
         /// <param name="subkey">The optional update subkey to match in available files. (If no file names or descriptions contain the subkey, it'll be ignored.)</param>
         /// <param name="allowNonStandardVersions">Whether to allow non-standard versions.</param>
-        /// <param name="mapRemoteVersions">Maps remote versions to a semantic version for update checks.</param>
+        /// <param name="mapRemoteVersions">The changes to apply to remote versions for update checks.</param>
         /// <param name="main">The main mod version.</param>
         /// <param name="preview">The latest prerelease version, if newer than <paramref name="main"/>.</param>
-        private bool TryGetLatestVersions(IModPage mod, string subkey, bool allowNonStandardVersions, IDictionary<string, string> mapRemoteVersions, out ISemanticVersion main, out ISemanticVersion preview)
+        private bool TryGetLatestVersions(IModPage mod, string subkey, bool allowNonStandardVersions, ChangeDescriptor mapRemoteVersions, out ISemanticVersion main, out ISemanticVersion preview)
         {
             main = null;
             preview = null;
@@ -179,31 +180,17 @@ namespace StardewModdingAPI.Web.Framework
 
         /// <summary>Get a semantic local version for update checks.</summary>
         /// <param name="version">The version to map.</param>
-        /// <param name="map">A map of version replacements.</param>
+        /// <param name="map">Changes to apply to the raw version, if any.</param>
         /// <param name="allowNonStandard">Whether to allow non-standard versions.</param>
-        private string GetRawMappedVersion(string version, IDictionary<string, string> map, bool allowNonStandard)
+        private string GetRawMappedVersion(string version, ChangeDescriptor map, bool allowNonStandard)
         {
-            if (version == null || map == null || !map.Any())
+            if (version == null || map?.HasChanges != true)
                 return version;
 
-            // match exact raw version
-            if (map.ContainsKey(version))
-                return map[version];
+            var mapped = new List<string> { version };
+            map.Apply(mapped);
 
-            // match parsed version
-            if (SemanticVersion.TryParse(version, allowNonStandard, out ISemanticVersion parsed))
-            {
-                if (map.ContainsKey(parsed.ToString()))
-                    return map[parsed.ToString()];
-
-                foreach ((string fromRaw, string toRaw) in map)
-                {
-                    if (SemanticVersion.TryParse(fromRaw, allowNonStandard, out ISemanticVersion target) && parsed.Equals(target) && SemanticVersion.TryParse(toRaw, allowNonStandard, out ISemanticVersion newVersion))
-                        return newVersion.ToString();
-                }
-            }
-
-            return version;
+            return mapped.FirstOrDefault();
         }
 
         /// <summary>Normalize a version string.</summary>

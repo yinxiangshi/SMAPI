@@ -144,7 +144,7 @@ namespace StardewModdingAPI.Web.Controllers
                 }
 
                 // fetch data
-                ModInfoModel data = await this.GetInfoForUpdateKeyAsync(updateKey, allowNonStandardVersions, wikiEntry?.MapRemoteVersions);
+                ModInfoModel data = await this.GetInfoForUpdateKeyAsync(updateKey, allowNonStandardVersions, wikiEntry?.Overrides?.ChangeRemoteVersions);
                 if (data.Status != RemoteModStatus.Ok)
                 {
                     errors.Add(data.Error ?? data.Status.ToString());
@@ -195,7 +195,7 @@ namespace StardewModdingAPI.Web.Controllers
             }
 
             // get recommended update (if any)
-            ISemanticVersion installedVersion = this.ModSites.GetMappedVersion(search.InstalledVersion?.ToString(), wikiEntry?.MapLocalVersions, allowNonStandard: allowNonStandardVersions);
+            ISemanticVersion installedVersion = this.ModSites.GetMappedVersion(search.InstalledVersion?.ToString(), wikiEntry?.Overrides?.ChangeLocalVersions, allowNonStandard: allowNonStandardVersions);
             if (apiVersion != null && installedVersion != null)
             {
                 // get newer versions
@@ -255,8 +255,8 @@ namespace StardewModdingAPI.Web.Controllers
         /// <summary>Get the mod info for an update key.</summary>
         /// <param name="updateKey">The namespaced update key.</param>
         /// <param name="allowNonStandardVersions">Whether to allow non-standard versions.</param>
-        /// <param name="mapRemoteVersions">Maps remote versions to a semantic version for update checks.</param>
-        private async Task<ModInfoModel> GetInfoForUpdateKeyAsync(UpdateKey updateKey, bool allowNonStandardVersions, IDictionary<string, string> mapRemoteVersions)
+        /// <param name="mapRemoteVersions">The changes to apply to remote versions for update checks.</param>
+        private async Task<ModInfoModel> GetInfoForUpdateKeyAsync(UpdateKey updateKey, bool allowNonStandardVersions, ChangeDescriptor mapRemoteVersions)
         {
             // get mod page
             IModPage page;
@@ -290,15 +290,12 @@ namespace StardewModdingAPI.Web.Controllers
                 .Distinct()
                 .ToList();
 
-            // apply remove overrides from wiki
+            // apply overrides from wiki
+            if (entry?.Overrides?.ChangeUpdateKeys?.HasChanges == true)
             {
-                var removeKeys = new HashSet<UpdateKey>(
-                    from key in entry?.ChangeUpdateKeys ?? new string[0]
-                    where key.StartsWith('-')
-                    select UpdateKey.Parse(key.Substring(1))
-                );
-                if (removeKeys.Any())
-                    updateKeys.RemoveAll(removeKeys.Contains);
+                List<string> newKeys = updateKeys.Select(p => p.ToString()).ToList();
+                entry.Overrides.ChangeUpdateKeys.Apply(newKeys);
+                updateKeys = newKeys.Select(UpdateKey.Parse).ToList();
             }
 
             // if the list has both an update key (like "Nexus:2400") and subkey (like "Nexus:2400@subkey") for the same page, the subkey takes priority
@@ -347,15 +344,6 @@ namespace StardewModdingAPI.Web.Controllers
                     yield return UpdateKey.GetString(ModSiteKey.CurseForge, entry.CurseForgeID.ToString());
                 if (entry.ChucklefishID.HasValue)
                     yield return UpdateKey.GetString(ModSiteKey.Chucklefish, entry.ChucklefishID.ToString());
-            }
-
-            // overrides from wiki
-            foreach (string key in entry?.ChangeUpdateKeys ?? Array.Empty<string>())
-            {
-                if (key.StartsWith('+'))
-                    yield return key.Substring(1);
-                else if (!key.StartsWith("-"))
-                    yield return key;
             }
         }
     }

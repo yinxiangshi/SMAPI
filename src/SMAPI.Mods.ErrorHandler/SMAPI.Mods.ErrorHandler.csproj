@@ -2,7 +2,7 @@
   <PropertyGroup>
     <AssemblyName>ErrorHandler</AssemblyName>
     <RootNamespace>StardewModdingAPI.Mods.ErrorHandler</RootNamespace>
-    <TargetFramework>net45</TargetFramework>
+    <TargetFramework>net452</TargetFramework>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
 

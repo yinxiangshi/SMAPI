@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
 {
     /// <summary>A mod entry in the wiki list.</summary>
@@ -63,14 +60,8 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
         /// <summary>Special notes intended for developers who maintain unofficial updates or submit pull requests. </summary>
         public string DevNote { get; set; }
 
-        /// <summary>Update keys to add (optionally prefixed by '+') or remove (prefixed by '-').</summary>
-        public string[] ChangeUpdateKeys { get; set; }
-
-        /// <summary>Maps local versions to a semantic version for update checks.</summary>
-        public IDictionary<string, string> MapLocalVersions { get; set; }
-
-        /// <summary>Maps remote versions to a semantic version for update checks.</summary>
-        public IDictionary<string, string> MapRemoteVersions { get; set; }
+        /// <summary>The data overrides to apply to the mod's manifest or remote mod page data, if any.</summary>
+        public WikiDataOverrideEntry Overrides { get; set; }
 
         /// <summary>The link anchor for the mod entry in the wiki compatibility list.</summary>
         public string Anchor { get; set; }

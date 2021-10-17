@@ -2,7 +2,7 @@
   <PropertyGroup>
     <!--build-->
     <RootNamespace>StardewModdingAPI.ModBuildConfig</RootNamespace>
-    <TargetFramework>net45</TargetFramework>
+    <TargetFramework>net452</TargetFramework>
     <LangVersion>latest</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 

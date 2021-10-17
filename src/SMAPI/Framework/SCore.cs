@@ -247,7 +247,7 @@ namespace StardewModdingAPI.Framework
                     multiplayer: this.Multiplayer,
                     exitGameImmediately: this.ExitGameImmediately,
 
-                    onGameContentLoaded: this.OnGameContentLoaded,
+                    onGameContentLoaded: this.OnInstanceContentLoaded,
                     onGameUpdating: this.OnGameUpdating,
                     onPlayerInstanceUpdating: this.OnPlayerInstanceUpdating,
                     onGameExiting: this.OnGameExiting
@@ -429,8 +429,8 @@ namespace StardewModdingAPI.Framework
             ).Start();
         }
 
-        /// <summary>Raised after the game finishes loading its initial content.</summary>
-        private void OnGameContentLoaded()
+        /// <summary>Raised after an instance finishes loading its initial content.</summary>
+        private void OnInstanceContentLoaded()
         {
             // override map display device
             Game1.mapDisplayDevice = new SDisplayDevice(Game1.content, Game1.game1.GraphicsDevice);

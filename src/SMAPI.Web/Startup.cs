@@ -205,15 +205,21 @@ namespace StardewModdingAPI.Web
                 // shortcut paths
                 .Add(new RedirectPathsToUrlsRule(new Dictionary<string, string>
                 {
+                    // wiki pages
                     [@"^/3\.0\.?$"] = "https://stardewvalleywiki.com/Modding:Migrate_to_SMAPI_3.0",
-                    [@"^/(?:buildmsg|package)(?:/?(.*))$"] = "https://github.com/Pathoschild/SMAPI/blob/develop/docs/technical/mod-package.md#$1", // buildmsg deprecated, remove when SDV 1.4 is released
                     [@"^/community\.?$"] = "https://stardewvalleywiki.com/Modding:Community",
-                    [@"^/compat\.?$"] = "https://smapi.io/mods",
                     [@"^/docs\.?$"] = "https://stardewvalleywiki.com/Modding:Index",
                     [@"^/help\.?$"] = "https://stardewvalleywiki.com/Modding:Help",
                     [@"^/install\.?$"] = "https://stardewvalleywiki.com/Modding:Player_Guide/Getting_Started#Install_SMAPI",
                     [@"^/troubleshoot(.*)$"] = "https://stardewvalleywiki.com/Modding:Player_Guide/Troubleshooting$1",
-                    [@"^/xnb\.?$"] = "https://stardewvalleywiki.com/Modding:Using_XNB_mods"
+                    [@"^/xnb\.?$"] = "https://stardewvalleywiki.com/Modding:Using_XNB_mods",
+
+                    // GitHub docs
+                    [@"^/package(?:/?(.*))$"] = "https://github.com/Pathoschild/SMAPI/blob/develop/docs/technical/mod-package.md#$1",
+                    [@"^/release(?:/?(.*))$"] = "https://github.com/Pathoschild/SMAPI/blob/develop/docs/release-notes.md#$1",
+
+                    // legacy redirects
+                    [@"^/compat\.?$"] = "https://smapi.io/mods"
                 }))
 
                 // legacy paths

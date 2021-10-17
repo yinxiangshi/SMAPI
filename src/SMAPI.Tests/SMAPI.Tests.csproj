@@ -2,7 +2,7 @@
   <PropertyGroup>
     <AssemblyName>SMAPI.Tests</AssemblyName>
     <RootNamespace>SMAPI.Tests</RootNamespace>
-    <TargetFramework>net45</TargetFramework>
+    <TargetFramework>net452</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>

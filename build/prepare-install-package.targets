@@ -14,7 +14,7 @@
       <OutRootPath>$(SolutionDir)\..\bin</OutRootPath>
 
       <SmapiBin>$(BuildRootPath)\SMAPI\bin\$(Configuration)</SmapiBin>
-      <ToolkitBin>$(BuildRootPath)\SMAPI.Toolkit\bin\$(Configuration)\net4.5</ToolkitBin>
+      <ToolkitBin>$(BuildRootPath)\SMAPI.Toolkit\bin\$(Configuration)\net452</ToolkitBin>
       <ConsoleCommandsBin>$(BuildRootPath)\SMAPI.Mods.ConsoleCommands\bin\$(Configuration)</ConsoleCommandsBin>
       <ErrorHandlerBin>$(BuildRootPath)\SMAPI.Mods.ErrorHandler\bin\$(Configuration)</ErrorHandlerBin>
       <SaveBackupBin>$(BuildRootPath)\SMAPI.Mods.SaveBackup\bin\$(Configuration)</SaveBackupBin>
