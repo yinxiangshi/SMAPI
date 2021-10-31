@@ -12,11 +12,11 @@
     "properties": {
         "Format": {
             "title": "Format version",
-            "description": "The format version. You should always use the latest version to enable the latest features and avoid obsolete behavior.",
+            "description": "The format version. You should always use the latest version to enable the latest features, avoid obsolete behavior, and reduce load times.",
             "type": "string",
-            "const": "1.23.0",
+            "const": "1.24.0",
             "@errorMessages": {
-                "const": "Incorrect value '@value'. This should be set to the latest format version, currently '1.23.0'."
+                "const": "Incorrect value '@value'. You should always use the latest format version (currently 1.24.0) to enable the latest features, avoid obsolete behavior, and reduce load times."
             }
         },
         "ConfigSchema": {

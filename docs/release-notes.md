@@ -5,6 +5,9 @@
 * For players:
   * Added `set_farm_type` [console command](https://stardewvalleywiki.com/Modding:Console_commands#Console_commands) to change the current farm type.
 
+* For the web UI:
+  * Updated the JSON validator/schema for Content Patcher 1.24.0.
+
 ## 3.12.8
 Released 18 October 2021 for Stardew Valley 1.5.4.
 
