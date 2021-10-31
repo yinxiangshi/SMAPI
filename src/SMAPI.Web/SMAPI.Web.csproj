@@ -9,6 +9,8 @@
   <Import Project="..\..\build\common.targets" />
 
   <ItemGroup>
+    <None Remove="Properties\PublishProfiles\**" />
+    <None Remove="Properties\ServiceDependencies\**" />
     <Content Remove="aws-beanstalk-tools-defaults.json" />
   </ItemGroup>
 
