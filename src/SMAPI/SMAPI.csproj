@@ -31,6 +31,7 @@
     <Reference Include="..\..\build\0Harmony.dll" Private="True" />
     <Reference Include="Stardew Valley" HintPath="$(GamePath)\Stardew Valley.dll" Private="False" />
     <Reference Include="StardewValley.GameData" HintPath="$(GamePath)\StardewValley.GameData.dll" Private="False" />
+    <Reference Include="BmFont" HintPath="$(GamePath)\BmFont.dll" Private="False" />
     <Reference Include="GalaxyCSharp" HintPath="$(GamePath)\GalaxyCSharp.dll" Private="False" />
     <Reference Include="Lidgren.Network" HintPath="$(GamePath)\Lidgren.Network.dll" Private="False" />
     <Reference Include="MonoGame.Framework" HintPath="$(GamePath)\MonoGame.Framework.dll" Private="False" />

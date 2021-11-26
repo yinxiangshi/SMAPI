@@ -2,6 +2,7 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using BmFont;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -129,6 +130,14 @@ namespace StardewModdingAPI.Framework.ContentManagers
                         }
                         break;
 
+                    // unpacked Bitmap font
+                    case ".fnt":
+                        {
+                            string source = File.ReadAllText(file.FullName);
+                            asset = (T)(object)new XmlSource(source);
+                        }
+                        break;
+
                     // unpacked data
                     case ".json":
                         {
@@ -171,7 +180,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
                         break;
 
                     default:
-                        throw GetContentError($"unknown file extension '{file.Extension}'; must be one of '.json', '.png', '.tbin', or '.xnb'.");
+                        throw GetContentError($"unknown file extension '{file.Extension}'; must be one of '.fnt', '.json', '.png', '.tbin', or '.xnb'.");
                 }
             }
             catch (Exception ex) when (!(ex is SContentLoadException))

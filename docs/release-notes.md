@@ -5,6 +5,7 @@
 * For players:
   * Updated for Stardew Valley 1.5.5.
   * Updated compatibility list.
+  * Added support for loading BmFont `.fnt` files for [custom languages](https://stardewvalleywiki.com/Modding:Custom_languages) through the [content API](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Content).
   * Added `set_farm_type` [console command](https://stardewvalleywiki.com/Modding:Console_commands#Console_commands) to change the current farm type.
   * Fixed installer window closing immediately if the installer crashed.
 
