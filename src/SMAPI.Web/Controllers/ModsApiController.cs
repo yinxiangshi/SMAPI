@@ -81,6 +81,8 @@ namespace StardewModdingAPI.Web.Controllers
             if (model?.Mods == null)
                 return new ModEntryModel[0];
 
+            ModUpdateCheckConfig config = this.Config.Value;
+
             // fetch wiki data
             WikiModEntry[] wikiData = this.WikiCache.GetWikiMods().Select(p => p.Data).ToArray();
             IDictionary<string, ModEntryModel> mods = new Dictionary<string, ModEntryModel>(StringComparer.CurrentCultureIgnoreCase);
@@ -89,6 +91,11 @@ namespace StardewModdingAPI.Web.Controllers
                 if (string.IsNullOrWhiteSpace(mod.ID))
                     continue;
 
+                // special case: if this is an update check for the official SMAPI repo, check the Nexus mod page for beta versions
+                if (mod.ID == config.SmapiInfo.ID && mod.UpdateKeys?.Any(key => key == config.SmapiInfo.DefaultUpdateKey) == true && mod.InstalledVersion?.IsPrerelease() == true)
+                    mod.UpdateKeys = mod.UpdateKeys.Concat(config.SmapiInfo.AddBetaUpdateKeys).ToArray();
+
+                // fetch result
                 ModEntryModel result = await this.GetModData(mod, wikiData, model.IncludeExtendedMetadata, model.ApiVersion);
                 if (!model.IncludeExtendedMetadata && (model.ApiVersion == null || mod.InstalledVersion == null))
                 {
