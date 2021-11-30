@@ -3,7 +3,25 @@
 # Release notes
 ## Upcoming release
 * For players:
+  * Updated for Stardew Valley 1.5.5.
+  * Updated compatibility list.
+  * Added support for loading BmFont `.fnt` files for [custom languages](https://stardewvalleywiki.com/Modding:Custom_languages) through the [content API](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Content).
   * Added `set_farm_type` [console command](https://stardewvalleywiki.com/Modding:Console_commands#Console_commands) to change the current farm type.
+  * Fixed installer window closing immediately if the installer crashed.
+
+* For mod authors:
+  * Migrated to 64-bit MonoGame and .NET 5 on all platforms (see [migration guide for mod authors](https://stardewvalleywiki.com/Modding:Migrate_to_Stardew_Valley_1.5.5)).
+  * Added support for [map overlays via `asset.AsMap().PatchMap`](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Content#Edit_a_map).
+
+**Update note for players with older systems:**  
+The game now has two branches: the _main branch_ which you'll get by default, and an optional
+_compatibility branch_ for [older systems](https://www.stardewvalley.net/compatibility/). The two
+branches have identical content, but use [different technologies](https://stardewvalleywiki.com/Modding:Migrate_to_Stardew_Valley_1.5.5#Stardew_Valley_compatibility_branch).
+
+Unfortunately **SMAPI only supports the main branch of the game**. There are formidable difficulties
+across all mods in supporting all three variations, the [Steam hardware stats](https://store.steampowered.com/hwsurvey)
+show that 99.69% of players have 64-bit, and 32-bit imposes significant restrictions on what mods
+can do.
 
 * For the web UI:
   * Updated the JSON validator/schema for Content Patcher 1.24.0.

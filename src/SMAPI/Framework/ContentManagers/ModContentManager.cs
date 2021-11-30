@@ -2,12 +2,12 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using BmFont;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Framework.Exceptions;
 using StardewModdingAPI.Framework.Reflection;
-using StardewModdingAPI.Internal;
 using StardewModdingAPI.Toolkit.Serialization;
 using StardewModdingAPI.Toolkit.Utilities;
 using StardewValley;
@@ -130,6 +130,14 @@ namespace StardewModdingAPI.Framework.ContentManagers
                         }
                         break;
 
+                    // unpacked Bitmap font
+                    case ".fnt":
+                        {
+                            string source = File.ReadAllText(file.FullName);
+                            asset = (T)(object)new XmlSource(source);
+                        }
+                        break;
+
                     // unpacked data
                     case ".json":
                         {
@@ -172,13 +180,11 @@ namespace StardewModdingAPI.Framework.ContentManagers
                         break;
 
                     default:
-                        throw GetContentError($"unknown file extension '{file.Extension}'; must be one of '.json', '.png', '.tbin', or '.xnb'.");
+                        throw GetContentError($"unknown file extension '{file.Extension}'; must be one of '.fnt', '.json', '.png', '.tbin', or '.xnb'.");
                 }
             }
             catch (Exception ex) when (!(ex is SContentLoadException))
             {
-                if (ex.GetInnermostException() is DllNotFoundException dllEx && dllEx.Message == "libgdiplus.dylib")
-                    throw GetContentError("couldn't find libgdiplus, which is needed to load mod images. Make sure Mono is installed and you're running the game through the normal launcher.");
                 throw new SContentLoadException($"The content manager failed loading content asset '{assetName}' from {this.Name}.", ex);
             }
 

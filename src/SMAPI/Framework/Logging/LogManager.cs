@@ -250,36 +250,7 @@ namespace StardewModdingAPI.Framework.Logging
         /// <param name="exception">The exception details.</param>
         public void LogFatalLaunchError(Exception exception)
         {
-            switch (exception)
-            {
-                // audio crash
-                case InvalidOperationException ex when ex.Source == "Microsoft.Xna.Framework.Xact" && ex.StackTrace.Contains("Microsoft.Xna.Framework.Audio.AudioEngine..ctor"):
-                    this.Monitor.Log("The game couldn't load audio. Do you have speakers or headphones plugged in?", LogLevel.Error);
-                    this.Monitor.Log($"Technical details: {ex.GetLogSummary()}");
-                    break;
-
-                // missing content folder exception
-                case FileNotFoundException ex when ex.Message == "Couldn't find file 'C:\\Program Files (x86)\\Steam\\SteamApps\\common\\Stardew Valley\\Content\\XACT\\FarmerSounds.xgs'.": // path in error is hardcoded regardless of install path
-                    this.Monitor.Log("The game can't find its Content\\XACT\\FarmerSounds.xgs file. You can usually fix this by resetting your content files (see https://smapi.io/troubleshoot#reset-content ), or by uninstalling and reinstalling the game.", LogLevel.Error);
-                    this.Monitor.Log($"Technical details: {ex.GetLogSummary()}");
-                    break;
-
-                // path too long exception
-                case PathTooLongException _:
-                    {
-                        string[] affectedPaths = PathUtilities.GetTooLongPaths(Constants.ModsPath).ToArray();
-                        string message = affectedPaths.Any()
-                            ? $"SMAPI can't launch because some of your mod files exceed the maximum path length on {Constants.Platform}.\nIf you need help fixing this error, see https://smapi.io/help\n\nAffected paths:\n   {string.Join("\n   ", affectedPaths)}"
-                            : $"The game failed to launch: {exception.GetLogSummary()}";
-                        this.MonitorForGame.Log(message, LogLevel.Error);
-                    }
-                    break;
-
-                // generic exception
-                default:
-                    this.MonitorForGame.Log($"The game failed to launch: {exception.GetLogSummary()}", LogLevel.Error);
-                    break;
-            }
+            this.MonitorForGame.Log($"The game failed to launch: {exception.GetLogSummary()}", LogLevel.Error);
         }
 
         /****
@@ -290,7 +261,7 @@ namespace StardewModdingAPI.Framework.Logging
         /// <param name="customSettings">The custom SMAPI settings.</param>
         public void LogIntro(string modsPath, IDictionary<string, object> customSettings)
         {
-            // log platform & patches
+            // log platform
             this.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Constants.GameVersion} on {EnvironmentUtility.GetFriendlyPlatformName(Constants.Platform)}", LogLevel.Info);
 
             // log basic info

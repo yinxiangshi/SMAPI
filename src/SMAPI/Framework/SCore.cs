@@ -11,13 +11,9 @@ using System.Runtime.ExceptionServices;
 using System.Security;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 #if SMAPI_FOR_WINDOWS
 using Microsoft.Win32;
-#endif
-#if SMAPI_FOR_XNA
-using System.Windows.Forms;
 #endif
 using Newtonsoft.Json;
 using StardewModdingAPI.Enums;
@@ -224,10 +220,6 @@ namespace StardewModdingAPI.Framework
                     this.Toolkit.JsonHelper.JsonSettings.Converters.Add(converter);
 
                 // add error handlers
-#if SMAPI_FOR_XNA
-                Application.ThreadException += (sender, e) => this.Monitor.Log($"Critical thread exception: {e.Exception.GetLogSummary()}", LogLevel.Error);
-                Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
-#endif
                 AppDomain.CurrentDomain.UnhandledException += (sender, e) => this.Monitor.Log($"Critical app domain exception: {e.ExceptionObject}", LogLevel.Error);
 
                 // add more lenient assembly resolver
@@ -243,7 +235,7 @@ namespace StardewModdingAPI.Framework
                     monitor: this.Monitor,
                     reflection: this.Reflection,
                     eventManager: this.EventManager,
-                    modHooks: new SModHooks(this.OnNewDayAfterFade),
+                    modHooks: new SModHooks(this.OnNewDayAfterFade, this.Monitor),
                     multiplayer: this.Multiplayer,
                     exitGameImmediately: this.ExitGameImmediately,
 
@@ -657,13 +649,6 @@ namespace StardewModdingAPI.Framework
                     this.Monitor.Log("Game loader done.");
                 }
 
-                if (instance.NewDayTask?.Status == TaskStatus.Created)
-                {
-                    this.Monitor.Log("New day task synchronizing...");
-                    instance.NewDayTask.RunSynchronously();
-                    this.Monitor.Log("New day task done.");
-                }
-
                 // While a background task is in progress, the game may make changes to the game
                 // state while mods are running their code. This is risky, because data changes can
                 // conflict (e.g. collection changed during enumeration errors) and data may change
@@ -673,7 +658,7 @@ namespace StardewModdingAPI.Framework
                 // a small chance that the task will finish after we defer but before the game checks,
                 // which means technically events should be raised, but the effects of missing one
                 // update tick are negligible and not worth the complications of bypassing Game1.Update.
-                if (instance.NewDayTask != null || Game1.gameMode == Game1.loadingMode)
+                if (Game1.gameMode == Game1.loadingMode)
                 {
                     events.UnvalidatedUpdateTicking.RaiseEmpty();
                     runUpdate();
@@ -766,7 +751,7 @@ namespace StardewModdingAPI.Framework
                     ** Locale changed events
                     *********/
                     if (state.Locale.IsChanged)
-                        this.Monitor.Log($"Context: locale set to {state.Locale.New}.");
+                        this.Monitor.Log($"Context: locale set to {state.Locale.New} ({this.ContentCore.GetLocaleCode(state.Locale.New)}).");
 
                     /*********
                     ** Load / return-to-title events
@@ -776,7 +761,7 @@ namespace StardewModdingAPI.Framework
                     else if (Context.IsWorldReady && Context.LoadStage != LoadStage.Ready)
                     {
                         // print context
-                        string context = $"Context: loaded save '{Constants.SaveFolderName}', starting {Game1.currentSeason} {Game1.dayOfMonth} Y{Game1.year}, locale set to {this.ContentCore.Language}.";
+                        string context = $"Context: loaded save '{Constants.SaveFolderName}', starting {Game1.currentSeason} {Game1.dayOfMonth} Y{Game1.year}, locale set to {this.ContentCore.GetLocale()}.";
                         if (Context.IsMultiplayer)
                         {
                             int onlineCount = Game1.getOnlineFarmers().Count();
@@ -1304,9 +1289,6 @@ namespace StardewModdingAPI.Framework
             {
                 // create client
                 string url = this.Settings.WebApiBaseUrl;
-#if !SMAPI_FOR_WINDOWS
-                url = url.Replace("https://", "http://"); // workaround for OpenSSL issues with the game's bundled Mono on Linux/macOS
-#endif
                 WebApiClient client = new WebApiClient(url, Constants.ApiVersion);
                 this.Monitor.Log("Checking for updates...");
 
@@ -1491,7 +1473,7 @@ namespace StardewModdingAPI.Framework
 
             // load mods
             IList<IModMetadata> skippedMods = new List<IModMetadata>();
-            using (AssemblyLoader modAssemblyLoader = new AssemblyLoader(Constants.Platform, Constants.GameFramework, this.Monitor, this.Settings.ParanoidWarnings, this.Settings.RewriteMods))
+            using (AssemblyLoader modAssemblyLoader = new AssemblyLoader(Constants.Platform, this.Monitor, this.Settings.ParanoidWarnings, this.Settings.RewriteMods))
             {
                 // init
                 HashSet<string> suppressUpdateChecks = new HashSet<string>(this.Settings.SuppressUpdateChecks, StringComparer.OrdinalIgnoreCase);
@@ -1701,9 +1683,8 @@ namespace StardewModdingAPI.Framework
                 catch (Exception ex)
                 {
                     errorReasonPhrase = "its DLL couldn't be loaded.";
-                    // re-enable in Stardew Valley 1.5.5
-                    //if (ex is BadImageFormatException && !EnvironmentUtility.Is64BitAssembly(assemblyPath))
-                    //    errorReasonPhrase = "it needs to be updated for 64-bit mode.";
+                    if (ex is BadImageFormatException && !EnvironmentUtility.Is64BitAssembly(assemblyPath))
+                        errorReasonPhrase = "it needs to be updated for 64-bit mode.";
 
                     errorDetails = $"Error: {ex.GetLogSummary()}";
                     failReason = ModFailReason.LoadFailed;
