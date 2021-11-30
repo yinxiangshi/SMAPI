@@ -1,17 +1,44 @@
 ← [README](README.md)
 
 # Release notes
+## 3.13.0
+Released 30 November 2021 for Stardew Valley 1.5.5 or later.
+
+* For players:
+  * Updated for Stardew Valley 1.5.5.
+  * Added `set_farm_type` [console command](https://stardewvalleywiki.com/Modding:Console_commands#Console_commands) to change the current farm type.
+  * Fixed installer window closing immediately if the installer crashed.
+  * Updated compatibility list.
+
+* For mod authors:
+  * Migrated to 64-bit MonoGame and .NET 5 on all platforms (see [migration guide for mod authors](https://stardewvalleywiki.com/Modding:Migrate_to_Stardew_Valley_1.5.5)).
+  * Added support for [map overlays via `asset.AsMap().PatchMap`](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Content#Edit_a_map).
+  * Added support for loading BmFont `.fnt` files for [custom languages](https://stardewvalleywiki.com/Modding:Custom_languages) through the [content API](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Content).
+
+* For the web UI:
+  * Updated the JSON validator/schema for Content Patcher 1.24.0.
+
+**Update note for players with older systems:**  
+The game now has two branches: the _main branch_ which you'll get by default, and an optional
+[_compatibility branch_ for older systems](https://www.stardewvalley.net/compatibility/). The two
+branches have identical content, but use [different technologies](https://stardewvalleywiki.com/Modding:Migrate_to_Stardew_Valley_1.5.5#Game_compatibility_branch).
+
+Unfortunately **SMAPI only supports the main branch of the game**. There are formidable difficulties
+across all mods in supporting all three variations, 32-bit imposes significant restrictions on what
+mods can do, and the [Steam hardware stats](https://store.steampowered.com/hwsurvey) show that 99.69%
+of players now have 64-bit.
+
 ## 3.12.8
 Released 18 October 2021 for Stardew Valley 1.5.4.
 
 * For players:
   * Fixed mod edits to the farmhouse shifting the player down one tile in some cases.
+  * Fixed map tile rotations/flips not working for farmhands in split-screen mode.
   * Improved translations. Thanks to ellipszist (added Thai) and Zangorr (added Polish)!  
     _These are custom languages which require Stardew Valley 1.5.5 and the [Polish](https://www.nexusmods.com/stardewvalley/mods/3616) or [Thai](https://www.nexusmods.com/stardewvalley/mods/7052) mod._
 
 * For mod authors:
   * SMAPI now intercepts dictionary duplicate-key errors and adds the key to the error message to simplify troubleshooting. (Due to Harmony limitations, this only works for the dictionary types used by the game.)
-  * Fixed map tile rotations/flips not working for farmhands in split-screen mode.
   * Fixed barn/coop exit warps being reset when you edit their interior map.
 
 * For the web UI:

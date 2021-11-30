@@ -14,5 +14,8 @@ namespace StardewModdingAPI.Web.Framework.ConfigModels
 
         /// <summary>Update-check metadata to override.</summary>
         public ModOverrideConfig[] ModOverrides { get; set; }
+
+        /// <summary>The update-check config for SMAPI's own update checks.</summary>
+        public SmapiInfoConfig SmapiInfo { get; set; }
     }
 }

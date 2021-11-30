@@ -4,8 +4,8 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using StardewModdingAPI.Framework;
-using StardewModdingAPI.Toolkit.Framework;
 using StardewModdingAPI.Toolkit.Serialization.Models;
+using StardewModdingAPI.Toolkit.Utilities;
 
 namespace StardewModdingAPI
 {
@@ -26,7 +26,7 @@ namespace StardewModdingAPI
         /// <param name="args">The command-line arguments.</param>
         public static void Main(string[] args)
         {
-            Console.Title = $"SMAPI {EarlyConstants.RawApiVersion} - {Console.Title}";
+            Console.Title = $"SMAPI {EarlyConstants.RawApiVersion}";
 
             try
             {
@@ -34,9 +34,10 @@ namespace StardewModdingAPI
                 Program.AssertGamePresent();
                 Program.AssertGameVersion();
                 Program.AssertSmapiVersions();
+                Program.AssertDepsJson();
                 Program.Start(args);
             }
-            catch (BadImageFormatException ex) when (ex.FileName == "StardewValley" || ex.FileName == "Stardew Valley") // don't use EarlyConstants.GameAssemblyName, since we want to check both possible names
+            catch (BadImageFormatException ex) when (ex.FileName == EarlyConstants.GameAssemblyName)
             {
                 Console.WriteLine($"SMAPI failed to initialize because your game's {ex.FileName}.exe seems to be invalid.\nThis may be a pirated version which modified the executable in an incompatible way; if so, you can try a different download or buy a legitimate version.\n\nTechnical details:\n{ex}");
             }
@@ -84,21 +85,9 @@ namespace StardewModdingAPI
             }
             catch (Exception ex)
             {
-                // unofficial 64-bit
-                if (EarlyConstants.Platform == GamePlatform.Windows)
-                {
-                    FileInfo linuxExecutable = new FileInfo(Path.Combine(EarlyConstants.ExecutionPath, "StardewValley.exe"));
-                    if (linuxExecutable.Exists && LowLevelEnvironmentUtility.Is64BitAssembly(linuxExecutable.FullName))
-                        Program.PrintErrorAndExit("Oops! You're running Stardew Valley in unofficial 64-bit mode, which is no longer supported. You can update to Stardew Valley 1.5.5 or later instead. See https://stardewvalleywiki.com/Modding:Migrate_to_64-bit_on_Windows for more info.");
-                }
-
                 // file doesn't exist
                 if (!File.Exists(Path.Combine(EarlyConstants.ExecutionPath, $"{EarlyConstants.GameAssemblyName}.exe")))
                     Program.PrintErrorAndExit("Oops! SMAPI can't find the game. Make sure you're running StardewModdingAPI.exe in your game folder.");
-
-                // Stardew Valley 1.5.5+
-                if (File.Exists(Path.Combine(EarlyConstants.ExecutionPath, "Stardew Valley.dll")))
-                    Program.PrintErrorAndExit("Oops! You're running Stardew Valley 1.5.5 or later, but this version of SMAPI is only compatible up to Stardew Valley 1.5.4. Please check for a newer version of SMAPI: https://smapi.io.");
 
                 // can't load file
                 Program.PrintErrorAndExit(
@@ -140,6 +129,20 @@ namespace StardewModdingAPI
                 ISemanticVersion assemblyVersion = new SemanticVersion(assemblyName.Version);
                 if (!assemblyVersion.Equals(smapiVersion))
                     Program.PrintErrorAndExit($"Oops! The 'smapi-internal/{assemblyName.Name}.dll' file is version {assemblyVersion} instead of the required {Constants.ApiVersion}. SMAPI doesn't seem to be installed correctly.");
+            }
+        }
+
+        /// <summary>Assert that SMAPI's <c>StardewModdingAPI.deps.json</c> matches <c>Stardew Valley.deps.json</c>, fixing it if necessary.</summary>
+        /// <remarks>This is needed to resolve native DLLs like libSkiaSharp.</remarks>
+        private static void AssertDepsJson()
+        {
+            string sourcePath = Path.Combine(Constants.ExecutionPath, "Stardew Valley.deps.json");
+            string targetPath = Path.Combine(Constants.ExecutionPath, "StardewModdingAPI.deps.json");
+
+            if (!File.Exists(targetPath) || FileUtilities.GetFileHash(sourcePath) != FileUtilities.GetFileHash(targetPath))
+            {
+                File.Copy(sourcePath, targetPath, overwrite: true);
+                Program.PrintErrorAndExit($"The '{Path.GetFileName(targetPath)}' file didn't match the game's version. SMAPI fixed it automatically, but you must restart SMAPI for the change to take effect.");
             }
         }
 

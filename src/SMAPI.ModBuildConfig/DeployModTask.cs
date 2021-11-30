@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using StardewModdingAPI.ModBuildConfig.Framework;
+using StardewModdingAPI.Toolkit.Utilities;
 
 namespace StardewModdingAPI.ModBuildConfig
 {
@@ -17,6 +18,10 @@ namespace StardewModdingAPI.ModBuildConfig
         /*********
         ** Accessors
         *********/
+        /// <summary>The name (without extension or path) of the current mod's DLL.</summary>
+        [Required]
+        public string ModDllName { get; set; }
+
         /// <summary>The name of the mod folder.</summary>
         [Required]
         public string ModFolderName { get; set; }
@@ -45,8 +50,14 @@ namespace StardewModdingAPI.ModBuildConfig
         [Required]
         public bool EnableModZip { get; set; }
 
-        /// <summary>Custom comma-separated regex patterns matching files to ignore when deploying or zipping the mod.</summary>
+        /// <summary>A comma-separated list of regex patterns matching files to ignore when deploying or zipping the mod.</summary>
         public string IgnoreModFilePatterns { get; set; }
+
+        /// <summary>A comma-separated list of relative file paths to ignore when deploying or zipping the mod.</summary>
+        public string IgnoreModFilePaths { get; set; }
+
+        /// <summary>A comma-separated list of <see cref="ExtraAssemblyTypes"/> values which indicate which extra DLLs to bundle.</summary>
+        public string BundleExtraAssemblies { get; set; }
 
 
         /*********
@@ -69,11 +80,15 @@ namespace StardewModdingAPI.ModBuildConfig
 
             try
             {
+                // parse extra DLLs to bundle
+                ExtraAssemblyTypes bundleAssemblyTypes = this.GetExtraAssembliesToBundleOption();
+
                 // parse ignore patterns
+                string[] ignoreFilePaths = this.GetCustomIgnoreFilePaths().ToArray();
                 Regex[] ignoreFilePatterns = this.GetCustomIgnorePatterns().ToArray();
 
                 // get mod info
-                ModFileManager package = new ModFileManager(this.ProjectDir, this.TargetDir, ignoreFilePatterns, validateRequiredModFiles: this.EnableModDeploy || this.EnableModZip);
+                ModFileManager package = new ModFileManager(this.ProjectDir, this.TargetDir, ignoreFilePaths, ignoreFilePatterns, bundleAssemblyTypes, this.ModDllName, validateRequiredModFiles: this.EnableModDeploy || this.EnableModZip);
 
                 // deploy mod files
                 if (this.EnableModDeploy)
@@ -134,6 +149,28 @@ namespace StardewModdingAPI.ModBuildConfig
             }
         }
 
+        /// <summary>Parse the extra assembly types which should be bundled with the mod.</summary>
+        private ExtraAssemblyTypes GetExtraAssembliesToBundleOption()
+        {
+            ExtraAssemblyTypes flags = ExtraAssemblyTypes.None;
+
+            if (!string.IsNullOrWhiteSpace(this.BundleExtraAssemblies))
+            {
+                foreach (string raw in this.BundleExtraAssemblies.Split(','))
+                {
+                    if (!Enum.TryParse(raw, out ExtraAssemblyTypes type))
+                    {
+                        this.Log.LogWarning($"[mod build package] Ignored invalid <{nameof(this.BundleExtraAssemblies)}> value '{raw}', expected one of '{string.Join("', '", Enum.GetNames(typeof(ExtraAssemblyTypes)))}'.");
+                        continue;
+                    }
+
+                    flags |= type;
+                }
+            }
+
+            return flags;
+        }
+
         /// <summary>Get the custom ignore patterns provided by the user.</summary>
         private IEnumerable<Regex> GetCustomIgnorePatterns()
         {
@@ -154,6 +191,29 @@ namespace StardewModdingAPI.ModBuildConfig
                 }
 
                 yield return regex;
+            }
+        }
+
+        /// <summary>Get the custom relative file paths provided by the user to ignore.</summary>
+        private IEnumerable<string> GetCustomIgnoreFilePaths()
+        {
+            if (string.IsNullOrWhiteSpace(this.IgnoreModFilePaths))
+                yield break;
+
+            foreach (string raw in this.IgnoreModFilePaths.Split(','))
+            {
+                string path;
+                try
+                {
+                    path = PathUtilities.NormalizePath(raw);
+                }
+                catch (Exception ex)
+                {
+                    this.Log.LogWarning($"[mod build package] Ignored invalid <{nameof(this.IgnoreModFilePaths)}> path {raw}:\n{ex}");
+                    continue;
+                }
+
+                yield return path;
             }
         }
 
