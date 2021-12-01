@@ -1,6 +1,9 @@
 ← [README](README.md)
 
 # Release notes
+## Upcoming release
+* Fixed installer failing on Windows when run from the game folder.
+
 ## 3.13.0
 Released 30 November 2021 for Stardew Valley 1.5.5 or later.
 
