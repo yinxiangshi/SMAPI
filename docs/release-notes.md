@@ -2,6 +2,7 @@
 
 # Release notes
 ## Upcoming release
+* Improved .NET 5 validation in Windows installer to better explain how to get the right version.
 * Fixed installer failing on Windows when run from the game folder.
 
 ## 3.13.0
