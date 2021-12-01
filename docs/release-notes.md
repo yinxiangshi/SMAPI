@@ -1,7 +1,9 @@
 ← [README](README.md)
 
 # Release notes
-## Upcoming release
+## 3.13.1
+Released 30 November 2021 for Stardew Valley 1.5.5 or later.
+
 * Improved .NET 5 validation in Windows installer to better explain how to get the right version.
 * Fixed installer failing on Windows when run from the game folder.
 
