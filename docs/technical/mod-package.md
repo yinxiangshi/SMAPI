@@ -412,7 +412,9 @@ The NuGet package is generated automatically in `StardewModdingAPI.ModBuildConfi
 when you compile it.
 
 ## Release notes
-## Upcoming release
+## 4.0.0
+Released 30 November 2021.
+
 * Updated for Stardew Valley 1.5.5 and SMAPI 3.13.0. (Older versions are no longer supported.)
 * Added `IgnoreModFilePaths` option to ignore literal paths.
 * Added `BundleExtraAssemblies` option to copy bundled DLLs into the mod zip/folder.
