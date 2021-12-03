@@ -1,11 +1,16 @@
 ← [README](README.md)
 
 # Release notes
+## Upcoming version
+* For SMAPI maintainers:
+  * Added a new [scripted release package process](technical/smapi.md), which removes the need to compile SMAPI on multiple platforms and manually combine them.
+
 ## 3.13.1
 Released 30 November 2021 for Stardew Valley 1.5.5 or later.
 
-* Improved .NET 5 validation in Windows installer to better explain how to get the right version.
-* Fixed installer failing on Windows when run from the game folder.
+* For players:
+  * Improved .NET 5 validation in Windows installer to better explain how to get the right version.
+  * Fixed installer failing on Windows when run from the game folder.
 
 ## 3.13.0
 Released 30 November 2021 for Stardew Valley 1.5.5 or later.

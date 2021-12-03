@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.28729.10
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".root", ".root", "{86C452BE-D2D8-45B4-B63F-E329EB06CEDA}"
 	ProjectSection(SolutionItems) = preProject
@@ -28,7 +28,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{09CF91E5
 	ProjectSection(SolutionItems) = preProject
 		..\build\common.targets = ..\build\common.targets
 		..\build\find-game-folder.targets = ..\build\find-game-folder.targets
-		..\build\prepare-install-package.targets = ..\build\prepare-install-package.targets
+		..\build\prepare-install-package.sh = ..\build\prepare-install-package.sh
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{EB35A917-67B9-4EFA-8DFC-4FB49B3949BB}"

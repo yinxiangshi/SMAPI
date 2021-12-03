@@ -8,6 +8,7 @@
 
     <!--set platform-->
     <DefineConstants Condition="$(OS) == 'Windows_NT'">$(DefineConstants);SMAPI_FOR_WINDOWS</DefineConstants>
+    <CopyToGameFolder>true</CopyToGameFolder>
   </PropertyGroup>
 
   <!--find game folder-->
@@ -19,7 +20,7 @@
   </Target>
 
   <!-- copy files into game directory and enable debugging -->
-  <Target Name="CopySmapiFiles" AfterTargets="AfterBuild">
+  <Target Name="CopySmapiFiles" AfterTargets="AfterBuild" Condition="'$(CopyToGameFolder)' == 'true'">
     <CallTarget Targets="CopySMAPI;CopyDefaultMods" />
   </Target>
   <Target Name="CopySMAPI" Condition="'$(MSBuildProjectName)' == 'SMAPI'">

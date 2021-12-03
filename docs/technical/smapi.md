@@ -75,22 +75,24 @@ the debugger attached, so you can intercept errors and step through the code bei
 doesn't work in MonoDevelop on Linux, unfortunately.
 
 ### Preparing a release
-To prepare a crossplatform SMAPI release, you'll need to compile it on two platforms: Windows and
-Linux. The instructions below assume you have Windows 11, but you can adapt them for
-a different setup if needed.
+To prepare a crossplatform SMAPI release, you'll need to run the build script on Linux or macOS.
 
 #### Initial setup
-First-time setup on Windows:
-1. [Install Windows Subsystem for Linux (WSL)](https://docs.microsoft.com/en-us/windows/wsl/install).
-2. Install the needed software in WSL:
-   1. Run `sudo apt update` to update the package list.
-   2. Install [the .NET 5 SDK](https://docs.microsoft.com/en-us/dotnet/core/install/linux-ubuntu)
-      (for Stardew Valley 1.5.5+) or [`mono-complete`](https://www.mono-project.com/download/stable/)
-      (for earlier versions).
-      _You can run `lsb_release -a` to get the Ubuntu version number._
-   3. [Install Steam](https://linuxconfig.org/how-to-install-steam-on-ubuntu-20-04-focal-fossa-linux).
-   4. Launch `steam` and install the game like usual.
-   5. Download and install your preferred IDE. For the [latest standalone Rider
+First-time setup:
+
+1. On Windows only:
+
+   1. [Install Windows Subsystem for Linux (WSL)](https://docs.microsoft.com/en-us/windows/wsl/install).
+   2. Run `sudo apt update` in WSL to update the package list.
+   3. The rest of the instructions below should be run in WSL.
+
+2. Install the required software:
+
+   1. Install the [.NET 5 SDK](https://docs.microsoft.com/en-us/dotnet/core/install/linux-ubuntu).  
+      _For Ubuntu-based systems, you can run `lsb_release -a` to get the Ubuntu version number._
+   2. [Install Steam](https://linuxconfig.org/how-to-install-steam-on-ubuntu-20-04-focal-fossa-linux).
+   3. Launch `steam` and install the game like usual.
+   4. Download and install your preferred IDE. For the [latest standalone Rider
       version](https://www.jetbrains.com/help/rider/Installation_guide.html#prerequisites):
       ```sh
       wget "<download url here>" -O rider-install.tar.gz
@@ -98,23 +100,20 @@ First-time setup on Windows:
       ln -s "/opt/JetBrains Rider-<version>/bin/rider.sh"
       ./rider.sh
       ```
-   3. Clone the SMAPI repo in WSL:
-      ```sh
-      git clone https://github.com/Pathoschild/SMAPI.git
-      ```
 
-To compile SMAPI in WSL:
-1. Run `./rider.sh` to open the Rider GUI.
-2. Use the GUI to compile the solution.
+3. Clone the SMAPI repo:
+   ```sh
+   git clone https://github.com/Pathoschild/SMAPI.git
+   ```
 
 To launch the game:
-1. Open a WSL terminal.
-2. Run these commands to start Steam:
+
+1. Run these commands to start Steam:
    ```sh
    export TERM=xterm
    steam
    ```
-3. Launch the game through the Steam UI.
+2. Launch the game through the Steam UI.
 
 #### Prepare the release
 1. Update the version numbers in `build/common.targets`, `Constants`, and the `manifest.json` for
@@ -125,15 +124,8 @@ To launch the game:
    dev build  | `<version>-alpha.<date>` | `3.0.0-alpha.20171230`
    prerelease | `<version>-beta.<date>`  | `3.0.0-beta.20171230`
    release    | `<version>`              | `3.0.0`
-2. In Windows:
-   1. Rebuild the solution with the _release_ solution configuration.
-   2. Copy the `bin/SMAPI installer` and `bin/SMAPI installer for developers` folders to Linux.
-4. In Linux:
-   1. Rebuild the solution with the _release_ solution configuration.
-   2. Add the `windows-install.*` files from Windows to the `bin/SMAPI installer` and
-      `bin/SMAPI installer for developers` folders compiled on Linux.
-   3. Rename the folders to `SMAPI <version> installer` and `SMAPI <version> installer for developers`.
-   4. Zip the two folders.
+2. Run the `build/prepare-install-package.sh` script. This will create the release package in the
+   root `bin` folder.
 
 ### Custom Harmony build
 SMAPI uses [a custom build of Harmony](https://github.com/Pathoschild/Harmony#readme), which is
