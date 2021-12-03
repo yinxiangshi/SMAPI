@@ -3,12 +3,15 @@
 ##########
 ## Constants
 ##########
+# paths
 gamePath="/home/pathoschild/Stardew Valley"
 bundleModNames=("ConsoleCommands" "ErrorHandler" "SaveBackup")
+
+# build configuration
 buildConfig="Release"
-folders=("unix" "windows")
-declare -A runtimes=(["unix"]="linux-x64" ["windows"]="win-x64")
-declare -A msBuildPlatformNames=(["unix"]="Unix" ["windows"]="Windows_NT")
+folders=("linux" "macOS" "windows")
+declare -A runtimes=(["linux"]="linux-x64" ["macOS"]="osx-x64" ["windows"]="win-x64")
+declare -A msBuildPlatformNames=(["linux"]="Unix" ["macOS"]="OSX" ["windows"]="Windows_NT")
 
 
 ##########
@@ -44,7 +47,7 @@ for folder in ${folders[@]}; do
 
     echo "Compiling installer for $folder..."
     echo "----------------------"
-    dotnet publish src/SMAPI.Installer --configuration $buildConfig -v minimal --runtime "$runtime" -p:OS="$msbuildPlatformName" -p:GamePath="$gamePath" -p:CopyToGameFolder="false"
+    dotnet publish src/SMAPI.Installer --configuration $buildConfig -v minimal --runtime "$runtime" -p:OS="$msbuildPlatformName" -p:GamePath="$gamePath" -p:CopyToGameFolder="false" -p:PublishTrimmed=True -p:TrimMode=Link --self-contained true
     echo ""
     echo ""
 
@@ -75,29 +78,32 @@ for folder in ${folders[@]}; do
 done
 
 # copy base installer files
-cp "$installAssets/unix-install.sh"     "$packagePath/install on Linux.sh"
-cp "$installAssets/unix-install.sh"     "$packagePath/install on macOS.command"
-cp "$installAssets/windows-install.bat" "$packagePath/install on Windows.bat"
-cp "$installAssets/README.txt"          "$packagePath/README.txt"
+for name in "install on Linux.sh" "install on macOS.command" "install on Windows.bat" "README.txt"; do
+    cp "$installAssets/$name" "$packagePath/$name"
+done
 
 # copy per-platform files
 for folder in ${folders[@]}; do
     runtime=${runtimes[$folder]}
 
     # get paths
-    installBin="src/SMAPI.Installer/bin/$buildConfig/$runtime"
-    smapiBin="src/SMAPI/bin/$buildConfig/$runtime"
+    smapiBin="src/SMAPI/bin/$buildConfig/$runtime/publish"
     internalPath="$packagePath/internal/$folder"
     bundlePath="$internalPath/bundle"
 
-    # runtime config for installer
-    cp "$installBin/SMAPI.Installer.runtimeconfig.json" "$internalPath/SMAPI.Installer.runtimeconfig.json"
+    # installer files
+    cp -r "src/SMAPI.Installer/bin/$buildConfig/$runtime/publish"/* "$internalPath"
+    rm -rf "$internalPath/ref"
+    rm -rf "$internalPath/assets"
 
     # runtime config for SMAPI
-    cp "$installAssets/runtimeconfig.$folder.json" "$bundlePath/StardewModdingAPI.runtimeconfig.json"
+    if [ $folder == "linux" ] || [ $folder == "macOS" ]; then
+        cp "$installAssets/runtimeconfig.unix.json" "$bundlePath/StardewModdingAPI.runtimeconfig.json"
+    else
+        cp "$installAssets/runtimeconfig.$folder.json" "$bundlePath/StardewModdingAPI.runtimeconfig.json"
+    fi
 
-    # installer DLL
-    cp "$installBin/SMAPI.Installer.dll" "$internalPath/SMAPI.Installer.dll"
+    # installer DLL config
     if [ $folder == "windows" ]; then
         cp "$installAssets/windows-exe-config.xml" "$packagePath/internal/windows/install.exe.config"
     fi
@@ -121,7 +127,7 @@ for folder in ${folders[@]}; do
 
     cp "$smapiBin/SMAPI.config.json" "$bundlePath/smapi-internal/config.json"
     cp "$smapiBin/SMAPI.metadata.json" "$bundlePath/smapi-internal/metadata.json"
-    if [ $folder == "unix" ]; then
+    if [ $folder == "linux" ] || [ $folder == "macOS" ]; then
         cp "$installAssets/unix-launcher.sh" "$bundlePath/unix-launcher.sh"
         cp "$smapiBin/System.Runtime.Caching.dll" "$bundlePath/smapi-internal/System.Runtime.Caching.dll"
     else
@@ -138,7 +144,7 @@ for folder in ${folders[@]}; do
 
     # copy bundled mods
     for modName in ${bundleModNames[@]}; do
-        fromPath="src/SMAPI.Mods.$modName/bin/$buildConfig/$runtime"
+        fromPath="src/SMAPI.Mods.$modName/bin/$buildConfig/$runtime/publish"
         targetPath="$bundlePath/Mods/$modName"
 
         mkdir "$targetPath" --parents
@@ -189,7 +195,6 @@ fi
 # rename folders
 mv "$packagePath" "bin/SMAPI $version installer"
 mv "$packageDevPath" "bin/SMAPI $version installer for developers"
-
 
 # package files
 pushd bin > /dev/null

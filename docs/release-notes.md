@@ -2,6 +2,9 @@
 
 # Release notes
 ## Upcoming version
+* For players:
+  * You no longer need .NET 5 to run the SMAPI installer.
+
 * For SMAPI maintainers:
   * Added a new [scripted release package process](technical/smapi.md), which removes the need to compile SMAPI on multiple platforms and manually combine them.
 
