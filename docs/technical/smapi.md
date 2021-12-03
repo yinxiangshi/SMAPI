@@ -116,16 +116,15 @@ To launch the game:
 2. Launch the game through the Steam UI.
 
 #### Prepare the release
-1. Update the version numbers in `build/common.targets`, `Constants`, and the `manifest.json` for
-   bundled mods. Make sure you use a [semantic version](https://semver.org). Recommended format:
+1. Run `build/set-smapi-version.sh` to set the SMAPI version. Make sure you use a [semantic
+   version](https://semver.org). Recommended format:
 
    build type | format                   | example
    :--------- | :----------------------- | :------
-   dev build  | `<version>-alpha.<date>` | `3.0.0-alpha.20171230`
-   prerelease | `<version>-beta.<date>`  | `3.0.0-beta.20171230`
-   release    | `<version>`              | `3.0.0`
-2. Run the `build/prepare-install-package.sh` script. This will create the release package in the
-   root `bin` folder.
+   dev build  | `<version>-alpha.<date>` | `4.0.0-alpha.20251230`
+   prerelease | `<version>-beta.<date>`  | `4.0.0-beta.20251230`
+   release    | `<version>`              | `4.0.0`
+2. Run `build/prepare-install-package.sh` to create the release package in the root `bin` folder.
 
 ### Custom Harmony build
 SMAPI uses [a custom build of Harmony](https://github.com/Pathoschild/Harmony#readme), which is

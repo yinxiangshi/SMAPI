@@ -29,6 +29,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{09CF91E5
 		..\build\common.targets = ..\build\common.targets
 		..\build\find-game-folder.targets = ..\build\find-game-folder.targets
 		..\build\prepare-install-package.sh = ..\build\prepare-install-package.sh
+		..\build\set-smapi-version.sh = ..\build\set-smapi-version.sh
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{EB35A917-67B9-4EFA-8DFC-4FB49B3949BB}"
