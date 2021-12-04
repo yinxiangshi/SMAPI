@@ -4,7 +4,8 @@
         "includedFrameworks": [
             {
                 "name": "Microsoft.NETCore.App",
-                "version": "5.0.7"
+                "version": "5.0.0",
+                "rollForward": "major"
             }
         ],
         "configProperties": {

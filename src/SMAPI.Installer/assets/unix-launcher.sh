@@ -49,20 +49,13 @@ if [ ! -f "Stardew Valley.dll" ]; then
     exit 1
 fi
 
-# .NET 5 must be installed
-if ! command -v dotnet >/dev/null 2>&1; then
-    echo "Oops! You must have .NET 5 installed to use SMAPI: https://dotnet.microsoft.com/download";
-    read
-    exit 1
-fi
-
 
 ##########
 ## Launch SMAPI
 ##########
 # macOS
 if [ "$(uname)" == "Darwin" ]; then
-    dotnet StardewModdingAPI.dll "$@"
+    ./StardewModdingAPI "$@"
 
 # Linux
 else

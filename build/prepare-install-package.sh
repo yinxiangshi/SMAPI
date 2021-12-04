@@ -26,6 +26,7 @@ cd "`dirname "$0"`/.."
 echo "Clearing old builds..."
 echo "-----------------------"
 for path in */**/bin */**/obj; do
+    echo "$path"
     rm -rf $path
 done
 rm -rf "bin"
@@ -38,10 +39,9 @@ for folder in ${folders[@]}; do
     runtime=${runtimes[$folder]}
     msbuildPlatformName=${msBuildPlatformNames[$folder]}
 
-    # SMAPI
     echo "Compiling SMAPI for $folder..."
     echo "------------------"
-    dotnet publish src/SMAPI --configuration $buildConfig -v minimal --runtime "$runtime" -p:OS="$msbuildPlatformName" -p:GamePath="$gamePath" -p:CopyToGameFolder="false"
+    dotnet publish src/SMAPI --configuration $buildConfig -v minimal --runtime "$runtime" -p:OS="$msbuildPlatformName" -p:GamePath="$gamePath" -p:CopyToGameFolder="false" --self-contained true
     echo ""
     echo ""
 
@@ -79,7 +79,7 @@ done
 
 # copy base installer files
 for name in "install on Linux.sh" "install on macOS.command" "install on Windows.bat" "README.txt"; do
-    cp "$installAssets/$name" "$packagePath/$name"
+    cp "$installAssets/$name" "$packagePath"
 done
 
 # copy per-platform files
@@ -114,7 +114,7 @@ for folder in ${folders[@]}; do
             name="$name.exe"
         fi
 
-        cp "$smapiBin/$name" "$bundlePath/$name"
+        cp "$smapiBin/$name" "$bundlePath"
     done
 
     # bundle i18n
@@ -122,24 +122,24 @@ for folder in ${folders[@]}; do
 
     # bundle smapi-internal
     for name in "0Harmony.dll" "0Harmony.xml" "Mono.Cecil.dll" "Mono.Cecil.Mdb.dll" "Mono.Cecil.Pdb.dll" "MonoMod.Common.dll" "Newtonsoft.Json.dll" "TMXTile.dll" "SMAPI.Toolkit.dll" "SMAPI.Toolkit.pdb" "SMAPI.Toolkit.xml" "SMAPI.Toolkit.CoreInterfaces.dll" "SMAPI.Toolkit.CoreInterfaces.pdb" "SMAPI.Toolkit.CoreInterfaces.xml"; do
-        cp "$smapiBin/$name" "$bundlePath/smapi-internal/$name"
+        cp "$smapiBin/$name" "$bundlePath/smapi-internal"
     done
 
     cp "$smapiBin/SMAPI.config.json" "$bundlePath/smapi-internal/config.json"
     cp "$smapiBin/SMAPI.metadata.json" "$bundlePath/smapi-internal/metadata.json"
     if [ $folder == "linux" ] || [ $folder == "macOS" ]; then
-        cp "$installAssets/unix-launcher.sh" "$bundlePath/unix-launcher.sh"
-        cp "$smapiBin/System.Runtime.Caching.dll" "$bundlePath/smapi-internal/System.Runtime.Caching.dll"
+        cp "$installAssets/unix-launcher.sh" "$bundlePath"
+        cp "$smapiBin/System.Runtime.Caching.dll" "$bundlePath/smapi-internal"
     else
         cp "$installAssets/windows-exe-config.xml" "$bundlePath/StardewModdingAPI.exe.config"
     fi
 
     # copy .NET dependencies
-    cp "$smapiBin/System.Configuration.ConfigurationManager.dll" "$bundlePath/smapi-internal/System.Configuration.ConfigurationManager.dll"
-    cp "$smapiBin/System.Runtime.Caching.dll" "$bundlePath/smapi-internal/System.Runtime.Caching.dll"
-    cp "$smapiBin/System.Security.Permissions.dll" "$bundlePath/smapi-internal/System.Security.Permissions.dll"
+    cp "$smapiBin/System.Configuration.ConfigurationManager.dll" "$bundlePath/smapi-internal"
+    cp "$smapiBin/System.Runtime.Caching.dll" "$bundlePath/smapi-internal"
+    cp "$smapiBin/System.Security.Permissions.dll" "$bundlePath/smapi-internal"
     if [ $folder == "windows" ]; then
-        cp "$smapiBin/System.Management.dll" "$bundlePath/smapi-internal/System.Management.dll"
+        cp "$smapiBin/System.Management.dll" "$bundlePath/smapi-internal"
     fi
 
     # copy bundled mods
@@ -149,9 +149,9 @@ for folder in ${folders[@]}; do
 
         mkdir "$targetPath" --parents
 
-        cp "$fromPath/$modName.dll" "$targetPath/$modName.dll"
-        cp "$fromPath/$modName.pdb" "$targetPath/$modName.pdb"
-        cp "$fromPath/manifest.json" "$targetPath/manifest.json"
+        cp "$fromPath/$modName.dll" "$targetPath"
+        cp "$fromPath/$modName.pdb" "$targetPath"
+        cp "$fromPath/manifest.json" "$targetPath"
         if [ -d "$fromPath/i18n" ]; then
             cp -r "$fromPath/i18n" "$targetPath"
         fi
