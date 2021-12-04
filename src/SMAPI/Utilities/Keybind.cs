@@ -105,7 +105,9 @@ namespace StardewModdingAPI.Utilities
         /// <summary>Get the keybind state relative to the previous tick.</summary>
         public SButtonState GetState()
         {
+#pragma warning disable CS0618 // Type or member is obsolete: deliberate call to GetButtonState() for unit tests
             SButtonState[] states = this.Buttons.Select(this.GetButtonState).Distinct().ToArray();
+#pragma warning restore CS0618
 
             // single state
             if (states.Length == 1)
