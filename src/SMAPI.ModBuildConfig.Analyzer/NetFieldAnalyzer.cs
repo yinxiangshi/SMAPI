@@ -315,7 +315,7 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
                 return false;
 
             // conversion to implemented interface is OK
-            if (fromType.AllInterfaces.Contains(toType))
+            if (fromType.AllInterfaces.Contains(toType, SymbolEqualityComparer.Default))
                 return false;
 
             // avoid any other conversions
