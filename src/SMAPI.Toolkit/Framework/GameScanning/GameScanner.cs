@@ -5,6 +5,7 @@ using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using StardewModdingAPI.Toolkit.Utilities;
+using System.Reflection;
 #if SMAPI_FOR_WINDOWS
 using Microsoft.Win32;
 #endif
@@ -59,6 +60,32 @@ namespace StardewModdingAPI.Toolkit.Framework.GameScanning
                 && dir.EnumerateFiles("Stardew Valley.dll").Any();
         }
 
+        /// <summary>Get whether a folder seems to contain Stardew Valley 1.5.4 or earlier.</summary>
+        /// <param name="dir">The folder to check.</param>
+        public bool LooksLikeStardewValley154(DirectoryInfo dir)
+        {
+            if (!dir.Exists || this.LooksLikeGameFolder(dir))
+                return false;
+
+            // get legacy executable
+            FileInfo executable = new FileInfo(Path.Combine(dir.FullName, "Stardew Valley.exe"));
+            if (!executable.Exists)
+                executable = new FileInfo(Path.Combine(dir.FullName, "StardewValley.exe"));
+            if (!executable.Exists)
+                return false;
+
+            // check if it's a standard .NET assembly
+            // This will fail in Stardew Valley 1.5.5+, where it's a binary wrapper around Stardew Valley.dll.
+            try
+            {
+                Version version = AssemblyName.GetAssemblyName(executable.FullName).Version;
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
 
         /*********
         ** Private methods

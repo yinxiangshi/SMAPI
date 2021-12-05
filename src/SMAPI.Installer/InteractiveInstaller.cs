@@ -704,7 +704,15 @@ namespace StardewModdingApi.Installer
                 }
                 if (!context.LooksLikeGameFolder(directory))
                 {
-                    this.PrintWarning("That directory doesn't contain a Stardew Valley executable.");
+                    if (context.LooksLikeStardewValley154(directory))
+                    {
+                        this.PrintWarning("That directory seems to have Stardew Valley 1.5.4 or earlier.");
+                        this.PrintWarning("Please update your game to the latest version to use SMAPI.");
+                    }
+                    else
+                    {
+                        this.PrintWarning("That directory doesn't contain a Stardew Valley executable.");
+                    }
                     continue;
                 }
 
