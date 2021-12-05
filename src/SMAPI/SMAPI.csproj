@@ -13,6 +13,9 @@
 
     <!--copy dependency DLLs to bin folder so we can include them in installer bundle -->
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+
+    <!-- tiered compilation breaks Harmony -->
+    <TieredCompilation>false</TieredCompilation>
   </PropertyGroup>
 
   <Import Project="..\..\build\common.targets" />

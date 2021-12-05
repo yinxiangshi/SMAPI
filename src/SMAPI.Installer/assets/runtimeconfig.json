@@ -5,11 +5,12 @@
             {
                 "name": "Microsoft.NETCore.App",
                 "version": "5.0.0",
-                "rollForward": "major"
+                "rollForward": "latestMinor"
             }
         ],
         "configProperties": {
-            "System.Runtime.TieredCompilation": false
+            "System.Runtime.TieredCompilation": false,
+            "System.Reflection.Metadata.MetadataUpdater.IsSupported": false
         }
     }
 }
