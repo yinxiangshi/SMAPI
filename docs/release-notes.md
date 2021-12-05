@@ -6,12 +6,13 @@
   * You no longer need .NET 5 installed to run SMAPI or the installer.
   * The installer now detects when the game folder contains an incompatible legacy game version.
   * Updated for the latest Stardew Valley 1.5.5 hotfix.
+  * **Known issue:** SMAPI no longer has a pufferchick icon on Windows. That's [a known bug in .NET](https://github.com/dotnet/runtime/issues/3828) which affects the changes needed to run SMAPI without installing .NET manually.
+
+* For the web UI:
+  * Fixed the JSON validator marking `.fnt` files invalid in Content Patcher files.
 
 * For SMAPI maintainers:
   * Added a new [scripted release package process](technical/smapi.md), which removes the need to compile SMAPI on multiple platforms and manually combine them.
-
-* For the web UI:
-  * Updated the JSON validator/schema for `.fnt` support in Content Patcher 1.24.0.
 
 ## 3.13.1
 Released 30 November 2021 for Stardew Valley 1.5.5 or later.
