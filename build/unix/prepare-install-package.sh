@@ -1,5 +1,13 @@
 #!/bin/bash
 
+#
+#
+# This is the Bash equivalent of ../windows/prepare-install-package.ps1.
+# When making changes, both scripts should be updated.
+#
+#
+
+
 ##########
 ## Constants
 ##########
@@ -17,19 +25,18 @@ declare -A msBuildPlatformNames=(["linux"]="Unix" ["macOS"]="OSX" ["windows"]="W
 ##########
 ## Move to SMAPI root
 ##########
-cd "`dirname "$0"`/.."
+cd "`dirname "$0"`/../.."
 
 
 ##########
 ## Clear old build files
 ##########
 echo "Clearing old builds..."
-echo "-----------------------"
-for path in */**/bin */**/obj; do
+echo "-------------------------------------------------"
+for path in bin */**/bin */**/obj; do
     echo "$path"
     rm -rf $path
 done
-rm -rf "bin"
 echo ""
 
 ##########
@@ -40,20 +47,20 @@ for folder in ${folders[@]}; do
     msbuildPlatformName=${msBuildPlatformNames[$folder]}
 
     echo "Compiling SMAPI for $folder..."
-    echo "------------------"
+    echo "-------------------------------------------------"
     dotnet publish src/SMAPI --configuration $buildConfig -v minimal --runtime "$runtime" -p:OS="$msbuildPlatformName" -p:GamePath="$gamePath" -p:CopyToGameFolder="false" --self-contained true
     echo ""
     echo ""
 
     echo "Compiling installer for $folder..."
-    echo "----------------------"
+    echo "-------------------------------------------------"
     dotnet publish src/SMAPI.Installer --configuration $buildConfig -v minimal --runtime "$runtime" -p:OS="$msbuildPlatformName" -p:GamePath="$gamePath" -p:CopyToGameFolder="false" -p:PublishTrimmed=True -p:TrimMode=Link --self-contained true
     echo ""
     echo ""
 
     for modName in ${bundleModNames[@]}; do
         echo "Compiling $modName for $folder..."
-        echo "----------------------------------"
+        echo "-------------------------------------------------"
         dotnet publish src/SMAPI.Mods.$modName --configuration $buildConfig -v minimal --runtime "$runtime" -p:OS="$msbuildPlatformName" -p:GamePath="$gamePath" -p:CopyToGameFolder="false"
         echo ""
         echo ""
@@ -65,7 +72,7 @@ done
 ## Prepare install package
 ##########
 echo "Preparing install package..."
-echo "----------------------------"
+echo "-------------------------------------------------"
 
 # init paths
 installAssets="src/SMAPI.Installer/assets"
@@ -93,7 +100,6 @@ for folder in ${folders[@]}; do
 
     # installer files
     cp -r "src/SMAPI.Installer/bin/$buildConfig/$runtime/publish"/* "$internalPath"
-    rm -rf "$internalPath/ref"
     rm -rf "$internalPath/assets"
 
     # runtime config for SMAPI

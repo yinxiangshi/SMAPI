@@ -11,11 +11,12 @@ This document is about SMAPI itself; see also [mod build package](mod-package.md
   * [Configuration file](#configuration-file)
   * [Command-line arguments](#command-line-arguments)
   * [Compile flags](#compile-flags)
-* [For SMAPI developers](#for-smapi-developers)
-  * [Compiling from source](#compiling-from-source)
-  * [Debugging a local build](#debugging-a-local-build)
-  * [Preparing a release](#preparing-a-release)
-  * [Using a custom Harmony build](#using-a-custom-harmony-build)
+* [Compile from source code](#compile-from-source-code)
+  * [Main project](#main-project)
+  * [Custom Harmony build](#custom-harmony-build)
+* [Prepare a release](#prepare-a-release)
+  * [On any platform](#on-any-platform)
+  * [On Windows](#on-windows)
 * [Release notes](#release-notes)
 
 ## Customisation
@@ -58,36 +59,37 @@ flag | purpose
 ---- | -------
 `SMAPI_FOR_WINDOWS` | Whether SMAPI is being compiled for Windows; if not set, the code assumes Linux/macOS. Set automatically in `common.targets`.
 
-## For SMAPI developers
-### Compiling from source
+## Compile from source code
+### Main project
 Using an official SMAPI release is recommended for most users, but you can compile from source
-directly if needed. There are no special steps (just open the project and compile), but SMAPI often
-uses the latest C# syntax. You may need the latest version of your IDE to compile it.
+directly if needed. Just open the project in an IDE like [Visual
+Studio](https://visualstudio.microsoft.com/vs/community/) or [Rider](https://www.jetbrains.com/rider/),
+and build the `SMAPI` project. The project will automatically adjust the build settings for your
+current OS and Stardew Valley install path.
 
-SMAPI uses build configuration derived from the [crossplatform mod config](https://smapi.io/package/readme)
-to detect your current OS automatically and load the correct references. Compile output will be
-placed in a `bin` folder at the root of the Git repository.
-
-### Debugging a local build
 Rebuilding the solution in debug mode will copy the SMAPI files into your game folder. Starting
-the `SMAPI` project with debugging from Visual Studio (on macOS or Windows) will launch SMAPI with
-the debugger attached, so you can intercept errors and step through the code being executed. That
-doesn't work in MonoDevelop on Linux, unfortunately.
+the `SMAPI` project with debugging from Visual Studio or Rider should launch SMAPI with the
+debugger attached, so you can intercept errors and step through the code being executed.
 
-### Preparing a release
-To prepare a crossplatform SMAPI release, you'll need to run the build script on Linux or macOS.
+### Custom Harmony build
+SMAPI uses [a custom build of Harmony](https://github.com/Pathoschild/Harmony#readme), which is
+included in the `build` folder. To use a different build, just replace `0Harmony.dll` in that
+folder before compiling.
 
-#### Initial setup
-First-time setup:
+## Prepare a release
+### On any platform
+**⚠ Ideally we'd have one set of instructions for all platforms. The instructions in this section
+will produce a fully functional release for all supported platfrms, _except_ that the application
+icon for SMAPI on Windows will disappear due to [.NET runtime bug
+3828](https://github.com/dotnet/runtime/issues/3828). Until that's fixed, see the _[on
+Windows](#on-windows)_ section below to create a build that retains the icon.**
 
+#### First-time setup
 1. On Windows only:
-
    1. [Install Windows Subsystem for Linux (WSL)](https://docs.microsoft.com/en-us/windows/wsl/install).
    2. Run `sudo apt update` in WSL to update the package list.
    3. The rest of the instructions below should be run in WSL.
-
 2. Install the required software:
-
    1. Install the [.NET 5 SDK](https://docs.microsoft.com/en-us/dotnet/core/install/linux-ubuntu).  
       _For Ubuntu-based systems, you can run `lsb_release -a` to get the Ubuntu version number._
    2. [Install Steam](https://linuxconfig.org/how-to-install-steam-on-ubuntu-20-04-focal-fossa-linux).
@@ -100,14 +102,12 @@ First-time setup:
       ln -s "/opt/JetBrains Rider-<version>/bin/rider.sh"
       ./rider.sh
       ```
-
 3. Clone the SMAPI repo:
    ```sh
    git clone https://github.com/Pathoschild/SMAPI.git
    ```
 
-To launch the game:
-
+### Launch the game
 1. Run these commands to start Steam:
    ```sh
    export TERM=xterm
@@ -115,8 +115,8 @@ To launch the game:
    ```
 2. Launch the game through the Steam UI.
 
-#### Prepare the release
-1. Run `build/set-smapi-version.sh` to set the SMAPI version. Make sure you use a [semantic
+### Prepare the release
+1. Run `build/unix/set-smapi-version.sh` to set the SMAPI version. Make sure you use a [semantic
    version](https://semver.org). Recommended format:
 
    build type | format                   | example
@@ -124,12 +124,45 @@ To launch the game:
    dev build  | `<version>-alpha.<date>` | `4.0.0-alpha.20251230`
    prerelease | `<version>-beta.<date>`  | `4.0.0-beta.20251230`
    release    | `<version>`              | `4.0.0`
-2. Run `build/prepare-install-package.sh` to create the release package in the root `bin` folder.
 
-### Custom Harmony build
-SMAPI uses [a custom build of Harmony](https://github.com/Pathoschild/Harmony#readme), which is
-included in the `build` folder. To use a different build, just replace `0Harmony.dll` in that
-folder before compiling.
+2. Run `build/unix/prepare-install-package.sh` to create the release package in the root `bin`
+   folder.
+
+### On Windows
+#### First-time setup
+1. Set up Windows Subsystem for Linux (WSL):
+   1. [Install WSL](https://docs.microsoft.com/en-us/windows/wsl/install).
+   2. Run `sudo apt update` in WSL to update the package list.
+   3. The rest of the instructions below should be run in WSL.
+2. Install the required software:
+   1. Install the [.NET 5 SDK](https://dotnet.microsoft.com/download/dotnet/5.0).
+   2. Install [Stardew Valley](https://www.stardewvalley.net/).
+3. Clone the SMAPI repo:
+   ```sh
+   git clone https://github.com/Pathoschild/SMAPI.git
+   ```
+
+### Prepare the release
+1. Run `build/windows/set-smapi-version.ps1` in PowerShell to set the SMAPI version. Make sure you
+   use a [semantic version](https://semver.org). Recommended format:
+
+   build type | format                   | example
+   :--------- | :----------------------- | :------
+   dev build  | `<version>-alpha.<date>` | `4.0.0-alpha.20251230`
+   prerelease | `<version>-beta.<date>`  | `4.0.0-beta.20251230`
+   release    | `<version>`              | `4.0.0`
+
+2. Run `build/windows/prepare-install-package.ps1` in PowerShell to create the release package
+   folders in the root `bin` folder.
+
+3. Launch WSL and run this script:
+   ```bash
+   # edit to match the build created in steps 1-2
+   # In WSL, `/mnt/c/example` accesses `C:\example` on the Windows filesystem.
+   version="4.0.0"
+   binFolder="/mnt/e/source/_Stardew/SMAPI/bin"
+   build/windows/finalize-install-package.sh "$version" "$binFolder"
+   ```
 
 ## Release notes
 See [release notes](../release-notes.md).

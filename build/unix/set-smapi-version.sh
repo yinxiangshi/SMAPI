@@ -1,5 +1,13 @@
 #!/bin/bash
 
+#
+#
+# This is the Bash equivalent of ../windows/set-smapi-version.ps1.
+# When making changes, both scripts should be updated.
+#
+#
+
+
 # get version number
 version="$1"
 if [ $# -eq 0 ]; then
@@ -8,7 +16,7 @@ if [ $# -eq 0 ]; then
 fi
 
 # move to SMAPI root
-cd "`dirname "$0"`/.."
+cd "`dirname "$0"`/../.."
 
 # apply changes
 sed "s/<Version>.+<\/Version>/<Version>$version<\/Version>/" "build/common.targets" --in-place --regexp-extended
