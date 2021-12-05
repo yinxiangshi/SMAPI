@@ -9,6 +9,9 @@
 * For SMAPI maintainers:
   * Added a new [scripted release package process](technical/smapi.md), which removes the need to compile SMAPI on multiple platforms and manually combine them.
 
+* For the web UI:
+  * Updated the JSON validator/schema for `.fnt` support in Content Patcher 1.24.0.
+
 ## 3.13.1
 Released 30 November 2021 for Stardew Valley 1.5.5 or later.
 
