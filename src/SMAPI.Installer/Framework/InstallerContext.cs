@@ -55,11 +55,11 @@ namespace StardewModdingAPI.Installer.Framework
             return this.GameScanner.LooksLikeGameFolder(dir);
         }
 
-        /// <summary>Get whether a folder seems to contain Stardew Valley 1.5.4 or earlier.</summary>
+        /// <summary>Get whether a folder seems to contain the game, and which version it contains if so.</summary>
         /// <param name="dir">The folder to check.</param>
-        public bool LooksLikeStardewValley154(DirectoryInfo dir)
+        public GameFolderType GetGameFolderType(DirectoryInfo dir)
         {
-            return this.GameScanner.LooksLikeStardewValley154(dir);
+            return this.GameScanner.GetGameFolderType(dir);
         }
     }
 }

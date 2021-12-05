@@ -55,36 +55,58 @@ namespace StardewModdingAPI.Toolkit.Framework.GameScanning
         /// <param name="dir">The folder to check.</param>
         public bool LooksLikeGameFolder(DirectoryInfo dir)
         {
-            return
-                dir.Exists
-                && dir.EnumerateFiles("Stardew Valley.dll").Any();
+            return this.GetGameFolderType(dir) == GameFolderType.Valid;
         }
 
-        /// <summary>Get whether a folder seems to contain Stardew Valley 1.5.4 or earlier.</summary>
+        /// <summary>Detect the validity of a game folder based on file structure heuristics.</summary>
         /// <param name="dir">The folder to check.</param>
-        public bool LooksLikeStardewValley154(DirectoryInfo dir)
+        public GameFolderType GetGameFolderType(DirectoryInfo dir)
         {
-            if (!dir.Exists || this.LooksLikeGameFolder(dir))
-                return false;
+            // no such folder
+            if (!dir.Exists)
+                return GameFolderType.NoGameFound;
 
-            // get legacy executable
-            FileInfo executable = new FileInfo(Path.Combine(dir.FullName, "Stardew Valley.exe"));
-            if (!executable.Exists)
-                executable = new FileInfo(Path.Combine(dir.FullName, "StardewValley.exe"));
-            if (!executable.Exists)
-                return false;
+            // apparently valid
+            if (dir.EnumerateFiles("Stardew Valley.dll").Any())
+                return GameFolderType.Valid;
 
-            // check if it's a standard .NET assembly
-            // This will fail in Stardew Valley 1.5.5+, where it's a binary wrapper around Stardew Valley.dll.
+            // doesn't contain any version of Stardew Valley
+            FileInfo executable = new(Path.Combine(dir.FullName, "Stardew Valley.exe"));
+            if (!executable.Exists)
+                executable = new(Path.Combine(dir.FullName, "StardewValley.exe")); // pre-1.5.5 Linux/macOS executable
+            if (!executable.Exists)
+                return GameFolderType.NoGameFound;
+
+            // get assembly version
+            Version version;
             try
             {
-                Version version = AssemblyName.GetAssemblyName(executable.FullName).Version;
-                return true;
+                version = AssemblyName.GetAssemblyName(executable.FullName).Version;
             }
             catch
             {
-                return false;
+                // The executable exists but it doesn't seem to be a valid assembly. This would
+                // happen with Stardew Valley 1.5.5+, but that should have been flagged as a valid
+                // folder before this point.
+                return GameFolderType.InvalidUnknown;
             }
+
+            // ignore Stardew Valley 1.5.5+ at this point
+            if (version.Major == 1 && version.Minor == 3 && version.Build == 37)
+                return GameFolderType.InvalidUnknown;
+
+            // incompatible version
+            if (version.Major == 1 && version.Minor < 4)
+            {
+                // Stardew Valley 1.5.4 and earlier have assembly versions <= 1.3.7853.31734
+                if (version.Minor < 3 || version.Build <= 7853)
+                    return GameFolderType.Legacy154OrEarlier;
+
+                // Stardew Valley 1.5.5+ legacy compatibility branch
+                return GameFolderType.LegacyCompatibilityBranch;
+            }
+
+            return GameFolderType.InvalidUnknown;
         }
 
         /*********

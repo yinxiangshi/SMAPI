@@ -10,6 +10,7 @@ using StardewModdingAPI.Installer.Framework;
 using StardewModdingAPI.Internal.ConsoleWriting;
 using StardewModdingAPI.Toolkit;
 using StardewModdingAPI.Toolkit.Framework;
+using StardewModdingAPI.Toolkit.Framework.GameScanning;
 using StardewModdingAPI.Toolkit.Framework.ModScanning;
 using StardewModdingAPI.Toolkit.Utilities;
 
@@ -633,18 +634,39 @@ namespace StardewModdingApi.Installer
             // use specified path
             if (specifiedPath != null)
             {
+                string errorPrefix = $"You specified --game-path \"{specifiedPath}\", but";
+
                 var dir = new DirectoryInfo(specifiedPath);
                 if (!dir.Exists)
                 {
-                    this.PrintError($"You specified --game-path \"{specifiedPath}\", but that folder doesn't exist.");
+                    this.PrintError($"{errorPrefix} that folder doesn't exist.");
                     return null;
                 }
-                if (!context.LooksLikeGameFolder(dir))
+
+                switch (context.GetGameFolderType(dir))
                 {
-                    this.PrintError($"You specified --game-path \"{specifiedPath}\", but that folder doesn't contain the Stardew Valley executable.");
-                    return null;
+                    case GameFolderType.Valid:
+                        return dir;
+
+                    case GameFolderType.Legacy154OrEarlier:
+                        this.PrintWarning($"{errorPrefix} that directory seems to have Stardew Valley 1.5.4 or earlier.");
+                        this.PrintWarning("Please update your game to the latest version to use SMAPI.");
+                        return null;
+
+                    case GameFolderType.LegacyCompatibilityBranch:
+                        this.PrintWarning($"{errorPrefix} that directory seems to have the Stardew Valley legacy 'compatibility' branch.");
+                        this.PrintWarning("Unfortunately SMAPI is only compatible with the full main version of the game.");
+                        this.PrintWarning("Please update your game to the main branch to use SMAPI.");
+                        return null;
+
+                    case GameFolderType.NoGameFound:
+                        this.PrintWarning($"{errorPrefix} that directory doesn't contain a Stardew Valley executable.");
+                        return null;
+
+                    default:
+                        this.PrintWarning($"{errorPrefix} that directory doesn't seem to contain a valid game install.");
+                        return null;
                 }
-                return dir;
             }
 
             // let user choose detected path
@@ -702,23 +724,32 @@ namespace StardewModdingApi.Installer
                     this.PrintWarning("That directory doesn't seem to exist.");
                     continue;
                 }
-                if (!context.LooksLikeGameFolder(directory))
+
+                switch (context.GetGameFolderType(directory))
                 {
-                    if (context.LooksLikeStardewValley154(directory))
-                    {
+                    case GameFolderType.Valid:
+                        this.PrintInfo("   OK!");
+                        return directory;
+
+                    case GameFolderType.Legacy154OrEarlier:
                         this.PrintWarning("That directory seems to have Stardew Valley 1.5.4 or earlier.");
                         this.PrintWarning("Please update your game to the latest version to use SMAPI.");
-                    }
-                    else
-                    {
-                        this.PrintWarning("That directory doesn't contain a Stardew Valley executable.");
-                    }
-                    continue;
-                }
+                        continue;
 
-                // looks OK
-                this.PrintInfo("   OK!");
-                return directory;
+                    case GameFolderType.LegacyCompatibilityBranch:
+                        this.PrintWarning("That directory seems to have the Stardew Valley legacy 'compatibility' branch.");
+                        this.PrintWarning("Unfortunately SMAPI is only compatible with the full main version of the game.");
+                        this.PrintWarning("Please update your game to the main branch to use SMAPI.");
+                        continue;
+
+                    case GameFolderType.NoGameFound:
+                        this.PrintWarning("That directory doesn't contain a Stardew Valley executable.");
+                        continue;
+
+                    default:
+                        this.PrintWarning("That directory doesn't seem to contain a valid game install.");
+                        continue;
+                }
             }
         }
 

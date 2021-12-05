@@ -4,7 +4,7 @@
 ## Upcoming version
 * For players:
   * You no longer need .NET 5 installed to run SMAPI or the installer.
-  * The installer now detects when the game folder contains an incompatible older game version.
+  * The installer now detects when the game folder contains an incompatible legacy game version.
   * Updated for the latest Stardew Valley 1.5.5 hotfix.
 
 * For SMAPI maintainers:
