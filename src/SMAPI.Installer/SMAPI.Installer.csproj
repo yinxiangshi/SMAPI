@@ -17,5 +17,4 @@
 
   <Import Project="..\SMAPI.Internal\SMAPI.Internal.projitems" Label="Shared" />
   <Import Project="..\..\build\common.targets" />
-  <Import Project="..\..\build\prepare-install-package.targets" />
 </Project>

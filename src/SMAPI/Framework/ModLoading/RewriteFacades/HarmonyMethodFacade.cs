@@ -3,6 +3,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using HarmonyLib;
 
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member: This is internal code to support rewriters that shouldn't be called directly.
+
 namespace StardewModdingAPI.Framework.ModLoading.RewriteFacades
 {
     /// <summary>Maps Harmony 1.x <see cref="HarmonyMethod"/> methods to Harmony 2.x to avoid breaking older mods.</summary>

@@ -1,11 +1,27 @@
 ← [README](README.md)
 
 # Release notes
+## 3.13.2
+Released 05 December 2021 for Stardew Valley 1.5.5 or later.
+
+* For players:
+  * You no longer need .NET 5 to install or use SMAPI.
+  * The installer now detects when the game folder contains an incompatible legacy game version.
+  * Updated for the latest Stardew Valley 1.5.5 hotfix.
+  * Updated compatibility list.
+
+* For the web UI:
+  * Fixed the JSON validator marking `.fnt` files invalid in Content Patcher files.
+
+* For SMAPI maintainers:
+  * Added [release package scripts](technical/smapi.md) to streamline preparing SMAPI releases.
+
 ## 3.13.1
 Released 30 November 2021 for Stardew Valley 1.5.5 or later.
 
-* Improved .NET 5 validation in Windows installer to better explain how to get the right version.
-* Fixed installer failing on Windows when run from the game folder.
+* For players:
+  * Improved .NET 5 validation in Windows installer to better explain how to get the right version.
+  * Fixed installer failing on Windows when run from the game folder.
 
 ## 3.13.0
 Released 30 November 2021 for Stardew Valley 1.5.5 or later.

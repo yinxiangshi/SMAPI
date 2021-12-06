@@ -214,7 +214,7 @@
                     },
                     "FromFile": {
                         "title": "Source file",
-                        "description": "The relative file path in your content pack folder to load instead (like 'assets/dinosaur.png'), or multiple comma-delimited values. This can be a .json (data), .png (image), .tbin or .tmx (map), or .xnb file. This field supports tokens and capitalization doesn't matter.",
+                        "description": "The relative file path in your content pack folder to load instead (like 'assets/dinosaur.png'), or multiple comma-delimited values. This can be a .fnt (font), .json (data), .png (image), .tbin or .tmx (map), or .xnb file. This field supports tokens and capitalization doesn't matter.",
                         "type": "string",
                         "allOf": [
                             {
@@ -223,12 +223,12 @@
                                 }
                             },
                             {
-                                "pattern": "\\.(json|png|tbin|tmx|xnb) *$"
+                                "pattern": "\\.(fnt|json|png|tbin|tmx|xnb) *$"
                             }
                         ],
                         "@errorMessages": {
                             "allOf:indexes: 0": "Invalid value; must not contain directory climbing (like '../').",
-                            "allOf:indexes: 1": "Invalid value; must be a file path ending with .json, .png, .tbin, .tmx, or .xnb."
+                            "allOf:indexes: 1": "Invalid value; must be a file path ending with .fnt, .json, .png, .tbin, .tmx, or .xnb."
                         }
                     },
                     "FromArea": {

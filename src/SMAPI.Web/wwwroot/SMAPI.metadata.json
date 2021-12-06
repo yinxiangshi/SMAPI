@@ -215,6 +215,11 @@
             "~0.4.1 | Status": "AssumeBroken",
             "~0.4.1 | StatusReasonDetails": "causes freeze during game launch"
         },
+        "UI Info Suite": {
+            "ID": "Cdaragorn.UiInfoSuite",
+            "~2.0.0 | Status": "AssumeBroken",
+            "~2.0.0 | StatusReasonDetails": "causes lag, errors, or crashes in-game"
+        },
         "Video Player": {
             "ID": "aedenthorn.VideoPlayer",
             "~0.2.5 | Status": "AssumeBroken",

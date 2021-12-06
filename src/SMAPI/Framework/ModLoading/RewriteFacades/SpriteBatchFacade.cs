@@ -2,6 +2,9 @@ using System.Diagnostics.CodeAnalysis;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
+#pragma warning disable CS0109 // Member does not hide an inherited member, new keyword is not required: This is deliberate to support legacy XNA Framework platforms.
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member: This is internal code to support rewriters that shouldn't be called directly.
+
 namespace StardewModdingAPI.Framework.ModLoading.RewriteFacades
 {
     /// <summary>Provides <see cref="SpriteBatch"/> method signatures that can be injected into mod code for compatibility with mods written for XNA Framework before Stardew Valley 1.5.5.</summary>
