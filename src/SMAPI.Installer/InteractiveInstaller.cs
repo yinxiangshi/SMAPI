@@ -655,7 +655,7 @@ namespace StardewModdingApi.Installer
 
                     case GameFolderType.LegacyCompatibilityBranch:
                         this.PrintWarning($"{errorPrefix} that directory seems to have the Stardew Valley legacy 'compatibility' branch.");
-                        this.PrintWarning("Unfortunately SMAPI is only compatible with the full main version of the game.");
+                        this.PrintWarning("Unfortunately SMAPI is only compatible with the modern version of the game.");
                         this.PrintWarning("Please update your game to the main branch to use SMAPI.");
                         return null;
 
@@ -738,7 +738,7 @@ namespace StardewModdingApi.Installer
 
                     case GameFolderType.LegacyCompatibilityBranch:
                         this.PrintWarning("That directory seems to have the Stardew Valley legacy 'compatibility' branch.");
-                        this.PrintWarning("Unfortunately SMAPI is only compatible with the full main version of the game.");
+                        this.PrintWarning("Unfortunately SMAPI is only compatible with the modern version of the game.");
                         this.PrintWarning("Please update your game to the main branch to use SMAPI.");
                         continue;
 
