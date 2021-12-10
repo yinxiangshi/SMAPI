@@ -1,6 +1,10 @@
 ← [README](README.md)
 
 # Release notes
+## Upcoming release
+* For the web UI:
+  * Fixed log parser not correctly handling multiple mods having the exact same name.
+
 ## 3.13.2
 Released 05 December 2021 for Stardew Valley 1.5.5 or later.
 

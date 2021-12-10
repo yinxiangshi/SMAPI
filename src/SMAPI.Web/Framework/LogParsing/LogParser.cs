@@ -79,7 +79,7 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
                 // parse log messages
                 LogModInfo smapiMod = new LogModInfo { Name = "SMAPI", Author = "Pathoschild", Description = "", Loaded = true };
                 LogModInfo gameMod = new LogModInfo { Name = "game", Author = "", Description = "", Loaded = true };
-                IDictionary<string, LogModInfo> mods = new Dictionary<string, LogModInfo>();
+                IDictionary<string, List<LogModInfo>> mods = new Dictionary<string, List<LogModInfo>>();
                 bool inModList = false;
                 bool inContentPackList = false;
                 bool inModUpdateList = false;
@@ -99,8 +99,11 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
                                 break;
 
                             default:
-                                if (mods.ContainsKey(message.Mod))
-                                    mods[message.Mod].Errors++;
+                                if (mods.TryGetValue(message.Mod, out var entries))
+                                {
+                                    foreach (var entry in entries)
+                                        entry.Errors++;
+                                }
                                 break;
                         }
                     }
@@ -127,7 +130,10 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
                             string version = match.Groups["version"].Value;
                             string author = match.Groups["author"].Value;
                             string description = match.Groups["description"].Value;
-                            mods[name] = new LogModInfo { Name = name, Author = author, Version = version, Description = description, Loaded = true };
+
+                            if (!mods.TryGetValue(name, out List<LogModInfo> entries))
+                                mods[name] = entries = new List<LogModInfo>();
+                            entries.Add(new LogModInfo { Name = name, Author = author, Version = version, Description = description, Loaded = true });
 
                             message.Section = LogSection.ModsList;
                         }
@@ -147,7 +153,10 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
                             string author = match.Groups["author"].Value;
                             string description = match.Groups["description"].Value;
                             string forMod = match.Groups["for"].Value;
-                            mods[name] = new LogModInfo { Name = name, Author = author, Version = version, Description = description, ContentPackFor = forMod, Loaded = true };
+
+                            if (!mods.TryGetValue(name, out List<LogModInfo> entries))
+                                mods[name] = entries = new List<LogModInfo>();
+                            entries.Add(new LogModInfo { Name = name, Author = author, Version = version, Description = description, ContentPackFor = forMod, Loaded = true });
 
                             message.Section = LogSection.ContentPackList;
                         }
@@ -165,14 +174,14 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
                             string name = match.Groups["name"].Value;
                             string version = match.Groups["version"].Value;
                             string link = match.Groups["link"].Value;
-                            if (mods.ContainsKey(name))
+
+                            if (mods.TryGetValue(name, out var entries))
                             {
-                                mods[name].UpdateLink = link;
-                                mods[name].UpdateVersion = version;
-                            }
-                            else
-                            {
-                                mods[name] = new LogModInfo { Name = name, UpdateVersion = version, UpdateLink = link, Loaded = false };
+                                foreach (var entry in entries)
+                                {
+                                    entry.UpdateLink = link;
+                                    entry.UpdateVersion = version;
+                                }
                             }
 
                             message.Section = LogSection.ModUpdateList;
@@ -219,7 +228,7 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
 
                 // finalize log
                 gameMod.Version = log.GameVersion;
-                log.Mods = new[] { gameMod, smapiMod }.Concat(mods.Values.OrderBy(p => p.Name)).ToArray();
+                log.Mods = new[] { gameMod, smapiMod }.Concat(mods.Values.SelectMany(p => p).OrderBy(p => p.Name)).ToArray();
                 return log;
             }
             catch (LogParseException ex)
