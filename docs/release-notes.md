@@ -2,6 +2,9 @@
 
 # Release notes
 ## Upcoming release
+* For players:
+  * Updated compatibility list.
+
 * For the web UI:
   * Fixed log parser not correctly handling multiple mods having the exact same name.
 
