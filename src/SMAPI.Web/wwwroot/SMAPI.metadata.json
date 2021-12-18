@@ -283,6 +283,11 @@
         /*********
         ** Broke in SDV 1.5 (Content Patcher packs)
         *********/
+        "Empty Spouse Room": {
+            "ID": "Lerura.EmptySpouseRoom",
+            "~1.0.0 | Status": "AssumeBroken",
+            "~1.0.0 | StatusReasonDetails": "prevents loading married saves due to a missing tilesheet in the spouse room map"
+        },
         "mi.Mermaids": {
             "ID": "mi.Mermaids",
             "~1.0.0 | Status": "AssumeBroken",
