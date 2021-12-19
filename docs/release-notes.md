@@ -3,6 +3,7 @@
 # Release notes
 ## Upcoming release
 * For players:
+  * Fixed outdated instructions in Steam error message.
   * Updated compatibility list.
 
 * For the web UI:
