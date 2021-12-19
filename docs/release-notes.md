@@ -4,6 +4,7 @@
 ## Upcoming release
 * For players:
   * Fixed outdated instructions in Steam error message.
+  * Simplified [running without a terminal on Linux/macOS](https://stardewvalleywiki.com/Modding:Player_Guide/Troubleshooting#SMAPI_doesn.27t_recognize_controller_.28Steam_only.29) when needed.
   * Updated compatibility list.
 
 * For the web UI:

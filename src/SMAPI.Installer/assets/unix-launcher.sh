@@ -6,6 +6,10 @@
 # move to script's directory
 cd "$(dirname "$0")" || exit $?
 
+# change to true to skip opening a terminal
+# This isn't recommended since you won't see errors, warnings, and update alerts.
+SKIP_TERMINAL=false
+
 
 ##########
 ## Open terminal if needed
@@ -16,7 +20,6 @@ cd "$(dirname "$0")" || exit $?
 if [ "$(uname)" == "Darwin" ]; then
     if [ ! -t 1 ]; then # https://stackoverflow.com/q/911168/262123
         # sanity check to make sure we don't have an infinite loop of opening windows
-        SKIP_TERMINAL=false
         for argument in "$@"; do
             if [ "$argument" == "--no-reopen-terminal" ]; then
                 SKIP_TERMINAL=true
@@ -63,64 +66,71 @@ else
     LAUNCH_FILE="./StardewModdingAPI"
     export LAUNCH_FILE
 
-    # select terminal (prefer xterm for best compatibility, then known supported terminals)
-    for terminal in xterm gnome-terminal kitty terminator xfce4-terminal konsole terminal termite alacritty mate-terminal x-terminal-emulator; do
-        if command -v "$terminal" 2>/dev/null; then
-            export TERMINAL_NAME=$terminal
-            break;
+    # run in terminal
+    if [ "$SKIP_TERMINAL" == "false" ]; then
+        # select terminal (prefer xterm for best compatibility, then known supported terminals)
+        for terminal in xterm gnome-terminal kitty terminator xfce4-terminal konsole terminal termite alacritty mate-terminal x-terminal-emulator; do
+            if command -v "$terminal" 2>/dev/null; then
+                export TERMINAL_NAME=$terminal
+                break;
+            fi
+        done
+
+        # find the true shell behind x-terminal-emulator
+        if [ "$TERMINAL_NAME" = "x-terminal-emulator" ]; then
+            export TERMINAL_NAME="$(basename "$(readlink -f $(command -v x-terminal-emulator))")"
         fi
-    done
 
-    # find the true shell behind x-terminal-emulator
-    if [ "$TERMINAL_NAME" = "x-terminal-emulator" ]; then
-        export TERMINAL_NAME="$(basename "$(readlink -f $(command -v x-terminal-emulator))")"
-    fi
+        # run in selected terminal and account for quirks
+        export TERMINAL_PATH="$(command -v $TERMINAL_NAME)"
+        if [ -x $TERMINAL_PATH ]; then
+            case $TERMINAL_NAME in
+                terminal|termite)
+                    # consumes only one argument after -e
+                    # options containing space characters are unsupported
+                    exec $TERMINAL_NAME -e "env TERM=xterm $LAUNCH_FILE $@"
+                    ;;
 
-    # run in selected terminal and account for quirks
-    export TERMINAL_PATH="$(command -v $TERMINAL_NAME)"
-    if [ -x $TERMINAL_PATH ]; then
-        case $TERMINAL_NAME in
-            terminal|termite)
-                # consumes only one argument after -e
-                # options containing space characters are unsupported
-                exec $TERMINAL_NAME -e "env TERM=xterm $LAUNCH_FILE $@"
-                ;;
+                xterm|konsole|alacritty)
+                    # consumes all arguments after -e
+                    exec $TERMINAL_NAME -e env TERM=xterm $LAUNCH_FILE "$@"
+                    ;;
 
-            xterm|konsole|alacritty)
-                # consumes all arguments after -e
-                exec $TERMINAL_NAME -e env TERM=xterm $LAUNCH_FILE "$@"
-                ;;
+                terminator|xfce4-terminal|mate-terminal)
+                    # consumes all arguments after -x
+                    exec $TERMINAL_NAME -x env TERM=xterm $LAUNCH_FILE "$@"
+                    ;;
 
-            terminator|xfce4-terminal|mate-terminal)
-                # consumes all arguments after -x
-                exec $TERMINAL_NAME -x env TERM=xterm $LAUNCH_FILE "$@"
-                ;;
+                gnome-terminal)
+                    # consumes all arguments after --
+                    exec $TERMINAL_NAME -- env TERM=xterm $LAUNCH_FILE "$@"
+                    ;;
 
-            gnome-terminal)
-                # consumes all arguments after --
-                exec $TERMINAL_NAME -- env TERM=xterm $LAUNCH_FILE "$@"
-                ;;
+                kitty)
+                    # consumes all trailing arguments
+                    exec $TERMINAL_NAME env TERM=xterm $LAUNCH_FILE "$@"
+                    ;;
 
-            kitty)
-                # consumes all trailing arguments
-                exec $TERMINAL_NAME env TERM=xterm $LAUNCH_FILE "$@"
-                ;;
+                *)
+                    # If we don't know the terminal, just try to run it in the current shell.
+                    # If THAT fails, launch with no output.
+                    env TERM=xterm $LAUNCH_FILE "$@"
+                    if [ $? -eq 127 ]; then
+                        exec $LAUNCH_FILE --no-terminal "$@"
+                    fi
+            esac
 
-            *)
-                # If we don't know the terminal, just try to run it in the current shell.
-                # If THAT fails, launch with no output.
-                env TERM=xterm $LAUNCH_FILE "$@"
-                if [ $? -eq 127 ]; then
-                    exec $LAUNCH_FILE --no-terminal "$@"
-                fi
-        esac
+        ## terminal isn't executable; fallback to current shell or no terminal
+        else
+            echo "The '$TERMINAL_NAME' terminal isn't executable. SMAPI might be running in a sandbox or the system might be misconfigured? Falling back to current shell."
+            env TERM=xterm $LAUNCH_FILE "$@"
+            if [ $? -eq 127 ]; then
+                exec $LAUNCH_FILE --no-terminal "$@"
+            fi
+        fi
 
-    ## terminal isn't executable; fallback to current shell or no terminal
+    # explicitly run without terminal
     else
-        echo "The '$TERMINAL_NAME' terminal isn't executable. SMAPI might be running in a sandbox or the system might be misconfigured? Falling back to current shell."
-        env TERM=xterm $LAUNCH_FILE "$@"
-        if [ $? -eq 127 ]; then
-            exec $LAUNCH_FILE --no-terminal "$@"
-        fi
+        exec $LAUNCH_FILE --no-terminal "$@"
     fi
 fi
