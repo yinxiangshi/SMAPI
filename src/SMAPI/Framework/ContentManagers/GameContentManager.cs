@@ -13,6 +13,7 @@ using StardewModdingAPI.Framework.Utilities;
 using StardewModdingAPI.Internal;
 using StardewValley;
 using xTile;
+using xTile.Tiles;
 
 namespace StardewModdingAPI.Framework.ContentManagers
 {
@@ -308,7 +309,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             }
 
             // return matched asset
-            return this.TryValidateLoadedAsset(info, data, mod)
+            return this.TryFixAndValidateLoadedAsset(info, data, mod)
                 ? new AssetDataForObject(info, data, this.AssertAndNormalizeAssetName)
                 : null;
         }
@@ -381,12 +382,13 @@ namespace StardewModdingAPI.Framework.ContentManagers
             return asset;
         }
 
-        /// <summary>Validate that an asset loaded by a mod is valid and won't cause issues.</summary>
+        /// <summary>Validate that an asset loaded by a mod is valid and won't cause issues, and fix issues if possible.</summary>
         /// <typeparam name="T">The asset type.</typeparam>
         /// <param name="info">The basic asset metadata.</param>
         /// <param name="data">The loaded asset data.</param>
         /// <param name="mod">The mod which loaded the asset.</param>
-        private bool TryValidateLoadedAsset<T>(IAssetInfo info, T data, IModMetadata mod)
+        /// <returns>Returns whether the asset passed validation checks (after any fixes were applied).</returns>
+        private bool TryFixAndValidateLoadedAsset<T>(IAssetInfo info, T data, IModMetadata mod)
         {
             // can't load a null asset
             if (data == null)
@@ -401,20 +403,23 @@ namespace StardewModdingAPI.Framework.ContentManagers
                 TilesheetReference[] vanillaTilesheetRefs = this.Coordinator.GetVanillaTilesheetIds(info.AssetName);
                 foreach (TilesheetReference vanillaSheet in vanillaTilesheetRefs)
                 {
-                    // skip if match
-                    if (loadedMap.TileSheets.Count > vanillaSheet.Index && loadedMap.TileSheets[vanillaSheet.Index].Id == vanillaSheet.Id)
-                        continue;
+                    // add missing tilesheet
+                    if (loadedMap.GetTileSheet(vanillaSheet.Id) == null)
+                    {
+                        mod.Monitor.LogOnce("SMAPI fixed maps loaded by this mod to prevent errors. See the log file for details.", LogLevel.Warn);
+                        this.Monitor.Log($"Fixed broken map replacement: {mod.DisplayName} loaded '{info.AssetName}' without a required tilesheet (id: {vanillaSheet.Id}, source: {vanillaSheet.ImageSource}).");
+
+                        loadedMap.AddTileSheet(new TileSheet(vanillaSheet.Id, loadedMap, vanillaSheet.ImageSource, vanillaSheet.SheetSize, vanillaSheet.TileSize));
+                    }
 
                     // handle mismatch
+                    if (loadedMap.TileSheets.Count <= vanillaSheet.Index || loadedMap.TileSheets[vanillaSheet.Index].Id != vanillaSheet.Id)
                     {
                         // only show warning if not farm map
                         // This is temporary: mods shouldn't do this for any vanilla map, but these are the ones we know will crash. Showing a warning for others instead gives modders time to update their mods, while still simplifying troubleshooting.
                         bool isFarmMap = info.AssetNameEquals("Maps/Farm") || info.AssetNameEquals("Maps/Farm_Combat") || info.AssetNameEquals("Maps/Farm_Fishing") || info.AssetNameEquals("Maps/Farm_Foraging") || info.AssetNameEquals("Maps/Farm_FourCorners") || info.AssetNameEquals("Maps/Farm_Island") || info.AssetNameEquals("Maps/Farm_Mining");
 
-                        int loadedIndex = this.TryFindTilesheet(loadedMap, vanillaSheet.Id);
-                        string reason = loadedIndex != -1
-                            ? $"mod reordered the original tilesheets, which {(isFarmMap ? "would cause a crash" : "often causes crashes")}.\nTechnical details for mod author: Expected order: {string.Join(", ", vanillaTilesheetRefs.Select(p => p.Id))}. See https://stardewvalleywiki.com/Modding:Maps#Tilesheet_order for help."
-                            : $"mod has no tilesheet with ID '{vanillaSheet.Id}'. Map replacements must keep the original tilesheets to avoid errors or crashes.";
+                        string reason = $"mod reordered the original tilesheets, which {(isFarmMap ? "would cause a crash" : "often causes crashes")}.\nTechnical details for mod author: Expected order: {string.Join(", ", vanillaTilesheetRefs.Select(p => p.Id))}. See https://stardewvalleywiki.com/Modding:Maps#Tilesheet_order for help.";
 
                         SCore.DeprecationManager.PlaceholderWarn("3.8.2", DeprecationLevel.PendingRemoval);
                         if (isFarmMap)
@@ -428,20 +433,6 @@ namespace StardewModdingAPI.Framework.ContentManagers
             }
 
             return true;
-        }
-
-        /// <summary>Find a map tilesheet by ID.</summary>
-        /// <param name="map">The map whose tilesheets to search.</param>
-        /// <param name="id">The tilesheet ID to match.</param>
-        private int TryFindTilesheet(Map map, string id)
-        {
-            for (int i = 0; i < map.TileSheets.Count; i++)
-            {
-                if (map.TileSheets[i].Id == id)
-                    return i;
-            }
-
-            return -1;
         }
     }
 }

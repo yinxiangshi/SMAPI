@@ -3,6 +3,7 @@
 # Release notes
 ## Upcoming release
 * For players:
+  * SMAPI now auto-fixes maps loaded without a required tilesheet to prevent errors.
   * Fixed outdated instructions in Steam error message.
   * Simplified [running without a terminal on Linux/macOS](https://stardewvalleywiki.com/Modding:Player_Guide/Troubleshooting#SMAPI_doesn.27t_recognize_controller_.28Steam_only.29) when needed.
   * Updated compatibility list.
