@@ -262,7 +262,7 @@ namespace StardewModdingAPI.Framework.Logging
         public void LogIntro(string modsPath, IDictionary<string, object> customSettings)
         {
             // log platform
-            this.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Constants.GameVersion} on {EnvironmentUtility.GetFriendlyPlatformName(Constants.Platform)}", LogLevel.Info);
+            this.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Constants.GameVersion} (build {Constants.GetBuildVersionLabel()}) on {EnvironmentUtility.GetFriendlyPlatformName(Constants.Platform)}", LogLevel.Info);
 
             // log basic info
             this.Monitor.Log($"Mods go here: {modsPath}", LogLevel.Info);

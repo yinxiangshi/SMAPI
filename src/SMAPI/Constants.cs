@@ -340,5 +340,16 @@ namespace StardewModdingAPI
             // if save doesn't exist yet, return the default one we expect to be created
             return folder;
         }
+
+        /// <summary>Get a display label for the game's build number.</summary>
+        internal static string GetBuildVersionLabel()
+        {
+            string version = typeof(Game1).Assembly.GetName().Version?.ToString() ?? "unknown";
+
+            if (version.StartsWith($"{Game1.version}."))
+                version = version.Substring(Game1.version.Length + 1);
+
+            return version;
+        }
     }
 }
