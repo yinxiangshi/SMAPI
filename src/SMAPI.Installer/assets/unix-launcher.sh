@@ -31,7 +31,8 @@ if [ "$(uname)" == "Darwin" ]; then
         # https://stackoverflow.com/a/29511052/262123
         if [ "$SKIP_TERMINAL" == "false" ]; then
             echo "Reopening in the Terminal app..."
-            echo "\"$0\" $@ --no-reopen-terminal" > /tmp/open-smapi-terminal.sh
+            echo '#!/bin/sh" > /tmp/open-smapi-terminal.sh
+            echo "\"$0\" $@ --no-reopen-terminal" >> /tmp/open-smapi-terminal.sh
             chmod +x /tmp/open-smapi-terminal.sh
             cat /tmp/open-smapi-terminal.sh
             open -W -a Terminal /tmp/open-smapi-terminal.sh
