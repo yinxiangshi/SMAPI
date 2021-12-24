@@ -6,6 +6,7 @@
   * SMAPI now auto-fixes maps loaded without a required tilesheet to prevent errors.
   * Added the new game build number to the SMAPI console + log.
   * Fixed outdated instructions in Steam error message.
+  * Fixed uninstaller not removing `StardewModdingAPI.deps.json` file.
   * Simplified [running without a terminal on Linux/macOS](https://stardewvalleywiki.com/Modding:Player_Guide/Troubleshooting#SMAPI_doesn.27t_recognize_controller_.28Steam_only.29) when needed.
   * Updated compatibility list.
 
