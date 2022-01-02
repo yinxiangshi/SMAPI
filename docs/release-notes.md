@@ -10,6 +10,7 @@
   * Fixed launch issue on macOS when using some terminals (thanks to bruce2409!).
   * Simplified [running without a terminal on Linux/macOS](https://stardewvalleywiki.com/Modding:Player_Guide/Troubleshooting#SMAPI_doesn.27t_recognize_controller_.28Steam_only.29) when needed.
   * Updated compatibility list.
+  * Improved translations. Thanks to ChulkyBow (added Ukrainian)!
 
 * For the web UI:
   * Fixed log parser not correctly handling multiple mods having the exact same name.
