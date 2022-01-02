@@ -7,6 +7,7 @@
   * Added the new game build number to the SMAPI console + log.
   * Fixed outdated instructions in Steam error message.
   * Fixed uninstaller not removing `StardewModdingAPI.deps.json` file.
+  * Fixed launch issue on macOS when using some terminals (thanks to bruce2409!).
   * Simplified [running without a terminal on Linux/macOS](https://stardewvalleywiki.com/Modding:Player_Guide/Troubleshooting#SMAPI_doesn.27t_recognize_controller_.28Steam_only.29) when needed.
   * Updated compatibility list.
 
