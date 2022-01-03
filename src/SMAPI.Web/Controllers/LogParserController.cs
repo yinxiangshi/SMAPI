@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using StardewModdingAPI.Toolkit.Utilities;
@@ -39,24 +40,42 @@ namespace StardewModdingAPI.Web.Controllers
         ***/
         /// <summary>Render the log parser UI.</summary>
         /// <param name="id">The stored file ID.</param>
-        /// <param name="raw">Whether to display the raw unparsed log.</param>
+        /// <param name="format">How to render the log view.</param>
         /// <param name="renew">Whether to reset the log expiry.</param>
         [HttpGet]
         [Route("log")]
         [Route("log/{id}")]
-        public async Task<ViewResult> Index(string id = null, bool raw = false, bool renew = false)
+        public async Task<ActionResult> Index(string id = null, LogViewFormat format = LogViewFormat.Default, bool renew = false)
         {
             // fresh page
             if (string.IsNullOrWhiteSpace(id))
                 return this.View("Index", this.GetModel(id));
 
-            // log page
+            // fetch log
             StoredFileInfo file = await this.Storage.GetAsync(id, renew);
-            ParsedLog log = file.Success
-                ? new LogParser().Parse(file.Content)
-                : new ParsedLog { IsValid = false, Error = file.Error };
 
-            return this.View("Index", this.GetModel(id, uploadWarning: file.Warning, expiry: file.Expiry).SetResult(log, raw));
+            // render view
+            switch (format)
+            {
+                case LogViewFormat.Default:
+                case LogViewFormat.RawView:
+                    {
+                        ParsedLog log = file.Success
+                            ? new LogParser().Parse(file.Content)
+                            : new ParsedLog { IsValid = false, Error = file.Error };
+
+                        return this.View("Index", this.GetModel(id, uploadWarning: file.Warning, expiry: file.Expiry).SetResult(log, showRaw: format == LogViewFormat.RawView));
+                    }
+
+                case LogViewFormat.RawDownload:
+                    {
+                        string content = file.Error ?? file.Content;
+                        return this.File(Encoding.UTF8.GetBytes(content), "plain/text", $"SMAPI log ({id}).txt");
+                    }
+
+                default:
+                    throw new InvalidOperationException($"Unknown log view format '{format}'.");
+            }
         }
 
         /***

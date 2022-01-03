@@ -13,6 +13,7 @@
   * Improved translations. Thanks to ChulkyBow (added Ukrainian)!
 
 * For the web UI:
+  * Added log download option.
   * Fixed log parser not correctly handling multiple mods having the exact same name.
 
 ## 3.13.2

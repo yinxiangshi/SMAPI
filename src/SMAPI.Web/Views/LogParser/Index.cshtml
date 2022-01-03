@@ -2,6 +2,7 @@
 @using StardewModdingAPI.Toolkit.Utilities
 @using StardewModdingAPI.Web.Framework
 @using StardewModdingAPI.Web.Framework.LogParsing.Models
+@using StardewModdingAPI.Web.ViewModels
 @model StardewModdingAPI.Web.ViewModels.LogParserModel
 
 @{
@@ -338,14 +339,24 @@ else if (Model.ParsedLog?.IsValid == true)
                     }
                 }
             </table>
-
-            <small><a href="@this.Url.PlainAction("Index", "LogParser", new { id = Model.PasteID, raw = true })">view raw log</a></small>
         }
         else
         {
             <pre v-pre>@Model.ParsedLog.RawText</pre>
-            <small><a href="@this.Url.PlainAction("Index", "LogParser", new { id = Model.PasteID })">view parsed log</a></small>
         }
+
+        <small>
+            @if (Model.ShowRaw)
+            {
+                <a href="@this.Url.PlainAction("Index", "LogParser", new { id = Model.PasteID })">view parsed log</a>
+            }
+            else
+            {
+                <a href="@this.Url.PlainAction("Index", "LogParser", new { id = Model.PasteID, format = LogViewFormat.RawView })">view raw log</a>
+            }
+            
+            | <a href="@this.Url.PlainAction("Index", "LogParser", new { id = Model.PasteID, format = LogViewFormat.RawDownload })" download>download</a>
+        </small>
     </div>
 }
 else if (Model.ParsedLog?.IsValid == false)
