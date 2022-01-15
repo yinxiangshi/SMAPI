@@ -18,6 +18,7 @@
 * For the web UI:
   * Added log download option.
   * Fixed log parser not correctly handling multiple mods having the exact same name.
+  * Fixed JSON validator not recognizing manifest [update subkeys](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Update_checks#Update_subkeys).
 
 ## 3.13.2
 Released 05 December 2021 for Stardew Valley 1.5.5 or later.
