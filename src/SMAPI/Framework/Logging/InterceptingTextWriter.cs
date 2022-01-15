@@ -26,6 +26,10 @@ namespace StardewModdingAPI.Framework.Logging
         /// <summary>The event raised when a message is written to the console directly.</summary>
         public event Action<string> OnMessageIntercepted;
 
+        /// <summary>Whether the text writer should ignore the next input if it's a newline.</summary>
+        /// <remarks>This is used when log output is suppressed from the console, since <c>Console.WriteLine</c> writes the trailing newline as a separate call.</remarks>
+        public bool IgnoreNextIfNewline { get; set; }
+
 
         /*********
         ** Public methods
@@ -42,12 +46,18 @@ namespace StardewModdingAPI.Framework.Logging
         /// <inheritdoc />
         public override void Write(char[] buffer, int index, int count)
         {
+            bool ignoreIfNewline = this.IgnoreNextIfNewline;
+            this.IgnoreNextIfNewline = false;
+
             if (buffer.Length == 0)
                 this.Out.Write(buffer, index, count);
             else if (buffer[0] == this.IgnoreChar)
                 this.Out.Write(buffer, index + 1, count - 1);
             else if (this.IsEmptyOrNewline(buffer))
-                this.Out.Write(buffer, index, count);
+            {
+                if (!ignoreIfNewline)
+                    this.Out.Write(buffer, index, count);
+            }
             else
                 this.OnMessageIntercepted?.Invoke(new string(buffer, index, count).TrimEnd('\r', '\n'));
         }

@@ -5,6 +5,7 @@
 * For players:
   * SMAPI now auto-fixes maps loaded without a required tilesheet to prevent errors.
   * Added the new game build number to the SMAPI console + log.
+  * Fixed extra newlines shown in the console in non-developer mode.
   * Fixed outdated instructions in Steam error message.
   * Fixed uninstaller not removing `StardewModdingAPI.deps.json` file.
   * Fixed launch issue on macOS when using some terminals (thanks to bruce2409!).
