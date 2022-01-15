@@ -3,7 +3,8 @@
 # Release notes
 ## Upcoming release
 * For players:
-  * Added auto-fix for custom maps which don't have a required tilesheet.
+  * Added automatic fix for custom maps which don't have a required tilesheet.
+  * Added automatic save recovery when the custom farm type isn't available anymore.
   * Added the new game build number to the SMAPI console + log.
   * Fixed extra newlines shown in the console in non-developer mode.
   * Fixed macOS launch issue when using some terminals (thanks to bruce2409!).
