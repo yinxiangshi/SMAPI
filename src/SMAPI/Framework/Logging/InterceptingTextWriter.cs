@@ -51,7 +51,7 @@ namespace StardewModdingAPI.Framework.Logging
 
             if (buffer.Length == 0)
                 this.Out.Write(buffer, index, count);
-            else if (buffer[0] == this.IgnoreChar)
+            else if (buffer[0] == this.IgnoreChar || char.IsControl(buffer[0])) // ignore control characters like backspace
                 this.Out.Write(buffer, index + 1, count - 1);
             else if (this.IsEmptyOrNewline(buffer))
             {
