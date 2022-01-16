@@ -2,6 +2,7 @@
 @using StardewModdingAPI.Toolkit.Utilities
 @using StardewModdingAPI.Web.Framework
 @using StardewModdingAPI.Web.Framework.LogParsing.Models
+@using StardewModdingAPI.Web.ViewModels
 @model StardewModdingAPI.Web.ViewModels.LogParserModel
 
 @{
@@ -22,13 +23,15 @@
     {
         <meta name="robots" content="noindex" />
     }
-    <link rel="stylesheet" href="~/Content/css/file-upload.css?r=202002" />
-    <link rel="stylesheet" href="~/Content/css/log-parser.css?r=202002" />
+    <link rel="stylesheet" href="~/Content/css/file-upload.css" />
+    <link rel="stylesheet" href="~/Content/css/log-parser.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tabbyjs@12.0.3/dist/css/tabby-ui-vertical.min.css" />
 
+    <script src="https://cdn.jsdelivr.net/npm/tabbyjs@12.0.3" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.11" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1" crossorigin="anonymous"></script>
-    <script src="~/Content/js/file-upload.js?r=202002"></script>
-    <script src="~/Content/js/log-parser.js?r=202002"></script>
+    <script src="~/Content/js/file-upload.js"></script>
+    <script src="~/Content/js/log-parser.js"></script>
     <script>
         $(function() {
             smapi.logParser({
@@ -40,6 +43,8 @@
                 enableFilters: @this.ForJson(!Model.ShowRaw),
                 screenIds: @this.ForJson(screenIds)
             }, '@this.Url.PlainAction("Index", "LogParser", values: null)');
+
+            new Tabby('[data-tabs]');
         });
     </script>
 }
@@ -90,51 +95,65 @@ else if (Model.ParsedLog?.IsValid == true)
 @if (Model.ParsedLog == null)
 {
     <h2>Where do I find my SMAPI log?</h2>
-    <div>What system do you use?</div>
-    <ul id="os-list">
-        @foreach (Platform platform in new[] { Platform.Android, Platform.Linux, Platform.Mac, Platform.Windows })
-        {
-            <li>
-                <input type="radio" name="os" value="@platform" id="os-@platform" checked="@(Model.DetectedPlatform == platform)" />
-                <label for="os-@platform">@platform</label>
-            </li>
-        }
-    </ul>
-    <div data-os="@Platform.Android">
-        On Android:
-        <ol>
-            <li>Open a file app (like My Files or MT Manager).</li>
-            <li>Find the <code>StardewValley</code> folder on your internal storage.</li>
-            <li>Open the <code>ErrorLogs</code> subfolder.</li>
-            <li>The log file is <code>SMAPI-crash.txt</code> if it exists, otherwise <code>SMAPI-latest.txt</code>.</li>
-        </ol>
-    </div>
-    <div data-os="@Platform.Linux">
-        On Linux:
-        <ol>
-            <li>Open the Files app.</li>
-            <li>Click the options menu (might be labeled <em>Go</em> or <code>⋮</code>).</li>
-            <li>Choose <em>Enter Location</em>.</li>
-            <li>Enter this exact text: <pre>~/.config/StardewValley/ErrorLogs</pre></li>
-            <li>The log file is <code>SMAPI-crash.txt</code> if it exists, otherwise <code>SMAPI-latest.txt</code>.</li>
-        </ol>
-    </div>
-    <div data-os="@Platform.Mac">
-        On macOS:
-        <ol>
-            <li>Open the Finder app.</li>
-            <li>Click <em>Go</em> at the top, then <em>Go to Folder</em>.</li>
-            <li>Enter this exact text: <pre>~/.config/StardewValley/ErrorLogs</pre></li>
-            <li>The log file is <code>SMAPI-crash.txt</code> if it exists, otherwise <code>SMAPI-latest.txt</code>.</li>
-        </ol>
-    </div>
-    <div data-os="@Platform.Windows">
-        On Windows:
-        <ol>
-            <li>Press the <code>Windows</code> and <code>R</code> buttons at the same time.</li>
-            <li>In the 'run' box that appears, enter this exact text: <pre>%appdata%\StardewValley\ErrorLogs</pre></li>
-            <li>The log file is <code>SMAPI-crash.txt</code> if it exists, otherwise <code>SMAPI-latest.txt</code>.</li>
-        </ol>
+    <div id="os-instructions">
+        <div>
+            <ul data-tabs>
+                @foreach (Platform platform in new[] {Platform.Android, Platform.Linux, Platform.Mac, Platform.Windows})
+                {
+                    @if (platform == Platform.Windows)
+                    {
+                        <li><a data-tabby-default href="#@(platform)-steamgog">@platform (Steam or GOG)</a></li>
+                        <li><a href="#@(platform)-xbox">@platform (Xbox app)</a></li>
+                    }
+                    else
+                    {
+                        <li><a href="#@platform">@platform</a></li>
+                    }
+                }
+            </ul>
+        </div>
+        <div>
+            <div id="@Platform.Android">
+                <ol>
+                    <li>Open a file app (like My Files or MT Manager).</li>
+                    <li>Find the <code>StardewValley</code> folder on your internal storage.</li>
+                    <li>Open the <code>ErrorLogs</code> subfolder.</li>
+                    <li>The log file is <code>SMAPI-crash.txt</code> if it exists, otherwise <code>SMAPI-latest.txt</code>.</li>
+                </ol>
+            </div>
+            <div id="@Platform.Linux">
+                <ol>
+                    <li>Open the Files app.</li>
+                    <li>Click the options menu (might be labeled <em>Go</em> or <code>⋮</code>).</li>
+                    <li>Choose <em>Enter Location</em>.</li>
+                    <li>Enter this exact text: <pre>~/.config/StardewValley/ErrorLogs</pre></li>
+                    <li>The log file is <code>SMAPI-crash.txt</code> if it exists, otherwise <code>SMAPI-latest.txt</code>.</li>
+                </ol>
+            </div>
+            <div id="@Platform.Mac">
+                <ol>
+                    <li>Open the Finder app.</li>
+                    <li>Click <em>Go</em> at the top, then <em>Go to Folder</em>.</li>
+                    <li>Enter this exact text: <pre>~/.config/StardewValley/ErrorLogs</pre></li>
+                    <li>The log file is <code>SMAPI-crash.txt</code> if it exists, otherwise <code>SMAPI-latest.txt</code>.</li>
+                </ol>
+            </div>
+            <div id="@(Platform.Windows)-steamgog">
+                <ol>
+                    <li>Press the <kbd>Windows</kbd> and <kbd>R</kbd> buttons at the same time.</li>
+                    <li>In the 'run' box that appears, enter this exact text: <pre>%appdata%\StardewValley\ErrorLogs</pre></li>
+                    <li>The log file is <code>SMAPI-crash.txt</code> if it exists, otherwise <code>SMAPI-latest.txt</code>.</li>
+                </ol>
+            </div>
+            <div id="@(Platform.Windows)-xbox">
+                <ol>
+                    <li>Press the <kbd>Windows</kbd> and <kbd>R</kbd> buttons at the same time.</li>
+                    <li>In the 'run' box that appears, enter this exact text: <pre>%localappdata%\Packages\ConcernedApe.StardewValleyPC_0c8vynj4cqe4e\LocalCache\Roaming\StardewValley\ErrorLogs</pre></li>
+                    <li>If you get an error with the title "Location is not available", try the "with Steam or GOG" instructions above.</li>
+                    <li>Otherwise the log file is <code>SMAPI-crash.txt</code> if it exists, otherwise <code>SMAPI-latest.txt</code>.</li>
+                </ol>
+            </div>
+        </div>
     </div>
 
     <h2>How do I share my log?</h2>
@@ -338,14 +357,24 @@ else if (Model.ParsedLog?.IsValid == true)
                     }
                 }
             </table>
-
-            <small><a href="@this.Url.PlainAction("Index", "LogParser", new { id = Model.PasteID, raw = true })">view raw log</a></small>
         }
         else
         {
             <pre v-pre>@Model.ParsedLog.RawText</pre>
-            <small><a href="@this.Url.PlainAction("Index", "LogParser", new { id = Model.PasteID })">view parsed log</a></small>
         }
+
+        <small>
+            @if (Model.ShowRaw)
+            {
+                <a href="@this.Url.PlainAction("Index", "LogParser", new { id = Model.PasteID })">view parsed log</a>
+            }
+            else
+            {
+                <a href="@this.Url.PlainAction("Index", "LogParser", new { id = Model.PasteID, format = LogViewFormat.RawView })">view raw log</a>
+            }
+
+            | <a href="@this.Url.PlainAction("Index", "LogParser", new { id = Model.PasteID, format = LogViewFormat.RawDownload })" download>download</a>
+        </small>
     </div>
 }
 else if (Model.ParsedLog?.IsValid == false)

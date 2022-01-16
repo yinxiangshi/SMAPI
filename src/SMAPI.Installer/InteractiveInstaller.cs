@@ -41,6 +41,7 @@ namespace StardewModdingApi.Installer
 
             // current files
             yield return GetInstallPath("StardewModdingAPI");          // Linux/macOS only
+            yield return GetInstallPath("StardewModdingAPI.deps.json");
             yield return GetInstallPath("StardewModdingAPI.dll");
             yield return GetInstallPath("StardewModdingAPI.exe");
             yield return GetInstallPath("StardewModdingAPI.exe.config");

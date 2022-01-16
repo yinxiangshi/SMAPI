@@ -28,15 +28,31 @@
         <_SteamLibraryPath>$([MSBuild]::GetRegistryValueFromView('HKEY_CURRENT_USER\SOFTWARE\Valve\Steam', 'SteamPath', null, RegistryView.Registry32))</_SteamLibraryPath>
         <GamePath Condition="!Exists('$(GamePath)') AND '$(_SteamLibraryPath)' != ''">$(_SteamLibraryPath)\steamapps\common\Stardew Valley</GamePath>
 
-        <!-- default paths -->
+        <!-- GOG paths -->
         <GamePath Condition="!Exists('$(GamePath)')">C:\Program Files\GalaxyClient\Games\Stardew Valley</GamePath>
         <GamePath Condition="!Exists('$(GamePath)')">C:\Program Files\GOG Galaxy\Games\Stardew Valley</GamePath>
         <GamePath Condition="!Exists('$(GamePath)')">C:\Program Files\GOG Games\Stardew Valley</GamePath>
-        <GamePath Condition="!Exists('$(GamePath)')">C:\Program Files\Steam\steamapps\common\Stardew Valley</GamePath>
-
         <GamePath Condition="!Exists('$(GamePath)')">C:\Program Files (x86)\GalaxyClient\Games\Stardew Valley</GamePath>
         <GamePath Condition="!Exists('$(GamePath)')">C:\Program Files (x86)\GOG Galaxy\Games\Stardew Valley</GamePath>
         <GamePath Condition="!Exists('$(GamePath)')">C:\Program Files (x86)\GOG Games\Stardew Valley</GamePath>
+
+        <!-- Xbox app paths -->
+        <!--
+        The Xbox app saves the install path to the registry, but we can't use it here since it
+        saves the internal readonly path (like C:\Program Files\WindowsApps\Mutable\<package ID>)
+        instead of the mods-enabled path (like C:\Program Files\ModifiableWindowsApps\Stardew Valley).
+        Fortunately we can cheat a bit: players can customize the install drive, but they can't
+        change the install path on the drive.
+        -->
+        <GamePath Condition="!Exists('$(GamePath)')">C:\Program Files\ModifiableWindowsApps\Stardew Valley</GamePath>
+        <GamePath Condition="!Exists('$(GamePath)')">D:\Program Files\ModifiableWindowsApps\Stardew Valley</GamePath>
+        <GamePath Condition="!Exists('$(GamePath)')">E:\Program Files\ModifiableWindowsApps\Stardew Valley</GamePath>
+        <GamePath Condition="!Exists('$(GamePath)')">F:\Program Files\ModifiableWindowsApps\Stardew Valley</GamePath>
+        <GamePath Condition="!Exists('$(GamePath)')">G:\Program Files\ModifiableWindowsApps\Stardew Valley</GamePath>
+        <GamePath Condition="!Exists('$(GamePath)')">H:\Program Files\ModifiableWindowsApps\Stardew Valley</GamePath>
+
+        <!-- Steam paths -->
+        <GamePath Condition="!Exists('$(GamePath)')">C:\Program Files\Steam\steamapps\common\Stardew Valley</GamePath>
         <GamePath Condition="!Exists('$(GamePath)')">C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley</GamePath>
       </PropertyGroup>
     </When>

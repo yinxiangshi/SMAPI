@@ -406,14 +406,14 @@ namespace StardewModdingAPI.Framework
             if (!this.VanillaTilesheets.TryGetValue(assetName, out TilesheetReference[] tilesheets))
             {
                 tilesheets = this.TryLoadVanillaAsset(assetName, out Map map)
-                    ? map.TileSheets.Select((sheet, index) => new TilesheetReference(index, sheet.Id, sheet.ImageSource)).ToArray()
+                    ? map.TileSheets.Select((sheet, index) => new TilesheetReference(index, sheet.Id, sheet.ImageSource, sheet.SheetSize, sheet.TileSize)).ToArray()
                     : null;
 
                 this.VanillaTilesheets[assetName] = tilesheets;
                 this.VanillaContentManager.Unload();
             }
 
-            return tilesheets ?? new TilesheetReference[0];
+            return tilesheets ?? Array.Empty<TilesheetReference>();
         }
 
         /// <summary>Get the language enum which corresponds to a locale code (e.g. <see cref="LocalizedContentManager.LanguageCode.fr"/> given <c>fr-FR</c>).</summary>

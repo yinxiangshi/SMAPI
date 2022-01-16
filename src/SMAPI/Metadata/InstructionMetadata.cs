@@ -37,9 +37,10 @@ namespace StardewModdingAPI.Metadata
             if (rewriteMods)
             {
                 // rewrite for Stardew Valley 1.5
-                yield return new FieldReplaceRewriter(typeof(DecoratableLocation), "furniture", typeof(GameLocation), nameof(GameLocation.furniture));
-                yield return new FieldReplaceRewriter(typeof(Farm), "resourceClumps", typeof(GameLocation), nameof(GameLocation.resourceClumps));
-                yield return new FieldReplaceRewriter(typeof(MineShaft), "resourceClumps", typeof(GameLocation), nameof(GameLocation.resourceClumps));
+                yield return new FieldReplaceRewriter()
+                    .AddField(typeof(DecoratableLocation), "furniture", typeof(GameLocation), nameof(GameLocation.furniture))
+                    .AddField(typeof(Farm), "resourceClumps", typeof(GameLocation), nameof(GameLocation.resourceClumps))
+                    .AddField(typeof(MineShaft), "resourceClumps", typeof(GameLocation), nameof(GameLocation.resourceClumps));
 
                 // heuristic rewrites
                 yield return new HeuristicFieldRewriter(this.ValidateReferencesToAssemblies);
@@ -87,7 +88,7 @@ namespace StardewModdingAPI.Metadata
                         typeof(System.IO.DirectoryInfo).FullName,
                         typeof(System.IO.DriveInfo).FullName,
                         typeof(System.IO.FileSystemWatcher).FullName
-                        },
+                    },
                     InstructionHandleResult.DetectedFilesystemAccess
                 );
 

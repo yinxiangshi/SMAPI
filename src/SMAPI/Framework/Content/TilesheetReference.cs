@@ -1,3 +1,6 @@
+using System.Numerics;
+using xTile.Dimensions;
+
 namespace StardewModdingAPI.Framework.Content
 {
     /// <summary>Basic metadata about a vanilla tilesheet.</summary>
@@ -15,6 +18,12 @@ namespace StardewModdingAPI.Framework.Content
         /// <summary>The asset path for the tilesheet texture.</summary>
         public readonly string ImageSource;
 
+        /// <summary>The number of tiles in the tilesheet.</summary>
+        public readonly Size SheetSize;
+
+        /// <summary>The size of each tile in pixels.</summary>
+        public readonly Size TileSize;
+
 
         /*********
         ** Public methods
@@ -23,11 +32,15 @@ namespace StardewModdingAPI.Framework.Content
         /// <param name="index">The tilesheet's index in the list.</param>
         /// <param name="id">The tilesheet's unique ID in the map.</param>
         /// <param name="imageSource">The asset path for the tilesheet texture.</param>
-        public TilesheetReference(int index, string id, string imageSource)
+        /// <param name="sheetSize">The number of tiles in the tilesheet.</param>
+        /// <param name="tileSize">The size of each tile in pixels.</param>
+        public TilesheetReference(int index, string id, string imageSource, Size sheetSize, Size tileSize)
         {
             this.Index = index;
             this.Id = id;
             this.ImageSource = imageSource;
+            this.SheetSize = sheetSize;
+            this.TileSize = tileSize;
         }
     }
 }

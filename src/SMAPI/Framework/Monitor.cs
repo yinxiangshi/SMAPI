@@ -28,7 +28,7 @@ namespace StardewModdingAPI.Framework
         private static readonly int MaxLevelLength = (from level in Enum.GetValues(typeof(LogLevel)).Cast<LogLevel>() select level.ToString().Length).Max();
 
         /// <summary>A cache of messages that should only be logged once.</summary>
-        private readonly HashSet<string> LogOnceCache = new HashSet<string>();
+        private readonly HashSet<string> LogOnceCache = new();
 
         /// <summary>Get the screen ID that should be logged to distinguish between players in split-screen mode, if any.</summary>
         private readonly Func<int?> GetScreenIdForLog;

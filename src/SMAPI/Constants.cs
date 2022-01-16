@@ -49,7 +49,7 @@ namespace StardewModdingAPI
         internal static int? LogScreenId { get; set; }
 
         /// <summary>SMAPI's current raw semantic version.</summary>
-        internal static string RawApiVersion = "3.13.2";
+        internal static string RawApiVersion = "3.13.3";
     }
 
     /// <summary>Contains SMAPI's constants and assumptions.</summary>
@@ -65,7 +65,7 @@ namespace StardewModdingAPI
         public static ISemanticVersion ApiVersion { get; } = new Toolkit.SemanticVersion(EarlyConstants.RawApiVersion);
 
         /// <summary>The minimum supported version of Stardew Valley.</summary>
-        public static ISemanticVersion MinimumGameVersion { get; } = new GameVersion("1.5.5");
+        public static ISemanticVersion MinimumGameVersion { get; } = new GameVersion("1.5.6");
 
         /// <summary>The maximum supported version of Stardew Valley.</summary>
         public static ISemanticVersion MaximumGameVersion { get; } = null;
@@ -339,6 +339,17 @@ namespace StardewModdingAPI
 
             // if save doesn't exist yet, return the default one we expect to be created
             return folder;
+        }
+
+        /// <summary>Get a display label for the game's build number.</summary>
+        internal static string GetBuildVersionLabel()
+        {
+            string version = typeof(Game1).Assembly.GetName().Version?.ToString() ?? "unknown";
+
+            if (version.StartsWith($"{Game1.version}."))
+                version = version.Substring(Game1.version.Length + 1);
+
+            return version;
         }
     }
 }

@@ -56,22 +56,24 @@ SMAPI rarely shows text in-game, so it only has a few translations. Contribution
 [Modding:Translations](https://stardewvalleywiki.com/Modding:Translations) on the wiki for help
 contributing translations.
 
-locale     | status
----------- | :----------------
-default    | ✓ [fully translated](../src/SMAPI/i18n/default.json)
-Chinese    | ✓ [fully translated](../src/SMAPI/i18n/zh.json)
-French     | ✓ [fully translated](../src/SMAPI/i18n/fr.json)
-German     | ✓ [fully translated](../src/SMAPI/i18n/de.json)
-Hungarian  | ✓ [fully translated](../src/SMAPI/i18n/hu.json)
-Italian    | ✓ [fully translated](../src/SMAPI/i18n/it.json)
-Japanese   | ✓ [fully translated](../src/SMAPI/i18n/ja.json)
-Korean     | ✓ [fully translated](../src/SMAPI/i18n/ko.json)
-Polish¹    | ✓ [fully translated](../src/SMAPI/i18n/pl.json)
-Portuguese | ✓ [fully translated](../src/SMAPI/i18n/pt.json)
-Russian    | ✓ [fully translated](../src/SMAPI/i18n/ru.json)
-Spanish    | ✓ [fully translated](../src/SMAPI/i18n/es.json)
-Thai¹      | ✓ [fully translated](../src/SMAPI/i18n/th.json)
-Turkish    | ✓ [fully translated](../src/SMAPI/i18n/tr.json)
+locale      | status
+----------- | :----------------
+default     | ✓ [fully translated](../src/SMAPI/i18n/default.json)
+Chinese     | ✓ [fully translated](../src/SMAPI/i18n/zh.json)
+French      | ✓ [fully translated](../src/SMAPI/i18n/fr.json)
+German      | ✓ [fully translated](../src/SMAPI/i18n/de.json)
+Hungarian   | ✓ [fully translated](../src/SMAPI/i18n/hu.json)
+Italian     | ✓ [fully translated](../src/SMAPI/i18n/it.json)
+Japanese    | ✓ [fully translated](../src/SMAPI/i18n/ja.json)
+Korean      | ✓ [fully translated](../src/SMAPI/i18n/ko.json)
+[Polish]    | ✓ [fully translated](../src/SMAPI/i18n/pl.json)
+Portuguese  | ✓ [fully translated](../src/SMAPI/i18n/pt.json)
+Russian     | ✓ [fully translated](../src/SMAPI/i18n/ru.json)
+Spanish     | ✓ [fully translated](../src/SMAPI/i18n/es.json)
+[Thai]      | ✓ [fully translated](../src/SMAPI/i18n/th.json)
+Turkish     | ✓ [fully translated](../src/SMAPI/i18n/tr.json)
+[Ukrainian] | ✓ [fully translated](../src/SMAPI/i18n/uk.json)
 
-¹ This is a custom language provided by a mod (see [Polish](https://www.nexusmods.com/stardewvalley/mods/3616)
-and [Thai](https://www.nexusmods.com/stardewvalley/mods/7052)).
+[Polish]: https://www.nexusmods.com/stardewvalley/mods/3616
+[Thai]: https://www.nexusmods.com/stardewvalley/mods/7052
+[Ukrainian]: https://www.nexusmods.com/stardewvalley/mods/8427

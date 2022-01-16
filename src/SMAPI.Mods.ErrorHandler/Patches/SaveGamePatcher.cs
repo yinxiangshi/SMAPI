@@ -4,11 +4,11 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using HarmonyLib;
 using Microsoft.Xna.Framework.Content;
+using StardewModdingAPI.Internal;
 using StardewModdingAPI.Internal.Patching;
 using StardewValley;
 using StardewValley.Buildings;
 using StardewValley.Locations;
-using SObject = StardewValley.Object;
 
 namespace StardewModdingAPI.Mods.ErrorHandler.Patches
 {
@@ -47,6 +47,11 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
                 original: this.RequireMethod<SaveGame>(nameof(SaveGame.loadDataToLocations)),
                 prefix: this.GetHarmonyMethod(nameof(SaveGamePatcher.Before_LoadDataToLocations))
             );
+
+            harmony.Patch(
+                original: this.RequireMethod<SaveGame>(nameof(SaveGame.LoadFarmType)),
+                finalizer: this.GetHarmonyMethod(nameof(SaveGamePatcher.Finalize_LoadFarmType))
+            );
         }
 
 
@@ -58,12 +63,33 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         /// <returns>Returns whether to execute the original method.</returns>
         private static bool Before_LoadDataToLocations(List<GameLocation> gamelocations)
         {
+            // missing locations/NPCs
             IDictionary<string, string> npcs = Game1.content.Load<Dictionary<string, string>>("Data\\NPCDispositions");
-
             if (SaveGamePatcher.RemoveBrokenContent(gamelocations, npcs))
                 SaveGamePatcher.OnContentRemoved();
 
             return true;
+        }
+
+        /// <summary>The method to call after <see cref="SaveGame.LoadFarmType"/> throws an exception.</summary>
+        /// <param name="__exception">The exception thrown by the wrapped method, if any.</param>
+        /// <returns>Returns the exception to throw, if any.</returns>
+        private static Exception Finalize_LoadFarmType(Exception __exception)
+        {
+            // missing custom farm type
+            if (__exception?.Message?.Contains("not a valid farm type") == true && !int.TryParse(SaveGame.loaded.whichFarm, out _))
+            {
+                SaveGamePatcher.Monitor.Log(__exception.GetLogSummary(), LogLevel.Error);
+                SaveGamePatcher.Monitor.Log($"Removed invalid custom farm type '{SaveGame.loaded.whichFarm}' to avoid a crash when loading save '{Constants.SaveFolderName}'. (Did you remove a custom farm type mod?)", LogLevel.Warn);
+
+                SaveGame.loaded.whichFarm = Farm.default_layout.ToString();
+                SaveGame.LoadFarmType();
+                SaveGamePatcher.OnContentRemoved();
+
+                __exception = null;
+            }
+
+            return __exception;
         }
 
         /// <summary>Remove content which no longer exists in the game data.</summary>
