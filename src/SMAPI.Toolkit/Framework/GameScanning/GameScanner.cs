@@ -157,7 +157,7 @@ namespace StardewModdingAPI.Toolkit.Framework.GameScanning
                             yield return Path.Combine(steamPath.Replace('/', '\\'), @"steamapps\common\Stardew Valley");
 #endif
 
-                        // default paths
+                        // default GOG/Steam paths
                         foreach (string programFiles in new[] { @"C:\Program Files", @"C:\Program Files (x86)" })
                         {
                             yield return $@"{programFiles}\GalaxyClient\Games\Stardew Valley";
@@ -165,6 +165,15 @@ namespace StardewModdingAPI.Toolkit.Framework.GameScanning
                             yield return $@"{programFiles}\GOG Games\Stardew Valley";
                             yield return $@"{programFiles}\Steam\steamapps\common\Stardew Valley";
                         }
+
+                        // default Xbox app paths
+                        // The Xbox app saves the install path to the registry, but we can't use it
+                        // here since it saves the internal readonly path (like C:\Program Files\WindowsApps\Mutable\<package ID>)
+                        // instead of the mods-enabled path(like C:\Program Files\ModifiableWindowsApps\Stardew Valley).
+                        // Fortunately we can cheat a bit: players can customize the install drive, but they can't
+                        // change the install path on the drive.
+                        for (char driveLetter = 'C'; driveLetter <= 'H'; driveLetter++)
+                            yield return $@"{driveLetter}:\Program Files\ModifiableWindowsApps\Stardew Valley";
                     }
                     break;
 
