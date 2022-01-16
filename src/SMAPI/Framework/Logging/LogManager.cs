@@ -22,9 +22,6 @@ namespace StardewModdingAPI.Framework.Logging
         /*********
         ** Fields
         *********/
-        /// <summary>Whether to show trace messages in the console.</summary>
-        private readonly bool ShowTraceInConsole;
-
         /// <summary>The log file to which to write messages.</summary>
         private readonly LogFileManager LogFile;
 
@@ -32,7 +29,7 @@ namespace StardewModdingAPI.Framework.Logging
         private readonly InterceptingTextWriter ConsoleInterceptor;
 
         /// <summary>Prefixing a low-level message with this character indicates that the console interceptor should write the string without intercepting it. (The character itself is not written.)</summary>
-        private readonly char IgnoreChar = '\u200B';
+        private const char IgnoreChar = InterceptingTextWriter.IgnoreChar;
 
         /// <summary>Get a named monitor instance.</summary>
         private readonly Func<string, Monitor> GetMonitorImpl;
@@ -40,18 +37,18 @@ namespace StardewModdingAPI.Framework.Logging
         /// <summary>Regex patterns which match console non-error messages to suppress from the console and log.</summary>
         private readonly Regex[] SuppressConsolePatterns =
         {
-            new Regex(@"^TextBox\.Selected is now '(?:True|False)'\.$", RegexOptions.Compiled | RegexOptions.CultureInvariant),
-            new Regex(@"^loadPreferences\(\); begin", RegexOptions.Compiled | RegexOptions.CultureInvariant),
-            new Regex(@"^savePreferences\(\); async=", RegexOptions.Compiled | RegexOptions.CultureInvariant),
-            new Regex(@"^DebugOutput:\s+(?:added cricket|dismount tile|Ping|playerPos)", RegexOptions.Compiled | RegexOptions.CultureInvariant),
-            new Regex(@"^Ignoring keys: ", RegexOptions.Compiled | RegexOptions.CultureInvariant)
+            new(@"^TextBox\.Selected is now '(?:True|False)'\.$", RegexOptions.Compiled | RegexOptions.CultureInvariant),
+            new(@"^loadPreferences\(\); begin", RegexOptions.Compiled | RegexOptions.CultureInvariant),
+            new(@"^savePreferences\(\); async=", RegexOptions.Compiled | RegexOptions.CultureInvariant),
+            new(@"^DebugOutput:\s+(?:added cricket|dismount tile|Ping|playerPos)", RegexOptions.Compiled | RegexOptions.CultureInvariant),
+            new(@"^Ignoring keys: ", RegexOptions.Compiled | RegexOptions.CultureInvariant)
         };
 
         /// <summary>Regex patterns which match console messages to show a more friendly error for.</summary>
         private readonly ReplaceLogPattern[] ReplaceConsolePatterns =
         {
             // Steam not loaded
-            new ReplaceLogPattern(
+            new(
                 search: new Regex(@"^System\.InvalidOperationException: Steamworks is not initialized\.[\s\S]+$", RegexOptions.Compiled | RegexOptions.CultureInvariant),
                 replacement:
 #if SMAPI_FOR_WINDOWS
@@ -63,7 +60,7 @@ namespace StardewModdingAPI.Framework.Logging
             ),
 
             // save file not found error
-            new ReplaceLogPattern(
+            new(
                 search: new Regex(@"^System\.IO\.FileNotFoundException: [^\n]+\n[^:]+: '[^\n]+[/\\]Saves[/\\]([^'\r\n]+)[/\\]([^'\r\n]+)'[\s\S]+LoadGameMenu\.FindSaveGames[\s\S]+$", RegexOptions.Compiled | RegexOptions.CultureInvariant),
                 replacement: "The game can't find the '$2' file for your '$1' save. See https://stardewvalleywiki.com/Saves#Troubleshooting for help.",
                 logLevel: LogLevel.Error
@@ -97,11 +94,10 @@ namespace StardewModdingAPI.Framework.Logging
         public LogManager(string logPath, ColorSchemeConfig colorConfig, bool writeToConsole, bool isVerbose, bool isDeveloperMode, Func<int?> getScreenIdForLog)
         {
             // init construction logic
-            this.ShowTraceInConsole = isDeveloperMode;
-            this.GetMonitorImpl = name => new Monitor(name, this.IgnoreChar, this.LogFile, colorConfig, isVerbose, getScreenIdForLog)
+            this.GetMonitorImpl = name => new Monitor(name, LogManager.IgnoreChar, this.LogFile, colorConfig, isVerbose, getScreenIdForLog)
             {
                 WriteToConsole = writeToConsole,
-                ShowTraceInConsole = this.ShowTraceInConsole,
+                ShowTraceInConsole = isDeveloperMode,
                 ShowFullStampInConsole = isDeveloperMode
             };
 
@@ -111,7 +107,7 @@ namespace StardewModdingAPI.Framework.Logging
             this.MonitorForGame = this.GetMonitor("game");
 
             // redirect direct console output
-            this.ConsoleInterceptor = new InterceptingTextWriter(Console.Out, this.IgnoreChar);
+            this.ConsoleInterceptor = new InterceptingTextWriter(Console.Out);
             if (writeToConsole)
                 this.ConsoleInterceptor.OnMessageIntercepted += message => this.HandleConsoleMessage(this.MonitorForGame, message);
             Console.SetOut(this.ConsoleInterceptor);
@@ -153,7 +149,7 @@ namespace StardewModdingAPI.Framework.Logging
                 .Add(new ReloadI18nCommand(reloadTranslations), this.Monitor);
 
             // start handling command line input
-            Thread inputThread = new Thread(() =>
+            Thread inputThread = new(() =>
             {
                 while (true)
                 {
@@ -393,8 +389,7 @@ namespace StardewModdingAPI.Framework.Logging
 
             // forward to monitor
             gameMonitor.Log(message, level);
-            if (level == LogLevel.Trace && !this.ShowTraceInConsole)
-                this.ConsoleInterceptor.IgnoreNextIfNewline = true;
+            this.ConsoleInterceptor.IgnoreNextIfNewline = true;
         }
 
         /// <summary>Write a summary of mod warnings to the console and log.</summary>

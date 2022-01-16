@@ -8,15 +8,11 @@ namespace StardewModdingAPI.Framework.Logging
     internal class InterceptingTextWriter : TextWriter
     {
         /*********
-        ** Fields
-        *********/
-        /// <summary>Prefixing a message with this character indicates that the console interceptor should write the string without intercepting it. (The character itself is not written.)</summary>
-        private readonly char IgnoreChar;
-
-
-        /*********
         ** Accessors
         *********/
+        /// <summary>Prefixing a message with this character indicates that the console interceptor should write the string without intercepting it. (The character itself is not written.)</summary>
+        public const char IgnoreChar = '\u200B';
+
         /// <summary>The underlying console output.</summary>
         public TextWriter Out { get; }
 
@@ -36,30 +32,38 @@ namespace StardewModdingAPI.Framework.Logging
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="output">The underlying output writer.</param>
-        /// <param name="ignoreChar">Prefixing a message with this character indicates that the console interceptor should write the string without intercepting it. (The character itself is not written.)</param>
-        public InterceptingTextWriter(TextWriter output, char ignoreChar)
+        public InterceptingTextWriter(TextWriter output)
         {
             this.Out = output;
-            this.IgnoreChar = ignoreChar;
         }
 
         /// <inheritdoc />
         public override void Write(char[] buffer, int index, int count)
         {
+            // track newline skip
             bool ignoreIfNewline = this.IgnoreNextIfNewline;
             this.IgnoreNextIfNewline = false;
 
-            if (buffer.Length == 0)
+            // get first character if valid
+            if (count == 0 || index < 0 || index >= buffer.Length)
+            {
                 this.Out.Write(buffer, index, count);
-            else if (buffer[0] == this.IgnoreChar || char.IsControl(buffer[0])) // ignore control characters like backspace
+                return;
+            }
+            char firstChar = buffer[index];
+
+            // handle output
+            if (firstChar == InterceptingTextWriter.IgnoreChar)
                 this.Out.Write(buffer, index + 1, count - 1);
+            else if (char.IsControl(firstChar) && firstChar is not ('\r' or '\n'))
+                this.Out.Write(buffer, index, count);
             else if (this.IsEmptyOrNewline(buffer))
             {
                 if (!ignoreIfNewline)
                     this.Out.Write(buffer, index, count);
             }
             else
-                this.OnMessageIntercepted?.Invoke(new string(buffer, index, count).TrimEnd('\r', '\n'));
+                this.OnMessageIntercepted?.Invoke(new string(buffer, index, count));
         }
 
         /// <inheritdoc />
