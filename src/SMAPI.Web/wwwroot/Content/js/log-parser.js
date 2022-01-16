@@ -115,17 +115,6 @@ smapi.logParser = function (data, sectionUrl) {
     *********/
     var input = $("#input");
     if (input.length) {
-        // instructions per OS
-        var systemOptions = $("input[name='os']");
-        var systemInstructions = $("div[data-os]");
-
-        var chooseSystem = function () {
-            systemInstructions.hide();
-            systemInstructions.filter("[data-os='" + $("input[name='os']:checked").val() + "']").show();
-        };
-        systemOptions.on("click", chooseSystem);
-        chooseSystem();
-
         // file upload
         smapi.fileUpload({
             chooseFileLink: $("#choose-file-link"),

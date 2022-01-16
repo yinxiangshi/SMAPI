@@ -17,7 +17,9 @@
   * Improved translations. Thanks to ChulkyBow (added Ukrainian)!
 
 * For the web UI:
+  * Added log instructions for Xbox app on Windows.
   * Added log download option.
+  * Redesigned log instruction UI.
   * Fixed log parser not correctly handling multiple mods having the exact same name.
   * Fixed JSON validator not recognizing manifest [update subkeys](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Update_checks#Update_subkeys).
 

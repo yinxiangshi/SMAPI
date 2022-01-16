@@ -291,13 +291,29 @@ table caption {
 
 
 /*********
-** Upload form
+** OS instructions
 *********/
-#os-list {
-    list-style: none;
+#os-instructions {
+    display: grid;
+    grid-template-columns: minmax(16em, auto) 30em;
 }
 
-div[data-os] {
-    display: none;
+#os-instructions [role="tablist"] {
+    border: 0;
 }
 
+#os-instructions [role="tab"] {
+    display: block;
+    border: 0;
+    position: relative;
+}
+
+#os-instructions [role="tab"][aria-selected="true"] {
+    font-weight: bold;
+    border-radius: 0 10px 10px 0;
+}
+
+[role="tab"][aria-selected="true"]::after {
+    content: "▶";
+    padding-left: 0.5em;
+}
