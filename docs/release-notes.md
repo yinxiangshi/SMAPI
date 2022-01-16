@@ -3,6 +3,7 @@
 # Release notes
 ## Upcoming release
 * For players:
+  * **Increased minimum game version to Stardew Valley 1.5.6.**
   * Added automatic fix for custom maps which don't have a required tilesheet.
   * Added automatic save recovery when the custom farm type isn't available anymore.
   * Added the new game build number to the SMAPI console + log.
