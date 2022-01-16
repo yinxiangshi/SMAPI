@@ -8,6 +8,7 @@
   * Added automatic save recovery when the custom farm type isn't available anymore.
   * Added the new game build number to the SMAPI console + log.
   * The installer now detects Xbox app game folders.
+  * Reduced mod loading time a bit.
   * Fixed extra newlines shown in the console in non-developer mode.
   * Fixed macOS launch issue when using some terminals (thanks to bruce2409!).
   * Fixed Linux/macOS terminal ignoring backspace in Stardew Valley 1.5.5+.
