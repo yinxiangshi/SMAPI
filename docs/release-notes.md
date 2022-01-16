@@ -1,17 +1,19 @@
 ← [README](README.md)
 
 # Release notes
-## Upcoming release
+## 3.13.3
+Released 16 January 2021 for Stardew Valley 1.5.6 or later.
+
 * For players:
-  * **Increased minimum game version to Stardew Valley 1.5.6.**
-  * Added automatic fix for custom maps which don't have a required tilesheet.
-  * Added automatic save recovery when the custom farm type isn't available anymore.
-  * Added the new game build number to the SMAPI console + log.
+  * **SMAPI now needs Stardew Valley 1.5.6 or later.**
+  * Added automatic fix for custom maps which are missing a required tilesheet.
+  * Added automatic save recovery when a custom farm type isn't available anymore.
+  * Added the game's new build number to the SMAPI console + log.
   * The installer now detects Xbox app game folders.
   * Reduced mod loading time a bit.
-  * Fixed extra newlines shown in the console in non-developer mode.
   * Fixed macOS launch issue when using some terminals (thanks to bruce2409!).
-  * Fixed Linux/macOS terminal ignoring backspace in Stardew Valley 1.5.5+.
+  * Fixed Linux/macOS terminal ignoring backspaces in Stardew Valley 1.5.5+.
+  * Fixed extra newlines in the SMAPI console.
   * Fixed outdated instructions in Steam error message.
   * Fixed uninstaller not removing `StardewModdingAPI.deps.json` file.
   * Simplified [running without a terminal on Linux/macOS](https://stardewvalleywiki.com/Modding:Player_Guide/Troubleshooting#SMAPI_doesn.27t_recognize_controller_.28Steam_only.29) when needed.
