@@ -1,8 +1,14 @@
 ← [README](README.md)
 
 # Release notes
+## 3.13.4
+Released 16 January 2022 for Stardew Valley 1.5.6 or later.
+
+* For players:
+  * Fixed Linux/macOS launch error in 3.13.3.
+
 ## 3.13.3
-Released 16 January 2021 for Stardew Valley 1.5.6 or later.
+Released 16 January 2022 for Stardew Valley 1.5.6 or later.
 
 * For players:
   * **SMAPI now needs Stardew Valley 1.5.6 or later.**
