@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -16,7 +17,10 @@ namespace StardewModdingAPI
         ** Fields
         *********/
         /// <summary>The absolute path to search for SMAPI's internal DLLs.</summary>
-        internal static readonly string DllSearchPath = EarlyConstants.InternalFilesPath;
+        private static readonly string DllSearchPath = EarlyConstants.InternalFilesPath;
+
+        /// <summary>The assembly paths in the search folders indexed by assembly name.</summary>
+        private static Dictionary<string, string> AssemblyPathsByName;
 
 
         /*********
@@ -57,16 +61,36 @@ namespace StardewModdingAPI
         /// <param name="e">The event arguments.</param>
         private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs e)
         {
+            // cache assembly paths by name
+            if (Program.AssemblyPathsByName == null)
+            {
+                Program.AssemblyPathsByName = new(StringComparer.OrdinalIgnoreCase);
+
+                foreach (string searchPath in new[] { EarlyConstants.ExecutionPath, Program.DllSearchPath })
+                {
+                    foreach (string dllPath in Directory.EnumerateFiles(searchPath, "*.dll"))
+                    {
+                        try
+                        {
+                            string curName = AssemblyName.GetAssemblyName(dllPath).Name;
+                            if (curName != null)
+                                Program.AssemblyPathsByName[curName] = dllPath;
+                        }
+                        catch
+                        {
+                            continue;
+                        }
+                    }
+                }
+            }
+
+            // resolve
             try
             {
-                AssemblyName name = new AssemblyName(e.Name);
-                foreach (FileInfo dll in new DirectoryInfo(Program.DllSearchPath).EnumerateFiles("*.dll"))
-                {
-                    if (name.Name.Equals(AssemblyName.GetAssemblyName(dll.FullName).Name, StringComparison.OrdinalIgnoreCase))
-                        return Assembly.LoadFrom(dll.FullName);
-                }
-
-                return null;
+                string searchName = new AssemblyName(e.Name).Name;
+                return searchName != null && Program.AssemblyPathsByName.TryGetValue(searchName, out string assemblyPath)
+                    ? Assembly.LoadFrom(assemblyPath)
+                    : null;
             }
             catch (Exception ex)
             {
