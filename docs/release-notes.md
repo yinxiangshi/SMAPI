@@ -1,6 +1,9 @@
 ← [README](README.md)
 
 # Release notes
+## Upcoming release
+* Improved translations. Thanks to ChulkyBow (updated Ukrainian)!
+
 ## 3.13.4
 Released 16 January 2022 for Stardew Valley 1.5.6 or later.
 
