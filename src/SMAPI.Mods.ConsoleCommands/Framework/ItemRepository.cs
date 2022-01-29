@@ -134,24 +134,34 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework
                     {
                         string[] fields = Game1.objectInformation[id]?.Split('/');
 
-                        // secret notes
-                        if (id == 79)
-                        {
-                            if (ShouldGet(ItemType.Object))
-                            {
-                                foreach (SearchableItem secretNote in this.GetSecretNotes())
-                                    yield return secretNote;
-                            }
-                        }
-
                         // ring
-                        else if (id != 801 && fields?.Length >= 4 && fields[3] == "Ring") // 801 = wedding ring, which isn't an equippable ring
+                        if (id != 801 && fields?.Length >= 4 && fields[3] == "Ring") // 801 = wedding ring, which isn't an equippable ring
                         {
                             if (ShouldGet(ItemType.Ring))
                                 yield return this.TryCreate(ItemType.Ring, id, p => new Ring(p.ID));
                         }
 
-                        // item
+                        // journal scrap
+                        else if (id == 842)
+                        {
+                            if (ShouldGet(ItemType.Object))
+                            {
+                                foreach (SearchableItem journalScrap in this.GetSecretNotes(isJournalScrap: true))
+                                    yield return journalScrap;
+                            }
+                        }
+
+                        // secret notes
+                        else if (id == 79)
+                        {
+                            if (ShouldGet(ItemType.Object))
+                            {
+                                foreach (SearchableItem secretNote in this.GetSecretNotes(isJournalScrap: false))
+                                    yield return secretNote;
+                            }
+                        }
+
+                        // object
                         else if (ShouldGet(ItemType.Object))
                         {
                             // spawn main item
@@ -184,16 +194,38 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework
         /*********
         ** Private methods
         *********/
-        /// <summary>Get the individual secret note items, if any.</summary>
+        /// <summary>Get the individual secret note or journal scrap items.</summary>
+        /// <param name="isJournalScrap">Whether to get journal scraps.</param>
         /// <remarks>Derived from <see cref="GameLocation.tryToCreateUnseenSecretNote"/>.</remarks>
-        private IEnumerable<SearchableItem> GetSecretNotes()
+        private IEnumerable<SearchableItem> GetSecretNotes(bool isJournalScrap)
         {
-            foreach (int secretNoteId in this.TryLoad<int, string>("Data\\SecretNotes").Keys)
+            // get base item ID
+            int baseId = isJournalScrap ? 842 : 79;
+
+            // get secret note IDs
+            var ids = this
+                .TryLoad<int, string>("Data\\SecretNotes")
+                .Keys
+                .Where(isJournalScrap
+                    ? id => (id >= GameLocation.JOURNAL_INDEX)
+                    : id => (id < GameLocation.JOURNAL_INDEX)
+                )
+                .Select<int, int>(isJournalScrap
+                    ? id => (id - GameLocation.JOURNAL_INDEX)
+                    : id => id
+                );
+
+            // build items
+            foreach (int id in ids)
             {
-                yield return this.TryCreate(ItemType.Object, this.CustomIDOffset + secretNoteId, _ =>
+                int fakeId = this.CustomIDOffset * 8 + id;
+                if (isJournalScrap)
+                    fakeId += GameLocation.JOURNAL_INDEX;
+
+                yield return this.TryCreate(ItemType.Object, fakeId, _ =>
                 {
-                    SObject note = new(79, 1);
-                    note.name = $"{note.name} #{secretNoteId}";
+                    SObject note = new(baseId, 1);
+                    note.Name = $"{note.Name} #{id}";
                     return note;
                 });
             }

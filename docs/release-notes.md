@@ -2,7 +2,11 @@
 
 # Release notes
 ## Upcoming release
-* Improved translations. Thanks to ChulkyBow (updated Ukrainian)!
+* For players:
+  * Improved translations. Thanks to ChulkyBow (updated Ukrainian)!
+
+* For console commands:
+  * Fixed `player_add` with Journal Scraps and Secret Notes.
 
 ## 3.13.4
 Released 16 January 2022 for Stardew Valley 1.5.6 or later.
