@@ -30,7 +30,6 @@ namespace StardewModdingAPI.Mods.ErrorHandler
             // apply patches
             HarmonyPatcher.Apply(this.ModManifest.UniqueID, this.Monitor,
                 new DialoguePatcher(monitorForGame, this.Helper.Reflection),
-                new DictionaryPatcher(this.Helper.Reflection),
                 new EventPatcher(monitorForGame),
                 new GameLocationPatcher(monitorForGame),
                 new IClickableMenuPatcher(),
