@@ -250,6 +250,8 @@ namespace StardewModdingAPI.Utilities
         /// <exception cref="ArgumentException">One of the arguments has an invalid value (like day 35).</exception>
         private SDate(int day, string season, int year, bool allowDayZero)
         {
+            season = season?.Trim().ToLowerInvariant();
+
             // validate
             if (season == null)
                 throw new ArgumentNullException(nameof(season));
@@ -277,7 +279,7 @@ namespace StardewModdingAPI.Utilities
         /// <param name="year">The year.</param>
         private bool IsDayZero(int day, string season, int year)
         {
-            return day == 0 && season == "spring" && year == 1;
+            return day == 0 && season?.Trim().ToLower() == "spring" && year == 1;
         }
 
         /// <summary>Get the day of week for a given date.</summary>

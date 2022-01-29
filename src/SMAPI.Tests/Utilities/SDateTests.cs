@@ -16,8 +16,11 @@ namespace SMAPI.Tests.Utilities
         /*********
         ** Fields
         *********/
-        /// <summary>All valid seasons.</summary>
+        /// <summary>The valid seasons.</summary>
         private static readonly string[] ValidSeasons = { "spring", "summer", "fall", "winter" };
+
+        /// <summary>Sample user inputs for season names.</summary>
+        private static readonly string[] SampleSeasonValues = SDateTests.ValidSeasons.Concat(new[] { "  WIntEr  " }).ToArray();
 
         /// <summary>All valid days of a month.</summary>
         private static readonly int[] ValidDays = Enumerable.Range(1, 28).ToArray();
@@ -55,19 +58,18 @@ namespace SMAPI.Tests.Utilities
         ** Constructor
         ****/
         [Test(Description = "Assert that the constructor sets the expected values for all valid dates.")]
-        public void Constructor_SetsExpectedValues([ValueSource(nameof(SDateTests.ValidSeasons))] string season, [ValueSource(nameof(SDateTests.ValidDays))] int day, [Values(1, 2, 100)] int year)
+        public void Constructor_SetsExpectedValues([ValueSource(nameof(SDateTests.SampleSeasonValues))] string season, [ValueSource(nameof(SDateTests.ValidDays))] int day, [Values(1, 2, 100)] int year)
         {
             // act
             SDate date = new SDate(day, season, year);
 
             // assert
             Assert.AreEqual(day, date.Day);
-            Assert.AreEqual(season, date.Season);
+            Assert.AreEqual(season.Trim().ToLowerInvariant(), date.Season);
             Assert.AreEqual(year, date.Year);
         }
 
         [Test(Description = "Assert that the constructor throws an exception if the values are invalid.")]
-        [TestCase(01, "Spring", 1)] // seasons are case-sensitive
         [TestCase(01, "springs", 1)] // invalid season name
         [TestCase(-1, "spring", 1)] // day < 0
         [TestCase(0, "spring", 1)] // day zero

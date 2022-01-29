@@ -5,6 +5,9 @@
 * For players:
   * Improved translations. Thanks to ChulkyBow (updated Ukrainian)!
 
+* For mod authors:
+  * The `SDate` constructor is no longer case-sensitive for season names.
+
 * For console commands:
   * Fixed `player_add` with Journal Scraps and Secret Notes.
 
