@@ -11,6 +11,9 @@
 * For console commands:
   * Fixed `player_add` with Journal Scraps and Secret Notes.
 
+* For the web UI:
+  * Fixed JSON validator warning for update keys without a subkey.
+
 ## 3.13.4
 Released 16 January 2022 for Stardew Valley 1.5.6 or later.
 
