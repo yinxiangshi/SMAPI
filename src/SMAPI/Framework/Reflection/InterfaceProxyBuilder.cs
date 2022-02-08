@@ -65,15 +65,30 @@ namespace StardewModdingAPI.Framework.Reflection
                 }
             }
 
+            bool AreTypesMatching(Type targetType, Type proxyType, MethodTypeMatchingPart part)
+            {
+                var typeA = part == MethodTypeMatchingPart.Parameter ? targetType : proxyType;
+                var typeB = part == MethodTypeMatchingPart.Parameter ? proxyType : targetType;
+
+                if (typeA.IsGenericMethodParameter != typeB.IsGenericMethodParameter)
+                    return false;
+                // TODO: decide if "assignable" checking is desired (instead of just 1:1 type equality)
+                return typeA.IsGenericMethodParameter ? typeA.GenericParameterPosition == typeB.GenericParameterPosition : typeA.IsAssignableFrom(typeB);
+            }
+
             // proxy methods
             foreach (MethodInfo proxyMethod in interfaceType.GetMethods())
             {
                 var proxyMethodParameters = proxyMethod.GetParameters();
+                var proxyMethodGenericArguments = proxyMethod.GetGenericArguments();
                 var targetMethod = allTargetMethods.Where(m =>
                 {
                     if (m.Name != proxyMethod.Name)
                         return false;
-                    if (m.ReturnType != proxyMethod.ReturnType)
+
+                    if (m.GetGenericArguments().Length != proxyMethodGenericArguments.Length)
+                        return false;
+                    if (!AreTypesMatching(m.ReturnType, proxyMethod.ReturnType, MethodTypeMatchingPart.ReturnType))
                         return false;
 
                     var mParameters = m.GetParameters();
@@ -81,9 +96,7 @@ namespace StardewModdingAPI.Framework.Reflection
                         return false;
                     for (int i = 0; i < mParameters.Length; i++)
                     {
-                        // TODO: decide if "assignable" checking is desired (instead of just 1:1 type equality)
-                        // TODO: test if this actually works
-                        if (!mParameters[i].ParameterType.IsAssignableFrom(proxyMethodParameters[i].ParameterType))
+                        if (!AreTypesMatching(mParameters[i].ParameterType, proxyMethodParameters[i].ParameterType, MethodTypeMatchingPart.Parameter))
                             return false;
                     }
                     return true;
@@ -91,7 +104,7 @@ namespace StardewModdingAPI.Framework.Reflection
                 if (targetMethod == null)
                     throw new InvalidOperationException($"The {interfaceType.FullName} interface defines method {proxyMethod.Name} which doesn't exist in the API.");
 
-                this.ProxyMethod(proxyBuilder, targetMethod, targetField);
+                this.ProxyMethod(proxyBuilder, proxyMethod, targetMethod, targetField);
             }
 
             // save info
@@ -115,16 +128,30 @@ namespace StardewModdingAPI.Framework.Reflection
         *********/
         /// <summary>Define a method which proxies access to a method on the target.</summary>
         /// <param name="proxyBuilder">The proxy type being generated.</param>
+        /// <param name="proxy">The proxy method.</param>
         /// <param name="target">The target method.</param>
         /// <param name="instanceField">The proxy field containing the API instance.</param>
-        private void ProxyMethod(TypeBuilder proxyBuilder, MethodInfo target, FieldBuilder instanceField)
+        private void ProxyMethod(TypeBuilder proxyBuilder, MethodInfo proxy, MethodInfo target, FieldBuilder instanceField)
         {
-            Type[] argTypes = target.GetParameters().Select(a => a.ParameterType).ToArray();
-
-            // create method
             MethodBuilder methodBuilder = proxyBuilder.DefineMethod(target.Name, MethodAttributes.Public | MethodAttributes.Final | MethodAttributes.Virtual);
+
+            // set up generic arguments
+            Type[] proxyGenericArguments = proxy.GetGenericArguments();
+            string[] genericArgNames = proxyGenericArguments.Select(a => a.Name).ToArray();
+            GenericTypeParameterBuilder[] genericTypeParameterBuilders = proxyGenericArguments.Length == 0 ? null : methodBuilder.DefineGenericParameters(genericArgNames);
+            for (int i = 0; i < proxyGenericArguments.Length; i++)
+                genericTypeParameterBuilders[i].SetGenericParameterAttributes(proxyGenericArguments[i].GenericParameterAttributes);
+
+            // set up return type
+            // TODO: keep if it's decided to use isAssignableFrom
+            methodBuilder.SetReturnType(proxy.ReturnType.IsGenericMethodParameter ? genericTypeParameterBuilders[proxy.ReturnType.GenericParameterPosition] : proxy.ReturnType);
+
+            // set up parameters
+            Type[] argTypes = proxy.GetParameters()
+                .Select(a => a.ParameterType)
+                .Select(t => t.IsGenericMethodParameter ? genericTypeParameterBuilders[t.GenericParameterPosition] : t)
+                .ToArray();
             methodBuilder.SetParameters(argTypes);
-            methodBuilder.SetReturnType(target.ReturnType);
 
             // create method body
             {
@@ -142,6 +169,12 @@ namespace StardewModdingAPI.Framework.Reflection
                 // return result
                 il.Emit(OpCodes.Ret);
             }
+        }
+
+        /// <summary>The part of a method that is being matched.</summary>
+        private enum MethodTypeMatchingPart
+        {
+            ReturnType, Parameter
         }
     }
 }
