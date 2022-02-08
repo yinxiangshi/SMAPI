@@ -143,7 +143,6 @@ namespace StardewModdingAPI.Framework.Reflection
                 genericTypeParameterBuilders[i].SetGenericParameterAttributes(proxyGenericArguments[i].GenericParameterAttributes);
 
             // set up return type
-            // TODO: keep if it's decided to use isAssignableFrom
             methodBuilder.SetReturnType(proxy.ReturnType.IsGenericMethodParameter ? genericTypeParameterBuilders[proxy.ReturnType.GenericParameterPosition] : proxy.ReturnType);
 
             // set up parameters
