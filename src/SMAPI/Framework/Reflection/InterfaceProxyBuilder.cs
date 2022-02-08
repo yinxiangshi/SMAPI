@@ -133,7 +133,7 @@ namespace StardewModdingAPI.Framework.Reflection
         /// <param name="instanceField">The proxy field containing the API instance.</param>
         private void ProxyMethod(TypeBuilder proxyBuilder, MethodInfo proxy, MethodInfo target, FieldBuilder instanceField)
         {
-            MethodBuilder methodBuilder = proxyBuilder.DefineMethod(target.Name, MethodAttributes.Public | MethodAttributes.Final | MethodAttributes.Virtual);
+            MethodBuilder methodBuilder = proxyBuilder.DefineMethod(proxy.Name, MethodAttributes.Public | MethodAttributes.Final | MethodAttributes.Virtual);
 
             // set up generic arguments
             Type[] proxyGenericArguments = proxy.GetGenericArguments();
