@@ -55,10 +55,39 @@ namespace StardewModdingAPI.Framework.Reflection
                 il.Emit(OpCodes.Ret);
             }
 
+            var allTargetMethods = targetType.GetMethods().ToList();
+            foreach (Type targetInterface in targetType.GetInterfaces())
+            {
+                foreach (MethodInfo targetMethod in targetInterface.GetMethods())
+                {
+                    if (!targetMethod.IsAbstract)
+                        allTargetMethods.Add(targetMethod);
+                }
+            }
+
             // proxy methods
             foreach (MethodInfo proxyMethod in interfaceType.GetMethods())
             {
-                var targetMethod = targetType.GetMethod(proxyMethod.Name, proxyMethod.GetParameters().Select(a => a.ParameterType).ToArray());
+                var proxyMethodParameters = proxyMethod.GetParameters();
+                var targetMethod = allTargetMethods.Where(m =>
+                {
+                    if (m.Name != proxyMethod.Name)
+                        return false;
+                    if (m.ReturnType != proxyMethod.ReturnType)
+                        return false;
+
+                    var mParameters = m.GetParameters();
+                    if (m.GetParameters().Length != proxyMethodParameters.Length)
+                        return false;
+                    for (int i = 0; i < mParameters.Length; i++)
+                    {
+                        // TODO: decide if "assignable" checking is desired (instead of just 1:1 type equality)
+                        // TODO: test if this actually works
+                        if (!mParameters[i].ParameterType.IsAssignableFrom(proxyMethodParameters[i].ParameterType))
+                            return false;
+                    }
+                    return true;
+                }).FirstOrDefault();
                 if (targetMethod == null)
                     throw new InvalidOperationException($"The {interfaceType.FullName} interface defines method {proxyMethod.Name} which doesn't exist in the API.");
 
