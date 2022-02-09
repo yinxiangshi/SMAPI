@@ -23,40 +23,46 @@ namespace StardewModdingAPI.Framework.Reflection
         /// <summary>The target class type.</summary>
         private readonly Type TargetType;
 
+        /// <summary>The full name of the generated proxy type.</summary>
+        private readonly string ProxyTypeName;
+
         /// <summary>The generated proxy type.</summary>
-        private readonly Type ProxyType;
+        private Type ProxyType;
 
 
         /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="factory">The <see cref="InterfaceProxyFactory"/> that requested to build a proxy.</param>
-        /// <param name="name">The type name to generate.</param>
-        /// <param name="moduleBuilder">The CLR module in which to create proxy classes.</param>
-        /// <param name="interfaceType">The interface type to implement.</param>
         /// <param name="targetType">The target type.</param>
-        /// <param name="sourceModID">The unique ID of the mod consuming the API.</param>
-        /// <param name="targetModID">The unique ID of the mod providing the API.</param>
-        public InterfaceProxyBuilder(InterfaceProxyFactory factory, string name, ModuleBuilder moduleBuilder, Type interfaceType, Type targetType, string sourceModID, string targetModID)
+        /// <param name="proxyTypeName">The type name to generate.</param>
+        public InterfaceProxyBuilder(Type targetType, string proxyTypeName)
         {
             // validate
-            if (name == null)
-                throw new ArgumentNullException(nameof(name));
-            if (targetType == null)
-                throw new ArgumentNullException(nameof(targetType));
+            this.TargetType = targetType ?? throw new ArgumentNullException(nameof(targetType));
+            this.ProxyTypeName = proxyTypeName ?? throw new ArgumentNullException(nameof(proxyTypeName));
+        }
 
+
+        /// <summary>Creates and sets up the proxy type.</summary>
+        /// <param name="factory">The <see cref="InterfaceProxyFactory"/> that requested to build a proxy.</param>
+        /// <param name="moduleBuilder">The CLR module in which to create proxy classes.</param>
+        /// <param name="interfaceType">The interface type to implement.</param>
+        /// <param name="sourceModID">The unique ID of the mod consuming the API.</param>
+        /// <param name="targetModID">The unique ID of the mod providing the API.</param>
+        public void SetupProxyType(InterfaceProxyFactory factory, ModuleBuilder moduleBuilder, Type interfaceType, string sourceModID, string targetModID)
+        {
             // define proxy type
-            TypeBuilder proxyBuilder = moduleBuilder.DefineType(name, TypeAttributes.Public | TypeAttributes.Class);
+            TypeBuilder proxyBuilder = moduleBuilder.DefineType(this.ProxyTypeName, TypeAttributes.Public | TypeAttributes.Class);
             proxyBuilder.AddInterfaceImplementation(interfaceType);
 
             // create fields to store target instance and proxy factory
-            FieldBuilder targetField = proxyBuilder.DefineField(TargetFieldName, targetType, FieldAttributes.Private);
+            FieldBuilder targetField = proxyBuilder.DefineField(TargetFieldName, this.TargetType, FieldAttributes.Private);
             FieldBuilder glueField = proxyBuilder.DefineField(GlueFieldName, typeof(InterfaceProxyGlue), FieldAttributes.Private);
 
             // create constructor which accepts target instance + factory, and sets fields
             {
-                ConstructorBuilder constructor = proxyBuilder.DefineConstructor(MethodAttributes.Public, CallingConventions.Standard | CallingConventions.HasThis, new[] { targetType, typeof(InterfaceProxyGlue) });
+                ConstructorBuilder constructor = proxyBuilder.DefineConstructor(MethodAttributes.Public, CallingConventions.Standard | CallingConventions.HasThis, new[] { this.TargetType, typeof(InterfaceProxyGlue) });
                 ILGenerator il = constructor.GetILGenerator();
 
                 il.Emit(OpCodes.Ldarg_0); // this
@@ -71,8 +77,8 @@ namespace StardewModdingAPI.Framework.Reflection
                 il.Emit(OpCodes.Ret);
             }
 
-            var allTargetMethods = targetType.GetMethods().ToList();
-            foreach (Type targetInterface in targetType.GetInterfaces())
+            var allTargetMethods = this.TargetType.GetMethods().ToList();
+            foreach (Type targetInterface in this.TargetType.GetInterfaces())
             {
                 foreach (MethodInfo targetMethod in targetInterface.GetMethods())
                 {
@@ -160,7 +166,6 @@ namespace StardewModdingAPI.Framework.Reflection
             }
 
             // save info
-            this.TargetType = targetType;
             this.ProxyType = proxyBuilder.CreateType();
         }
 
@@ -224,13 +229,13 @@ namespace StardewModdingAPI.Framework.Reflection
                     {
                         var builder = factory.ObtainBuilder(target.ReturnType, proxy.ReturnType, sourceModID, targetModID);
                         returnType = proxy.ReturnType;
-                        returnValueProxyTypeName = builder.ProxyType.FullName;
+                        returnValueProxyTypeName = builder.ProxyTypeName;
                     }
                     else // it's one of the parameters
                     {
                         var builder = factory.ObtainBuilder(targetParameters[position.Value].ParameterType, argTypes[position.Value], sourceModID, targetModID);
                         argTypes[position.Value] = proxy.ReturnType;
-                        parameterProxyTypeNames[position.Value] = builder.ProxyType.FullName;
+                        parameterProxyTypeNames[position.Value] = builder.ProxyTypeName;
                     }
                 }
 
