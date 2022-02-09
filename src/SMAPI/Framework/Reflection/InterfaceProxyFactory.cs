@@ -36,25 +36,39 @@ namespace StardewModdingAPI.Framework.Reflection
         public TInterface CreateProxy<TInterface>(object instance, string sourceModID, string targetModID)
             where TInterface : class
         {
+            // validate
+            if (instance == null)
+                throw new InvalidOperationException("Can't proxy access to a null API.");
+
+            // create instance
+            InterfaceProxyBuilder builder = this.ObtainBuilder(instance.GetType(), typeof(TInterface), sourceModID, targetModID);
+            return (TInterface)builder.CreateInstance(instance, this);
+        }
+
+        internal InterfaceProxyBuilder ObtainBuilder(Type targetType, Type interfaceType, string sourceModID, string targetModID)
+        {
             lock (this.Builders)
             {
                 // validate
-                if (instance == null)
-                    throw new InvalidOperationException("Can't proxy access to a null API.");
-                if (!typeof(TInterface).IsInterface)
+                if (!interfaceType.IsInterface)
                     throw new InvalidOperationException("The proxy type must be an interface, not a class.");
 
                 // get proxy type
-                Type targetType = instance.GetType();
-                string proxyTypeName = $"StardewModdingAPI.Proxies.From<{sourceModID}_{typeof(TInterface).FullName}>_To<{targetModID}_{targetType.FullName}>";
+                string proxyTypeName = $"StardewModdingAPI.Proxies.From<{sourceModID}_{interfaceType.FullName}>_To<{targetModID}_{targetType.FullName}>";
                 if (!this.Builders.TryGetValue(proxyTypeName, out InterfaceProxyBuilder builder))
                 {
-                    builder = new InterfaceProxyBuilder(proxyTypeName, this.ModuleBuilder, typeof(TInterface), targetType);
+                    builder = new InterfaceProxyBuilder(this, proxyTypeName, this.ModuleBuilder, interfaceType, targetType, sourceModID, targetModID);
                     this.Builders[proxyTypeName] = builder;
                 }
+                return builder;
+            }
+        }
 
-                // create instance
-                return (TInterface)builder.CreateInstance(instance);
+        internal InterfaceProxyBuilder GetBuilderByProxyTypeName(string proxyTypeName)
+        {
+            lock (this.Builders)
+            {
+                return this.Builders.TryGetValue(proxyTypeName, out InterfaceProxyBuilder builder) ? builder : null;
             }
         }
     }
