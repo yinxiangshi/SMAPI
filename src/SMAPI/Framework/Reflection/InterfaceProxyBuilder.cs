@@ -247,28 +247,16 @@ namespace StardewModdingAPI.Framework.Reflection
             {
                 ILGenerator il = methodBuilder.GetILGenerator();
 
-                void EmitCallInstance()
-                {
-                    // load target instance
-                    il.Emit(OpCodes.Ldarg_0);
-                    il.Emit(OpCodes.Ldfld, instanceField);
+                var resultLocal = il.DeclareLocal(typeof(object)); // we store both unmodified and modified in here, hence `object`
+                il.Emit(OpCodes.Ldarg_0);
+                il.Emit(OpCodes.Ldfld, instanceField);
+                for (int i = 0; i < argTypes.Length; i++)
+                    il.Emit(OpCodes.Ldarg, i + 1);
+                il.Emit(OpCodes.Callvirt, target);
+                il.Emit(OpCodes.Stloc, resultLocal);
 
-                    // invoke target method on instance
-                    for (int i = 0; i < argTypes.Length; i++)
-                        il.Emit(OpCodes.Ldarg, i + 1);
-                    il.Emit(OpCodes.Callvirt, target);
-                }
-
-                if (returnValueProxyTypeName == null)
+                if (returnValueProxyTypeName != null)
                 {
-                    EmitCallInstance();
-                }
-                else
-                {
-                    var resultLocal = il.DeclareLocal(typeof(object)); // we store both unmodified and modified in here
-                    EmitCallInstance();
-                    il.Emit(OpCodes.Stloc, resultLocal);
-
                     // if (unmodifiedResultLocal == null) jump
                     var isNullLabel = il.DefineLabel();
                     il.Emit(OpCodes.Ldloc, resultLocal);
@@ -282,10 +270,10 @@ namespace StardewModdingAPI.Framework.Reflection
                     il.Emit(OpCodes.Stloc, resultLocal);
 
                     il.MarkLabel(isNullLabel);
-                    il.Emit(OpCodes.Ldloc, resultLocal);
                 }
 
                 // return result
+                il.Emit(OpCodes.Ldloc, resultLocal);
                 il.Emit(OpCodes.Ret);
             }
         }
