@@ -265,12 +265,24 @@ namespace StardewModdingAPI.Framework.Reflection
                 }
                 else
                 {
-                    // this.Glue.CreateInstanceForProxyTypeName(proxyTypeName, this.Instance.Call(args))
+                    var resultLocal = il.DeclareLocal(typeof(object)); // we store both unmodified and modified in here
+                    EmitCallInstance();
+                    il.Emit(OpCodes.Stloc, resultLocal);
+
+                    // if (unmodifiedResultLocal == null) jump
+                    var isNullLabel = il.DefineLabel();
+                    il.Emit(OpCodes.Ldloc, resultLocal);
+                    il.Emit(OpCodes.Brfalse, isNullLabel);
+
                     il.Emit(OpCodes.Ldarg_0);
                     il.Emit(OpCodes.Ldfld, glueField);
                     il.Emit(OpCodes.Ldstr, returnValueProxyTypeName);
-                    EmitCallInstance();
+                    il.Emit(OpCodes.Ldloc, resultLocal);
                     il.Emit(OpCodes.Call, CreateInstanceForProxyTypeNameMethod);
+                    il.Emit(OpCodes.Stloc, resultLocal);
+
+                    il.MarkLabel(isNullLabel);
+                    il.Emit(OpCodes.Ldloc, resultLocal);
                 }
 
                 // return result
