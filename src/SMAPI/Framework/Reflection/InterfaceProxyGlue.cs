@@ -1,5 +1,6 @@
 namespace StardewModdingAPI.Framework.Reflection
 {
+    /// <summary>Provides an interface for proxied types to create other proxied types.</summary>
     public sealed class InterfaceProxyGlue
     {
         private readonly InterfaceProxyFactory Factory;
@@ -9,6 +10,9 @@ namespace StardewModdingAPI.Framework.Reflection
             this.Factory = factory;
         }
 
+        /// <summary>Creates a new proxied instance by its type name.</summary>
+        /// <param name="proxyTypeName">The full name of the proxy type.</param>
+        /// <param name="toProxy">The target instance to proxy.</param>
         public object CreateInstanceForProxyTypeName(string proxyTypeName, object toProxy)
         {
             var builder = this.Factory.GetBuilderByProxyTypeName(proxyTypeName);
