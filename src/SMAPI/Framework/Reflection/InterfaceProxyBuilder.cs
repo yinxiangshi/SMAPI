@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using HarmonyLib;
 
 namespace StardewModdingAPI.Framework.Reflection
 {
@@ -210,18 +209,17 @@ namespace StardewModdingAPI.Framework.Reflection
             methodBuilder.SetReturnType(returnType);
 
             // set up parameters
+            var targetParameters = target.GetParameters();
             Type[] argTypes = proxy.GetParameters()
                 .Select(a => a.ParameterType)
                 .Select(t => t.IsGenericMethodParameter ? genericTypeParameterBuilders[t.GenericParameterPosition] : t)
                 .ToArray();
-            methodBuilder.SetParameters(argTypes);
 
             // proxy additional types
             string returnValueProxyTypeName = null;
             string[] parameterProxyTypeNames = new string[argTypes.Length];
             if (positionsToProxy.Count > 0)
             {
-                var targetParameters = target.GetParameters();
                 foreach (int? position in positionsToProxy)
                 {
                     // we don't check for generics here, because earlier code does and generic positions won't end up here
@@ -247,16 +245,21 @@ namespace StardewModdingAPI.Framework.Reflection
                 }
 
                 methodBuilder.SetReturnType(returnType);
-                methodBuilder.SetParameters(argTypes);
             }
+
+            methodBuilder.SetParameters(argTypes);
+            for (int i = 0; i < argTypes.Length; i++)
+                methodBuilder.DefineParameter(i, targetParameters[i].Attributes, targetParameters[i].Name);
 
             // create method body
             {
                 ILGenerator il = methodBuilder.GetILGenerator();
-                LocalBuilder[] outLocals = new LocalBuilder[argTypes.Length];
+                LocalBuilder[] outInputLocals = new LocalBuilder[argTypes.Length];
+                LocalBuilder[] outOutputLocals = new LocalBuilder[argTypes.Length];
 
                 // calling the proxied method
-                var resultLocal = il.DeclareLocal(typeof(object)); // we store both unmodified and modified in here, hence `object`
+                LocalBuilder resultInputLocal = target.ReturnType == typeof(void) ? null : il.DeclareLocal(target.ReturnType);
+                LocalBuilder resultOutputLocal = returnType == typeof(void) ? null : il.DeclareLocal(returnType);
                 il.Emit(OpCodes.Ldarg_0);
                 il.Emit(OpCodes.Ldfld, instanceField);
                 for (int i = 0; i < argTypes.Length; i++)
@@ -268,28 +271,35 @@ namespace StardewModdingAPI.Framework.Reflection
                     else
                     {
                         // previous code already checks if the parameters are specifically `out`
-                        outLocals[i] = il.DeclareLocal(typeof(object)); // we store both unmodified and modified in here, hence `object`
-                        il.Emit(OpCodes.Ldloca_S, outLocals[i]);
+                        outInputLocals[i] = il.DeclareLocal(targetParameters[i].ParameterType.GetNonRefType());
+                        outOutputLocals[i] = il.DeclareLocal(argTypes[i].GetNonRefType());
+                        il.Emit(OpCodes.Ldloca, outInputLocals[i]);
                     }
                 }
                 il.Emit(OpCodes.Callvirt, target);
-                il.Emit(OpCodes.Stloc, resultLocal);
+                if (target.ReturnType != typeof(void))
+                    il.Emit(OpCodes.Stloc, resultInputLocal);
 
-                void ProxyNonNullIfNeeded(LocalBuilder local, string proxyTypeName)
+                void ProxyIfNeededAndStore(LocalBuilder inputLocal, LocalBuilder outputLocal, string proxyTypeName)
                 {
                     if (proxyTypeName == null)
+                    {
+                        il.Emit(OpCodes.Ldloc, inputLocal);
+                        il.Emit(OpCodes.Stloc, outputLocal);
                         return;
+                    }
 
                     var isNullLabel = il.DefineLabel();
-                    il.Emit(OpCodes.Ldloc, local);
+                    il.Emit(OpCodes.Ldloc, inputLocal);
                     il.Emit(OpCodes.Brfalse, isNullLabel);
 
                     il.Emit(OpCodes.Ldarg_0);
                     il.Emit(OpCodes.Ldfld, glueField);
                     il.Emit(OpCodes.Ldstr, proxyTypeName);
-                    il.Emit(OpCodes.Ldloc, local);
+                    il.Emit(OpCodes.Ldloc, inputLocal);
                     il.Emit(OpCodes.Call, CreateInstanceForProxyTypeNameMethod);
-                    il.Emit(OpCodes.Stloc, local);
+                    il.Emit(OpCodes.Castclass, outputLocal.LocalType);
+                    il.Emit(OpCodes.Stloc, outputLocal);
 
                     il.MarkLabel(isNullLabel);
                 }
@@ -301,17 +311,19 @@ namespace StardewModdingAPI.Framework.Reflection
                         continue;
                     // previous code already checks if the parameters are specifically `out`
 
-                    ProxyNonNullIfNeeded(outLocals[i], parameterProxyTypeNames[i]);
+                    ProxyIfNeededAndStore(outInputLocals[i], outOutputLocals[i], parameterProxyTypeNames[i]);
                     il.Emit(OpCodes.Ldarg, i + 1);
-                    il.Emit(OpCodes.Ldloc, outLocals[i]);
+                    il.Emit(OpCodes.Ldloc, outOutputLocals[i]);
                     il.Emit(OpCodes.Stind_Ref);
                 }
 
                 // proxying return value
-                ProxyNonNullIfNeeded(resultLocal, returnValueProxyTypeName);
+                if (target.ReturnType != typeof(void))
+                    ProxyIfNeededAndStore(resultInputLocal, resultOutputLocal, returnValueProxyTypeName);
 
                 // return result
-                il.Emit(OpCodes.Ldloc, resultLocal);
+                if (target.ReturnType != typeof(void))
+                    il.Emit(OpCodes.Ldloc, resultOutputLocal);
                 il.Emit(OpCodes.Ret);
             }
         }
