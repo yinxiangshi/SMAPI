@@ -16,12 +16,16 @@ namespace StardewModdingAPI.Framework.Reflection
         private static readonly string TargetFieldName = "__Target";
         private static readonly string GlueFieldName = "__Glue";
         private static readonly MethodInfo ObtainInstanceForProxyTypeNameMethod = typeof(InterfaceProxyGlue).GetMethod(nameof(InterfaceProxyGlue.ObtainInstanceForProxyTypeName), new Type[] { typeof(string), typeof(object) });
+        private static readonly MethodInfo UnproxyOrObtainInstanceForProxyTypeNameMethod = typeof(InterfaceProxyGlue).GetMethod(nameof(InterfaceProxyGlue.UnproxyOrObtainInstanceForProxyTypeName), new Type[] { typeof(string), typeof(string), typeof(object) });
 
         /*********
         ** Fields
         *********/
         /// <summary>The target class type.</summary>
         private readonly Type TargetType;
+
+        /// <summary>The interfce type.</summary>
+        private readonly Type InterfaceType;
 
         /// <summary>The full name of the generated proxy type.</summary>
         private readonly string ProxyTypeName;
@@ -37,26 +41,29 @@ namespace StardewModdingAPI.Framework.Reflection
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="targetType">The target type.</param>
+        /// <param name="interfaceType">The interface type to implement.</param>
         /// <param name="proxyTypeName">The type name to generate.</param>
-        public InterfaceProxyBuilder(Type targetType, string proxyTypeName)
+        public InterfaceProxyBuilder(Type targetType, Type interfaceType, string proxyTypeName)
         {
-            // validate
+            // validate and store
             this.TargetType = targetType ?? throw new ArgumentNullException(nameof(targetType));
+            this.InterfaceType = interfaceType ?? throw new ArgumentNullException(nameof(interfaceType));
             this.ProxyTypeName = proxyTypeName ?? throw new ArgumentNullException(nameof(proxyTypeName));
+            if (!interfaceType.IsInterface)
+                throw new ArgumentException($"{nameof(interfaceType)} is not an interface.");
         }
 
 
         /// <summary>Creates and sets up the proxy type.</summary>
         /// <param name="factory">The <see cref="InterfaceProxyFactory"/> that requested to build a proxy.</param>
         /// <param name="moduleBuilder">The CLR module in which to create proxy classes.</param>
-        /// <param name="interfaceType">The interface type to implement.</param>
         /// <param name="sourceModID">The unique ID of the mod consuming the API.</param>
         /// <param name="targetModID">The unique ID of the mod providing the API.</param>
-        public void SetupProxyType(InterfaceProxyFactory factory, ModuleBuilder moduleBuilder, Type interfaceType, string sourceModID, string targetModID)
+        public void SetupProxyType(InterfaceProxyFactory factory, ModuleBuilder moduleBuilder, string sourceModID, string targetModID)
         {
             // define proxy type
             TypeBuilder proxyBuilder = moduleBuilder.DefineType(this.ProxyTypeName, TypeAttributes.Public | TypeAttributes.Class);
-            proxyBuilder.AddInterfaceImplementation(interfaceType);
+            proxyBuilder.AddInterfaceImplementation(this.InterfaceType);
 
             // create fields to store target instance and proxy factory
             FieldBuilder targetField = proxyBuilder.DefineField(TargetFieldName, this.TargetType, FieldAttributes.Private);
@@ -100,13 +107,19 @@ namespace StardewModdingAPI.Framework.Reflection
                 if (typeA.IsGenericMethodParameter ? typeA.GenericParameterPosition == typeB.GenericParameterPosition : typeA.IsAssignableFrom(typeB))
                     return MatchingTypesResult.True;
 
-                if (!proxyType.IsGenericMethodParameter && proxyType.GetNonRefType().IsInterface && proxyType.Assembly == interfaceType.Assembly)
-                    return MatchingTypesResult.IfProxied;
+                if (!proxyType.IsGenericMethodParameter)
+                {
+                    if (proxyType.GetNonRefType().IsInterface)
+                        return MatchingTypesResult.IfProxied;
+                    if (targetType.GetNonRefType().IsInterface)
+                        return MatchingTypesResult.IfProxied;
+                }
+
                 return MatchingTypesResult.False;
             }
 
             // proxy methods
-            foreach (MethodInfo proxyMethod in interfaceType.GetMethods())
+            foreach (MethodInfo proxyMethod in this.InterfaceType.GetMethods())
             {
                 var proxyMethodParameters = proxyMethod.GetParameters();
                 var proxyMethodGenericArguments = proxyMethod.GetGenericArguments();
@@ -144,15 +157,8 @@ namespace StardewModdingAPI.Framework.Reflection
                             case MatchingTypesResult.True:
                                 break;
                             case MatchingTypesResult.IfProxied:
-                                if (proxyMethodParameters[i].IsOut)
-                                {
-                                    positionsToProxy.Add(i);
-                                    break;
-                                }
-                                else
-                                {
-                                    goto targetMethodLoopContinue;
-                                }
+                                positionsToProxy.Add(i);
+                                break;
                         }
                     }
 
@@ -163,7 +169,7 @@ namespace StardewModdingAPI.Framework.Reflection
                     targetMethodLoopContinue:;
                 }
 
-                throw new InvalidOperationException($"The {interfaceType.FullName} interface defines method {proxyMethod.Name} which doesn't exist in the API.");
+                throw new InvalidOperationException($"The {this.InterfaceType.FullName} interface defines method {proxyMethod.Name} which doesn't exist in the API.");
                 proxyMethodLoopContinue:;
             }
 
@@ -225,7 +231,8 @@ namespace StardewModdingAPI.Framework.Reflection
 
             // proxy additional types
             string returnValueProxyTypeName = null;
-            string[] parameterProxyTypeNames = new string[argTypes.Length];
+            string[] parameterTargetToArgProxyTypeNames = new string[argTypes.Length];
+            string[] parameterArgToTargetUnproxyTypeNames = new string[argTypes.Length];
             if (positionsToProxy.Count > 0)
             {
                 foreach (int? position in positionsToProxy)
@@ -240,15 +247,18 @@ namespace StardewModdingAPI.Framework.Reflection
                     else // it's one of the parameters
                     {
                         bool isByRef = argTypes[position.Value].IsByRef;
-                        var targetType = targetParameters[position.Value].ParameterType.GetNonRefType();
-                        var argType = argTypes[position.Value].GetNonRefType();
+                        var targetType = targetParameters[position.Value].ParameterType;
+                        var argType = argTypes[position.Value];
 
-                        var builder = factory.ObtainBuilder(targetType, argType, sourceModID, targetModID);
-                        if (isByRef)
-                            argType = argType.MakeByRefType();
-
+                        var builder = factory.ObtainBuilder(targetType.GetNonRefType(), argType.GetNonRefType(), sourceModID, targetModID);
                         argTypes[position.Value] = argType;
-                        parameterProxyTypeNames[position.Value] = builder.ProxyTypeName;
+                        parameterTargetToArgProxyTypeNames[position.Value] = builder.ProxyTypeName;
+
+                        if (!targetParameters[position.Value].IsOut)
+                        {
+                            var argToTargetBuilder = factory.ObtainBuilder(argType.GetNonRefType(), targetType.GetNonRefType(), sourceModID, targetModID);
+                            parameterArgToTargetUnproxyTypeNames[position.Value] = argToTargetBuilder.ProxyTypeName;
+                        }
                     }
                 }
 
@@ -262,33 +272,10 @@ namespace StardewModdingAPI.Framework.Reflection
             // create method body
             {
                 ILGenerator il = methodBuilder.GetILGenerator();
-                LocalBuilder[] outInputLocals = new LocalBuilder[argTypes.Length];
-                LocalBuilder[] outOutputLocals = new LocalBuilder[argTypes.Length];
+                LocalBuilder[] inputLocals = new LocalBuilder[argTypes.Length];
+                LocalBuilder[] outputLocals = new LocalBuilder[argTypes.Length];
 
-                // calling the proxied method
-                LocalBuilder resultInputLocal = target.ReturnType == typeof(void) ? null : il.DeclareLocal(target.ReturnType);
-                LocalBuilder resultOutputLocal = returnType == typeof(void) ? null : il.DeclareLocal(returnType);
-                il.Emit(OpCodes.Ldarg_0);
-                il.Emit(OpCodes.Ldfld, instanceField);
-                for (int i = 0; i < argTypes.Length; i++)
-                {
-                    if (parameterProxyTypeNames[i] == null)
-                    {
-                        il.Emit(OpCodes.Ldarg, i + 1);
-                    }
-                    else
-                    {
-                        // previous code already checks if the parameters are specifically `out`
-                        outInputLocals[i] = il.DeclareLocal(targetParameters[i].ParameterType.GetNonRefType());
-                        outOutputLocals[i] = il.DeclareLocal(argTypes[i].GetNonRefType());
-                        il.Emit(OpCodes.Ldloca, outInputLocals[i]);
-                    }
-                }
-                il.Emit(target.IsVirtual ? OpCodes.Callvirt : OpCodes.Call, target);
-                if (target.ReturnType != typeof(void))
-                    il.Emit(OpCodes.Stloc, resultInputLocal);
-
-                void ProxyIfNeededAndStore(LocalBuilder inputLocal, LocalBuilder outputLocal, string proxyTypeName)
+                void ProxyIfNeededAndStore(LocalBuilder inputLocal, LocalBuilder outputLocal, string proxyTypeName, string unproxyTypeName)
                 {
                     if (proxyTypeName == null)
                     {
@@ -303,37 +290,96 @@ namespace StardewModdingAPI.Framework.Reflection
 
                     il.Emit(OpCodes.Ldarg_0);
                     il.Emit(OpCodes.Ldfld, glueField);
-                    il.Emit(OpCodes.Ldstr, proxyTypeName);
-                    il.Emit(OpCodes.Ldloc, inputLocal);
-                    il.Emit(OpCodes.Call, ObtainInstanceForProxyTypeNameMethod);
+                    if (unproxyTypeName == null)
+                    {
+                        il.Emit(OpCodes.Ldstr, proxyTypeName);
+                        il.Emit(OpCodes.Ldloc, inputLocal);
+                        il.Emit(OpCodes.Call, ObtainInstanceForProxyTypeNameMethod);
+                    }
+                    else
+                    {
+                        il.Emit(OpCodes.Ldstr, proxyTypeName);
+                        il.Emit(OpCodes.Ldstr, unproxyTypeName);
+                        il.Emit(OpCodes.Ldloc, inputLocal);
+                        il.Emit(OpCodes.Call, UnproxyOrObtainInstanceForProxyTypeNameMethod);
+                    }
                     il.Emit(OpCodes.Castclass, outputLocal.LocalType);
                     il.Emit(OpCodes.Stloc, outputLocal);
 
                     il.MarkLabel(isNullLabel);
                 }
 
+                // calling the proxied method
+                LocalBuilder resultInputLocal = target.ReturnType == typeof(void) ? null : il.DeclareLocal(target.ReturnType);
+                LocalBuilder resultOutputLocal = returnType == typeof(void) ? null : il.DeclareLocal(returnType);
+                il.Emit(OpCodes.Ldarg_0);
+                il.Emit(OpCodes.Ldfld, instanceField);
+                for (int i = 0; i < argTypes.Length; i++)
+                {
+                    if (targetParameters[i].IsOut && parameterTargetToArgProxyTypeNames[i] != null) // out parameter, proxy on the way back
+                    {
+                        inputLocals[i] = il.DeclareLocal(targetParameters[i].ParameterType.GetNonRefType());
+                        outputLocals[i] = il.DeclareLocal(argTypes[i].GetNonRefType());
+                        il.Emit(OpCodes.Ldloca, inputLocals[i]);
+                    }
+                    else if (parameterArgToTargetUnproxyTypeNames[i] != null) // normal parameter, proxy on the way in
+                    {
+                        inputLocals[i] = il.DeclareLocal(argTypes[i].GetNonRefType());
+                        outputLocals[i] = il.DeclareLocal(targetParameters[i].ParameterType.GetNonRefType());
+                        il.Emit(OpCodes.Ldarg, i + 1);
+                        il.Emit(OpCodes.Stloc, inputLocals[i]);
+                        ProxyIfNeededAndStore(inputLocals[i], outputLocals[i], parameterArgToTargetUnproxyTypeNames[i], parameterTargetToArgProxyTypeNames[i]);
+                        il.Emit(OpCodes.Ldloc, outputLocals[i]);
+                    }
+                    else // normal parameter, no proxying
+                    {
+                        il.Emit(OpCodes.Ldarg, i + 1);
+                    }
+                }
+                il.Emit(target.IsVirtual ? OpCodes.Callvirt : OpCodes.Call, target);
+                if (target.ReturnType != typeof(void))
+                    il.Emit(OpCodes.Stloc, resultInputLocal);
+
                 // proxying `out` parameters
                 for (int i = 0; i < argTypes.Length; i++)
                 {
-                    if (parameterProxyTypeNames[i] == null)
+                    if (parameterTargetToArgProxyTypeNames[i] == null)
                         continue;
-                    // previous code already checks if the parameters are specifically `out`
+                    if (!targetParameters[i].IsOut)
+                        continue;
 
-                    ProxyIfNeededAndStore(outInputLocals[i], outOutputLocals[i], parameterProxyTypeNames[i]);
+                    ProxyIfNeededAndStore(inputLocals[i], outputLocals[i], parameterTargetToArgProxyTypeNames[i], null);
                     il.Emit(OpCodes.Ldarg, i + 1);
-                    il.Emit(OpCodes.Ldloc, outOutputLocals[i]);
+                    il.Emit(OpCodes.Ldloc, outputLocals[i]);
                     il.Emit(OpCodes.Stind_Ref);
                 }
 
                 // proxying return value
                 if (target.ReturnType != typeof(void))
-                    ProxyIfNeededAndStore(resultInputLocal, resultOutputLocal, returnValueProxyTypeName);
+                    ProxyIfNeededAndStore(resultInputLocal, resultOutputLocal, returnValueProxyTypeName, null);
 
                 // return result
                 if (target.ReturnType != typeof(void))
                     il.Emit(OpCodes.Ldloc, resultOutputLocal);
                 il.Emit(OpCodes.Ret);
             }
+        }
+
+        /// <summary>Try to get a target instance for a given proxy instance.</summary>
+        /// <param name="potentialProxyInstance">The proxy instance to look for.</param>
+        /// <param name="targetInstance">The reference to store the found target instance in.</param>
+        public bool TryUnproxy(object potentialProxyInstance, out object targetInstance)
+        {
+            foreach ((object cachedTargetInstance, object cachedProxyInstance) in this.ProxyCache)
+            {
+                if (object.ReferenceEquals(potentialProxyInstance, cachedProxyInstance))
+                {
+                    targetInstance = cachedTargetInstance;
+                    return true;
+                }
+            }
+            targetInstance = null;
+            return false;
         }
 
         /// <summary>The part of a method that is being matched.</summary>

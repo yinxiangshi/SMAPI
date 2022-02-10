@@ -57,11 +57,11 @@ namespace StardewModdingAPI.Framework.Reflection
                 string proxyTypeName = $"StardewModdingAPI.Proxies.From<{sourceModID}_{interfaceType.FullName}>_To<{targetModID}_{targetType.FullName}>";
                 if (!this.Builders.TryGetValue(proxyTypeName, out InterfaceProxyBuilder builder))
                 {
-                    builder = new InterfaceProxyBuilder(targetType, proxyTypeName);
+                    builder = new InterfaceProxyBuilder(targetType, interfaceType, proxyTypeName);
                     this.Builders[proxyTypeName] = builder;
                     try
                     {
-                        builder.SetupProxyType(this, this.ModuleBuilder, interfaceType, sourceModID, targetModID);
+                        builder.SetupProxyType(this, this.ModuleBuilder, sourceModID, targetModID);
                     }
                     catch
                     {
