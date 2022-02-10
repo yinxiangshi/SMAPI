@@ -276,7 +276,7 @@ namespace StardewModdingAPI.Framework.Reflection
                         il.Emit(OpCodes.Ldloca, outInputLocals[i]);
                     }
                 }
-                il.Emit(OpCodes.Callvirt, target);
+                il.Emit(target.IsVirtual ? OpCodes.Callvirt : OpCodes.Call, target);
                 if (target.ReturnType != typeof(void))
                     il.Emit(OpCodes.Stloc, resultInputLocal);
 
