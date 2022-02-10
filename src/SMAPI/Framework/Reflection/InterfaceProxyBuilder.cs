@@ -66,7 +66,7 @@ namespace StardewModdingAPI.Framework.Reflection
 
                 il.Emit(OpCodes.Ldarg_0); // this
                 // ReSharper disable once AssignNullToNotNullAttribute -- never null
-                il.Emit(OpCodes.Call, typeof(object).GetConstructor(new Type[0])); // call base constructor
+                il.Emit(OpCodes.Call, typeof(object).GetConstructor(Array.Empty<Type>())); // call base constructor
                 il.Emit(OpCodes.Ldarg_0);      // this
                 il.Emit(OpCodes.Ldarg_1);      // load argument
                 il.Emit(OpCodes.Stfld, targetField); // set field to loaded argument
