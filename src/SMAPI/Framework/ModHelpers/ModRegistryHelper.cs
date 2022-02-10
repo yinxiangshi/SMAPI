@@ -98,5 +98,31 @@ namespace StardewModdingAPI.Framework.ModHelpers
                 return castApi;
             return this.ProxyFactory.CreateProxy<TInterface>(api, this.ModID, uniqueID);
         }
+
+        /// <inheritdoc />
+        public bool TryProxy<TInterface>(string uniqueID, object toProxy, out TInterface proxy) where TInterface : class
+        {
+            try
+            {
+                foreach (var toProxyInterface in toProxy.GetType().GetInterfaces())
+                {
+                    var unproxyBuilder = this.ProxyFactory.ObtainBuilder(typeof(TInterface), toProxyInterface, this.ModID, uniqueID);
+                    if (unproxyBuilder.TryUnproxy(toProxy, out object targetInstance))
+                    {
+                        proxy = (TInterface)targetInstance;
+                        return true;
+                    }
+                }
+
+                var proxyBuilder = this.ProxyFactory.ObtainBuilder(toProxy.GetType(), typeof(TInterface), this.ModID, uniqueID);
+                proxy = (TInterface)proxyBuilder.ObtainInstance(toProxy, this.ProxyFactory);
+                return true;
+            }
+            catch
+            {
+                proxy = null;
+                return false;
+            }
+        }
     }
 }
