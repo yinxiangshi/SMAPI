@@ -42,7 +42,7 @@ namespace StardewModdingAPI.Framework.Reflection
 
             // create instance
             InterfaceProxyBuilder builder = this.ObtainBuilder(instance.GetType(), typeof(TInterface), sourceModID, targetModID);
-            return (TInterface)builder.CreateInstance(instance, this);
+            return (TInterface)builder.ObtainInstance(instance, this);
         }
 
         internal InterfaceProxyBuilder ObtainBuilder(Type targetType, Type interfaceType, string sourceModID, string targetModID)

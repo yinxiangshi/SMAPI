@@ -10,13 +10,13 @@ namespace StardewModdingAPI.Framework.Reflection
             this.Factory = factory;
         }
 
-        /// <summary>Creates a new proxied instance by its type name.</summary>
+        /// <summary>Get an existing or create a new proxied instance by its type name.</summary>
         /// <param name="proxyTypeName">The full name of the proxy type.</param>
         /// <param name="toProxy">The target instance to proxy.</param>
-        public object CreateInstanceForProxyTypeName(string proxyTypeName, object toProxy)
+        public object ObtainInstanceForProxyTypeName(string proxyTypeName, object toProxy)
         {
             var builder = this.Factory.GetBuilderByProxyTypeName(proxyTypeName);
-            return builder.CreateInstance(toProxy, this.Factory);
+            return builder.ObtainInstance(toProxy, this.Factory);
         }
     }
 }
