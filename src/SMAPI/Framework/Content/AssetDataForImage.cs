@@ -41,39 +41,40 @@ namespace StardewModdingAPI.Framework.Content
             targetArea ??= new Rectangle(0, 0, Math.Min(sourceArea.Value.Width, target.Width), Math.Min(sourceArea.Value.Height, target.Height));
 
             // validate
-            if (sourceArea.Value.X < 0 || sourceArea.Value.Y < 0 || sourceArea.Value.Right > source.Width || sourceArea.Value.Bottom > source.Height)
+            if (!source.Bounds.Contains(sourceArea.Value))
                 throw new ArgumentOutOfRangeException(nameof(sourceArea), "The source area is outside the bounds of the source texture.");
-            if (targetArea.Value.X < 0 || targetArea.Value.Y < 0 || targetArea.Value.Right > target.Width || targetArea.Value.Bottom > target.Height)
+            if (!target.Bounds.Contains(targetArea.Value))
                 throw new ArgumentOutOfRangeException(nameof(targetArea), "The target area is outside the bounds of the target texture.");
-            if (sourceArea.Value.Width != targetArea.Value.Width || sourceArea.Value.Height != targetArea.Value.Height)
+            if (sourceArea.Value.Size != targetArea.Value.Size)
                 throw new InvalidOperationException("The source and target areas must be the same size.");
 
             // get source data
             int pixelCount = sourceArea.Value.Width * sourceArea.Value.Height;
-            Color[] sourceData = new Color[pixelCount];
+            Color[] sourceData = GC.AllocateUninitializedArray<Color>(pixelCount);
             source.GetData(0, sourceArea, sourceData, 0, pixelCount);
 
             // merge data in overlay mode
             if (patchMode == PatchMode.Overlay)
             {
                 // get target data
-                Color[] targetData = new Color[pixelCount];
+                Color[] targetData = GC.AllocateUninitializedArray<Color>(pixelCount);
                 target.GetData(0, targetArea, targetData, 0, pixelCount);
 
                 // merge pixels
-                Color[] newData = new Color[targetArea.Value.Width * targetArea.Value.Height];
-                target.GetData(0, targetArea, newData, 0, newData.Length);
                 for (int i = 0; i < sourceData.Length; i++)
                 {
                     Color above = sourceData[i];
                     Color below = targetData[i];
 
                     // shortcut transparency
-                    if (above.A < AssetDataForImage.MinOpacity)
-                        continue;
-                    if (below.A < AssetDataForImage.MinOpacity)
+                    if (above.A < MinOpacity)
                     {
-                        newData[i] = above;
+                        sourceData[i] = below;
+                        continue;
+                    }
+                    if (below.A < MinOpacity)
+                    {
+                        sourceData[i] = above;
                         continue;
                     }
 
@@ -84,14 +85,13 @@ namespace StardewModdingAPI.Framework.Content
                     // Note: don't use named arguments here since they're different between
                     // Linux/macOS and Windows.
                     float alphaBelow = 1 - (above.A / 255f);
-                    newData[i] = new Color(
+                    sourceData[i] = new Color(
                         (int)(above.R + (below.R * alphaBelow)), // r
                         (int)(above.G + (below.G * alphaBelow)), // g
                         (int)(above.B + (below.B * alphaBelow)), // b
                         Math.Max(above.A, below.A) // a
                     );
                 }
-                sourceData = newData;
             }
 
             // patch target texture
@@ -105,7 +105,7 @@ namespace StardewModdingAPI.Framework.Content
                 return false;
 
             Texture2D original = this.Data;
-            Texture2D texture = new Texture2D(Game1.graphics.GraphicsDevice, Math.Max(original.Width, minWidth), Math.Max(original.Height, minHeight));
+            Texture2D texture = new(Game1.graphics.GraphicsDevice, Math.Max(original.Width, minWidth), Math.Max(original.Height, minHeight));
             this.ReplaceWith(texture);
             this.PatchImage(original);
             return true;
