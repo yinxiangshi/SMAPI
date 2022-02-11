@@ -239,7 +239,7 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
             string raw = this.GetAttribute(element, name);
             return !string.IsNullOrWhiteSpace(raw)
                 ? raw.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(p => p.Trim()).ToArray()
-                : new string[0];
+                : Array.Empty<string>();
         }
 
         /// <summary>Get an attribute value and parse it as an enum value.</summary>

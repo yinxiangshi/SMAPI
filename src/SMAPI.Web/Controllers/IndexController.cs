@@ -96,7 +96,7 @@ namespace StardewModdingAPI.Web.Controllers
                 {
                     HtmlDocument doc = new HtmlDocument();
                     doc.LoadHtml(release.Body);
-                    foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//*[@class='noinclude']")?.ToArray() ?? new HtmlNode[0])
+                    foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//*[@class='noinclude']")?.ToArray() ?? Array.Empty<HtmlNode>())
                         node.Remove();
                     release.Body = doc.DocumentNode.InnerHtml.Trim();
                 }

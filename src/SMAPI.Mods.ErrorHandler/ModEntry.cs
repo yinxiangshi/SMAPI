@@ -80,7 +80,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler
             MethodInfo getMonitorForGame = coreType.GetMethod("GetMonitorForGame")
                 ?? throw new InvalidOperationException("Can't access the SMAPI's 'GetMonitorForGame' method. This mod may not work correctly.");
 
-            return (IMonitor)getMonitorForGame.Invoke(core, new object[0]) ?? this.Monitor;
+            return (IMonitor)getMonitorForGame.Invoke(core, Array.Empty<object>()) ?? this.Monitor;
         }
     }
 }

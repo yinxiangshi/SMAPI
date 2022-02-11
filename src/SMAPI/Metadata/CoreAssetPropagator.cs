@@ -1275,7 +1275,7 @@ namespace StardewModdingAPI.Metadata
         {
             return path != null
                 ? PathUtilities.GetSegments(path)
-                : new string[0];
+                : Array.Empty<string>();
         }
 
         /// <summary>Count the number of segments in a path (e.g. 'a/b' is 2).</summary>

@@ -123,7 +123,7 @@ namespace SMAPI.Tests.Core
         [Test(Description = "Assert that validation doesn't fail if there are no mods installed.")]
         public void ValidateManifests_NoMods_DoesNothing()
         {
-            new ModResolver().ValidateManifests(new ModMetadata[0], apiVersion: new SemanticVersion("1.0"), getUpdateUrl: key => null);
+            new ModResolver().ValidateManifests(Array.Empty<ModMetadata>(), apiVersion: new SemanticVersion("1.0"), getUpdateUrl: key => null);
         }
 
         [Test(Description = "Assert that validation skips manifests that have already failed without calling any other properties.")]
@@ -144,7 +144,7 @@ namespace SMAPI.Tests.Core
         public void ValidateManifests_ModStatus_AssumeBroken_Fails()
         {
             // arrange
-            Mock<IModMetadata> mock = this.GetMetadata("Mod A", new string[0], allowStatusChange: true);
+            Mock<IModMetadata> mock = this.GetMetadata("Mod A", Array.Empty<string>(), allowStatusChange: true);
             this.SetupMetadataForValidation(mock, new ModDataRecordVersionedFields
             {
                 Status = ModStatus.AssumeBroken
@@ -161,7 +161,7 @@ namespace SMAPI.Tests.Core
         public void ValidateManifests_MinimumApiVersion_Fails()
         {
             // arrange
-            Mock<IModMetadata> mock = this.GetMetadata("Mod A", new string[0], allowStatusChange: true);
+            Mock<IModMetadata> mock = this.GetMetadata("Mod A", Array.Empty<string>(), allowStatusChange: true);
             mock.Setup(p => p.Manifest).Returns(this.GetManifest(minimumApiVersion: "1.1"));
             this.SetupMetadataForValidation(mock);
 
@@ -190,9 +190,9 @@ namespace SMAPI.Tests.Core
         public void ValidateManifests_DuplicateUniqueID_Fails()
         {
             // arrange
-            Mock<IModMetadata> modA = this.GetMetadata("Mod A", new string[0], allowStatusChange: true);
+            Mock<IModMetadata> modA = this.GetMetadata("Mod A", Array.Empty<string>(), allowStatusChange: true);
             Mock<IModMetadata> modB = this.GetMetadata(this.GetManifest(id: "Mod A", name: "Mod B", version: "1.0"), allowStatusChange: true);
-            Mock<IModMetadata> modC = this.GetMetadata("Mod C", new string[0], allowStatusChange: false);
+            Mock<IModMetadata> modC = this.GetMetadata("Mod C", Array.Empty<string>(), allowStatusChange: false);
             foreach (Mock<IModMetadata> mod in new[] { modA, modB, modC })
                 this.SetupMetadataForValidation(mod);
 
@@ -236,7 +236,7 @@ namespace SMAPI.Tests.Core
         public void ProcessDependencies_NoMods_DoesNothing()
         {
             // act
-            IModMetadata[] mods = new ModResolver().ProcessDependencies(new IModMetadata[0], new ModDatabase()).ToArray();
+            IModMetadata[] mods = new ModResolver().ProcessDependencies(Array.Empty<IModMetadata>(), new ModDatabase()).ToArray();
 
             // assert
             Assert.AreEqual(0, mods.Length, 0, "Expected to get an empty list of mods.");
@@ -490,8 +490,8 @@ namespace SMAPI.Tests.Core
                 EntryDll = entryDll ?? $"{Sample.String()}.dll",
                 ContentPackFor = contentPackForID != null ? new ManifestContentPackFor { UniqueID = contentPackForID } : null,
                 MinimumApiVersion = minimumApiVersion != null ? new SemanticVersion(minimumApiVersion) : null,
-                Dependencies = dependencies ?? new IManifestDependency[0],
-                UpdateKeys = new string[0]
+                Dependencies = dependencies ?? Array.Empty<IManifestDependency>(),
+                UpdateKeys = Array.Empty<string>()
             };
         }
 

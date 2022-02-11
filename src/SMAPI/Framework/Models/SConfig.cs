@@ -92,9 +92,9 @@ namespace StardewModdingAPI.Framework.Models
                     custom[pair.Key] = value;
             }
 
-            HashSet<string> curSuppressUpdateChecks = new HashSet<string>(this.SuppressUpdateChecks ?? new string[0], StringComparer.OrdinalIgnoreCase);
+            HashSet<string> curSuppressUpdateChecks = new HashSet<string>(this.SuppressUpdateChecks ?? Array.Empty<string>(), StringComparer.OrdinalIgnoreCase);
             if (SConfig.DefaultSuppressUpdateChecks.Count != curSuppressUpdateChecks.Count || SConfig.DefaultSuppressUpdateChecks.Any(p => !curSuppressUpdateChecks.Contains(p)))
-                custom[nameof(this.SuppressUpdateChecks)] = "[" + string.Join(", ", this.SuppressUpdateChecks ?? new string[0]) + "]";
+                custom[nameof(this.SuppressUpdateChecks)] = "[" + string.Join(", ", this.SuppressUpdateChecks ?? Array.Empty<string>()) + "]";
 
             return custom;
         }

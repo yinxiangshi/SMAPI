@@ -24,7 +24,7 @@ namespace MonoMod.Utils
     {
         // .NET Framework can break member ordering if using Module.Resolve* on certain members.
 
-        private static object[] _NoArgs = new object[0];
+        private static object[] _NoArgs = Array.Empty<object>();
         private static object[] _CacheGetterArgs = { /* MemberListType.All */ 0, /* name apparently always null? */ null };
 
         private static Type t_RuntimeModule =

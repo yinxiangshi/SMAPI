@@ -42,7 +42,7 @@ namespace StardewModdingAPI.Web.Framework.LogParsing.Models
         public DateTimeOffset Timestamp { get; set; }
 
         /// <summary>Metadata about installed mods and content packs.</summary>
-        public LogModInfo[] Mods { get; set; } = new LogModInfo[0];
+        public LogModInfo[] Mods { get; set; } = Array.Empty<LogModInfo>();
 
         /// <summary>The log messages.</summary>
         public LogMessage[] Messages { get; set; }

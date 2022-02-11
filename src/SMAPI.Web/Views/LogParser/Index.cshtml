@@ -15,7 +15,7 @@
 
     string curPageUrl = this.Url.PlainAction("Index", "LogParser", new { id = Model.PasteID }, absoluteUrl: true);
 
-    ISet<int> screenIds = new HashSet<int>(Model.ParsedLog?.Messages?.Select(p => p.ScreenId) ?? new int[0]);
+    ISet<int> screenIds = new HashSet<int>(Model.ParsedLog?.Messages?.Select(p => p.ScreenId) ?? Array.Empty<int>());
 }
 
 @section Head {

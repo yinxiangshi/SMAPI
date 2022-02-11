@@ -1,3 +1,5 @@
+using System;
+
 namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
 {
     /// <summary>Specifies the identifiers for a mod to match.</summary>
@@ -37,7 +39,7 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
         {
             this.ID = id;
             this.InstalledVersion = installedVersion;
-            this.UpdateKeys = updateKeys ?? new string[0];
+            this.UpdateKeys = updateKeys ?? Array.Empty<string>();
         }
     }
 }

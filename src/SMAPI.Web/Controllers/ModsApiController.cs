@@ -79,7 +79,7 @@ namespace StardewModdingAPI.Web.Controllers
         public async Task<IEnumerable<ModEntryModel>> PostAsync([FromBody] ModSearchModel model, [FromRoute] string version)
         {
             if (model?.Mods == null)
-                return new ModEntryModel[0];
+                return Array.Empty<ModEntryModel>();
 
             ModUpdateCheckConfig config = this.Config.Value;
 

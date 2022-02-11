@@ -26,7 +26,7 @@ namespace StardewModdingAPI.Web.ViewModels.JsonValidator
         public string Content { get; set; }
 
         /// <summary>The schema validation errors, if any.</summary>
-        public JsonValidatorErrorModel[] Errors { get; set; } = new JsonValidatorErrorModel[0];
+        public JsonValidatorErrorModel[] Errors { get; set; } = Array.Empty<JsonValidatorErrorModel>();
 
         /// <summary>A non-blocking warning while uploading the file.</summary>
         public string UploadWarning { get; set; }

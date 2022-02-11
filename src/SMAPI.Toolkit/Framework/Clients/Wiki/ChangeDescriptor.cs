@@ -179,7 +179,7 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
                 errors = rawErrors.ToArray();
             }
             else
-                errors = new string[0];
+                errors = Array.Empty<string>();
 
             // build model
             return new ChangeDescriptor(

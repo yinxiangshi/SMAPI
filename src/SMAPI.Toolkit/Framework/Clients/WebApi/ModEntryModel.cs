@@ -1,3 +1,5 @@
+using System;
+
 namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
 {
     /// <summary>Metadata about a mod.</summary>
@@ -16,6 +18,6 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
         public ModExtendedMetadataModel Metadata { get; set; }
 
         /// <summary>The errors that occurred while fetching update data.</summary>
-        public string[] Errors { get; set; } = new string[0];
+        public string[] Errors { get; set; } = Array.Empty<string>();
     }
 }

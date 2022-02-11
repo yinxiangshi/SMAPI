@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
@@ -68,7 +69,7 @@ namespace StardewModdingAPI.Toolkit.Serialization.Models
             this.Description = description;
             this.Version = version;
             this.UniqueID = uniqueID;
-            this.UpdateKeys = new string[0];
+            this.UpdateKeys = Array.Empty<string>();
             this.ContentPackFor = new ManifestContentPackFor { UniqueID = contentPackFor };
         }
 
@@ -77,8 +78,8 @@ namespace StardewModdingAPI.Toolkit.Serialization.Models
         [OnDeserialized]
         public void OnDeserialized(StreamingContext context)
         {
-            this.Dependencies ??= new IManifestDependency[0];
-            this.UpdateKeys ??= new string[0];
+            this.Dependencies ??= Array.Empty<IManifestDependency>();
+            this.UpdateKeys ??= Array.Empty<string>();
         }
     }
 }

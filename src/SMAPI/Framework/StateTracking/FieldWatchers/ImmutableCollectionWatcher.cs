@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
@@ -16,10 +17,10 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
         public bool IsChanged { get; } = false;
 
         /// <summary>The values added since the last reset.</summary>
-        public IEnumerable<TValue> Added { get; } = new TValue[0];
+        public IEnumerable<TValue> Added { get; } = Array.Empty<TValue>();
 
         /// <summary>The values removed since the last reset.</summary>
-        public IEnumerable<TValue> Removed { get; } = new TValue[0];
+        public IEnumerable<TValue> Removed { get; } = Array.Empty<TValue>();
 
 
         /*********

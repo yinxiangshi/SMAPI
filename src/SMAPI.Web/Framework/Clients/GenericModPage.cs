@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using StardewModdingAPI.Toolkit.Framework.UpdateData;
@@ -26,7 +27,7 @@ namespace StardewModdingAPI.Web.Framework.Clients
         public string Url { get; set; }
 
         /// <summary>The mod downloads.</summary>
-        public IModDownload[] Downloads { get; set; } = new IModDownload[0];
+        public IModDownload[] Downloads { get; set; } = Array.Empty<IModDownload>();
 
         /// <summary>The mod availability status on the remote site.</summary>
         public RemoteModStatus Status { get; set; } = RemoteModStatus.Ok;

@@ -21,7 +21,7 @@ namespace StardewModdingAPI.Framework.Events
         private readonly List<ManagedEventHandler<TEventArgs>> Handlers = new List<ManagedEventHandler<TEventArgs>>();
 
         /// <summary>A cached snapshot of <see cref="Handlers"/>, or <c>null</c> to rebuild it next raise.</summary>
-        private ManagedEventHandler<TEventArgs>[] CachedHandlers = new ManagedEventHandler<TEventArgs>[0];
+        private ManagedEventHandler<TEventArgs>[] CachedHandlers = Array.Empty<ManagedEventHandler<TEventArgs>>();
 
         /// <summary>The total number of event handlers registered for this events, regardless of whether they're still registered.</summary>
         private int RegistrationIndex;

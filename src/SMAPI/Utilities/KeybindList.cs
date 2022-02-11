@@ -55,7 +55,7 @@ namespace StardewModdingAPI.Utilities
             if (string.IsNullOrWhiteSpace(input))
             {
                 parsed = new KeybindList();
-                errors = new string[0];
+                errors = Array.Empty<string>();
                 return true;
             }
 
@@ -83,7 +83,7 @@ namespace StardewModdingAPI.Utilities
             else
             {
                 parsed = new KeybindList(keybinds.ToArray());
-                errors = new string[0];
+                errors = Array.Empty<string>();
                 return true;
             }
         }

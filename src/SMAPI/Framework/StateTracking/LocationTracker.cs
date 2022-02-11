@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
@@ -84,7 +85,7 @@ namespace StardewModdingAPI.Framework.StateTracking
                 this.FurnitureWatcher
             });
 
-            this.UpdateChestWatcherList(added: location.Objects.Pairs, removed: new KeyValuePair<Vector2, SObject>[0]);
+            this.UpdateChestWatcherList(added: location.Objects.Pairs, removed: Array.Empty<KeyValuePair<Vector2, SObject>>());
         }
 
         /// <summary>Update the current value if needed.</summary>

@@ -25,7 +25,7 @@ namespace StardewModdingAPI.Internal
 
                     case ReflectionTypeLoadException ex:
                         string summary = ex.ToString();
-                        foreach (Exception childEx in ex.LoaderExceptions ?? new Exception[0])
+                        foreach (Exception childEx in ex.LoaderExceptions ?? Array.Empty<Exception>())
                             summary += $"\n\n{childEx?.GetLogSummary()}";
                         message = summary;
                         break;

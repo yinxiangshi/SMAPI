@@ -14,7 +14,7 @@ namespace StardewModdingAPI.Framework.StateTracking.Snapshots
         ** Fields
         *********/
         /// <summary>An empty item list diff.</summary>
-        private readonly SnapshotItemListDiff EmptyItemListDiff = new SnapshotItemListDiff(new Item[0], new Item[0], new ItemStackSizeChange[0]);
+        private readonly SnapshotItemListDiff EmptyItemListDiff = new SnapshotItemListDiff(Array.Empty<Item>(), Array.Empty<Item>(), Array.Empty<ItemStackSizeChange>());
 
 
         /*********

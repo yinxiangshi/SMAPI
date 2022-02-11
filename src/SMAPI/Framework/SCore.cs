@@ -1244,7 +1244,7 @@ namespace StardewModdingAPI.Framework
                     {
                         using RegistryKey key = Registry.LocalMachine.OpenSubKey(registryKey);
                         if (key == null)
-                            return new string[0];
+                            return Array.Empty<string>();
 
                         return key
                             .GetSubKeyNames()
@@ -1567,13 +1567,13 @@ namespace StardewModdingAPI.Framework
         /// <param name="list">A list of interceptors to update for the change.</param>
         private void OnAssetInterceptorsChanged<T>(IModMetadata mod, IEnumerable<T> added, IEnumerable<T> removed, IList<ModLinked<T>> list)
         {
-            foreach (T interceptor in added ?? new T[0])
+            foreach (T interceptor in added ?? Array.Empty<T>())
             {
                 this.ReloadAssetInterceptorsQueue.Add(new AssetInterceptorChange(mod, interceptor, wasAdded: true));
                 list.Add(new ModLinked<T>(mod, interceptor));
             }
 
-            foreach (T interceptor in removed ?? new T[0])
+            foreach (T interceptor in removed ?? Array.Empty<T>())
             {
                 this.ReloadAssetInterceptorsQueue.Add(new AssetInterceptorChange(mod, interceptor, wasAdded: false));
                 foreach (ModLinked<T> entry in list.Where(p => p.Mod == mod && object.ReferenceEquals(p.Data, interceptor)).ToArray())

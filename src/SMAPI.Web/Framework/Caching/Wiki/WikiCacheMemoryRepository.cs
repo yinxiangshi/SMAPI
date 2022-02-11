@@ -15,7 +15,7 @@ namespace StardewModdingAPI.Web.Framework.Caching.Wiki
         private Cached<WikiMetadata> Metadata;
 
         /// <summary>The cached wiki data.</summary>
-        private Cached<WikiModEntry>[] Mods = new Cached<WikiModEntry>[0];
+        private Cached<WikiModEntry>[] Mods = Array.Empty<Cached<WikiModEntry>>();
 
 
         /*********

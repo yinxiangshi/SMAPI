@@ -1,3 +1,5 @@
+using System;
+
 #nullable enable
 
 namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
@@ -9,7 +11,7 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
         ** Accessors
         *********/
         /// <summary>The unique mod IDs for the mods to override.</summary>
-        public string[] Ids { get; set; } = new string[0];
+        public string[] Ids { get; set; } = Array.Empty<string>();
 
         /// <summary>Maps local versions to a semantic version for update checks.</summary>
         public ChangeDescriptor? ChangeLocalVersions { get; set; }

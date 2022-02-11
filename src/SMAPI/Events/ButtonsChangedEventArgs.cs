@@ -58,7 +58,7 @@ namespace StardewModdingAPI.Events
             foreach (var state in new[] { SButtonState.Pressed, SButtonState.Held, SButtonState.Released })
             {
                 if (!lookup.ContainsKey(state))
-                    lookup[state] = new SButton[0];
+                    lookup[state] = Array.Empty<SButton>();
             }
 
             return lookup;
