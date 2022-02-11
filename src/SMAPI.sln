@@ -101,6 +101,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "lib", "lib", "{3B5BF14D-F61
 		..\build\windows\lib\in-place-regex.ps1 = ..\build\windows\lib\in-place-regex.ps1
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SMAPI.Tests.ModApiProvider", "SMAPI.Tests.ModApiProvider\SMAPI.Tests.ModApiProvider.csproj", "{239AEEAC-07D1-4A3F-AA99-8C74F5038F50}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SMAPI.Tests.ModApiConsumer", "SMAPI.Tests.ModApiConsumer\SMAPI.Tests.ModApiConsumer.csproj", "{2A4DF030-E8B1-4BBD-AA93-D4DE68CB9D85}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		SMAPI.Internal\SMAPI.Internal.projitems*{0634ea4c-3b8f-42db-aea6-ca9e4ef6e92f}*SharedItemsImports = 5
@@ -167,6 +171,14 @@ Global
 		{80EFD92F-728F-41E0-8A5B-9F6F49A91899}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{80EFD92F-728F-41E0-8A5B-9F6F49A91899}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{80EFD92F-728F-41E0-8A5B-9F6F49A91899}.Release|Any CPU.Build.0 = Release|Any CPU
+		{239AEEAC-07D1-4A3F-AA99-8C74F5038F50}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{239AEEAC-07D1-4A3F-AA99-8C74F5038F50}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{239AEEAC-07D1-4A3F-AA99-8C74F5038F50}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{239AEEAC-07D1-4A3F-AA99-8C74F5038F50}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A4DF030-E8B1-4BBD-AA93-D4DE68CB9D85}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A4DF030-E8B1-4BBD-AA93-D4DE68CB9D85}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A4DF030-E8B1-4BBD-AA93-D4DE68CB9D85}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A4DF030-E8B1-4BBD-AA93-D4DE68CB9D85}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -187,6 +199,8 @@ Global
 		{4D661178-38FB-43E4-AA5F-9B0406919344} = {09CF91E5-5BAB-4650-A200-E5EA9A633046}
 		{CAA1488E-842B-433D-994D-1D3D0B5DD125} = {09CF91E5-5BAB-4650-A200-E5EA9A633046}
 		{3B5BF14D-F612-4C83-9EF6-E3EBFCD08766} = {4D661178-38FB-43E4-AA5F-9B0406919344}
+		{239AEEAC-07D1-4A3F-AA99-8C74F5038F50} = {82D22ED7-A0A7-4D64-8E92-4B6A5E74ED11}
+		{2A4DF030-E8B1-4BBD-AA93-D4DE68CB9D85} = {82D22ED7-A0A7-4D64-8E92-4B6A5E74ED11}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {70143042-A862-47A8-A677-7C819DDC90DC}
