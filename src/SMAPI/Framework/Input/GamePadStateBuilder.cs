@@ -104,10 +104,10 @@ namespace StardewModdingAPI.Framework.Input
                         this.LeftStickPos.Y = isDown ? 1 : 0;
                         break;
                     case SButton.LeftThumbstickDown:
-                        this.LeftStickPos.Y = isDown ? 1 : 0;
+                        this.LeftStickPos.Y = isDown ? -1 : 0;
                         break;
                     case SButton.LeftThumbstickLeft:
-                        this.LeftStickPos.X = isDown ? 1 : 0;
+                        this.LeftStickPos.X = isDown ? -1 : 0;
                         break;
                     case SButton.LeftThumbstickRight:
                         this.LeftStickPos.X = isDown ? 1 : 0;
@@ -118,10 +118,10 @@ namespace StardewModdingAPI.Framework.Input
                         this.RightStickPos.Y = isDown ? 1 : 0;
                         break;
                     case SButton.RightThumbstickDown:
-                        this.RightStickPos.Y = isDown ? 1 : 0;
+                        this.RightStickPos.Y = isDown ? -1 : 0;
                         break;
                     case SButton.RightThumbstickLeft:
-                        this.RightStickPos.X = isDown ? 1 : 0;
+                        this.RightStickPos.X = isDown ? -1 : 0;
                         break;
                     case SButton.RightThumbstickRight:
                         this.RightStickPos.X = isDown ? 1 : 0;

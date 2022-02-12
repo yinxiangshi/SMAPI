@@ -7,6 +7,7 @@
 
 * For mod authors:
   * The `SDate` constructor is no longer case-sensitive for season names.
+  * Fixed issue where suppressing `[Left|Right]Thumbstick[Down|Left]` keys would suppress the opposite direction instead.
 
 * For console commands:
   * Fixed `player_add` with Journal Scraps and Secret Notes.
