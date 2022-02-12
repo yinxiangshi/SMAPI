@@ -83,7 +83,7 @@ namespace StardewModdingAPI.Web.ViewModels
 
             // group by mod
             return mods
-                .Where(mod => mod.ContentPackFor != null)
+                .Where(mod => mod.IsContentPack)
                 .GroupBy(mod => mod.ContentPackFor)
                 .ToDictionary(group => group.Key, group => group.ToArray());
         }

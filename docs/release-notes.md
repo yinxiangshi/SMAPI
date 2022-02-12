@@ -13,6 +13,7 @@
   * Fixed `player_add` with Journal Scraps and Secret Notes.
 
 * For the web UI:
+  * Added `data-*` attributes to log parser page for external tools.
   * Fixed JSON validator warning for update keys without a subkey.
 
 ## 3.13.4

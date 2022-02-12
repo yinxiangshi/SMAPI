@@ -35,5 +35,8 @@ namespace StardewModdingAPI.Web.Framework.LogParsing.Models
 
         /// <summary>Whether the mod has an update available.</summary>
         public bool HasUpdate => this.UpdateVersion != null && this.Version != this.UpdateVersion;
+
+        /// <summary>Whether the mod is a content pack for another mod.</summary>
+        public bool IsContentPack => !string.IsNullOrWhiteSpace(this.ContentPackFor);
     }
 }
