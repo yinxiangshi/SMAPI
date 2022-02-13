@@ -92,7 +92,7 @@ namespace StardewModdingAPI.Metadata
             // group into optimized lists
             var buckets = assets.GroupBy(p =>
             {
-                if (this.IsInFolder(p.Key, "Characters") || this.IsInFolder(p.Key, "Characters\\Monsters"))
+                if (this.IsInFolder(p.Key, "Characters") || this.IsInFolder(p.Key, "Characters/Monsters"))
                     return AssetBucket.Sprite;
 
                 if (this.IsInFolder(p.Key, "Portraits"))
@@ -214,22 +214,22 @@ namespace StardewModdingAPI.Metadata
             ** Propagate by key
             ****/
             Reflector reflection = this.Reflection;
-            switch (key.ToLower().Replace("/", "\\")) // normalized key so we can compare statically
+            switch (key.ToLower().Replace("\\", "/")) // normalized key so we can compare statically
             {
                 /****
                 ** Animals
                 ****/
-                case "animals\\horse":
+                case "animals/horse":
                     return !ignoreWorld && this.ReloadPetOrHorseSprites<Horse>(content, key);
 
                 /****
                 ** Buildings
                 ****/
-                case "buildings\\houses": // Farm
+                case "buildings/houses": // Farm
                     Farm.houseTextures = this.LoadAndDisposeIfNeeded(Farm.houseTextures, key);
                     return true;
 
-                case "buildings\\houses_paintmask": // Farm
+                case "buildings/houses_paintmask": // Farm
                     {
                         bool removedFromCache = this.RemoveFromPaintMaskCache(key);
 
@@ -242,149 +242,149 @@ namespace StardewModdingAPI.Metadata
                 /****
                 ** Content\Characters\Farmer
                 ****/
-                case "characters\\farmer\\accessories": // Game1.LoadContent
+                case "characters/farmer/accessories": // Game1.LoadContent
                     FarmerRenderer.accessoriesTexture = this.LoadAndDisposeIfNeeded(FarmerRenderer.accessoriesTexture, key);
                     return true;
 
-                case "characters\\farmer\\farmer_base": // Farmer
-                case "characters\\farmer\\farmer_base_bald":
-                case "characters\\farmer\\farmer_girl_base":
-                case "characters\\farmer\\farmer_girl_base_bald":
+                case "characters/farmer/farmer_base": // Farmer
+                case "characters/farmer/farmer_base_bald":
+                case "characters/farmer/farmer_girl_base":
+                case "characters/farmer/farmer_girl_base_bald":
                     return !ignoreWorld && this.ReloadPlayerSprites(key);
 
-                case "characters\\farmer\\hairstyles": // Game1.LoadContent
+                case "characters/farmer/hairstyles": // Game1.LoadContent
                     FarmerRenderer.hairStylesTexture = this.LoadAndDisposeIfNeeded(FarmerRenderer.hairStylesTexture, key);
                     return true;
 
-                case "characters\\farmer\\hats": // Game1.LoadContent
+                case "characters/farmer/hats": // Game1.LoadContent
                     FarmerRenderer.hatsTexture = this.LoadAndDisposeIfNeeded(FarmerRenderer.hatsTexture, key);
                     return true;
 
-                case "characters\\farmer\\pants": // Game1.LoadContent
+                case "characters/farmer/pants": // Game1.LoadContent
                     FarmerRenderer.pantsTexture = this.LoadAndDisposeIfNeeded(FarmerRenderer.pantsTexture, key);
                     return true;
 
-                case "characters\\farmer\\shirts": // Game1.LoadContent
+                case "characters/farmer/shirts": // Game1.LoadContent
                     FarmerRenderer.shirtsTexture = this.LoadAndDisposeIfNeeded(FarmerRenderer.shirtsTexture, key);
                     return true;
 
                 /****
                 ** Content\Data
                 ****/
-                case "data\\achievements": // Game1.LoadContent
+                case "data/achievements": // Game1.LoadContent
                     Game1.achievements = content.Load<Dictionary<int, string>>(key);
                     return true;
 
-                case "data\\bigcraftablesinformation": // Game1.LoadContent
+                case "data/bigcraftablesinformation": // Game1.LoadContent
                     Game1.bigCraftablesInformation = content.Load<Dictionary<int, string>>(key);
                     return true;
 
-                case "data\\clothinginformation": // Game1.LoadContent
+                case "data/clothinginformation": // Game1.LoadContent
                     Game1.clothingInformation = content.Load<Dictionary<int, string>>(key);
                     return true;
 
-                case "data\\concessions": // MovieTheater.GetConcessions
+                case "data/concessions": // MovieTheater.GetConcessions
                     MovieTheater.ClearCachedLocalizedData();
                     return true;
 
-                case "data\\concessiontastes": // MovieTheater.GetConcessionTasteForCharacter
+                case "data/concessiontastes": // MovieTheater.GetConcessionTasteForCharacter
                     this.Reflection
                         .GetField<List<ConcessionTaste>>(typeof(MovieTheater), "_concessionTastes")
                         .SetValue(content.Load<List<ConcessionTaste>>(key));
                     return true;
 
-                case "data\\cookingrecipes": // CraftingRecipe.InitShared
+                case "data/cookingrecipes": // CraftingRecipe.InitShared
                     CraftingRecipe.cookingRecipes = content.Load<Dictionary<string, string>>(key);
                     return true;
 
-                case "data\\craftingrecipes": // CraftingRecipe.InitShared
+                case "data/craftingrecipes": // CraftingRecipe.InitShared
                     CraftingRecipe.craftingRecipes = content.Load<Dictionary<string, string>>(key);
                     return true;
 
-                case "data\\farmanimals": // FarmAnimal constructor
+                case "data/farmanimals": // FarmAnimal constructor
                     return !ignoreWorld && this.ReloadFarmAnimalData();
 
-                case "data\\hairdata": // Farmer.GetHairStyleMetadataFile
+                case "data/hairdata": // Farmer.GetHairStyleMetadataFile
                     return this.ReloadHairData();
 
-                case "data\\movies": // MovieTheater.GetMovieData
-                case "data\\moviesreactions": // MovieTheater.GetMovieReactions
+                case "data/movies": // MovieTheater.GetMovieData
+                case "data/moviesreactions": // MovieTheater.GetMovieReactions
                     MovieTheater.ClearCachedLocalizedData();
                     return true;
 
-                case "data\\npcdispositions": // NPC constructor
+                case "data/npcdispositions": // NPC constructor
                     return !ignoreWorld && this.ReloadNpcDispositions(content, key);
 
-                case "data\\npcgifttastes": // Game1.LoadContent
+                case "data/npcgifttastes": // Game1.LoadContent
                     Game1.NPCGiftTastes = content.Load<Dictionary<string, string>>(key);
                     return true;
 
-                case "data\\objectcontexttags": // Game1.LoadContent
+                case "data/objectcontexttags": // Game1.LoadContent
                     Game1.objectContextTags = content.Load<Dictionary<string, string>>(key);
                     return true;
 
-                case "data\\objectinformation": // Game1.LoadContent
+                case "data/objectinformation": // Game1.LoadContent
                     Game1.objectInformation = content.Load<Dictionary<int, string>>(key);
                     return true;
 
                 /****
                 ** Content\Fonts
                 ****/
-                case "fonts\\spritefont1": // Game1.LoadContent
+                case "fonts/spritefont1": // Game1.LoadContent
                     Game1.dialogueFont = content.Load<SpriteFont>(key);
                     return true;
 
-                case "fonts\\smallfont": // Game1.LoadContent
+                case "fonts/smallfont": // Game1.LoadContent
                     Game1.smallFont = content.Load<SpriteFont>(key);
                     return true;
 
-                case "fonts\\tinyfont": // Game1.LoadContent
+                case "fonts/tinyfont": // Game1.LoadContent
                     Game1.tinyFont = content.Load<SpriteFont>(key);
                     return true;
 
-                case "fonts\\tinyfontborder": // Game1.LoadContent
+                case "fonts/tinyfontborder": // Game1.LoadContent
                     Game1.tinyFontBorder = content.Load<SpriteFont>(key);
                     return true;
 
                 /****
                 ** Content\LooseSprites\Lighting
                 ****/
-                case "loosesprites\\lighting\\greenlight": // Game1.LoadContent
+                case "loosesprites/lighting/greenlight": // Game1.LoadContent
                     Game1.cauldronLight = content.Load<Texture2D>(key);
                     return true;
 
-                case "loosesprites\\lighting\\indoorwindowlight": // Game1.LoadContent
+                case "loosesprites/lighting/indoorwindowlight": // Game1.LoadContent
                     Game1.indoorWindowLight = content.Load<Texture2D>(key);
                     return true;
 
-                case "loosesprites\\lighting\\lantern": // Game1.LoadContent
+                case "loosesprites/lighting/lantern": // Game1.LoadContent
                     Game1.lantern = content.Load<Texture2D>(key);
                     return true;
 
-                case "loosesprites\\lighting\\sconcelight": // Game1.LoadContent
+                case "loosesprites/lighting/sconcelight": // Game1.LoadContent
                     Game1.sconceLight = content.Load<Texture2D>(key);
                     return true;
 
-                case "loosesprites\\lighting\\windowlight": // Game1.LoadContent
+                case "loosesprites/lighting/windowlight": // Game1.LoadContent
                     Game1.windowLight = content.Load<Texture2D>(key);
                     return true;
 
                 /****
                 ** Content\LooseSprites
                 ****/
-                case "loosesprites\\birds": // Game1.LoadContent
+                case "loosesprites/birds": // Game1.LoadContent
                     Game1.birdsSpriteSheet = content.Load<Texture2D>(key);
                     return true;
 
-                case "loosesprites\\concessions": // Game1.LoadContent
+                case "loosesprites/concessions": // Game1.LoadContent
                     Game1.concessionsSpriteSheet = content.Load<Texture2D>(key);
                     return true;
 
-                case "loosesprites\\controllermaps": // Game1.LoadContent
+                case "loosesprites/controllermaps": // Game1.LoadContent
                     Game1.controllerMaps = content.Load<Texture2D>(key);
                     return true;
 
-                case "loosesprites\\cursors": // Game1.LoadContent
+                case "loosesprites/cursors": // Game1.LoadContent
                     Game1.mouseCursors = content.Load<Texture2D>(key);
                     foreach (DayTimeMoneyBox menu in Game1.onScreenMenus.OfType<DayTimeMoneyBox>())
                     {
@@ -396,56 +396,56 @@ namespace StardewModdingAPI.Metadata
                         this.ReloadDoorSprites(content, key);
                     return true;
 
-                case "loosesprites\\cursors2": // Game1.LoadContent
+                case "loosesprites/cursors2": // Game1.LoadContent
                     Game1.mouseCursors2 = content.Load<Texture2D>(key);
                     return true;
 
-                case "loosesprites\\daybg": // Game1.LoadContent
+                case "loosesprites/daybg": // Game1.LoadContent
                     Game1.daybg = content.Load<Texture2D>(key);
                     return true;
 
-                case "loosesprites\\font_bold": // Game1.LoadContent
+                case "loosesprites/font_bold": // Game1.LoadContent
                     SpriteText.spriteTexture = content.Load<Texture2D>(key);
                     return true;
 
-                case "loosesprites\\font_colored": // Game1.LoadContent
+                case "loosesprites/font_colored": // Game1.LoadContent
                     SpriteText.coloredTexture = content.Load<Texture2D>(key);
                     return true;
 
-                case "loosesprites\\giftbox": // Game1.LoadContent
+                case "loosesprites/giftbox": // Game1.LoadContent
                     Game1.giftboxTexture = content.Load<Texture2D>(key);
                     return true;
 
-                case "loosesprites\\nightbg": // Game1.LoadContent
+                case "loosesprites/nightbg": // Game1.LoadContent
                     Game1.nightbg = content.Load<Texture2D>(key);
                     return true;
 
-                case "loosesprites\\shadow": // Game1.LoadContent
+                case "loosesprites/shadow": // Game1.LoadContent
                     Game1.shadowTexture = content.Load<Texture2D>(key);
                     return true;
 
-                case "loosesprites\\suspensionbridge": // SuspensionBridge constructor
+                case "loosesprites/suspensionbridge": // SuspensionBridge constructor
                     return !ignoreWorld && this.ReloadSuspensionBridges(content, key);
 
                 /****
                 ** Content\Maps
                 ****/
-                case "maps\\menutiles": // Game1.LoadContent
+                case "maps/menutiles": // Game1.LoadContent
                     Game1.menuTexture = content.Load<Texture2D>(key);
                     return true;
 
-                case "maps\\menutilesuncolored": // Game1.LoadContent
+                case "maps/menutilesuncolored": // Game1.LoadContent
                     Game1.uncoloredMenuTexture = content.Load<Texture2D>(key);
                     return true;
 
-                case "maps\\springobjects": // Game1.LoadContent
+                case "maps/springobjects": // Game1.LoadContent
                     Game1.objectSpriteSheet = content.Load<Texture2D>(key);
                     return true;
 
                 /****
                 ** Content\Minigames
                 ****/
-                case "minigames\\clouds": // TitleMenu
+                case "minigames/clouds": // TitleMenu
                     {
                         if (Game1.activeClickableMenu is TitleMenu titleMenu)
                         {
@@ -455,127 +455,127 @@ namespace StardewModdingAPI.Metadata
                     }
                     return false;
 
-                case "minigames\\titlebuttons": // TitleMenu
+                case "minigames/titlebuttons": // TitleMenu
                     return this.ReloadTitleButtons(content, key);
 
                 /****
                 ** Content\Strings
                 ****/
-                case "strings\\stringsfromcsfiles":
+                case "strings/stringsfromcsfiles":
                     return this.ReloadStringsFromCsFiles(content);
 
                 /****
                 ** Content\TileSheets
                 ****/
-                case "tilesheets\\animations": // Game1.LoadContent
+                case "tilesheets/animations": // Game1.LoadContent
                     Game1.animations = content.Load<Texture2D>(key);
                     return true;
 
-                case "tilesheets\\buffsicons": // Game1.LoadContent
+                case "tilesheets/buffsicons": // Game1.LoadContent
                     Game1.buffsIcons = content.Load<Texture2D>(key);
                     return true;
 
-                case "tilesheets\\bushes": // new Bush()
+                case "tilesheets/bushes": // new Bush()
                     Bush.texture = new Lazy<Texture2D>(() => content.Load<Texture2D>(key));
                     return true;
 
-                case "tilesheets\\chairtiles": // Game1.LoadContent
+                case "tilesheets/chairtiles": // Game1.LoadContent
                     return this.ReloadChairTiles(content, key, ignoreWorld);
 
-                case "tilesheets\\craftables": // Game1.LoadContent
+                case "tilesheets/craftables": // Game1.LoadContent
                     Game1.bigCraftableSpriteSheet = content.Load<Texture2D>(key);
                     return true;
 
-                case "tilesheets\\critters": // Critter constructor
+                case "tilesheets/critters": // Critter constructor
                     return !ignoreWorld && this.ReloadCritterTextures(content, key) > 0;
 
-                case "tilesheets\\crops": // Game1.LoadContent
+                case "tilesheets/crops": // Game1.LoadContent
                     Game1.cropSpriteSheet = content.Load<Texture2D>(key);
                     return true;
 
-                case "tilesheets\\debris": // Game1.LoadContent
+                case "tilesheets/debris": // Game1.LoadContent
                     Game1.debrisSpriteSheet = content.Load<Texture2D>(key);
                     return true;
 
-                case "tilesheets\\emotes": // Game1.LoadContent
+                case "tilesheets/emotes": // Game1.LoadContent
                     Game1.emoteSpriteSheet = content.Load<Texture2D>(key);
                     return true;
 
-                case "tilesheets\\fruittrees": // FruitTree
+                case "tilesheets/fruittrees": // FruitTree
                     FruitTree.texture = content.Load<Texture2D>(key);
                     return true;
 
-                case "tilesheets\\furniture": // Game1.LoadContent
+                case "tilesheets/furniture": // Game1.LoadContent
                     Furniture.furnitureTexture = content.Load<Texture2D>(key);
                     return true;
 
-                case "tilesheets\\furniturefront": // Game1.LoadContent
+                case "tilesheets/furniturefront": // Game1.LoadContent
                     Furniture.furnitureFrontTexture = content.Load<Texture2D>(key);
                     return true;
 
-                case "tilesheets\\projectiles": // Game1.LoadContent
+                case "tilesheets/projectiles": // Game1.LoadContent
                     Projectile.projectileSheet = content.Load<Texture2D>(key);
                     return true;
 
-                case "tilesheets\\rain": // Game1.LoadContent
+                case "tilesheets/rain": // Game1.LoadContent
                     Game1.rainTexture = content.Load<Texture2D>(key);
                     return true;
 
-                case "tilesheets\\tools": // Game1.ResetToolSpriteSheet
+                case "tilesheets/tools": // Game1.ResetToolSpriteSheet
                     Game1.ResetToolSpriteSheet();
                     return true;
 
-                case "tilesheets\\weapons": // Game1.LoadContent
+                case "tilesheets/weapons": // Game1.LoadContent
                     Tool.weaponsTexture = content.Load<Texture2D>(key);
                     return true;
 
                 /****
                 ** Content\TerrainFeatures
                 ****/
-                case "terrainfeatures\\flooring": // from Flooring
+                case "terrainfeatures/flooring": // from Flooring
                     Flooring.floorsTexture = content.Load<Texture2D>(key);
                     return true;
 
-                case "terrainfeatures\\flooring_winter": // from Flooring
+                case "terrainfeatures/flooring_winter": // from Flooring
                     Flooring.floorsTextureWinter = content.Load<Texture2D>(key);
                     return true;
 
-                case "terrainfeatures\\grass": // from Grass
+                case "terrainfeatures/grass": // from Grass
                     return !ignoreWorld && this.ReloadGrassTextures(content, key);
 
-                case "terrainfeatures\\hoedirt": // from HoeDirt
+                case "terrainfeatures/hoedirt": // from HoeDirt
                     HoeDirt.lightTexture = content.Load<Texture2D>(key);
                     return true;
 
-                case "terrainfeatures\\hoedirtdark": // from HoeDirt
+                case "terrainfeatures/hoedirtdark": // from HoeDirt
                     HoeDirt.darkTexture = content.Load<Texture2D>(key);
                     return true;
 
-                case "terrainfeatures\\hoedirtsnow": // from HoeDirt
+                case "terrainfeatures/hoedirtsnow": // from HoeDirt
                     HoeDirt.snowTexture = content.Load<Texture2D>(key);
                     return true;
 
-                case "terrainfeatures\\mushroom_tree": // from Tree
+                case "terrainfeatures/mushroom_tree": // from Tree
                     return !ignoreWorld && this.ReloadTreeTextures(content, key, Tree.mushroomTree);
 
-                case "terrainfeatures\\tree_palm": // from Tree
+                case "terrainfeatures/tree_palm": // from Tree
                     return !ignoreWorld && this.ReloadTreeTextures(content, key, Tree.palmTree);
 
-                case "terrainfeatures\\tree1_fall": // from Tree
-                case "terrainfeatures\\tree1_spring": // from Tree
-                case "terrainfeatures\\tree1_summer": // from Tree
-                case "terrainfeatures\\tree1_winter": // from Tree
+                case "terrainfeatures/tree1_fall": // from Tree
+                case "terrainfeatures/tree1_spring": // from Tree
+                case "terrainfeatures/tree1_summer": // from Tree
+                case "terrainfeatures/tree1_winter": // from Tree
                     return !ignoreWorld && this.ReloadTreeTextures(content, key, Tree.bushyTree);
 
-                case "terrainfeatures\\tree2_fall": // from Tree
-                case "terrainfeatures\\tree2_spring": // from Tree
-                case "terrainfeatures\\tree2_summer": // from Tree
-                case "terrainfeatures\\tree2_winter": // from Tree
+                case "terrainfeatures/tree2_fall": // from Tree
+                case "terrainfeatures/tree2_spring": // from Tree
+                case "terrainfeatures/tree2_summer": // from Tree
+                case "terrainfeatures/tree2_winter": // from Tree
                     return !ignoreWorld && this.ReloadTreeTextures(content, key, Tree.leafyTree);
 
-                case "terrainfeatures\\tree3_fall": // from Tree
-                case "terrainfeatures\\tree3_spring": // from Tree
-                case "terrainfeatures\\tree3_winter": // from Tree
+                case "terrainfeatures/tree3_fall": // from Tree
+                case "terrainfeatures/tree3_spring": // from Tree
+                case "terrainfeatures/tree3_winter": // from Tree
                     return !ignoreWorld && this.ReloadTreeTextures(content, key, Tree.pineTree);
             }
 
@@ -585,9 +585,9 @@ namespace StardewModdingAPI.Metadata
             if (!ignoreWorld)
             {
                 // dynamic textures
-                if (this.KeyStartsWith(key, "animals\\cat"))
+                if (this.KeyStartsWith(key, "animals/cat"))
                     return this.ReloadPetOrHorseSprites<Cat>(content, key);
-                if (this.KeyStartsWith(key, "animals\\dog"))
+                if (this.KeyStartsWith(key, "animals/dog"))
                     return this.ReloadPetOrHorseSprites<Dog>(content, key);
                 if (this.IsInFolder(key, "Animals"))
                     return this.ReloadFarmAnimalSprites(content, key);
@@ -595,14 +595,14 @@ namespace StardewModdingAPI.Metadata
                 if (this.IsInFolder(key, "Buildings"))
                     return this.ReloadBuildings(key);
 
-                if (this.KeyStartsWith(key, "LooseSprites\\Fence"))
+                if (this.KeyStartsWith(key, "LooseSprites/Fence"))
                     return this.ReloadFenceTextures(key);
 
                 // dynamic data
-                if (this.IsInFolder(key, "Characters\\Dialogue"))
+                if (this.IsInFolder(key, "Characters/Dialogue"))
                     return this.ReloadNpcDialogue(key);
 
-                if (this.IsInFolder(key, "Characters\\schedules"))
+                if (this.IsInFolder(key, "Characters/schedules"))
                     return this.ReloadNpcSchedules(key);
             }
 
@@ -687,7 +687,7 @@ namespace StardewModdingAPI.Metadata
                     : animal.type.Value;
                 if (animal.showDifferentTextureWhenReadyForHarvest.Value && animal.currentProduce.Value <= 0)
                     expectedKey = $"Sheared{expectedKey}";
-                expectedKey = $"Animals\\{expectedKey}";
+                expectedKey = $"Animals/{expectedKey}";
 
                 // reload asset
                 if (this.IsSameAssetKey(expectedKey, key))
@@ -1153,17 +1153,17 @@ namespace StardewModdingAPI.Metadata
         /// <remarks>Derived from the <see cref="Game1.TranslateFields"/>.</remarks>
         private bool ReloadStringsFromCsFiles(LocalizedContentManager content)
         {
-            Game1.samBandName = content.LoadString("Strings\\StringsFromCSFiles:Game1.cs.2156");
-            Game1.elliottBookName = content.LoadString("Strings\\StringsFromCSFiles:Game1.cs.2157");
+            Game1.samBandName = content.LoadString("Strings/StringsFromCSFiles:Game1.cs.2156");
+            Game1.elliottBookName = content.LoadString("Strings/StringsFromCSFiles:Game1.cs.2157");
 
             string[] dayNames = this.Reflection.GetField<string[]>(typeof(Game1), "_shortDayDisplayName").GetValue();
-            dayNames[0] = content.LoadString("Strings\\StringsFromCSFiles:Game1.cs.3042");
-            dayNames[1] = content.LoadString("Strings\\StringsFromCSFiles:Game1.cs.3043");
-            dayNames[2] = content.LoadString("Strings\\StringsFromCSFiles:Game1.cs.3044");
-            dayNames[3] = content.LoadString("Strings\\StringsFromCSFiles:Game1.cs.3045");
-            dayNames[4] = content.LoadString("Strings\\StringsFromCSFiles:Game1.cs.3046");
-            dayNames[5] = content.LoadString("Strings\\StringsFromCSFiles:Game1.cs.3047");
-            dayNames[6] = content.LoadString("Strings\\StringsFromCSFiles:Game1.cs.3048");
+            dayNames[0] = content.LoadString("Strings/StringsFromCSFiles:Game1.cs.3042");
+            dayNames[1] = content.LoadString("Strings/StringsFromCSFiles:Game1.cs.3043");
+            dayNames[2] = content.LoadString("Strings/StringsFromCSFiles:Game1.cs.3044");
+            dayNames[3] = content.LoadString("Strings/StringsFromCSFiles:Game1.cs.3045");
+            dayNames[4] = content.LoadString("Strings/StringsFromCSFiles:Game1.cs.3046");
+            dayNames[5] = content.LoadString("Strings/StringsFromCSFiles:Game1.cs.3047");
+            dayNames[6] = content.LoadString("Strings/StringsFromCSFiles:Game1.cs.3048");
 
             return true;
         }
@@ -1272,7 +1272,7 @@ namespace StardewModdingAPI.Metadata
         private bool IsInFolder(string key, string folder, bool allowSubfolders = false)
         {
             return
-                this.KeyStartsWith(key, $"{folder}\\")
+                this.KeyStartsWith(key, $"{folder}/")
                 && (allowSubfolders || this.CountSegments(key) == this.CountSegments(folder) + 1);
         }
 
