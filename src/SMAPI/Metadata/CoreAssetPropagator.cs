@@ -170,7 +170,7 @@ namespace StardewModdingAPI.Metadata
             {
                 foreach (TileSheet tilesheet in Game1.currentLocation.map.TileSheets)
                 {
-                    if (this.NormalizeAssetNameIgnoringEmpty(tilesheet.ImageSource) == key)
+                    if (this.IsSameAssetKey(tilesheet.ImageSource, key))
                         Game1.mapDisplayDevice.LoadTileSheet(tilesheet);
                 }
             }
@@ -188,7 +188,7 @@ namespace StardewModdingAPI.Metadata
                     {
                         GameLocation location = info.Location;
 
-                        if (!string.IsNullOrWhiteSpace(location.mapPath.Value) && this.NormalizeAssetNameIgnoringEmpty(location.mapPath.Value) == key)
+                        if (this.IsSameAssetKey(location.mapPath.Value, key))
                         {
                             static ISet<string> GetWarpSet(GameLocation location)
                             {
@@ -653,7 +653,7 @@ namespace StardewModdingAPI.Metadata
             // find matches
             TAnimal[] animals = this.GetCharacters()
                 .OfType<TAnimal>()
-                .Where(p => key == this.NormalizeAssetNameIgnoringEmpty(p.Sprite?.Texture?.Name))
+                .Where(p => this.IsSameAssetKey(p.Sprite?.Texture?.Name, key))
                 .ToArray();
             if (!animals.Any())
                 return false;
@@ -690,7 +690,7 @@ namespace StardewModdingAPI.Metadata
                 expectedKey = $"Animals\\{expectedKey}";
 
                 // reload asset
-                if (expectedKey == key)
+                if (this.IsSameAssetKey(expectedKey, key))
                     animal.Sprite.spriteTexture = texture.Value;
             }
             return texture.IsValueCreated;
@@ -747,9 +747,7 @@ namespace StardewModdingAPI.Metadata
                 {
                     foreach (MapSeat seat in location.mapSeats.Where(p => p != null))
                     {
-                        string curKey = this.NormalizeAssetNameIgnoringEmpty(seat._loadedTextureFile);
-
-                        if (curKey == null || key.Equals(curKey, StringComparison.OrdinalIgnoreCase))
+                        if (this.IsSameAssetKey(seat._loadedTextureFile, key))
                             seat.overlayTexture = MapSeat.mapChairTexture;
                     }
                 }
@@ -770,7 +768,7 @@ namespace StardewModdingAPI.Metadata
                     from location in this.GetLocations()
                     where location.critters != null
                     from Critter critter in location.critters
-                    where this.NormalizeAssetNameIgnoringEmpty(critter.sprite?.Texture?.Name) == key
+                    where this.IsSameAssetKey(critter.sprite?.Texture?.Name, key)
                     select critter
                 )
                 .ToArray();
@@ -804,11 +802,9 @@ namespace StardewModdingAPI.Metadata
                     if (door?.Sprite == null)
                         continue;
 
-                    string textureName = this.NormalizeAssetNameIgnoringEmpty(this.Reflection.GetField<string>(door.Sprite, "textureName").GetValue());
-                    if (textureName != key)
-                        continue;
-
-                    door.Sprite.texture = texture.Value;
+                    string curKey = this.Reflection.GetField<string>(door.Sprite, "textureName").GetValue();
+                    if (this.IsSameAssetKey(curKey, key))
+                        door.Sprite.texture = texture.Value;
                 }
             }
 
@@ -867,7 +863,7 @@ namespace StardewModdingAPI.Metadata
                 (
                     from location in this.GetLocations()
                     from grass in location.terrainFeatures.Values.OfType<Grass>()
-                    where this.NormalizeAssetNameIgnoringEmpty(grass.textureName()) == key
+                    where this.IsSameAssetKey(grass.textureName(), key)
                     select grass
                 )
                 .ToArray();
@@ -1024,7 +1020,7 @@ namespace StardewModdingAPI.Metadata
             Farmer[] players =
                 (
                     from player in Game1.getOnlineFarmers()
-                    where key == this.NormalizeAssetNameIgnoringEmpty(player.getTexture())
+                    where this.IsSameAssetKey(player.getTexture(), key)
                     select player
                 )
                 .ToArray();
@@ -1245,6 +1241,17 @@ namespace StardewModdingAPI.Metadata
                 return null;
 
             return this.AssertAndNormalizeAssetName(path);
+        }
+
+        /// <summary>Get whether a given asset key is equivalent to a normalized asset key, ignoring unimportant differences like capitalization and formatting.</summary>
+        /// <param name="actualKey">The actual key to check.</param>
+        /// <param name="normalizedKey">The key to match, already normalized via <see cref="AssertAndNormalizeAssetName"/> or <see cref="NormalizeAssetNameIgnoringEmpty"/>.</param>
+        private bool IsSameAssetKey(string actualKey, string normalizedKey)
+        {
+            if (actualKey is null || normalizedKey is null)
+                return false;
+
+            return normalizedKey.Equals(PathUtilities.NormalizeAssetName(actualKey), StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>Get whether a key starts with a substring after the substring is normalized.</summary>
