@@ -28,6 +28,7 @@
     <PackageReference Include="Platonymous.TMXTile" Version="1.5.9" />
     <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
     <PackageReference Include="System.Runtime.Caching" Version="5.0.0" />
+    <PackageReference Include="Pintail" Version="1.2.0" />
   </ItemGroup>
 
   <ItemGroup>

@@ -25,12 +25,5 @@ namespace StardewModdingAPI
         /// <typeparam name="TInterface">The interface which matches the properties and methods you intend to access.</typeparam>
         /// <param name="uniqueID">The mod's unique ID.</param>
         TInterface GetApi<TInterface>(string uniqueID) where TInterface : class;
-
-        /// <summary>Try to proxy (or unproxy back) the given object to a given interface provided by a mod.</summary>
-        /// <typeparam name="TInterface">The interface type to proxy (or unproxy) to.</typeparam>
-        /// <param name="uniqueID">The mod's unique ID.</param>
-        /// <param name="toProxy">The object to try to proxy (or unproxy back).</param>
-        /// <param name="proxy">The reference to store the proxied (or unproxied) object back.</param>
-        bool TryProxy<TInterface>(string uniqueID, object toProxy, out TInterface proxy) where TInterface : class;
     }
 }
