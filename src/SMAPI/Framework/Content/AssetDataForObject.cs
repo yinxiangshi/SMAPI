@@ -13,10 +13,10 @@ namespace StardewModdingAPI.Framework.Content
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="locale">The content's locale code, if the content is localized.</param>
-        /// <param name="assetName">The normalized asset name being read.</param>
+        /// <param name="assetName">The asset name being read.</param>
         /// <param name="data">The content data being read.</param>
         /// <param name="getNormalizedPath">Normalizes an asset key to match the cache key.</param>
-        public AssetDataForObject(string locale, string assetName, object data, Func<string, string> getNormalizedPath)
+        public AssetDataForObject(string locale, IAssetName assetName, object data, Func<string, string> getNormalizedPath)
             : base(locale, assetName, data, getNormalizedPath, onDataReplaced: null) { }
 
         /// <summary>Construct an instance.</summary>
@@ -24,24 +24,24 @@ namespace StardewModdingAPI.Framework.Content
         /// <param name="data">The content data being read.</param>
         /// <param name="getNormalizedPath">Normalizes an asset key to match the cache key.</param>
         public AssetDataForObject(IAssetInfo info, object data, Func<string, string> getNormalizedPath)
-            : this(info.Locale, info.AssetName, data, getNormalizedPath) { }
+            : this(info.Locale, info.Name, data, getNormalizedPath) { }
 
         /// <inheritdoc />
         public IAssetDataForDictionary<TKey, TValue> AsDictionary<TKey, TValue>()
         {
-            return new AssetDataForDictionary<TKey, TValue>(this.Locale, this.AssetName, this.GetData<IDictionary<TKey, TValue>>(), this.GetNormalizedPath, this.ReplaceWith);
+            return new AssetDataForDictionary<TKey, TValue>(this.Locale, this.Name, this.GetData<IDictionary<TKey, TValue>>(), this.GetNormalizedPath, this.ReplaceWith);
         }
 
         /// <inheritdoc />
         public IAssetDataForImage AsImage()
         {
-            return new AssetDataForImage(this.Locale, this.AssetName, this.GetData<Texture2D>(), this.GetNormalizedPath, this.ReplaceWith);
+            return new AssetDataForImage(this.Locale, this.Name, this.GetData<Texture2D>(), this.GetNormalizedPath, this.ReplaceWith);
         }
 
         /// <inheritdoc />
         public IAssetDataForMap AsMap()
         {
-            return new AssetDataForMap(this.Locale, this.AssetName, this.GetData<Map>(), this.GetNormalizedPath, this.ReplaceWith);
+            return new AssetDataForMap(this.Locale, this.Name, this.GetData<Map>(), this.GetNormalizedPath, this.ReplaceWith);
         }
 
         /// <inheritdoc />

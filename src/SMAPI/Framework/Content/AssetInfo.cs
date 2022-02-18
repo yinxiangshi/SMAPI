@@ -20,7 +20,11 @@ namespace StardewModdingAPI.Framework.Content
         public string Locale { get; }
 
         /// <inheritdoc />
-        public string AssetName { get; }
+        public IAssetName Name { get; }
+
+        /// <inheritdoc />
+        [Obsolete($"Use {nameof(Name)} instead.")]
+        public string AssetName => this.Name.Name;
 
         /// <inheritdoc />
         public Type DataType { get; }
@@ -31,22 +35,22 @@ namespace StardewModdingAPI.Framework.Content
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="locale">The content's locale code, if the content is localized.</param>
-        /// <param name="assetName">The normalized asset name being read.</param>
+        /// <param name="assetName">The asset name being read.</param>
         /// <param name="type">The content type being read.</param>
         /// <param name="getNormalizedPath">Normalizes an asset key to match the cache key.</param>
-        public AssetInfo(string locale, string assetName, Type type, Func<string, string> getNormalizedPath)
+        public AssetInfo(string locale, IAssetName assetName, Type type, Func<string, string> getNormalizedPath)
         {
             this.Locale = locale;
-            this.AssetName = assetName;
+            this.Name = assetName;
             this.DataType = type;
             this.GetNormalizedPath = getNormalizedPath;
         }
 
         /// <inheritdoc />
+        [Obsolete($"Use {nameof(Name)}.{nameof(IAssetName.IsEquivalentTo)} instead.")]
         public bool AssetNameEquals(string path)
         {
-            path = this.GetNormalizedPath(path);
-            return this.AssetName.Equals(path, StringComparison.OrdinalIgnoreCase);
+            return this.Name.IsEquivalentTo(path);
         }
 
 

@@ -248,6 +248,16 @@ namespace StardewModdingAPI.Framework
                 this.InvalidateCache((contentManager, key, type) => contentManager is GameContentManager);
         }
 
+        /// <summary>Parse a raw asset name.</summary>
+        /// <param name="rawName">The raw asset name to parse.</param>
+        /// <exception cref="ArgumentException">The <paramref name="rawName"/> is null or empty.</exception>
+        public AssetName ParseAssetName(string rawName)
+        {
+            return !string.IsNullOrWhiteSpace(rawName)
+                ? AssetName.Parse(rawName, parseLocale: locale => this.LocaleCodes.Value.TryGetValue(locale, out LocalizedContentManager.LanguageCode langCode) ? langCode : null)
+                : throw new ArgumentException("The asset name can't be null or empty.", nameof(rawName));
+        }
+
         /// <summary>Get whether this asset is mapped to a mod folder.</summary>
         /// <param name="key">The asset key.</param>
         public bool IsManagedAssetKey(string key)
@@ -306,11 +316,12 @@ namespace StardewModdingAPI.Framework
         /// <param name="predicate">Matches the asset keys to invalidate.</param>
         /// <param name="dispose">Whether to dispose invalidated assets. This should only be <c>true</c> when they're being invalidated as part of a dispose, to avoid crashing the game.</param>
         /// <returns>Returns the invalidated asset keys.</returns>
-        public IEnumerable<string> InvalidateCache(Func<IAssetInfo, bool> predicate, bool dispose = false)
+        public IEnumerable<IAssetName> InvalidateCache(Func<IAssetInfo, bool> predicate, bool dispose = false)
         {
             string locale = this.GetLocale();
-            return this.InvalidateCache((contentManager, assetName, type) =>
+            return this.InvalidateCache((contentManager, rawName, type) =>
             {
+                IAssetName assetName = this.ParseAssetName(rawName);
                 IAssetInfo info = new AssetInfo(locale, assetName, type, this.MainContentManager.AssertAndNormalizeAssetName);
                 return predicate(info);
             }, dispose);
@@ -320,10 +331,10 @@ namespace StardewModdingAPI.Framework
         /// <param name="predicate">Matches the asset keys to invalidate.</param>
         /// <param name="dispose">Whether to dispose invalidated assets. This should only be <c>true</c> when they're being invalidated as part of a dispose, to avoid crashing the game.</param>
         /// <returns>Returns the invalidated asset names.</returns>
-        public IEnumerable<string> InvalidateCache(Func<IContentManager, string, Type, bool> predicate, bool dispose = false)
+        public IEnumerable<IAssetName> InvalidateCache(Func<IContentManager, string, Type, bool> predicate, bool dispose = false)
         {
             // invalidate cache & track removed assets
-            IDictionary<string, Type> removedAssets = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
+            IDictionary<IAssetName, Type> removedAssets = new Dictionary<IAssetName, Type>();
             this.ContentManagerLock.InReadLock(() =>
             {
                 // cached assets
@@ -331,8 +342,9 @@ namespace StardewModdingAPI.Framework
                 {
                     foreach (var entry in contentManager.InvalidateCache((key, type) => predicate(contentManager, key, type), dispose))
                     {
-                        if (!removedAssets.ContainsKey(entry.Key))
-                            removedAssets[entry.Key] = entry.Value.GetType();
+                        AssetName assetName = this.ParseAssetName(entry.Key);
+                        if (!removedAssets.ContainsKey(assetName))
+                            removedAssets[assetName] = entry.Value.GetType();
                     }
                 }
 
@@ -346,8 +358,8 @@ namespace StardewModdingAPI.Framework
                             continue;
 
                         // get map path
-                        string mapPath = this.MainContentManager.AssertAndNormalizeAssetName(location.mapPath.Value);
-                        if (!removedAssets.ContainsKey(mapPath) && predicate(this.MainContentManager, mapPath, typeof(Map)))
+                        AssetName mapPath = this.ParseAssetName(this.MainContentManager.AssertAndNormalizeAssetName(location.mapPath.Value));
+                        if (!removedAssets.ContainsKey(mapPath) && predicate(this.MainContentManager, mapPath.Name, typeof(Map)))
                             removedAssets[mapPath] = typeof(Map);
                     }
                 }
@@ -360,17 +372,17 @@ namespace StardewModdingAPI.Framework
                 this.CoreAssets.Propagate(
                     assets: removedAssets.ToDictionary(p => p.Key, p => p.Value),
                     ignoreWorld: Context.IsWorldFullyUnloaded,
-                    out IDictionary<string, bool> propagated,
+                    out IDictionary<IAssetName, bool> propagated,
                     out bool updatedNpcWarps
                 );
 
                 // log summary
                 StringBuilder report = new();
                 {
-                    string[] invalidatedKeys = removedAssets.Keys.ToArray();
-                    string[] propagatedKeys = propagated.Where(p => p.Value).Select(p => p.Key).ToArray();
+                    IAssetName[] invalidatedKeys = removedAssets.Keys.ToArray();
+                    IAssetName[] propagatedKeys = propagated.Where(p => p.Value).Select(p => p.Key).ToArray();
 
-                    string FormatKeyList(IEnumerable<string> keys) => string.Join(", ", keys.OrderBy(p => p, StringComparer.OrdinalIgnoreCase));
+                    string FormatKeyList(IEnumerable<IAssetName> keys) => string.Join(", ", keys.Select(p => p.Name).OrderBy(p => p, StringComparer.OrdinalIgnoreCase));
 
                     report.AppendLine($"Invalidated {invalidatedKeys.Length} asset names ({FormatKeyList(invalidatedKeys)}).");
                     report.AppendLine(propagated.Count > 0
@@ -420,15 +432,6 @@ namespace StardewModdingAPI.Framework
             }
 
             return tilesheets ?? Array.Empty<TilesheetReference>();
-        }
-
-        /// <summary>Get the language enum which corresponds to a locale code (e.g. <see cref="LocalizedContentManager.LanguageCode.fr"/> given <c>fr-FR</c>).</summary>
-        /// <param name="locale">The locale code to search. This must exactly match the language; no fallback is performed.</param>
-        /// <param name="language">The matched language enum, if any.</param>
-        /// <returns>Returns whether a valid language was found.</returns>
-        public bool TryGetLanguageEnum(string locale, out LocalizedContentManager.LanguageCode language)
-        {
-            return this.LocaleCodes.Value.TryGetValue(locale, out language);
         }
 
         /// <summary>Get the locale code which corresponds to a language enum (e.g. <c>fr-FR</c> given <see cref="LocalizedContentManager.LanguageCode.fr"/>).</summary>

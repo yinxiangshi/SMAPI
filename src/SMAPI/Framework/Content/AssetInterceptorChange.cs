@@ -70,7 +70,7 @@ namespace StardewModdingAPI.Framework.Content
                 }
                 catch (Exception ex)
                 {
-                    this.Mod.LogAsMod($"Mod failed when checking whether it could edit asset '{asset.AssetName}'. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
+                    this.Mod.LogAsMod($"Mod failed when checking whether it could edit asset '{asset.Name}'. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
                 }
             }
 
@@ -84,7 +84,7 @@ namespace StardewModdingAPI.Framework.Content
                 }
                 catch (Exception ex)
                 {
-                    this.Mod.LogAsMod($"Mod failed when checking whether it could load asset '{asset.AssetName}'. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
+                    this.Mod.LogAsMod($"Mod failed when checking whether it could load asset '{asset.Name}'. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
                 }
             }
 

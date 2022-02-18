@@ -160,14 +160,6 @@ namespace StardewModdingAPI.Framework.ContentManagers
             return this.IsNormalizedKeyLoaded(assetName, language);
         }
 
-        /// <inheritdoc />
-        public IEnumerable<string> GetAssetKeys()
-        {
-            return this.Cache.Keys
-                .Select(this.GetAssetName)
-                .Distinct();
-        }
-
         /****
         ** Cache invalidation
         ****/
@@ -177,13 +169,13 @@ namespace StardewModdingAPI.Framework.ContentManagers
             IDictionary<string, object> removeAssets = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
             this.Cache.Remove((key, asset) =>
             {
-                this.ParseCacheKey(key, out string assetName, out _);
+                string baseAssetName = this.Coordinator.ParseAssetName(key).BaseName;
 
                 // check if asset should be removed
-                bool remove = removeAssets.ContainsKey(assetName);
-                if (!remove && predicate(assetName, asset.GetType()))
+                bool remove = removeAssets.ContainsKey(baseAssetName);
+                if (!remove && predicate(baseAssetName, asset.GetType()))
                 {
-                    removeAssets[assetName] = asset;
+                    removeAssets[baseAssetName] = asset;
                     remove = true;
                 }
 
@@ -275,44 +267,9 @@ namespace StardewModdingAPI.Framework.ContentManagers
             this.BaseDisposableReferences.Clear();
         }
 
-        /// <summary>Parse a cache key into its component parts.</summary>
-        /// <param name="cacheKey">The input cache key.</param>
-        /// <param name="assetName">The original asset name.</param>
-        /// <param name="localeCode">The asset locale code (or <c>null</c> if not localized).</param>
-        protected void ParseCacheKey(string cacheKey, out string assetName, out string localeCode)
-        {
-            // handle localized key
-            if (!string.IsNullOrWhiteSpace(cacheKey))
-            {
-                int lastSepIndex = cacheKey.LastIndexOf(".", StringComparison.Ordinal);
-                if (lastSepIndex >= 0)
-                {
-                    string suffix = cacheKey.Substring(lastSepIndex + 1, cacheKey.Length - lastSepIndex - 1);
-                    if (this.Coordinator.TryGetLanguageEnum(suffix, out _))
-                    {
-                        assetName = cacheKey.Substring(0, lastSepIndex);
-                        localeCode = cacheKey.Substring(lastSepIndex + 1, cacheKey.Length - lastSepIndex - 1);
-                        return;
-                    }
-                }
-            }
-
-            // handle simple key
-            assetName = cacheKey;
-            localeCode = null;
-        }
-
         /// <summary>Get whether an asset has already been loaded.</summary>
         /// <param name="normalizedAssetName">The normalized asset name.</param>
         /// <param name="language">The language to check.</param>
         protected abstract bool IsNormalizedKeyLoaded(string normalizedAssetName, LanguageCode language);
-
-        /// <summary>Get the asset name from a cache key.</summary>
-        /// <param name="cacheKey">The input cache key.</param>
-        private string GetAssetName(string cacheKey)
-        {
-            this.ParseCacheKey(cacheKey, out string assetName, out string _);
-            return assetName;
-        }
     }
 }

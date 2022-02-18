@@ -58,9 +58,6 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <param name="language">The language.</param>
         bool IsLoaded(string assetName, LocalizedContentManager.LanguageCode language);
 
-        /// <summary>Get the cached asset keys.</summary>
-        IEnumerable<string> GetAssetKeys();
-
         /// <summary>Purge matched assets from the cache.</summary>
         /// <param name="predicate">Matches the asset keys to invalidate.</param>
         /// <param name="dispose">Whether to dispose invalidated assets. This should only be <c>true</c> when they're being invalidated as part of a dispose, to avoid crashing the game.</param>

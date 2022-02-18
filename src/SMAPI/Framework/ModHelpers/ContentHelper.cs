@@ -129,7 +129,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         {
             string actualKey = this.GetActualAssetKey(key, ContentSource.GameContent);
             this.Monitor.Log($"Requested cache invalidation for '{actualKey}'.", LogLevel.Trace);
-            return this.ContentCore.InvalidateCache(asset => asset.AssetNameEquals(actualKey)).Any();
+            return this.ContentCore.InvalidateCache(asset => asset.Name.IsEquivalentTo(actualKey)).Any();
         }
 
         /// <inheritdoc />
@@ -153,7 +153,8 @@ namespace StardewModdingAPI.Framework.ModHelpers
                 throw new ArgumentNullException(nameof(data), "Can't get a patch helper for a null value.");
 
             assetName ??= $"temp/{Guid.NewGuid():N}";
-            return new AssetDataForObject(this.CurrentLocale, assetName, data, this.NormalizeAssetName);
+
+            return new AssetDataForObject(this.CurrentLocale, this.ContentCore.ParseAssetName(assetName), data, this.NormalizeAssetName);
         }
 
 

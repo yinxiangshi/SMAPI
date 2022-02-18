@@ -73,46 +73,46 @@ namespace StardewModdingAPI.Framework.ContentManagers
             }
 
             // normalize asset name
-            assetName = this.AssertAndNormalizeAssetName(assetName);
-            if (this.TryParseExplicitLanguageAssetKey(assetName, out string newAssetName, out LanguageCode newLanguage))
-                return this.Load<T>(newAssetName, newLanguage, useCache);
+            IAssetName parsedName = this.Coordinator.ParseAssetName(assetName);
+            if (parsedName.LanguageCode.HasValue)
+                return this.Load<T>(parsedName.BaseName, parsedName.LanguageCode.Value, useCache);
 
             // get from cache
-            if (useCache && this.IsLoaded(assetName, language))
-                return this.RawLoad<T>(assetName, language, useCache: true);
+            if (useCache && this.IsLoaded(parsedName.Name, language))
+                return this.RawLoad<T>(parsedName.Name, language, useCache: true);
 
             // get managed asset
-            if (this.Coordinator.TryParseManagedAssetKey(assetName, out string contentManagerID, out string relativePath))
+            if (this.Coordinator.TryParseManagedAssetKey(parsedName.Name, out string contentManagerID, out string relativePath))
             {
                 T managedAsset = this.Coordinator.LoadManagedAsset<T>(contentManagerID, relativePath);
-                this.TrackAsset(assetName, managedAsset, language, useCache);
+                this.TrackAsset(parsedName.Name, managedAsset, language, useCache);
                 return managedAsset;
             }
 
             // load asset
             T data;
-            if (this.AssetsBeingLoaded.Contains(assetName))
+            if (this.AssetsBeingLoaded.Contains(parsedName.Name))
             {
-                this.Monitor.Log($"Broke loop while loading asset '{assetName}'.", LogLevel.Warn);
+                this.Monitor.Log($"Broke loop while loading asset '{parsedName.Name}'.", LogLevel.Warn);
                 this.Monitor.Log($"Bypassing mod loaders for this asset. Stack trace:\n{Environment.StackTrace}");
-                data = this.RawLoad<T>(assetName, language, useCache);
+                data = this.RawLoad<T>(parsedName.Name, language, useCache);
             }
             else
             {
-                data = this.AssetsBeingLoaded.Track(assetName, () =>
+                data = this.AssetsBeingLoaded.Track(parsedName.Name, () =>
                 {
                     string locale = this.GetLocale(language);
-                    IAssetInfo info = new AssetInfo(locale, assetName, typeof(T), this.AssertAndNormalizeAssetName);
+                    IAssetInfo info = new AssetInfo(locale, parsedName, typeof(T), this.AssertAndNormalizeAssetName);
                     IAssetData asset =
                         this.ApplyLoader<T>(info)
-                        ?? new AssetDataForObject(info, this.RawLoad<T>(assetName, language, useCache), this.AssertAndNormalizeAssetName);
+                        ?? new AssetDataForObject(info, this.RawLoad<T>(parsedName.Name, language, useCache), this.AssertAndNormalizeAssetName);
                     asset = this.ApplyEditors<T>(info, asset);
                     return (T)asset.Data;
                 });
             }
 
             // update cache & return data
-            this.TrackAsset(assetName, data, language, useCache);
+            this.TrackAsset(parsedName.Name, data, language, useCache);
             return data;
         }
 
@@ -124,13 +124,16 @@ namespace StardewModdingAPI.Framework.ContentManagers
             // find assets for which a translatable version was loaded
             HashSet<string> removeAssetNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             foreach (string key in this.LocalizedAssetNames.Where(p => p.Key != p.Value).Select(p => p.Key))
-                removeAssetNames.Add(this.TryParseExplicitLanguageAssetKey(key, out string assetName, out _) ? assetName : key);
+            {
+                IAssetName assetName = this.Coordinator.ParseAssetName(key);
+                removeAssetNames.Add(assetName.BaseName);
+            }
 
             // invalidate translatable assets
             string[] invalidated = this
                 .InvalidateCache((key, type) =>
                     removeAssetNames.Contains(key)
-                    || (this.TryParseExplicitLanguageAssetKey(key, out string assetName, out _) && removeAssetNames.Contains(assetName))
+                    || removeAssetNames.Contains(this.Coordinator.ParseAssetName(key).BaseName)
                 )
                 .Select(p => p.Key)
                 .OrderBy(p => p, StringComparer.OrdinalIgnoreCase)
@@ -168,9 +171,10 @@ namespace StardewModdingAPI.Framework.ContentManagers
         {
             // handle explicit language in asset name
             {
-                if (this.TryParseExplicitLanguageAssetKey(assetName, out string newAssetName, out LanguageCode newLanguage))
+                IAssetName parsedName = this.Coordinator.ParseAssetName(assetName);
+                if (parsedName.LanguageCode.HasValue)
                 {
-                    this.TrackAsset(newAssetName, value, newLanguage, useCache);
+                    this.TrackAsset(parsedName.BaseName, value, parsedName.LanguageCode.Value, useCache);
                     return;
                 }
             }
@@ -238,30 +242,6 @@ namespace StardewModdingAPI.Framework.ContentManagers
             }
         }
 
-        /// <summary>Parse an asset key that contains an explicit language into its asset name and language, if applicable.</summary>
-        /// <param name="rawAsset">The asset key to parse.</param>
-        /// <param name="assetName">The asset name without the language code.</param>
-        /// <param name="language">The language code removed from the asset name.</param>
-        /// <returns>Returns whether the asset key contains an explicit language and was successfully parsed.</returns>
-        private bool TryParseExplicitLanguageAssetKey(string rawAsset, out string assetName, out LanguageCode language)
-        {
-            if (string.IsNullOrWhiteSpace(rawAsset))
-                throw new SContentLoadException("The asset key is empty.");
-
-            // extract language code
-            int splitIndex = rawAsset.LastIndexOf('.');
-            if (splitIndex != -1 && this.Coordinator.TryGetLanguageEnum(rawAsset.Substring(splitIndex + 1), out language))
-            {
-                assetName = rawAsset.Substring(0, splitIndex);
-                return true;
-            }
-
-            // no explicit language code found
-            assetName = rawAsset;
-            language = this.Language;
-            return false;
-        }
-
         /// <summary>Load the initial asset from the registered <see cref="Loaders"/>.</summary>
         /// <param name="info">The basic asset metadata.</param>
         /// <returns>Returns the loaded asset metadata, or <c>null</c> if no loader matched.</returns>
@@ -277,7 +257,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
                     }
                     catch (Exception ex)
                     {
-                        entry.Mod.LogAsMod($"Mod failed when checking whether it could load asset '{info.AssetName}', and will be ignored. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
+                        entry.Mod.LogAsMod($"Mod failed when checking whether it could load asset '{info.Name}', and will be ignored. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
                         return false;
                     }
                 })
@@ -289,7 +269,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             if (loaders.Length > 1)
             {
                 string[] loaderNames = loaders.Select(p => p.Mod.DisplayName).ToArray();
-                this.Monitor.Log($"Multiple mods want to provide the '{info.AssetName}' asset ({string.Join(", ", loaderNames)}), but an asset can't be loaded multiple times. SMAPI will use the default asset instead; uninstall one of the mods to fix this. (Message for modders: you should usually use {typeof(IAssetEditor)} instead to avoid conflicts.)", LogLevel.Warn);
+                this.Monitor.Log($"Multiple mods want to provide the '{info.Name}' asset ({string.Join(", ", loaderNames)}), but an asset can't be loaded multiple times. SMAPI will use the default asset instead; uninstall one of the mods to fix this. (Message for modders: you should usually use {typeof(IAssetEditor)} instead to avoid conflicts.)", LogLevel.Warn);
                 return null;
             }
 
@@ -300,11 +280,11 @@ namespace StardewModdingAPI.Framework.ContentManagers
             try
             {
                 data = loader.Load<T>(info);
-                this.Monitor.Log($"{mod.DisplayName} loaded asset '{info.AssetName}'.", LogLevel.Trace);
+                this.Monitor.Log($"{mod.DisplayName} loaded asset '{info.Name}'.", LogLevel.Trace);
             }
             catch (Exception ex)
             {
-                mod.LogAsMod($"Mod crashed when loading asset '{info.AssetName}'. SMAPI will use the default asset instead. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
+                mod.LogAsMod($"Mod crashed when loading asset '{info.Name}'. SMAPI will use the default asset instead. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
                 return null;
             }
 
@@ -349,7 +329,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
                 }
                 catch (Exception ex)
                 {
-                    mod.LogAsMod($"Mod crashed when checking whether it could edit asset '{info.AssetName}', and will be ignored. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
+                    mod.LogAsMod($"Mod crashed when checking whether it could edit asset '{info.Name}', and will be ignored. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
                     continue;
                 }
 
@@ -358,22 +338,22 @@ namespace StardewModdingAPI.Framework.ContentManagers
                 try
                 {
                     editor.Edit<T>(asset);
-                    this.Monitor.Log($"{mod.DisplayName} edited {info.AssetName}.");
+                    this.Monitor.Log($"{mod.DisplayName} edited {info.Name}.");
                 }
                 catch (Exception ex)
                 {
-                    mod.LogAsMod($"Mod crashed when editing asset '{info.AssetName}', which may cause errors in-game. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
+                    mod.LogAsMod($"Mod crashed when editing asset '{info.Name}', which may cause errors in-game. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
                 }
 
                 // validate edit
                 if (asset.Data == null)
                 {
-                    mod.LogAsMod($"Mod incorrectly set asset '{info.AssetName}' to a null value; ignoring override.", LogLevel.Warn);
+                    mod.LogAsMod($"Mod incorrectly set asset '{info.Name}' to a null value; ignoring override.", LogLevel.Warn);
                     asset = GetNewData(prevAsset);
                 }
                 else if (!(asset.Data is T))
                 {
-                    mod.LogAsMod($"Mod incorrectly set asset '{asset.AssetName}' to incompatible type '{asset.Data.GetType()}', expected '{typeof(T)}'; ignoring override.", LogLevel.Warn);
+                    mod.LogAsMod($"Mod incorrectly set asset '{asset.Name}' to incompatible type '{asset.Data.GetType()}', expected '{typeof(T)}'; ignoring override.", LogLevel.Warn);
                     asset = GetNewData(prevAsset);
                 }
             }
@@ -393,21 +373,21 @@ namespace StardewModdingAPI.Framework.ContentManagers
             // can't load a null asset
             if (data == null)
             {
-                mod.LogAsMod($"SMAPI blocked asset replacement for '{info.AssetName}': mod incorrectly set asset to a null value.", LogLevel.Error);
+                mod.LogAsMod($"SMAPI blocked asset replacement for '{info.Name}': mod incorrectly set asset to a null value.", LogLevel.Error);
                 return false;
             }
 
             // when replacing a map, the vanilla tilesheets must have the same order and IDs
             if (data is Map loadedMap)
             {
-                TilesheetReference[] vanillaTilesheetRefs = this.Coordinator.GetVanillaTilesheetIds(info.AssetName);
+                TilesheetReference[] vanillaTilesheetRefs = this.Coordinator.GetVanillaTilesheetIds(info.Name.Name);
                 foreach (TilesheetReference vanillaSheet in vanillaTilesheetRefs)
                 {
                     // add missing tilesheet
                     if (loadedMap.GetTileSheet(vanillaSheet.Id) == null)
                     {
                         mod.Monitor.LogOnce("SMAPI fixed maps loaded by this mod to prevent errors. See the log file for details.", LogLevel.Warn);
-                        this.Monitor.Log($"Fixed broken map replacement: {mod.DisplayName} loaded '{info.AssetName}' without a required tilesheet (id: {vanillaSheet.Id}, source: {vanillaSheet.ImageSource}).");
+                        this.Monitor.Log($"Fixed broken map replacement: {mod.DisplayName} loaded '{info.Name}' without a required tilesheet (id: {vanillaSheet.Id}, source: {vanillaSheet.ImageSource}).");
 
                         loadedMap.AddTileSheet(new TileSheet(vanillaSheet.Id, loadedMap, vanillaSheet.ImageSource, vanillaSheet.SheetSize, vanillaSheet.TileSize));
                     }
@@ -417,17 +397,17 @@ namespace StardewModdingAPI.Framework.ContentManagers
                     {
                         // only show warning if not farm map
                         // This is temporary: mods shouldn't do this for any vanilla map, but these are the ones we know will crash. Showing a warning for others instead gives modders time to update their mods, while still simplifying troubleshooting.
-                        bool isFarmMap = info.AssetNameEquals("Maps/Farm") || info.AssetNameEquals("Maps/Farm_Combat") || info.AssetNameEquals("Maps/Farm_Fishing") || info.AssetNameEquals("Maps/Farm_Foraging") || info.AssetNameEquals("Maps/Farm_FourCorners") || info.AssetNameEquals("Maps/Farm_Island") || info.AssetNameEquals("Maps/Farm_Mining");
+                        bool isFarmMap = info.Name.IsEquivalentTo("Maps/Farm") || info.Name.IsEquivalentTo("Maps/Farm_Combat") || info.Name.IsEquivalentTo("Maps/Farm_Fishing") || info.Name.IsEquivalentTo("Maps/Farm_Foraging") || info.Name.IsEquivalentTo("Maps/Farm_FourCorners") || info.Name.IsEquivalentTo("Maps/Farm_Island") || info.Name.IsEquivalentTo("Maps/Farm_Mining");
 
                         string reason = $"mod reordered the original tilesheets, which {(isFarmMap ? "would cause a crash" : "often causes crashes")}.\nTechnical details for mod author: Expected order: {string.Join(", ", vanillaTilesheetRefs.Select(p => p.Id))}. See https://stardewvalleywiki.com/Modding:Maps#Tilesheet_order for help.";
 
                         SCore.DeprecationManager.PlaceholderWarn("3.8.2", DeprecationLevel.PendingRemoval);
                         if (isFarmMap)
                         {
-                            mod.LogAsMod($"SMAPI blocked '{info.AssetName}' map load: {reason}", LogLevel.Error);
+                            mod.LogAsMod($"SMAPI blocked '{info.Name}' map load: {reason}", LogLevel.Error);
                             return false;
                         }
-                        mod.LogAsMod($"SMAPI found an issue with '{info.AssetName}' map load: {reason}", LogLevel.Warn);
+                        mod.LogAsMod($"SMAPI found an issue with '{info.Name}' map load: {reason}", LogLevel.Warn);
                     }
                 }
             }

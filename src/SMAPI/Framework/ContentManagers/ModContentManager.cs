@@ -80,7 +80,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
         {
             // normalize key
             bool isXnbFile = Path.GetExtension(assetName).ToLower() == ".xnb";
-            assetName = this.AssertAndNormalizeAssetName(assetName);
+            IAssetName parsedName = this.Coordinator.ParseAssetName(assetName);
 
             // disable caching
             // This is necessary to avoid assets being shared between content managers, which can
@@ -97,21 +97,21 @@ namespace StardewModdingAPI.Framework.ContentManagers
 
             // resolve managed asset key
             {
-                if (this.Coordinator.TryParseManagedAssetKey(assetName, out string contentManagerID, out string relativePath))
+                if (this.Coordinator.TryParseManagedAssetKey(parsedName.Name, out string contentManagerID, out string relativePath))
                 {
                     if (contentManagerID != this.Name)
-                        throw new SContentLoadException($"Can't load managed asset key '{assetName}' through content manager '{this.Name}' for a different mod.");
-                    assetName = relativePath;
+                        throw new SContentLoadException($"Can't load managed asset key '{parsedName}' through content manager '{this.Name}' for a different mod.");
+                    parsedName = this.Coordinator.ParseAssetName(relativePath);
                 }
             }
 
             // get local asset
-            SContentLoadException GetContentError(string reasonPhrase) => new SContentLoadException($"Failed loading asset '{assetName}' from {this.Name}: {reasonPhrase}");
+            SContentLoadException GetContentError(string reasonPhrase) => new SContentLoadException($"Failed loading asset '{parsedName}' from {this.Name}: {reasonPhrase}");
             T asset;
             try
             {
                 // get file
-                FileInfo file = this.GetModFile(isXnbFile ? $"{assetName}.xnb" : assetName); // .xnb extension is stripped from asset names passed to the content manager
+                FileInfo file = this.GetModFile(isXnbFile ? $"{parsedName}.xnb" : parsedName.Name); // .xnb extension is stripped from asset names passed to the content manager
                 if (!file.Exists)
                     throw GetContentError("the specified path doesn't exist.");
 
@@ -121,11 +121,11 @@ namespace StardewModdingAPI.Framework.ContentManagers
                     // XNB file
                     case ".xnb":
                         {
-                            asset = this.RawLoad<T>(assetName, useCache: false);
+                            asset = this.RawLoad<T>(parsedName.Name, useCache: false);
                             if (asset is Map map)
                             {
-                                map.assetPath = assetName;
-                                this.FixTilesheetPaths(map, relativeMapPath: assetName, fixEagerPathPrefixes: true);
+                                map.assetPath = parsedName.Name;
+                                this.FixTilesheetPaths(map, relativeMapPath: parsedName.Name, fixEagerPathPrefixes: true);
                             }
                         }
                         break;
@@ -173,8 +173,8 @@ namespace StardewModdingAPI.Framework.ContentManagers
                             // fetch & cache
                             FormatManager formatManager = FormatManager.Instance;
                             Map map = formatManager.LoadMap(file.FullName);
-                            map.assetPath = assetName;
-                            this.FixTilesheetPaths(map, relativeMapPath: assetName, fixEagerPathPrefixes: false);
+                            map.assetPath = parsedName.Name;
+                            this.FixTilesheetPaths(map, relativeMapPath: parsedName.Name, fixEagerPathPrefixes: false);
                             asset = (T)(object)map;
                         }
                         break;
@@ -185,11 +185,11 @@ namespace StardewModdingAPI.Framework.ContentManagers
             }
             catch (Exception ex) when (!(ex is SContentLoadException))
             {
-                throw new SContentLoadException($"The content manager failed loading content asset '{assetName}' from {this.Name}.", ex);
+                throw new SContentLoadException($"The content manager failed loading content asset '{parsedName}' from {this.Name}.", ex);
             }
 
             // track & return asset
-            this.TrackAsset(assetName, asset, language, useCache);
+            this.TrackAsset(parsedName.Name, asset, language, useCache);
             return asset;
         }
 
