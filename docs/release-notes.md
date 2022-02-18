@@ -8,6 +8,7 @@
 * For mod authors:
   * The `SDate` constructor is no longer case-sensitive for season names.
   * Fixed issue where suppressing `[Left|Right]Thumbstick[Down|Left]` keys would suppress the opposite direction instead.
+  * Fixed support for using locale codes from custom languages in asset names (e.g. `Data/Achievements.eo-EU`).
 
 * For console commands:
   * Fixed `player_add` with Journal Scraps and Secret Notes.

@@ -14,6 +14,7 @@ using StardewModdingAPI.Metadata;
 using StardewModdingAPI.Toolkit.Serialization;
 using StardewModdingAPI.Toolkit.Utilities;
 using StardewValley;
+using StardewValley.GameData;
 using xTile;
 
 namespace StardewModdingAPI.Framework
@@ -136,7 +137,7 @@ namespace StardewModdingAPI.Framework
             this.ContentManagers.Add(contentManagerForAssetPropagation);
             this.VanillaContentManager = new LocalizedContentManager(serviceProvider, rootDirectory);
             this.CoreAssets = new CoreAssetPropagator(this.MainContentManager, contentManagerForAssetPropagation, this.Monitor, reflection, aggressiveMemoryOptimizations);
-            this.LocaleCodes = new Lazy<Dictionary<string, LocalizedContentManager.LanguageCode>>(this.GetLocaleCodes);
+            this.LocaleCodes = new Lazy<Dictionary<string, LocalizedContentManager.LanguageCode>>(() => this.GetLocaleCodes(includeCustomLanguages: false));
         }
 
         /// <summary>Get a new content manager which handles reading files from the game content folder with support for interception.</summary>
@@ -196,12 +197,17 @@ namespace StardewModdingAPI.Framework
             return this.MainContentManager.GetLocale(LocalizedContentManager.CurrentLanguageCode);
         }
 
-        /// <summary>Perform any cleanup needed when the locale changes.</summary>
+        /// <summary>Perform any updates needed when the game loads custom languages from <c>Data/AdditionalLanguages</c>.</summary>
+        public void OnAdditionalLanguagesInitialized()
+        {
+            // update locale cache for custom languages, and load it now (since languages added later won't work)
+            this.LocaleCodes = new Lazy<Dictionary<string, LocalizedContentManager.LanguageCode>>(() => this.GetLocaleCodes(includeCustomLanguages: true));
+            _ = this.LocaleCodes.Value;
+        }
+
+        /// <summary>Perform any updates needed when the locale changes.</summary>
         public void OnLocaleChanged()
         {
-            // rebuild locale cache (which may change due to custom mod languages)
-            this.LocaleCodes = new Lazy<Dictionary<string, LocalizedContentManager.LanguageCode>>(this.GetLocaleCodes);
-
             // reload affected content
             this.ContentManagerLock.InReadLock(() =>
             {
@@ -486,9 +492,22 @@ namespace StardewModdingAPI.Framework
         }
 
         /// <summary>Get the language enums (like <see cref="LocalizedContentManager.LanguageCode.ja"/>) indexed by locale code (like <c>ja-JP</c>).</summary>
-        private Dictionary<string, LocalizedContentManager.LanguageCode> GetLocaleCodes()
+        /// <param name="includeCustomLanguages">Whether to read custom languages from <c>Data/AdditionalLanguages</c>.</param>
+        private Dictionary<string, LocalizedContentManager.LanguageCode> GetLocaleCodes(bool includeCustomLanguages)
         {
-            var map = new Dictionary<string, LocalizedContentManager.LanguageCode>();
+            var map = new Dictionary<string, LocalizedContentManager.LanguageCode>(StringComparer.OrdinalIgnoreCase);
+
+            // custom languages
+            if (includeCustomLanguages)
+            {
+                foreach (ModLanguage language in Game1.content.Load<List<ModLanguage>>("Data/AdditionalLanguages"))
+                {
+                    if (!string.IsNullOrWhiteSpace(language?.LanguageCode))
+                        map[language.LanguageCode] = LocalizedContentManager.LanguageCode.mod;
+                }
+            }
+
+            // vanilla languages (override custom language if they conflict)
             foreach (LocalizedContentManager.LanguageCode code in Enum.GetValues(typeof(LocalizedContentManager.LanguageCode)))
             {
                 string locale = this.GetLocaleCode(code);

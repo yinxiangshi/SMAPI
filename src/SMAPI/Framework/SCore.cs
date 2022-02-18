@@ -43,6 +43,7 @@ using StardewModdingAPI.Toolkit.Serialization;
 using StardewModdingAPI.Toolkit.Utilities;
 using StardewModdingAPI.Utilities;
 using StardewValley;
+using StardewValley.Menus;
 using xTile.Display;
 using MiniMonoModHotfix = MonoMod.Utils.MiniMonoModHotfix;
 using PathUtilities = StardewModdingAPI.Toolkit.Utilities.PathUtilities;
@@ -120,6 +121,9 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>Whether post-game-startup initialization has been performed.</summary>
         private bool IsInitialized;
+
+        /// <summary>Whether the game has initialized for any custom languages from <c>Data/AdditionalLanguages</c>.</summary>
+        private bool AreCustomLanguagesInitialized;
 
         /// <summary>Whether the player just returned to the title screen.</summary>
         public bool JustReturnedToTitle { get; set; }
@@ -986,6 +990,13 @@ namespace StardewModdingAPI.Framework
                     // preloaded
                     if (Context.IsSaveLoaded && Context.LoadStage != LoadStage.Loaded && Context.LoadStage != LoadStage.Ready && Game1.dayOfMonth != 0)
                         this.OnLoadStageChanged(LoadStage.Loaded);
+
+                    // additional languages initialized
+                    if (!this.AreCustomLanguagesInitialized && TitleMenu.ticksUntilLanguageLoad < 0)
+                    {
+                        this.AreCustomLanguagesInitialized = true;
+                        this.ContentCore.OnAdditionalLanguagesInitialized();
+                    }
                 }
 
                 /*********
