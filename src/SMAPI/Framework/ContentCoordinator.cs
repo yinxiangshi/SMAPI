@@ -46,7 +46,7 @@ namespace StardewModdingAPI.Framework
         private readonly Action OnLoadingFirstAsset;
 
         /// <summary>The loaded content managers (including the <see cref="MainContentManager"/>).</summary>
-        private readonly IList<IContentManager> ContentManagers = new List<IContentManager>();
+        private readonly List<IContentManager> ContentManagers = new();
 
         /// <summary>The language code for language-agnostic mod assets.</summary>
         private readonly LocalizedContentManager.LanguageCode DefaultLanguage = Constants.DefaultLanguage;
@@ -56,16 +56,16 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>A lock used to prevent asynchronous changes to the content manager list.</summary>
         /// <remarks>The game may add content managers in asynchronous threads (e.g. when populating the load screen).</remarks>
-        private readonly ReaderWriterLockSlim ContentManagerLock = new ReaderWriterLockSlim();
+        private readonly ReaderWriterLockSlim ContentManagerLock = new();
 
         /// <summary>A cache of ordered tilesheet IDs used by vanilla maps.</summary>
-        private readonly IDictionary<string, TilesheetReference[]> VanillaTilesheets = new Dictionary<string, TilesheetReference[]>(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, TilesheetReference[]> VanillaTilesheets = new(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>An unmodified content manager which doesn't intercept assets, used to compare asset data.</summary>
         private readonly LocalizedContentManager VanillaContentManager;
 
         /// <summary>The language enum values indexed by locale code.</summary>
-        private Lazy<IDictionary<string, LocalizedContentManager.LanguageCode>> LocaleCodes;
+        private Lazy<Dictionary<string, LocalizedContentManager.LanguageCode>> LocaleCodes;
 
 
         /*********
@@ -136,7 +136,7 @@ namespace StardewModdingAPI.Framework
             this.ContentManagers.Add(contentManagerForAssetPropagation);
             this.VanillaContentManager = new LocalizedContentManager(serviceProvider, rootDirectory);
             this.CoreAssets = new CoreAssetPropagator(this.MainContentManager, contentManagerForAssetPropagation, this.Monitor, reflection, aggressiveMemoryOptimizations);
-            this.LocaleCodes = new Lazy<IDictionary<string, LocalizedContentManager.LanguageCode>>(this.GetLocaleCodes);
+            this.LocaleCodes = new Lazy<Dictionary<string, LocalizedContentManager.LanguageCode>>(this.GetLocaleCodes);
         }
 
         /// <summary>Get a new content manager which handles reading files from the game content folder with support for interception.</summary>
@@ -145,7 +145,7 @@ namespace StardewModdingAPI.Framework
         {
             return this.ContentManagerLock.InWriteLock(() =>
             {
-                GameContentManager manager = new GameContentManager(
+                GameContentManager manager = new(
                     name: name,
                     serviceProvider: this.MainContentManager.ServiceProvider,
                     rootDirectory: this.MainContentManager.RootDirectory,
@@ -171,7 +171,7 @@ namespace StardewModdingAPI.Framework
         {
             return this.ContentManagerLock.InWriteLock(() =>
             {
-                ModContentManager manager = new ModContentManager(
+                ModContentManager manager = new(
                     name: name,
                     gameContentManager: gameContentManager,
                     serviceProvider: this.MainContentManager.ServiceProvider,
@@ -200,7 +200,7 @@ namespace StardewModdingAPI.Framework
         public void OnLocaleChanged()
         {
             // rebuild locale cache (which may change due to custom mod languages)
-            this.LocaleCodes = new Lazy<IDictionary<string, LocalizedContentManager.LanguageCode>>(this.GetLocaleCodes);
+            this.LocaleCodes = new Lazy<Dictionary<string, LocalizedContentManager.LanguageCode>>(this.GetLocaleCodes);
 
             // reload affected content
             this.ContentManagerLock.InReadLock(() =>
@@ -359,7 +359,7 @@ namespace StardewModdingAPI.Framework
                 );
 
                 // log summary
-                StringBuilder report = new StringBuilder();
+                StringBuilder report = new();
                 {
                     string[] invalidatedKeys = removedAssets.Keys.ToArray();
                     string[] propagatedKeys = propagated.Where(p => p.Value).Select(p => p.Key).ToArray();
@@ -486,9 +486,9 @@ namespace StardewModdingAPI.Framework
         }
 
         /// <summary>Get the language enums (like <see cref="LocalizedContentManager.LanguageCode.ja"/>) indexed by locale code (like <c>ja-JP</c>).</summary>
-        private IDictionary<string, LocalizedContentManager.LanguageCode> GetLocaleCodes()
+        private Dictionary<string, LocalizedContentManager.LanguageCode> GetLocaleCodes()
         {
-            IDictionary<string, LocalizedContentManager.LanguageCode> map = new Dictionary<string, LocalizedContentManager.LanguageCode>();
+            var map = new Dictionary<string, LocalizedContentManager.LanguageCode>();
             foreach (LocalizedContentManager.LanguageCode code in Enum.GetValues(typeof(LocalizedContentManager.LanguageCode)))
             {
                 string locale = this.GetLocaleCode(code);
