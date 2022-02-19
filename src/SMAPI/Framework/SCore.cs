@@ -1482,6 +1482,7 @@ namespace StardewModdingAPI.Framework
                 AssemblyBuilder assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName($"StardewModdingAPI.Proxies, Version={this.GetType().Assembly.GetName().Version}, Culture=neutral"), AssemblyBuilderAccess.Run);
                 ModuleBuilder moduleBuilder = assemblyBuilder.DefineDynamicModule("StardewModdingAPI.Proxies");
                 IProxyManager<string> proxyManager = new DefaultProxyManager<string>(moduleBuilder, new DefaultProxyManagerConfiguration<string>(
+                    proxyPrepareBehavior: DefaultProxyManagerProxyPrepareBehavior.Eager,
                     proxyObjectInterfaceMarking: ProxyObjectInterfaceMarking.Disabled
                 ));
 
