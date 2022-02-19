@@ -83,6 +83,9 @@ namespace StardewModdingAPI
         /// <summary>The path to the game folder.</summary>
         public static string GamePath { get; } = EarlyConstants.GamePath;
 
+        /// <summary>The path to the game's <c>Content</c> folder.</summary>
+        public static string ContentPath { get; } = Constants.GetContentFolderPath();
+
         /// <summary>The directory path containing Stardew Valley's app data.</summary>
         public static string DataPath { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley");
 
@@ -297,13 +300,52 @@ namespace StardewModdingAPI
         /*********
         ** Private methods
         *********/
+        /// <summary>Get the absolute path to the game's <c>Content</c> folder.</summary>
+        private static string GetContentFolderPath()
+        {
+            //
+            // We can't use Path.Combine(Constants.GamePath, Game1.content.RootDirectory) here,
+            // since Game1.content isn't initialized until later in the game startup.
+            //
+
+            string gamePath = EarlyConstants.GamePath;
+
+            // most platforms
+            if (EarlyConstants.Platform != GamePlatform.Mac)
+                return Path.Combine(gamePath, "Content");
+
+            // macOS
+            string[] paths = new[]
+                {
+                    // GOG
+                    // - game:    Stardew Valley.app/Contents/MacOS
+                    // - content: Stardew Valley.app/Resources/Content
+                    "../../Resources/Content",
+
+                    // Steam
+                    // - game:    StardewValley/Contents/MacOS
+                    // - content: StardewValley/Contents/Resources/Content
+                    "../Resources/Content"
+                }
+                .Select(path => Path.GetFullPath(Path.Combine(gamePath, path)))
+                .ToArray();
+
+            foreach (string path in paths)
+            {
+                if (Directory.Exists(path))
+                    return path;
+            }
+
+            return paths.Last();
+        }
+
         /// <summary>Get the name of the save folder, if any.</summary>
         private static string GetSaveFolderName()
         {
             return Constants.GetSaveFolder()?.Name;
         }
 
-        /// <summary>Get the path to the current save folder, if any.</summary>
+        /// <summary>Get the absolute path to the current save folder, if any.</summary>
         private static string GetSaveFolderPathIfExists()
         {
             DirectoryInfo saveFolder = Constants.GetSaveFolder();

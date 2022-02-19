@@ -7,6 +7,7 @@
   * Fixed `player_add` console command's handling of Journal Scraps and Secret Notes.
 
 * For mod authors:
+  * Added `Constants.ContentPath`.
   * Added `IAssetName Name` field to the info received by `IAssetEditor` and `IAssetLoader` methods.  
     _This adds methods for working with asset names, parsed locales, etc._
   * Fixed the `SDate` constructor being case-sensitive.
