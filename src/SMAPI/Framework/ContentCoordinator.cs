@@ -107,7 +107,7 @@ namespace StardewModdingAPI.Framework
             this.Reflection = reflection;
             this.JsonHelper = jsonHelper;
             this.OnLoadingFirstAsset = onLoadingFirstAsset;
-            this.FullRootDirectory = Path.Combine(Constants.ExecutionPath, rootDirectory);
+            this.FullRootDirectory = Path.Combine(Constants.GamePath, rootDirectory);
             this.ContentManagers.Add(
                 this.MainContentManager = new GameContentManager(
                     name: "Game1.content",

@@ -66,7 +66,7 @@ namespace StardewModdingAPI
             {
                 Program.AssemblyPathsByName = new(StringComparer.OrdinalIgnoreCase);
 
-                foreach (string searchPath in new[] { EarlyConstants.ExecutionPath, Program.DllSearchPath })
+                foreach (string searchPath in new[] { EarlyConstants.GamePath, Program.DllSearchPath })
                 {
                     foreach (string dllPath in Directory.EnumerateFiles(searchPath, "*.dll"))
                     {
@@ -110,7 +110,7 @@ namespace StardewModdingAPI
             catch (Exception ex)
             {
                 // file doesn't exist
-                if (!File.Exists(Path.Combine(EarlyConstants.ExecutionPath, $"{EarlyConstants.GameAssemblyName}.exe")))
+                if (!File.Exists(Path.Combine(EarlyConstants.GamePath, $"{EarlyConstants.GameAssemblyName}.exe")))
                     Program.PrintErrorAndExit("Oops! SMAPI can't find the game. Make sure you're running StardewModdingAPI.exe in your game folder.");
 
                 // can't load file
@@ -160,8 +160,8 @@ namespace StardewModdingAPI
         /// <remarks>This is needed to resolve native DLLs like libSkiaSharp.</remarks>
         private static void AssertDepsJson()
         {
-            string sourcePath = Path.Combine(Constants.ExecutionPath, "Stardew Valley.deps.json");
-            string targetPath = Path.Combine(Constants.ExecutionPath, "StardewModdingAPI.deps.json");
+            string sourcePath = Path.Combine(Constants.GamePath, "Stardew Valley.deps.json");
+            string targetPath = Path.Combine(Constants.GamePath, "StardewModdingAPI.deps.json");
 
             if (!File.Exists(targetPath) || FileUtilities.GetFileHash(sourcePath) != FileUtilities.GetFileHash(targetPath))
             {
@@ -194,7 +194,7 @@ namespace StardewModdingAPI
 
                 // normalise
                 modsPath = !string.IsNullOrWhiteSpace(rawModsPath)
-                    ? Path.Combine(Constants.ExecutionPath, rawModsPath)
+                    ? Path.Combine(Constants.GamePath, rawModsPath)
                     : Constants.DefaultModsPath;
             }
 

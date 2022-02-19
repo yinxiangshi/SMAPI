@@ -56,7 +56,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
         public LanguageCode Language => this.GetCurrentLanguage();
 
         /// <inheritdoc />
-        public string FullRootDirectory => Path.Combine(Constants.ExecutionPath, this.RootDirectory);
+        public string FullRootDirectory => Path.Combine(Constants.GamePath, this.RootDirectory);
 
         /// <inheritdoc />
         public bool IsNamespaced { get; }

@@ -4,20 +4,27 @@
 ## Upcoming release
 * For players:
   * Improved translations. Thanks to ChulkyBow (updated Ukrainian)!
+  * Fixed `player_add` console command's handling of Journal Scraps and Secret Notes.
 
 * For mod authors:
-  * Added `IAssetName` field to the asset info received by `IAssetEditor` and `IAssetLoader` methods.  
-    _This provides utility methods for working with asset names, parsed locales, etc. The `asset.AssetNameEquals` method is now deprecated in favor of `asset.Name.IsEquivalentTo`_.
-  * The `SDate` constructor is no longer case-sensitive for season names.
-  * Fixed issue where suppressing `[Left|Right]Thumbstick[Down|Left]` keys would suppress the opposite direction instead.
+  * Added `IAssetName Name` field to the info received by `IAssetEditor` and `IAssetLoader` methods.  
+    _This adds methods for working with asset names, parsed locales, etc._
+  * Fixed the `SDate` constructor being case-sensitive.
   * Fixed support for using locale codes from custom languages in asset names (e.g. `Data/Achievements.eo-EU`).
+  * Fixed issue where suppressing `[Left|Right]Thumbstick[Down|Left]` keys would suppress the opposite direction instead.
 
-* For console commands:
-  * Fixed `player_add` with Journal Scraps and Secret Notes.
+* **Deprecation warning for mod authors:**   
+  These APIs are now deprecated and will be removed in the upcoming SMAPI 4.0.0.
+
+  API | how to update code
+  :-- | :-----------------
+  `Constants.ExecutionPath` | Use `Constants.GamePath` instead.
+  `IAssetInfo.AssetName`<br />`IAssetData.AssetName` | Use `Name` instead, which changes the type from `string` to the new `AssetName`.
+  `IAssetInfo.AssetNameEquals`<br />`IAssetData.AssetNameEquals` | Use `Name.IsEquivalentTo` instead.
 
 * For the web UI:
   * Added `data-*` attributes to log parser page for external tools.
-  * Fixed JSON validator warning for update keys without a subkey.
+  * Fixed JSON validator warning shown for update keys without a subkey.
 
 ## 3.13.4
 Released 16 January 2022 for Stardew Valley 1.5.6 or later.

@@ -31,10 +31,10 @@ namespace StardewModdingAPI
         ** Accessors
         *********/
         /// <summary>The path to the game folder.</summary>
-        public static string ExecutionPath { get; } = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        public static string GamePath { get; } = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
         /// <summary>The absolute path to the folder containing SMAPI's internal files.</summary>
-        public static readonly string InternalFilesPath = Path.Combine(EarlyConstants.ExecutionPath, "smapi-internal");
+        public static readonly string InternalFilesPath = Path.Combine(EarlyConstants.GamePath, "smapi-internal");
 
         /// <summary>The target game platform.</summary>
         internal static GamePlatform Platform { get; } = (GamePlatform)Enum.Parse(typeof(GamePlatform), LowLevelEnvironmentUtility.DetectPlatform());
@@ -77,7 +77,11 @@ namespace StardewModdingAPI
         public static GameFramework GameFramework { get; } = EarlyConstants.GameFramework;
 
         /// <summary>The path to the game folder.</summary>
-        public static string ExecutionPath { get; } = EarlyConstants.ExecutionPath;
+        [Obsolete($"Use {nameof(GamePath)} instead.")]
+        public static string ExecutionPath => Constants.GamePath;
+
+        /// <summary>The path to the game folder.</summary>
+        public static string GamePath { get; } = EarlyConstants.GamePath;
 
         /// <summary>The directory path containing Stardew Valley's app data.</summary>
         public static string DataPath { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley");
@@ -139,7 +143,7 @@ namespace StardewModdingAPI
         internal static string UpdateMarker => Path.Combine(Constants.InternalFilesPath, "StardewModdingAPI.update.marker");
 
         /// <summary>The default full path to search for mods.</summary>
-        internal static string DefaultModsPath { get; } = Path.Combine(Constants.ExecutionPath, "Mods");
+        internal static string DefaultModsPath { get; } = Path.Combine(Constants.GamePath, "Mods");
 
         /// <summary>The actual full path to search for mods.</summary>
         internal static string ModsPath { get; set; }
@@ -222,7 +226,7 @@ namespace StardewModdingAPI
         internal static void ConfigureAssemblyResolver(AssemblyDefinitionResolver resolver)
         {
             // add search paths
-            resolver.AddSearchDirectory(Constants.ExecutionPath);
+            resolver.AddSearchDirectory(Constants.GamePath);
             resolver.AddSearchDirectory(Constants.InternalFilesPath);
 
             // add SMAPI explicitly

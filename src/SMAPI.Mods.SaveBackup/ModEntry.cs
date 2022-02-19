@@ -19,7 +19,7 @@ namespace StardewModdingAPI.Mods.SaveBackup
         private readonly int BackupsToKeep = 10;
 
         /// <summary>The absolute path to the folder in which to store save backups.</summary>
-        private readonly string BackupFolder = Path.Combine(Constants.ExecutionPath, "save-backups");
+        private readonly string BackupFolder = Path.Combine(Constants.GamePath, "save-backups");
 
         /// <summary>A unique label for the save backup to create.</summary>
         private readonly string BackupLabel = $"{DateTime.UtcNow:yyyy-MM-dd} - SMAPI {Constants.ApiVersion} with Stardew Valley {Game1.version}";
