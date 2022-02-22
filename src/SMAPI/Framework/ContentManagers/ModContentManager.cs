@@ -252,16 +252,20 @@ namespace StardewModdingAPI.Framework.ContentManagers
             // premultiply pixels
             Color[] data = new Color[texture.Width * texture.Height];
             texture.GetData(data);
+            bool changed = false;
             for (int i = 0; i < data.Length; i++)
             {
-                var pixel = data[i];
-                if (pixel.A == byte.MinValue || pixel.A == byte.MaxValue)
+                Color pixel = data[i];
+                if (pixel.A is (byte.MinValue or byte.MaxValue))
                     continue; // no need to change fully transparent/opaque pixels
 
                 data[i] = new Color(pixel.R * pixel.A / byte.MaxValue, pixel.G * pixel.A / byte.MaxValue, pixel.B * pixel.A / byte.MaxValue, pixel.A); // slower version: Color.FromNonPremultiplied(data[i].ToVector4())
+                changed = true;
             }
 
-            texture.SetData(data);
+            if (changed)
+                texture.SetData(data);
+
             return texture;
         }
 
