@@ -1481,8 +1481,8 @@ namespace StardewModdingAPI.Framework
                 HashSet<string> suppressUpdateChecks = new HashSet<string>(this.Settings.SuppressUpdateChecks, StringComparer.OrdinalIgnoreCase);
                 AssemblyBuilder assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName($"StardewModdingAPI.Proxies, Version={this.GetType().Assembly.GetName().Version}, Culture=neutral"), AssemblyBuilderAccess.Run);
                 ModuleBuilder moduleBuilder = assemblyBuilder.DefineDynamicModule("StardewModdingAPI.Proxies");
-                IProxyManager<string> proxyManager = new DefaultProxyManager<string>(moduleBuilder, new DefaultProxyManagerConfiguration<string>(
-                    proxyPrepareBehavior: DefaultProxyManagerProxyPrepareBehavior.Eager,
+                IProxyManager<string> proxyManager = new ProxyManager<string>(moduleBuilder, new ProxyManagerConfiguration<string>(
+                    proxyPrepareBehavior: ProxyManagerProxyPrepareBehavior.Eager,
                     proxyObjectInterfaceMarking: ProxyObjectInterfaceMarking.Disabled
                 ));
 
