@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Nanoray.Pintail;
 using StardewModdingAPI.Framework.Reflection;
 
 namespace StardewModdingAPI.Framework.ModHelpers
@@ -19,7 +20,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         private readonly HashSet<string> AccessedModApis = new HashSet<string>();
 
         /// <summary>Generates proxy classes to access mod APIs through an arbitrary interface.</summary>
-        private readonly InterfaceProxyFactory ProxyFactory;
+        private readonly IProxyManager<string> ProxyManager;
 
 
         /*********
@@ -28,13 +29,13 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <summary>Construct an instance.</summary>
         /// <param name="modID">The unique ID of the relevant mod.</param>
         /// <param name="registry">The underlying mod registry.</param>
-        /// <param name="proxyFactory">Generates proxy classes to access mod APIs through an arbitrary interface.</param>
+        /// <param name="proxyManager">Generates proxy classes to access mod APIs through an arbitrary interface.</param>
         /// <param name="monitor">Encapsulates monitoring and logging for the mod.</param>
-        public ModRegistryHelper(string modID, ModRegistry registry, InterfaceProxyFactory proxyFactory, IMonitor monitor)
+        public ModRegistryHelper(string modID, ModRegistry registry, IProxyManager<string> proxyManager, IMonitor monitor)
             : base(modID)
         {
             this.Registry = registry;
-            this.ProxyFactory = proxyFactory;
+            this.ProxyManager = proxyManager;
             this.Monitor = monitor;
         }
 
@@ -96,7 +97,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
             // get API of type
             if (api is TInterface castApi)
                 return castApi;
-            return this.ProxyFactory.CreateProxy<TInterface>(api, this.ModID, uniqueID);
+            return this.ProxyManager.ObtainProxy<string, TInterface>(api, this.ModID, uniqueID);
         }
     }
 }
