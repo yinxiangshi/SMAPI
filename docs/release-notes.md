@@ -7,6 +7,8 @@
   * Fixed `player_add` console command's handling of Journal Scraps and Secret Notes.
 
 * For mod authors:
+  * Overhauled [mod-provided APIs](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Integrations#Mod-provided_APIs) (thanks to Shockah!).  
+    _This adds support for many previously-unsupported cases: proxied interfaces in return values or input arguments, proxied enums if their values match, generic methods, and more._
   * Added `Constants.ContentPath`.
   * Added `IAssetName Name` field to the info received by `IAssetEditor` and `IAssetLoader` methods.  
     _This adds methods for working with asset names, parsed locales, etc._
