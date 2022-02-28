@@ -26,6 +26,7 @@
   `IAssetInfo.AssetNameEquals`<br />`IAssetData.AssetNameEquals` | Use `Name.IsEquivalentTo` instead.
 
 * For the web UI:
+  * Updated the JSON validator/schema for Content Patcher 1.25.0.
   * Added `data-*` attributes to log parser page for external tools.
   * Fixed JSON validator warning shown for update keys without a subkey.
 
