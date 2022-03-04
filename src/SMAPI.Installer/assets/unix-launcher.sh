@@ -8,7 +8,7 @@ cd "$(dirname "$0")" || exit $?
 
 # change to true to skip opening a terminal
 # This isn't recommended since you won't see errors, warnings, and update alerts.
-SKIP_TERMINAL=false
+SKIP_TERMINAL=${SKIP_TERMINAL:=false}
 
 
 ##########
