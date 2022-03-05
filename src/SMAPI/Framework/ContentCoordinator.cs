@@ -137,7 +137,7 @@ namespace StardewModdingAPI.Framework
             this.ContentManagers.Add(contentManagerForAssetPropagation);
             this.VanillaContentManager = new LocalizedContentManager(serviceProvider, rootDirectory);
             this.CoreAssets = new CoreAssetPropagator(this.MainContentManager, contentManagerForAssetPropagation, this.Monitor, reflection, aggressiveMemoryOptimizations);
-            this.LocaleCodes = new Lazy<Dictionary<string, LocalizedContentManager.LanguageCode>>(() => this.GetLocaleCodes(includeCustomLanguages: false));
+            this.LocaleCodes = new Lazy<Dictionary<string, LocalizedContentManager.LanguageCode>>(() => this.GetLocaleCodes(customLanguages: Enumerable.Empty<ModLanguage>()));
         }
 
         /// <summary>Get a new content manager which handles reading files from the game content folder with support for interception.</summary>
@@ -201,7 +201,8 @@ namespace StardewModdingAPI.Framework
         public void OnAdditionalLanguagesInitialized()
         {
             // update locale cache for custom languages, and load it now (since languages added later won't work)
-            this.LocaleCodes = new Lazy<Dictionary<string, LocalizedContentManager.LanguageCode>>(() => this.GetLocaleCodes(includeCustomLanguages: true));
+            var customLanguages = this.MainContentManager.Load<List<ModLanguage>>("Data/AdditionalLanguages");
+            this.LocaleCodes = new Lazy<Dictionary<string, LocalizedContentManager.LanguageCode>>(() => this.GetLocaleCodes(customLanguages));
             _ = this.LocaleCodes.Value;
         }
 
@@ -441,7 +442,7 @@ namespace StardewModdingAPI.Framework
             if (language == LocalizedContentManager.LanguageCode.mod && LocalizedContentManager.CurrentModLanguage == null)
                 return null;
 
-            return Game1.content.LanguageCodeString(language);
+            return this.MainContentManager.LanguageCodeString(language);
         }
 
         /// <summary>Dispose held resources.</summary>
@@ -495,19 +496,16 @@ namespace StardewModdingAPI.Framework
         }
 
         /// <summary>Get the language enums (like <see cref="LocalizedContentManager.LanguageCode.ja"/>) indexed by locale code (like <c>ja-JP</c>).</summary>
-        /// <param name="includeCustomLanguages">Whether to read custom languages from <c>Data/AdditionalLanguages</c>.</param>
-        private Dictionary<string, LocalizedContentManager.LanguageCode> GetLocaleCodes(bool includeCustomLanguages)
+        /// <param name="customLanguages">The custom languages to add to the lookup.</param>
+        private Dictionary<string, LocalizedContentManager.LanguageCode> GetLocaleCodes(IEnumerable<ModLanguage> customLanguages)
         {
             var map = new Dictionary<string, LocalizedContentManager.LanguageCode>(StringComparer.OrdinalIgnoreCase);
 
             // custom languages
-            if (includeCustomLanguages)
+            foreach (ModLanguage language in customLanguages)
             {
-                foreach (ModLanguage language in Game1.content.Load<List<ModLanguage>>("Data/AdditionalLanguages"))
-                {
-                    if (!string.IsNullOrWhiteSpace(language?.LanguageCode))
-                        map[language.LanguageCode] = LocalizedContentManager.LanguageCode.mod;
-                }
+                if (!string.IsNullOrWhiteSpace(language?.LanguageCode))
+                    map[language.LanguageCode] = LocalizedContentManager.LanguageCode.mod;
             }
 
             // vanilla languages (override custom language if they conflict)
