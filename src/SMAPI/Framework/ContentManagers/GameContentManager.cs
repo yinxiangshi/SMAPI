@@ -68,11 +68,15 @@ namespace StardewModdingAPI.Framework.ContentManagers
             if (base.DoesAssetExist(assetName))
                 return true;
 
+            // vanilla asset
+            if (File.Exists(Path.Combine(this.RootDirectory, $"{assetName.Name}.xnb")))
+                return true;
+
             // managed asset
             if (this.Coordinator.TryParseManagedAssetKey(assetName.Name, out string contentManagerID, out IAssetName relativePath))
                 return this.Coordinator.DoesManagedAssetExist(contentManagerID, relativePath);
 
-            // else check for loaders
+            // custom asset from a loader
             string locale = this.GetLocale();
             IAssetInfo info = new AssetInfo(locale, assetName, typeof(object), this.AssertAndNormalizeAssetName);
             ModLinked<IAssetLoader>[] loaders = this.GetLoaders<object>(info).ToArray();
