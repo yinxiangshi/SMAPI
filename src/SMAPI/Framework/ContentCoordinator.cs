@@ -136,7 +136,7 @@ namespace StardewModdingAPI.Framework
             );
             this.ContentManagers.Add(contentManagerForAssetPropagation);
             this.VanillaContentManager = new LocalizedContentManager(serviceProvider, rootDirectory);
-            this.CoreAssets = new CoreAssetPropagator(this.MainContentManager, contentManagerForAssetPropagation, this.Monitor, reflection, aggressiveMemoryOptimizations);
+            this.CoreAssets = new CoreAssetPropagator(this.MainContentManager, contentManagerForAssetPropagation, this.Monitor, reflection, aggressiveMemoryOptimizations, this.ParseAssetName);
             this.LocaleCodes = new Lazy<Dictionary<string, LocalizedContentManager.LanguageCode>>(() => this.GetLocaleCodes(customLanguages: Enumerable.Empty<ModLanguage>()));
         }
 
@@ -260,8 +260,8 @@ namespace StardewModdingAPI.Framework
         }
 
         /// <summary>Get whether this asset is mapped to a mod folder.</summary>
-        /// <param name="key">The asset key.</param>
-        public bool IsManagedAssetKey(string key)
+        /// <param name="key">The asset name.</param>
+        public bool IsManagedAssetKey(IAssetName key)
         {
             return key.StartsWith(this.ManagedPrefix);
         }
@@ -269,9 +269,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>Parse a managed SMAPI asset key which maps to a mod folder.</summary>
         /// <param name="key">The asset key.</param>
         /// <param name="contentManagerID">The unique name for the content manager which should load this asset.</param>
-        /// <param name="relativePath">The relative path within the mod folder.</param>
+        /// <param name="relativePath">The asset name within the mod folder.</param>
         /// <returns>Returns whether the asset was parsed successfully.</returns>
-        public bool TryParseManagedAssetKey(string key, out string contentManagerID, out string relativePath)
+        public bool TryParseManagedAssetKey(string key, out string contentManagerID, out IAssetName relativePath)
         {
             contentManagerID = null;
             relativePath = null;
@@ -285,7 +285,7 @@ namespace StardewModdingAPI.Framework
             if (parts.Length != 3) // managed key prefix, mod id, relative path
                 return false;
             contentManagerID = Path.Combine(parts[0], parts[1]);
-            relativePath = parts[2];
+            relativePath = this.ParseAssetName(parts[2]);
             return true;
         }
 
@@ -299,8 +299,8 @@ namespace StardewModdingAPI.Framework
         /// <summary>Get a copy of an asset from a mod folder.</summary>
         /// <typeparam name="T">The asset type.</typeparam>
         /// <param name="contentManagerID">The unique name for the content manager which should load this asset.</param>
-        /// <param name="relativePath">The internal SMAPI asset key.</param>
-        public T LoadManagedAsset<T>(string contentManagerID, string relativePath)
+        /// <param name="relativePath">The asset name within the mod folder.</param>
+        public T LoadManagedAsset<T>(string contentManagerID, IAssetName relativePath)
         {
             // get content manager
             IContentManager contentManager = this.ContentManagerLock.InReadLock(() =>
@@ -404,7 +404,7 @@ namespace StardewModdingAPI.Framework
         /// <summary>Get all loaded instances of an asset name.</summary>
         /// <param name="assetName">The asset name.</param>
         [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "This method is provided for Content Patcher.")]
-        public IEnumerable<object> GetLoadedValues(string assetName)
+        public IEnumerable<object> GetLoadedValues(IAssetName assetName)
         {
             return this.ContentManagerLock.InReadLock(() =>
             {

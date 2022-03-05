@@ -45,8 +45,8 @@ namespace StardewModdingAPI.Metadata
         /// <summary>Whether to enable more aggressive memory optimizations.</summary>
         private readonly bool AggressiveMemoryOptimizations;
 
-        /// <summary>Normalizes an asset key to match the cache key and assert that it's valid.</summary>
-        private readonly Func<string, string> AssertAndNormalizeAssetName;
+        /// <summary>Parse a raw asset name.</summary>
+        private readonly Func<string, IAssetName> ParseAssetName;
 
         /// <summary>Optimized bucket categories for batch reloading assets.</summary>
         private enum AssetBucket
@@ -71,15 +71,15 @@ namespace StardewModdingAPI.Metadata
         /// <param name="monitor">Writes messages to the console.</param>
         /// <param name="reflection">Simplifies access to private code.</param>
         /// <param name="aggressiveMemoryOptimizations">Whether to enable more aggressive memory optimizations.</param>
-        public CoreAssetPropagator(LocalizedContentManager mainContent, GameContentManagerForAssetPropagation disposableContent, IMonitor monitor, Reflector reflection, bool aggressiveMemoryOptimizations)
+        /// <param name="parseAssetName">Parse a raw asset name.</param>
+        public CoreAssetPropagator(LocalizedContentManager mainContent, GameContentManagerForAssetPropagation disposableContent, IMonitor monitor, Reflector reflection, bool aggressiveMemoryOptimizations, Func<string, IAssetName> parseAssetName)
         {
             this.MainContentManager = mainContent;
             this.DisposableContentManager = disposableContent;
             this.Monitor = monitor;
             this.Reflection = reflection;
             this.AggressiveMemoryOptimizations = aggressiveMemoryOptimizations;
-
-            this.AssertAndNormalizeAssetName = disposableContent.AssertAndNormalizeAssetName;
+            this.ParseAssetName = parseAssetName;
         }
 
         /// <summary>Reload one of the game's core assets (if applicable).</summary>
@@ -955,13 +955,12 @@ namespace StardewModdingAPI.Metadata
         private void ReloadNpcSprites(IEnumerable<IAssetName> keys, IDictionary<IAssetName, bool> propagated)
         {
             // get NPCs
-            IDictionary<string, IAssetName> lookup = keys.ToDictionary(p => p.Name, StringComparer.OrdinalIgnoreCase);
             var characters =
                 (
                     from npc in this.GetCharacters()
-                    let key = this.NormalizeAssetNameIgnoringEmpty(npc.Sprite?.Texture?.Name)
-                    where key != null && lookup.ContainsKey(key)
-                    select new { Npc = npc, AssetName = lookup[key] }
+                    let key = this.ParseAssetNameOrNull(npc.Sprite?.Texture?.Name)
+                    where key != null && propagated.ContainsKey(key)
+                    select new { Npc = npc, AssetName = key }
                 )
                 .ToArray();
             if (!characters.Any())
@@ -981,26 +980,25 @@ namespace StardewModdingAPI.Metadata
         private void ReloadNpcPortraits(IEnumerable<IAssetName> keys, IDictionary<IAssetName, bool> propagated)
         {
             // get NPCs
-            IDictionary<string, IAssetName> lookup = keys.ToDictionary(p => p.Name, StringComparer.OrdinalIgnoreCase);
             var characters =
                 (
                     from npc in this.GetCharacters()
                     where npc.isVillager()
 
-                    let key = this.NormalizeAssetNameIgnoringEmpty(npc.Portrait?.Name)
-                    where key != null && lookup.ContainsKey(key)
-                    select new { Npc = npc, AssetName = lookup[key] }
+                    let key = this.ParseAssetNameOrNull(npc.Portrait?.Name)
+                    where key != null && propagated.ContainsKey(key)
+                    select new { Npc = npc, AssetName = key }
                 )
                 .ToList();
 
             // special case: Gil is a private NPC field on the AdventureGuild class (only used for the portrait)
             {
-                string gilKey = this.NormalizeAssetNameIgnoringEmpty("Portraits/Gil");
-                if (lookup.TryGetValue(gilKey, out IAssetName assetName))
+                IAssetName gilKey = this.ParseAssetName("Portraits/Gil");
+                if (propagated.ContainsKey(gilKey))
                 {
                     GameLocation adventureGuild = Game1.getLocationFromName("AdventureGuild");
                     if (adventureGuild != null)
-                        characters.Add(new { Npc = this.Reflection.GetField<NPC>(adventureGuild, "Gil").GetValue(), AssetName = assetName });
+                        characters.Add(new { Npc = this.Reflection.GetField<NPC>(adventureGuild, "Gil").GetValue(), AssetName = gilKey });
                 }
             }
 
@@ -1234,12 +1232,12 @@ namespace StardewModdingAPI.Metadata
 
         /// <summary>Normalize an asset key to match the cache key and assert that it's valid, but don't raise an error for null or empty values.</summary>
         /// <param name="path">The asset key to normalize.</param>
-        private string NormalizeAssetNameIgnoringEmpty(string path)
+        private IAssetName ParseAssetNameOrNull(string path)
         {
             if (string.IsNullOrWhiteSpace(path))
                 return null;
 
-            return this.AssertAndNormalizeAssetName(path);
+            return this.ParseAssetName(path);
         }
 
         /// <summary>Get the segments in a path (e.g. 'a/b' is 'a' and 'b').</summary>

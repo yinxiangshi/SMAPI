@@ -93,36 +93,30 @@ namespace StardewModdingAPI.Framework.ContentManagers
         }
 
         /// <inheritdoc />
+        [Obsolete("This method is implemented for the base game and should not be used directly. To load an asset from the underlying content manager directly, use " + nameof(BaseContentManager.RawLoad) + " instead.")]
+        public override T LoadBase<T>(string assetName)
+        {
+            return this.Load<T>(assetName, LanguageCode.en);
+        }
+
+        /// <inheritdoc />
         public override T Load<T>(string assetName)
         {
-            return this.Load<T>(assetName, this.Language, useCache: true);
+            return this.Load<T>(assetName, this.Language);
         }
 
         /// <inheritdoc />
         public override T Load<T>(string assetName, LanguageCode language)
         {
-            return this.Load<T>(assetName, language, useCache: true);
+            IAssetName parsedName = this.Coordinator.ParseAssetName(assetName);
+            return this.Load<T>(parsedName, language, useCache: true);
         }
 
         /// <inheritdoc />
-        public abstract T Load<T>(string assetName, LocalizedContentManager.LanguageCode language, bool useCache);
-
-        /// <inheritdoc />
-        [Obsolete("This method is implemented for the base game and should not be used directly. To load an asset from the underlying content manager directly, use " + nameof(BaseContentManager.RawLoad) + " instead.")]
-        public override T LoadBase<T>(string assetName)
-        {
-            return this.Load<T>(assetName, LanguageCode.en, useCache: true);
-        }
+        public abstract T Load<T>(IAssetName assetName, LanguageCode language, bool useCache);
 
         /// <inheritdoc />
         public virtual void OnLocaleChanged() { }
-
-        /// <inheritdoc />
-        [Pure]
-        public string NormalizePathSeparators(string path)
-        {
-            return this.Cache.NormalizePathSeparators(path);
-        }
 
         /// <inheritdoc />
         [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local", Justification = "Parameter is only used for assertion checks by design.")]
@@ -154,11 +148,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
         }
 
         /// <inheritdoc />
-        public bool IsLoaded(string assetName, LanguageCode language)
-        {
-            assetName = this.Cache.NormalizeKey(assetName);
-            return this.IsNormalizedKeyLoaded(assetName, language);
-        }
+        public abstract bool IsLoaded(IAssetName assetName, LanguageCode language);
 
         /****
         ** Cache invalidation
@@ -233,6 +223,14 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /*********
         ** Private methods
         *********/
+        /// <summary>Normalize path separators in a file path. For asset keys, see <see cref="AssertAndNormalizeAssetName"/> instead.</summary>
+        /// <param name="path">The file path to normalize.</param>
+        [Pure]
+        protected string NormalizePathSeparators(string path)
+        {
+            return this.Cache.NormalizePathSeparators(path);
+        }
+
         /// <summary>Load an asset file directly from the underlying content manager.</summary>
         /// <typeparam name="T">The type of asset to load.</typeparam>
         /// <param name="assetName">The normalized asset key.</param>
@@ -250,26 +248,18 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <param name="value">The asset value.</param>
         /// <param name="language">The language code for which to inject the asset.</param>
         /// <param name="useCache">Whether to save the asset to the asset cache.</param>
-        protected virtual void TrackAsset<T>(string assetName, T value, LanguageCode language, bool useCache)
+        protected virtual void TrackAsset<T>(IAssetName assetName, T value, LanguageCode language, bool useCache)
         {
             // track asset key
             if (value is Texture2D texture)
-                texture.Name = assetName;
+                texture.Name = assetName.Name;
 
             // cache asset
             if (useCache)
-            {
-                assetName = this.AssertAndNormalizeAssetName(assetName);
-                this.Cache[assetName] = value;
-            }
+                this.Cache[assetName.Name] = value;
 
             // avoid hard disposable references; see remarks on the field
             this.BaseDisposableReferences.Clear();
         }
-
-        /// <summary>Get whether an asset has already been loaded.</summary>
-        /// <param name="normalizedAssetName">The normalized asset name.</param>
-        /// <param name="language">The language to check.</param>
-        protected abstract bool IsNormalizedKeyLoaded(string normalizedAssetName, LanguageCode language);
     }
 }

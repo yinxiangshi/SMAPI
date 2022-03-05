@@ -66,21 +66,19 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <inheritdoc />
         public override T Load<T>(string assetName)
         {
-            return this.Load<T>(assetName, this.DefaultLanguage, useCache: false);
+            return this.Load<T>(assetName, this.DefaultLanguage);
         }
 
         /// <inheritdoc />
         public override T Load<T>(string assetName, LanguageCode language)
         {
-            return this.Load<T>(assetName, language, useCache: false);
+            IAssetName parsedName = this.Coordinator.ParseAssetName(assetName);
+            return this.Load<T>(parsedName, language, useCache: false);
         }
 
         /// <inheritdoc />
-        public override T Load<T>(string assetName, LanguageCode language, bool useCache)
+        public override T Load<T>(IAssetName assetName, LanguageCode language, bool useCache)
         {
-            // normalize key
-            IAssetName parsedName = this.Coordinator.ParseAssetName(assetName);
-
             // disable caching
             // This is necessary to avoid assets being shared between content managers, which can
             // cause changes to an asset through one content manager affecting the same asset in
@@ -96,21 +94,21 @@ namespace StardewModdingAPI.Framework.ContentManagers
 
             // resolve managed asset key
             {
-                if (this.Coordinator.TryParseManagedAssetKey(parsedName.Name, out string contentManagerID, out string relativePath))
+                if (this.Coordinator.TryParseManagedAssetKey(assetName.Name, out string contentManagerID, out IAssetName relativePath))
                 {
                     if (contentManagerID != this.Name)
-                        throw new SContentLoadException($"Can't load managed asset key '{parsedName}' through content manager '{this.Name}' for a different mod.");
-                    parsedName = this.Coordinator.ParseAssetName(relativePath);
+                        throw new SContentLoadException($"Can't load managed asset key '{assetName}' through content manager '{this.Name}' for a different mod.");
+                    assetName = relativePath;
                 }
             }
 
             // get local asset
-            SContentLoadException GetContentError(string reasonPhrase) => new SContentLoadException($"Failed loading asset '{parsedName}' from {this.Name}: {reasonPhrase}");
+            SContentLoadException GetContentError(string reasonPhrase) => new($"Failed loading asset '{assetName}' from {this.Name}: {reasonPhrase}");
             T asset;
             try
             {
                 // get file
-                FileInfo file = this.GetModFile(parsedName.Name);
+                FileInfo file = this.GetModFile(assetName.Name);
                 if (!file.Exists)
                     throw GetContentError("the specified path doesn't exist.");
 
@@ -122,7 +120,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
                         {
                             // the underlying content manager adds a .xnb extension implicitly, so
                             // we need to strip it here to avoid trying to load a '.xnb.xnb' file.
-                            string loadName = parsedName.Name[..^".xnb".Length];
+                            string loadName = assetName.Name[..^".xnb".Length];
 
                             // load asset
                             asset = this.RawLoad<T>(loadName, useCache: false);
@@ -177,8 +175,8 @@ namespace StardewModdingAPI.Framework.ContentManagers
                             // fetch & cache
                             FormatManager formatManager = FormatManager.Instance;
                             Map map = formatManager.LoadMap(file.FullName);
-                            map.assetPath = parsedName.Name;
-                            this.FixTilesheetPaths(map, relativeMapPath: parsedName.Name, fixEagerPathPrefixes: false);
+                            map.assetPath = assetName.Name;
+                            this.FixTilesheetPaths(map, relativeMapPath: assetName.Name, fixEagerPathPrefixes: false);
                             asset = (T)(object)map;
                         }
                         break;
@@ -189,12 +187,18 @@ namespace StardewModdingAPI.Framework.ContentManagers
             }
             catch (Exception ex) when (!(ex is SContentLoadException))
             {
-                throw new SContentLoadException($"The content manager failed loading content asset '{parsedName}' from {this.Name}.", ex);
+                throw new SContentLoadException($"The content manager failed loading content asset '{assetName}' from {this.Name}.", ex);
             }
 
             // track & return asset
-            this.TrackAsset(parsedName.Name, asset, language, useCache);
+            this.TrackAsset(assetName, asset, language, useCache);
             return asset;
+        }
+
+        /// <inheritdoc />
+        public override bool IsLoaded(IAssetName assetName, LanguageCode language)
+        {
+            return this.Cache.ContainsKey(assetName.Name);
         }
 
         /// <inheritdoc />
@@ -206,23 +210,19 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <summary>Get the underlying key in the game's content cache for an asset. This does not validate whether the asset exists.</summary>
         /// <param name="key">The local path to a content file relative to the mod folder.</param>
         /// <exception cref="ArgumentException">The <paramref name="key"/> is empty or contains invalid characters.</exception>
-        public string GetInternalAssetKey(string key)
+        public IAssetName GetInternalAssetKey(string key)
         {
             FileInfo file = this.GetModFile(key);
             string relativePath = PathUtilities.GetRelativePath(this.RootDirectory, file.FullName);
-            return Path.Combine(this.Name, relativePath);
+            string internalKey = Path.Combine(this.Name, relativePath);
+
+            return this.Coordinator.ParseAssetName(internalKey);
         }
 
 
         /*********
         ** Private methods
         *********/
-        /// <inheritdoc />
-        protected override bool IsNormalizedKeyLoaded(string normalizedAssetName, LanguageCode language)
-        {
-            return this.Cache.ContainsKey(normalizedAssetName);
-        }
-
         /// <summary>Get a file from the mod folder.</summary>
         /// <param name="path">The asset path relative to the content folder.</param>
         private FileInfo GetModFile(string path)
@@ -304,15 +304,15 @@ namespace StardewModdingAPI.Framework.ContentManagers
                 // load best match
                 try
                 {
-                    if (!this.TryGetTilesheetAssetName(relativeMapFolder, imageSource, out string assetName, out string error))
+                    if (!this.TryGetTilesheetAssetName(relativeMapFolder, imageSource, out IAssetName assetName, out string error))
                         throw new SContentLoadException($"{errorPrefix} {error}");
 
-                    if (assetName != tilesheet.ImageSource)
+                    if (!assetName.IsEquivalentTo(tilesheet.ImageSource))
                         this.Monitor.VerboseLog($"   Mapped tilesheet '{tilesheet.ImageSource}' to '{assetName}'.");
 
-                    tilesheet.ImageSource = assetName;
+                    tilesheet.ImageSource = assetName.Name;
                 }
-                catch (Exception ex) when (!(ex is SContentLoadException))
+                catch (Exception ex) when (ex is not SContentLoadException)
                 {
                     throw new SContentLoadException($"{errorPrefix} The tilesheet couldn't be loaded.", ex);
                 }
@@ -326,7 +326,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <param name="error">A message indicating why the file couldn't be loaded.</param>
         /// <returns>Returns whether the asset name was found.</returns>
         /// <remarks>See remarks on <see cref="FixTilesheetPaths"/>.</remarks>
-        private bool TryGetTilesheetAssetName(string modRelativeMapFolder, string relativePath, out string assetName, out string error)
+        private bool TryGetTilesheetAssetName(string modRelativeMapFolder, string relativePath, out IAssetName assetName, out string error)
         {
             assetName = null;
             error = null;
@@ -334,7 +334,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             // nothing to do
             if (string.IsNullOrWhiteSpace(relativePath))
             {
-                assetName = relativePath;
+                assetName = null;
                 return true;
             }
 
@@ -358,7 +358,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             }
 
             // get from game assets
-            string contentKey = this.GetContentKeyForTilesheetImageSource(relativePath);
+            IAssetName contentKey = this.Coordinator.ParseAssetName(this.GetContentKeyForTilesheetImageSource(relativePath));
             try
             {
                 this.GameContentManager.Load<Texture2D>(contentKey, this.Language, useCache: true); // no need to bypass cache here, since we're not storing the asset
@@ -374,7 +374,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
                 // if the content file doesn't exist, that doesn't mean the error here is a
                 // content-not-found error. Unfortunately XNA doesn't provide a good way to
                 // detect the error type.
-                if (this.GetContentFolderFileExists(contentKey))
+                if (this.GetContentFolderFileExists(contentKey.Name))
                     throw;
             }
 

@@ -25,7 +25,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             : base(name, serviceProvider, rootDirectory, currentCulture, coordinator, monitor, reflection, onDisposing, onLoadingFirstAsset, aggressiveMemoryOptimizations) { }
 
         /// <inheritdoc />
-        public override T Load<T>(string assetName, LanguageCode language, bool useCache)
+        public override T Load<T>(IAssetName assetName, LanguageCode language, bool useCache)
         {
             T data = base.Load<T>(assetName, language, useCache);
 

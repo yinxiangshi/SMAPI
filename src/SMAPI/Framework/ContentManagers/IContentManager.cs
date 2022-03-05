@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using Microsoft.Xna.Framework.Content;
 using StardewModdingAPI.Framework.Exceptions;
 using StardewValley;
@@ -31,15 +30,10 @@ namespace StardewModdingAPI.Framework.ContentManagers
         *********/
         /// <summary>Load an asset that has been processed by the content pipeline.</summary>
         /// <typeparam name="T">The type of asset to load.</typeparam>
-        /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
+        /// <param name="assetName">The asset name relative to the loader root directory.</param>
         /// <param name="language">The language code for which to load content.</param>
         /// <param name="useCache">Whether to read/write the loaded asset to the asset cache.</param>
-        T Load<T>(string assetName, LocalizedContentManager.LanguageCode language, bool useCache);
-
-        /// <summary>Normalize path separators in a file path. For asset keys, see <see cref="AssertAndNormalizeAssetName"/> instead.</summary>
-        /// <param name="path">The file path to normalize.</param>
-        [Pure]
-        string NormalizePathSeparators(string path);
+        T Load<T>(IAssetName assetName, LocalizedContentManager.LanguageCode language, bool useCache);
 
         /// <summary>Assert that the given key has a valid format and return a normalized form consistent with the underlying cache.</summary>
         /// <param name="assetName">The asset key to check.</param>
@@ -56,7 +50,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <summary>Get whether the content manager has already loaded and cached the given asset.</summary>
         /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
         /// <param name="language">The language.</param>
-        bool IsLoaded(string assetName, LocalizedContentManager.LanguageCode language);
+        bool IsLoaded(IAssetName assetName, LocalizedContentManager.LanguageCode language);
 
         /// <summary>Purge matched assets from the cache.</summary>
         /// <param name="predicate">Matches the asset keys to invalidate.</param>

@@ -80,16 +80,18 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <inheritdoc />
         public T Load<T>(string key, ContentSource source = ContentSource.ModFolder)
         {
+            IAssetName assetName = this.ContentCore.ParseAssetName(key);
+
             try
             {
                 this.AssertAndNormalizeAssetName(key);
                 switch (source)
                 {
                     case ContentSource.GameContent:
-                        return this.GameContentManager.Load<T>(key, this.CurrentLocaleConstant, useCache: false);
+                        return this.GameContentManager.Load<T>(assetName, this.CurrentLocaleConstant, useCache: false);
 
                     case ContentSource.ModFolder:
-                        return this.ModContentManager.Load<T>(key, Constants.DefaultLanguage, useCache: false);
+                        return this.ModContentManager.Load<T>(assetName, Constants.DefaultLanguage, useCache: false);
 
                     default:
                         throw new SContentLoadException($"{this.ModName} failed loading content asset '{key}' from {source}: unknown content source '{source}'.");
@@ -117,7 +119,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
                     return this.GameContentManager.AssertAndNormalizeAssetName(key);
 
                 case ContentSource.ModFolder:
-                    return this.ModContentManager.GetInternalAssetKey(key);
+                    return this.ModContentManager.GetInternalAssetKey(key).Name;
 
                 default:
                     throw new NotSupportedException($"Unknown content source '{source}'.");
