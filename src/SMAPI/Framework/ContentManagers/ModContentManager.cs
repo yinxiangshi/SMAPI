@@ -79,7 +79,6 @@ namespace StardewModdingAPI.Framework.ContentManagers
         public override T Load<T>(string assetName, LanguageCode language, bool useCache)
         {
             // normalize key
-            bool isXnbFile = Path.GetExtension(assetName).ToLower() == ".xnb";
             IAssetName parsedName = this.Coordinator.ParseAssetName(assetName);
 
             // disable caching
@@ -111,7 +110,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             try
             {
                 // get file
-                FileInfo file = this.GetModFile(isXnbFile ? $"{parsedName}.xnb" : parsedName.Name); // .xnb extension is stripped from asset names passed to the content manager
+                FileInfo file = this.GetModFile(parsedName.Name);
                 if (!file.Exists)
                     throw GetContentError("the specified path doesn't exist.");
 
@@ -121,11 +120,16 @@ namespace StardewModdingAPI.Framework.ContentManagers
                     // XNB file
                     case ".xnb":
                         {
-                            asset = this.RawLoad<T>(parsedName.Name, useCache: false);
+                            // the underlying content manager adds a .xnb extension implicitly, so
+                            // we need to strip it here to avoid trying to load a '.xnb.xnb' file.
+                            string loadName = parsedName.Name[..^".xnb".Length];
+
+                            // load asset
+                            asset = this.RawLoad<T>(loadName, useCache: false);
                             if (asset is Map map)
                             {
-                                map.assetPath = parsedName.Name;
-                                this.FixTilesheetPaths(map, relativeMapPath: parsedName.Name, fixEagerPathPrefixes: true);
+                                map.assetPath = loadName;
+                                this.FixTilesheetPaths(map, relativeMapPath: loadName, fixEagerPathPrefixes: true);
                             }
                         }
                         break;
