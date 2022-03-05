@@ -63,6 +63,29 @@ namespace StardewModdingAPI.Framework.ContentManagers
         }
 
         /// <inheritdoc />
+        public override bool DoesAssetExist(IAssetName assetName)
+        {
+            if (base.DoesAssetExist(assetName))
+                return true;
+
+            // managed asset
+            if (this.Coordinator.TryParseManagedAssetKey(assetName.Name, out string contentManagerID, out IAssetName relativePath))
+                return this.Coordinator.DoesManagedAssetExist(contentManagerID, relativePath);
+
+            // else check for loaders
+            string locale = this.GetLocale();
+            IAssetInfo info = new AssetInfo(locale, assetName, typeof(object), this.AssertAndNormalizeAssetName);
+            ModLinked<IAssetLoader>[] loaders = this.GetLoaders<object>(info).ToArray();
+            if (loaders.Length > 1)
+            {
+                string[] loaderNames = loaders.Select(p => p.Mod.DisplayName).ToArray();
+                this.Monitor.Log($"Multiple mods want to provide the '{info.Name}' asset ({string.Join(", ", loaderNames)}), but an asset can't be loaded multiple times. SMAPI will use the default asset instead; uninstall one of the mods to fix this. (Message for modders: you should usually use {typeof(IAssetEditor)} instead to avoid conflicts.)", LogLevel.Warn);
+            }
+
+            return loaders.Length == 1;
+        }
+
+        /// <inheritdoc />
         public override T Load<T>(IAssetName assetName, LanguageCode language, bool useCache)
         {
             // raise first-load callback
@@ -246,20 +269,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
         private IAssetData ApplyLoader<T>(IAssetInfo info)
         {
             // find matching loaders
-            var loaders = this.Loaders
-                .Where(entry =>
-                {
-                    try
-                    {
-                        return entry.Data.CanLoad<T>(info);
-                    }
-                    catch (Exception ex)
-                    {
-                        entry.Mod.LogAsMod($"Mod failed when checking whether it could load asset '{info.Name}', and will be ignored. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
-                        return false;
-                    }
-                })
-                .ToArray();
+            var loaders = this.GetLoaders<T>(info).ToArray();
 
             // validate loaders
             if (!loaders.Any())
@@ -358,6 +368,26 @@ namespace StardewModdingAPI.Framework.ContentManagers
 
             // return result
             return asset;
+        }
+
+        /// <summary>Get the asset loaders which handle the asset.</summary>
+        /// <typeparam name="T">The asset type.</typeparam>
+        /// <param name="info">The basic asset metadata.</param>
+        private IEnumerable<ModLinked<IAssetLoader>> GetLoaders<T>(IAssetInfo info)
+        {
+            return this.Loaders
+                .Where(entry =>
+                {
+                    try
+                    {
+                        return entry.Data.CanLoad<T>(info);
+                    }
+                    catch (Exception ex)
+                    {
+                        entry.Mod.LogAsMod($"Mod failed when checking whether it could load asset '{info.Name}', and will be ignored. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
+                        return false;
+                    }
+                });
         }
 
         /// <summary>Validate that an asset loaded by a mod is valid and won't cause issues, and fix issues if possible.</summary>

@@ -93,6 +93,12 @@ namespace StardewModdingAPI.Framework.ContentManagers
         }
 
         /// <inheritdoc />
+        public virtual bool DoesAssetExist(IAssetName assetName)
+        {
+            return this.Cache.ContainsKey(assetName.Name);
+        }
+
+        /// <inheritdoc />
         [Obsolete("This method is implemented for the base game and should not be used directly. To load an asset from the underlying content manager directly, use " + nameof(BaseContentManager.RawLoad) + " instead.")]
         public override T LoadBase<T>(string assetName)
         {

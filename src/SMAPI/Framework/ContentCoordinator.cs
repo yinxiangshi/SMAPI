@@ -296,6 +296,22 @@ namespace StardewModdingAPI.Framework
             return Path.Combine(this.ManagedPrefix, modID.ToLower());
         }
 
+        /// <summary>Get whether an asset from a mod folder exists.</summary>
+        /// <param name="contentManagerID">The unique name for the content manager which should load this asset.</param>
+        /// <param name="assetName">The asset name within the mod folder.</param>
+        public bool DoesManagedAssetExist(string contentManagerID, IAssetName assetName)
+        {
+            // get content manager
+            IContentManager contentManager = this.ContentManagerLock.InReadLock(() =>
+                this.ContentManagers.FirstOrDefault(p => p.IsNamespaced && p.Name == contentManagerID)
+            );
+            if (contentManager == null)
+                throw new InvalidOperationException($"The '{contentManagerID}' prefix isn't handled by any mod.");
+
+            // get whether the asset exists
+            return contentManager.DoesAssetExist(assetName);
+        }
+
         /// <summary>Get a copy of an asset from a mod folder.</summary>
         /// <typeparam name="T">The asset type.</typeparam>
         /// <param name="contentManagerID">The unique name for the content manager which should load this asset.</param>

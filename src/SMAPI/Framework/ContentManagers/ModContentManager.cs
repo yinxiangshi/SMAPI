@@ -64,6 +64,16 @@ namespace StardewModdingAPI.Framework.ContentManagers
         }
 
         /// <inheritdoc />
+        public override bool DoesAssetExist(IAssetName assetName)
+        {
+            if (base.DoesAssetExist(assetName))
+                return true;
+
+            FileInfo file = this.GetModFile(assetName.Name);
+            return file.Exists;
+        }
+
+        /// <inheritdoc />
         public override T Load<T>(string assetName)
         {
             return this.Load<T>(assetName, this.DefaultLanguage);
