@@ -8,7 +8,17 @@ cd "$(dirname "$0")" || exit $?
 
 # change to true to skip opening a terminal
 # This isn't recommended since you won't see errors, warnings, and update alerts.
-SKIP_TERMINAL=false
+OPTS=`getopt -o St --long skip-terminal,terminal -n 'parse-options' -- "$@"`
+while true; do
+  case "$1" in
+    -S | --skip-terminal ) SKIP_TERMINAL=true; shift ;;
+    -t | --terminal ) SKIP_TERMINAL=false; shift ;;
+    -- ) shift; break ;;
+    * ) break ;;
+  esac
+done
+
+${SKIP_TERMINAL:=false}
 
 
 ##########
