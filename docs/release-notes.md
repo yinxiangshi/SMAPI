@@ -5,6 +5,9 @@
 * For players:
   * Improved translations. Thanks to ChulkyBow (updated Ukrainian)!
   * Fixed `player_add` console command's handling of Journal Scraps and Secret Notes.
+  * Improved [command-line arguments](technical/smapi.md#command-line-arguments) on Linux/macOS:
+    * Added `--use-current-shell` to avoid opening a separate terminal window.
+    * Fixed `--no-terminal` still opening a terminal window, even if nothing is logged to it (thanks to Ryhon0!).
 
 * For mod authors:
   * Overhauled [mod-provided APIs](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Integrations#Mod-provided_APIs) (thanks to Shockah!).  

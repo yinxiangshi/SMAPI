@@ -38,18 +38,20 @@ or testing and may change without warning. On Linux/macOS, see _environment vari
 
 argument | purpose
 -------- | -------
-`--no-terminal` | SMAPI won't write anything to the console window. (Messages will still be written to the log file.)
+`--no-terminal` | The SMAPI launcher won't try to open a terminal window, and SMAPI won't log anything to the console. (Messages will still be written to the log file.)
+`--use-current-shell` | The SMAPI launcher won't try to open a terminal window, but SMAPI will still log to the console. (Messages will still be written to the log file.)
 `--mods-path` | The path to search for mods, if not the standard `Mods` folder. This can be a path relative to the game folder (like `--mods-path "Mods (test)"`) or an absolute path.
 
 ### Environment variables
-The above SMAPI arguments don't work on Linux/macOS due to the way the game launcher works. You can
-set temporary environment variables instead. For example:
+The above SMAPI arguments may not work on Linux/macOS due to the way the game launcher works. You
+can set temporary environment variables instead. For example:
 > SMAPI_MODS_PATH="Mods (multiplayer)" /path/to/StardewValley
 
 environment variable | purpose
 -------------------- | -------
-`SMAPI_NO_TERMINAL` | Equivalent to `--no-terminal` above.
 `SMAPI_MODS_PATH` | Equivalent to `--mods-path` above.
+`SMAPI_NO_TERMINAL` | Equivalent to `--no-terminal` above.
+`SMAPI_USE_CURRENT_SHELL` | Equivalent to `--use-current-shell` above.
 
 ### Compile flags
 SMAPI uses a small number of conditional compilation constants, which you can set by editing the
