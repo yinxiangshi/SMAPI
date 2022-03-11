@@ -131,6 +131,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
             Farm farm = Game1.getFarm();
             farm.mapPath.Value = $@"Maps\{Farm.getMapNameFromTypeInt(Game1.whichFarm)}";
             farm.reloadMap();
+            farm.updateWarps();
 
             // clear spouse area cache to avoid errors
             FieldInfo cacheField = farm.GetType().GetField("_baseSpouseAreaTiles", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);

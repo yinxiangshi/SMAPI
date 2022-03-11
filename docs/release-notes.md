@@ -5,6 +5,7 @@
 * For players:
   * Improved translations. Thanks to ChulkyBow (updated Ukrainian)!
   * Fixed `player_add` console command's handling of Journal Scraps and Secret Notes.
+  * Fixed `set_farm_type` console command not updating warps if they moved.
   * Improved [command-line arguments](technical/smapi.md#command-line-arguments) on Linux/macOS:
     * Added `--use-current-shell` to avoid opening a separate terminal window.
     * Fixed `--no-terminal` still opening a terminal window, even if nothing is logged to it (thanks to Ryhon0!).
