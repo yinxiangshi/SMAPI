@@ -24,7 +24,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
         ** Fields
         *********/
         /// <summary>The assets currently being intercepted by <see cref="IAssetLoader"/> instances. This is used to prevent infinite loops when a loader loads a new asset.</summary>
-        private readonly ContextHash<string> AssetsBeingLoaded = new ContextHash<string>();
+        private readonly ContextHash<string> AssetsBeingLoaded = new();
 
         /// <summary>Interceptors which provide the initial versions of matching assets.</summary>
         private IList<ModLinked<IAssetLoader>> Loaders => this.Coordinator.Loaders;
@@ -79,12 +79,10 @@ namespace StardewModdingAPI.Framework.ContentManagers
             // custom asset from a loader
             string locale = this.GetLocale();
             IAssetInfo info = new AssetInfo(locale, assetName, typeof(object), this.AssertAndNormalizeAssetName);
-            ModLinked<IAssetLoader>[] loaders = this.GetLoaders<object>(info).ToArray();
-            if (loaders.Length > 1)
-            {
-                string[] loaderNames = loaders.Select(p => p.Mod.DisplayName).ToArray();
-                this.Monitor.Log($"Multiple mods want to provide the '{info.Name}' asset ({string.Join(", ", loaderNames)}), but an asset can't be loaded multiple times. SMAPI will use the default asset instead; uninstall one of the mods to fix this. (Message for modders: you should usually use {typeof(IAssetEditor)} instead to avoid conflicts.)", LogLevel.Warn);
-            }
+            AssetLoadOperation[] loaders = this.GetLoaders<object>(info).ToArray();
+
+            if (!this.AssertMaxOneLoader(info, loaders, out string error))
+                this.Monitor.Log(error, LogLevel.Warn);
 
             return loaders.Length == 1;
         }
@@ -261,7 +259,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
                 // try base asset
                 return base.RawLoad<T>(assetName.Name, useCache);
             }
-            catch (ContentLoadException ex) when (ex.InnerException is FileNotFoundException innerEx && innerEx.InnerException == null)
+            catch (ContentLoadException ex) when (ex.InnerException is FileNotFoundException { InnerException: null })
             {
                 throw new SContentLoadException($"Error loading \"{assetName}\": it isn't in the Content folder and no mod provided it.");
             }
@@ -272,27 +270,31 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <returns>Returns the loaded asset metadata, or <c>null</c> if no loader matched.</returns>
         private IAssetData ApplyLoader<T>(IAssetInfo info)
         {
-            // find matching loaders
-            var loaders = this.GetLoaders<T>(info).ToArray();
-
-            // validate loaders
-            if (!loaders.Any())
-                return null;
-            if (loaders.Length > 1)
+            // find matching loader
+            AssetLoadOperation loader;
             {
-                string[] loaderNames = loaders.Select(p => p.Mod.DisplayName).ToArray();
-                this.Monitor.Log($"Multiple mods want to provide the '{info.Name}' asset ({string.Join(", ", loaderNames)}), but an asset can't be loaded multiple times. SMAPI will use the default asset instead; uninstall one of the mods to fix this. (Message for modders: you should usually use {typeof(IAssetEditor)} instead to avoid conflicts.)", LogLevel.Warn);
-                return null;
+                AssetLoadOperation[] loaders = this.GetLoaders<T>(info).ToArray();
+
+                if (!this.AssertMaxOneLoader(info, loaders, out string error))
+                {
+                    this.Monitor.Log(error, LogLevel.Warn);
+                    return null;
+                }
+
+                loader = loaders.FirstOrDefault();
             }
 
+            // no loader found
+            if (loader == null)
+                return null;
+
             // fetch asset from loader
-            IModMetadata mod = loaders[0].Mod;
-            IAssetLoader loader = loaders[0].Data;
+            IModMetadata mod = loader.Mod;
             T data;
             try
             {
-                data = loader.Load<T>(info);
-                this.Monitor.Log($"{mod.DisplayName} loaded asset '{info.Name}'.", LogLevel.Trace);
+                data = (T)loader.GetData(info);
+                this.Monitor.Log($"{mod.DisplayName} loaded asset '{info.Name}'.");
             }
             catch (Exception ex)
             {
@@ -322,34 +324,23 @@ namespace StardewModdingAPI.Framework.ContentManagers
                 if (typeof(T) != actualType && (actualOpenType == typeof(Dictionary<,>) || actualOpenType == typeof(List<>) || actualType == typeof(Texture2D) || actualType == typeof(Map)))
                 {
                     return (IAssetData)this.GetType()
-                        .GetMethod(nameof(this.ApplyEditors), BindingFlags.NonPublic | BindingFlags.Instance)
+                        .GetMethod(nameof(this.ApplyEditors), BindingFlags.NonPublic | BindingFlags.Instance)!
                         .MakeGenericMethod(actualType)
                         .Invoke(this, new object[] { info, asset });
                 }
             }
 
             // edit asset
-            foreach (var entry in this.Editors)
+            AssetEditOperation[] editors = this.GetEditors<T>(info).ToArray();
+            foreach (AssetEditOperation editor in editors)
             {
-                // check for match
-                IModMetadata mod = entry.Mod;
-                IAssetEditor editor = entry.Data;
-                try
-                {
-                    if (!editor.CanEdit<T>(info))
-                        continue;
-                }
-                catch (Exception ex)
-                {
-                    mod.LogAsMod($"Mod crashed when checking whether it could edit asset '{info.Name}', and will be ignored. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
-                    continue;
-                }
+                IModMetadata mod = editor.Mod;
 
                 // try edit
                 object prevAsset = asset.Data;
                 try
                 {
-                    editor.Edit<T>(asset);
+                    editor.ApplyEdit(asset);
                     this.Monitor.Log($"{mod.DisplayName} edited {info.Name}.");
                 }
                 catch (Exception ex)
@@ -374,24 +365,72 @@ namespace StardewModdingAPI.Framework.ContentManagers
             return asset;
         }
 
-        /// <summary>Get the asset loaders which handle the asset.</summary>
+        /// <summary>Get the asset loaders which handle an asset.</summary>
         /// <typeparam name="T">The asset type.</typeparam>
         /// <param name="info">The basic asset metadata.</param>
-        private IEnumerable<ModLinked<IAssetLoader>> GetLoaders<T>(IAssetInfo info)
+        private IEnumerable<AssetLoadOperation> GetLoaders<T>(IAssetInfo info)
         {
             return this.Loaders
-                .Where(entry =>
+                .Where(loader =>
                 {
                     try
                     {
-                        return entry.Data.CanLoad<T>(info);
+                        return loader.Data.CanLoad<T>(info);
                     }
                     catch (Exception ex)
                     {
-                        entry.Mod.LogAsMod($"Mod failed when checking whether it could load asset '{info.Name}', and will be ignored. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
+                        loader.Mod.LogAsMod($"Mod failed when checking whether it could load asset '{info.Name}', and will be ignored. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
                         return false;
                     }
-                });
+                })
+                .Select(
+                    loader => new AssetLoadOperation(loader.Mod, assetInfo => loader.Data.Load<T>(assetInfo))
+                );
+        }
+
+        /// <summary>Get the asset editors to apply to an asset.</summary>
+        /// <typeparam name="T">The asset type.</typeparam>
+        /// <param name="info">The basic asset metadata.</param>
+        private IEnumerable<AssetEditOperation> GetEditors<T>(IAssetInfo info)
+        {
+            return this.Editors
+                .Where(editor =>
+                {
+                    try
+                    {
+                        return editor.Data.CanEdit<T>(info);
+                    }
+                    catch (Exception ex)
+                    {
+                        editor.Mod.LogAsMod($"Mod crashed when checking whether it could edit asset '{info.Name}', and will be ignored. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
+                        return false;
+                    }
+                })
+                .Select(
+                    editor => new AssetEditOperation(editor.Mod, assetData => editor.Data.Edit<T>(assetData))
+                );
+        }
+
+        /// <summary>Assert that at most one loader will be applied to an asset.</summary>
+        /// <param name="info">The basic asset metadata.</param>
+        /// <param name="loaders">The asset loaders to apply.</param>
+        /// <param name="error">The error message to show to the user, if the method returns false.</param>
+        /// <returns>Returns true if only one loader will apply, else false.</returns>
+        private bool AssertMaxOneLoader(IAssetInfo info, AssetLoadOperation[] loaders, out string error)
+        {
+            if (loaders.Length <= 1)
+            {
+                error = null;
+                return true;
+            }
+
+            string[] loaderNames = loaders.Select(p => p.Mod.DisplayName).ToArray();
+            string errorPhrase = loaderNames.Length > 1
+                ? $"Multiple mods want to provide '{info.Name}' asset ({string.Join(", ", loaderNames)})"
+                : $"The '{loaderNames[0]}' mod wants to provide the '{info.Name}' asset multiple times";
+
+            error = $"{errorPhrase}, but an asset can't be loaded multiple times. SMAPI will use the default asset instead; uninstall one of the mods to fix this. (Message for modders: you should usually use {typeof(IAssetEditor)} instead to avoid conflicts.)";
+            return false;
         }
 
         /// <summary>Validate that an asset loaded by a mod is valid and won't cause issues, and fix issues if possible.</summary>
