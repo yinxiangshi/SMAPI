@@ -8,25 +8,27 @@ namespace StardewModdingAPI
         /*********
         ** Accessors
         *********/
-        /// <summary>Provides simplified APIs for writing mods.</summary>
+        /// <inheritdoc />
         public IModHelper Helper { get; internal set; }
 
-        /// <summary>Writes messages to the console and log file.</summary>
+        /// <inheritdoc />
         public IMonitor Monitor { get; internal set; }
 
-        /// <summary>The mod's manifest.</summary>
+        /// <inheritdoc />
         public IManifest ModManifest { get; internal set; }
 
 
         /*********
         ** Public methods
         *********/
-        /// <summary>The mod entry point, called after the mod is first loaded.</summary>
-        /// <param name="helper">Provides simplified APIs for writing mods.</param>
+        /// <inheritdoc />
         public abstract void Entry(IModHelper helper);
 
-        /// <summary>Get an API that other mods can access. This is always called after <see cref="Entry"/>.</summary>
-        public virtual object GetApi() => null;
+        /// <inheritdoc />
+        public virtual object GetApi()
+        {
+            return null;
+        }
 
         /// <summary>Release or reset unmanaged resources.</summary>
         public void Dispose()

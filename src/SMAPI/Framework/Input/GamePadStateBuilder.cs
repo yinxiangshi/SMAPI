@@ -85,8 +85,7 @@ namespace StardewModdingAPI.Framework.Input
             this.RightStickPos = sticks.Right;
         }
 
-        /// <summary>Override the states for a set of buttons.</summary>
-        /// <param name="overrides">The button state overrides.</param>
+        /// <inheritdoc />
         public GamePadStateBuilder OverrideButtons(IDictionary<SButton, SButtonState> overrides)
         {
             if (!this.IsConnected)
@@ -151,7 +150,7 @@ namespace StardewModdingAPI.Framework.Input
             return this;
         }
 
-        /// <summary>Get the currently pressed buttons.</summary>
+        /// <inheritdoc />
         public IEnumerable<SButton> GetPressedButtons()
         {
             if (!this.IsConnected)
@@ -191,7 +190,7 @@ namespace StardewModdingAPI.Framework.Input
             }
         }
 
-        /// <summary>Get the equivalent state.</summary>
+        /// <inheritdoc />
         public GamePadState GetState()
         {
             this.State ??= new GamePadState(

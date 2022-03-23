@@ -33,10 +33,10 @@ namespace StardewModdingAPI.Framework.Events
         /*********
         ** Accessors
         *********/
-        /// <summary>A human-readable name for the event.</summary>
+        /// <inheritdoc />
         public string EventName { get; }
 
-        /// <summary>Whether the event is typically called at least once per second.</summary>
+        /// <inheritdoc />
         public bool IsPerformanceCritical { get; }
 
 
