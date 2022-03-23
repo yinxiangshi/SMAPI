@@ -16,6 +16,7 @@
   * Added `Constants.ContentPath`.
   * Added `IAssetName Name` field to the info received by `IAssetEditor` and `IAssetLoader` methods.  
     _This adds methods for working with asset names, parsed locales, etc._
+  * If an asset is loaded multiple times in the same tick, `IAssetLoader.CanLoad` and `IAssetEditor.CanEdit` are now cached unless invalidated via `helper.Content.InvalidateCache`.
   * Fixed the `SDate` constructor being case-sensitive.
   * Fixed support for using locale codes from custom languages in asset names (e.g. `Data/Achievements.eo-EU`).
   * Fixed issue where suppressing `[Left|Right]Thumbstick[Down|Left]` keys would suppress the opposite direction instead.

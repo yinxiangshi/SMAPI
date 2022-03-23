@@ -10,6 +10,8 @@ using Microsoft.Xna.Framework.Content;
 using StardewModdingAPI.Framework.Content;
 using StardewModdingAPI.Framework.ContentManagers;
 using StardewModdingAPI.Framework.Reflection;
+using StardewModdingAPI.Framework.Utilities;
+using StardewModdingAPI.Internal;
 using StardewModdingAPI.Metadata;
 using StardewModdingAPI.Toolkit.Serialization;
 using StardewModdingAPI.Toolkit.Utilities;
@@ -67,6 +69,9 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>The language enum values indexed by locale code.</summary>
         private Lazy<Dictionary<string, LocalizedContentManager.LanguageCode>> LocaleCodes;
+
+        /// <summary>The cached asset load/edit operations to apply, indexed by asset name.</summary>
+        private readonly TickCacheDictionary<IAssetName, AssetOperationGroup[]> AssetOperationsByKey = new();
 
 
         /*********
@@ -351,17 +356,17 @@ namespace StardewModdingAPI.Framework
         public IEnumerable<IAssetName> InvalidateCache(Func<IContentManager, string, Type, bool> predicate, bool dispose = false)
         {
             // invalidate cache & track removed assets
-            IDictionary<IAssetName, Type> removedAssets = new Dictionary<IAssetName, Type>();
+            IDictionary<IAssetName, Type> invalidatedAssets = new Dictionary<IAssetName, Type>();
             this.ContentManagerLock.InReadLock(() =>
             {
                 // cached assets
                 foreach (IContentManager contentManager in this.ContentManagers)
                 {
-                    foreach (var entry in contentManager.InvalidateCache((key, type) => predicate(contentManager, key, type), dispose))
+                    foreach ((string key, object asset) in contentManager.InvalidateCache((key, type) => predicate(contentManager, key, type), dispose))
                     {
-                        AssetName assetName = this.ParseAssetName(entry.Key);
-                        if (!removedAssets.ContainsKey(assetName))
-                            removedAssets[assetName] = entry.Value.GetType();
+                        AssetName assetName = this.ParseAssetName(key);
+                        if (!invalidatedAssets.ContainsKey(assetName))
+                            invalidatedAssets[assetName] = asset.GetType();
                     }
                 }
 
@@ -376,18 +381,22 @@ namespace StardewModdingAPI.Framework
 
                         // get map path
                         AssetName mapPath = this.ParseAssetName(this.MainContentManager.AssertAndNormalizeAssetName(location.mapPath.Value));
-                        if (!removedAssets.ContainsKey(mapPath) && predicate(this.MainContentManager, mapPath.Name, typeof(Map)))
-                            removedAssets[mapPath] = typeof(Map);
+                        if (!invalidatedAssets.ContainsKey(mapPath) && predicate(this.MainContentManager, mapPath.Name, typeof(Map)))
+                            invalidatedAssets[mapPath] = typeof(Map);
                     }
                 }
             });
 
+            // clear cached editor checks
+            foreach (IAssetName name in invalidatedAssets.Keys)
+                this.AssetOperationsByKey.Remove(name);
+
             // reload core game assets
-            if (removedAssets.Any())
+            if (invalidatedAssets.Any())
             {
                 // propagate changes to the game
                 this.CoreAssets.Propagate(
-                    assets: removedAssets.ToDictionary(p => p.Key, p => p.Value),
+                    assets: invalidatedAssets.ToDictionary(p => p.Key, p => p.Value),
                     ignoreWorld: Context.IsWorldFullyUnloaded,
                     out IDictionary<IAssetName, bool> propagated,
                     out bool updatedNpcWarps
@@ -396,7 +405,7 @@ namespace StardewModdingAPI.Framework
                 // log summary
                 StringBuilder report = new();
                 {
-                    IAssetName[] invalidatedKeys = removedAssets.Keys.ToArray();
+                    IAssetName[] invalidatedKeys = invalidatedAssets.Keys.ToArray();
                     IAssetName[] propagatedKeys = propagated.Where(p => p.Value).Select(p => p.Key).ToArray();
 
                     string FormatKeyList(IEnumerable<IAssetName> keys) => string.Join(", ", keys.Select(p => p.Name).OrderBy(p => p, StringComparer.OrdinalIgnoreCase));
@@ -414,7 +423,18 @@ namespace StardewModdingAPI.Framework
             else
                 this.Monitor.Log("Invalidated 0 cache entries.");
 
-            return removedAssets.Keys;
+            return invalidatedAssets.Keys;
+        }
+
+        /// <summary>Get the asset load and edit operations to apply to a given asset if it's (re)loaded now.</summary>
+        /// <typeparam name="T">The asset type.</typeparam>
+        /// <param name="info">The asset info to load or edit.</param>
+        public IEnumerable<AssetOperationGroup> GetAssetOperations<T>(IAssetInfo info)
+        {
+            return this.AssetOperationsByKey.GetOrSet(
+                info.Name,
+                () => this.GetAssetOperationsWithoutCache<T>(info).ToArray()
+            );
         }
 
         /// <summary>Get all loaded instances of an asset name.</summary>
@@ -533,6 +553,64 @@ namespace StardewModdingAPI.Framework
             }
 
             return map;
+        }
+
+        /// <summary>Get the asset load and edit operations to apply to a given asset if it's (re)loaded now, ignoring the <see cref="AssetOperationsByKey"/> cache.</summary>
+        /// <typeparam name="T">The asset type.</typeparam>
+        /// <param name="info">The asset info to load or edit.</param>
+        private IEnumerable<AssetOperationGroup> GetAssetOperationsWithoutCache<T>(IAssetInfo info)
+        {
+            // legacy load operations
+            foreach (ModLinked<IAssetLoader> loader in this.Loaders)
+            {
+                // check if loader applies
+                try
+                {
+                    if (!loader.Data.CanLoad<T>(info))
+                        continue;
+                }
+                catch (Exception ex)
+                {
+                    loader.Mod.LogAsMod($"Mod failed when checking whether it could load asset '{info.Name}', and will be ignored. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
+                    continue;
+                }
+
+                // add operation
+                yield return new AssetOperationGroup(
+                    mod: loader.Mod,
+                    loadOperations: new[]
+                    {
+                        new AssetLoadOperation(loader.Mod, assetInfo => loader.Data.Load<T>(assetInfo))
+                    },
+                    editOperations: Array.Empty<AssetEditOperation>()
+                );
+            }
+
+            // legacy edit operations
+            foreach (var editor in this.Editors)
+            {
+                // check if editor applies
+                try
+                {
+                    if (!editor.Data.CanEdit<T>(info))
+                        continue;
+                }
+                catch (Exception ex)
+                {
+                    editor.Mod.LogAsMod($"Mod crashed when checking whether it could edit asset '{info.Name}', and will be ignored. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
+                    continue;
+                }
+
+                // add operation
+                yield return new AssetOperationGroup(
+                    mod: editor.Mod,
+                    loadOperations: Array.Empty<AssetLoadOperation>(),
+                    editOperations: new[]
+                    {
+                        new AssetEditOperation(editor.Mod, assetData => editor.Data.Edit<T>(assetData))
+                    }
+                );
+            }
         }
     }
 }

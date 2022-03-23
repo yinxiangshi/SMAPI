@@ -26,12 +26,6 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <summary>The assets currently being intercepted by <see cref="IAssetLoader"/> instances. This is used to prevent infinite loops when a loader loads a new asset.</summary>
         private readonly ContextHash<string> AssetsBeingLoaded = new();
 
-        /// <summary>Interceptors which provide the initial versions of matching assets.</summary>
-        private IList<ModLinked<IAssetLoader>> Loaders => this.Coordinator.Loaders;
-
-        /// <summary>Interceptors which edit matching assets after they're loaded.</summary>
-        private IList<ModLinked<IAssetEditor>> Editors => this.Coordinator.Editors;
-
         /// <summary>Maps asset names to their localized form, like <c>LooseSprites\Billboard => LooseSprites\Billboard.fr-FR</c> (localized) or <c>Maps\AnimalShop => Maps\AnimalShop</c> (not localized).</summary>
         private IDictionary<string, string> LocalizedAssetNames => LocalizedContentManager.localizedAssetNames;
 
@@ -370,22 +364,9 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <param name="info">The basic asset metadata.</param>
         private IEnumerable<AssetLoadOperation> GetLoaders<T>(IAssetInfo info)
         {
-            return this.Loaders
-                .Where(loader =>
-                {
-                    try
-                    {
-                        return loader.Data.CanLoad<T>(info);
-                    }
-                    catch (Exception ex)
-                    {
-                        loader.Mod.LogAsMod($"Mod failed when checking whether it could load asset '{info.Name}', and will be ignored. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
-                        return false;
-                    }
-                })
-                .Select(
-                    loader => new AssetLoadOperation(loader.Mod, assetInfo => loader.Data.Load<T>(assetInfo))
-                );
+            return this.Coordinator
+                .GetAssetOperations<T>(info)
+                .SelectMany(p => p.LoadOperations);
         }
 
         /// <summary>Get the asset editors to apply to an asset.</summary>
@@ -393,22 +374,9 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <param name="info">The basic asset metadata.</param>
         private IEnumerable<AssetEditOperation> GetEditors<T>(IAssetInfo info)
         {
-            return this.Editors
-                .Where(editor =>
-                {
-                    try
-                    {
-                        return editor.Data.CanEdit<T>(info);
-                    }
-                    catch (Exception ex)
-                    {
-                        editor.Mod.LogAsMod($"Mod crashed when checking whether it could edit asset '{info.Name}', and will be ignored. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
-                        return false;
-                    }
-                })
-                .Select(
-                    editor => new AssetEditOperation(editor.Mod, assetData => editor.Data.Edit<T>(assetData))
-                );
+            return this.Coordinator
+                .GetAssetOperations<T>(info)
+                .SelectMany(p => p.EditOperations);
         }
 
         /// <summary>Assert that at most one loader will be applied to an asset.</summary>
