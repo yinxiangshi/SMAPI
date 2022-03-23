@@ -9,6 +9,9 @@ namespace StardewModdingAPI.Framework.Events
         ** Accessors
         *********/
         /// <inheritdoc />
+        public IContentEvents Content { get; }
+
+        /// <inheritdoc />
         public IDisplayEvents Display { get; }
 
         /// <inheritdoc />
@@ -38,6 +41,7 @@ namespace StardewModdingAPI.Framework.Events
         /// <param name="eventManager">The underlying event manager.</param>
         public ModEvents(IModMetadata mod, EventManager eventManager)
         {
+            this.Content = new ModContentEvents(mod, eventManager);
             this.Display = new ModDisplayEvents(mod, eventManager);
             this.GameLoop = new ModGameLoopEvents(mod, eventManager);
             this.Input = new ModInputEvents(mod, eventManager);

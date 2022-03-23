@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using Microsoft.Xna.Framework.Content;
+using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework.Content;
 using StardewModdingAPI.Framework.ContentManagers;
 using StardewModdingAPI.Framework.Reflection;
@@ -70,6 +71,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>The language enum values indexed by locale code.</summary>
         private Lazy<Dictionary<string, LocalizedContentManager.LanguageCode>> LocaleCodes;
 
+        /// <summary>Get the load/edit operations to apply to an asset by querying registered <see cref="IContentEvents.AssetRequested"/> event handlers.</summary>
+        private readonly Func<IAssetInfo, IList<AssetOperationGroup>> RequestAssetOperations;
+
         /// <summary>The cached asset load/edit operations to apply, indexed by asset name.</summary>
         private readonly TickCacheDictionary<IAssetName, AssetOperationGroup[]> AssetOperationsByKey = new();
 
@@ -105,13 +109,15 @@ namespace StardewModdingAPI.Framework
         /// <param name="jsonHelper">Encapsulates SMAPI's JSON file parsing.</param>
         /// <param name="onLoadingFirstAsset">A callback to invoke the first time *any* game content manager loads an asset.</param>
         /// <param name="aggressiveMemoryOptimizations">Whether to enable more aggressive memory optimizations.</param>
-        public ContentCoordinator(IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, IMonitor monitor, Reflector reflection, JsonHelper jsonHelper, Action onLoadingFirstAsset, bool aggressiveMemoryOptimizations)
+        /// <param name="requestAssetOperations">Get the load/edit operations to apply to an asset by querying registered <see cref="IContentEvents.AssetRequested"/> event handlers.</param>
+        public ContentCoordinator(IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, IMonitor monitor, Reflector reflection, JsonHelper jsonHelper, Action onLoadingFirstAsset, bool aggressiveMemoryOptimizations, Func<IAssetInfo, IList<AssetOperationGroup>> requestAssetOperations)
         {
             this.AggressiveMemoryOptimizations = aggressiveMemoryOptimizations;
             this.Monitor = monitor ?? throw new ArgumentNullException(nameof(monitor));
             this.Reflection = reflection;
             this.JsonHelper = jsonHelper;
             this.OnLoadingFirstAsset = onLoadingFirstAsset;
+            this.RequestAssetOperations = requestAssetOperations;
             this.FullRootDirectory = Path.Combine(Constants.GamePath, rootDirectory);
             this.ContentManagers.Add(
                 this.MainContentManager = new GameContentManager(
@@ -560,6 +566,10 @@ namespace StardewModdingAPI.Framework
         /// <param name="info">The asset info to load or edit.</param>
         private IEnumerable<AssetOperationGroup> GetAssetOperationsWithoutCache<T>(IAssetInfo info)
         {
+            // new content API
+            foreach (AssetOperationGroup group in this.RequestAssetOperations(info))
+                yield return group;
+
             // legacy load operations
             foreach (ModLinked<IAssetLoader> loader in this.Loaders)
             {

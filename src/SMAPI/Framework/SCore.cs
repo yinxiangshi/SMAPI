@@ -1106,6 +1106,35 @@ namespace StardewModdingAPI.Framework
             this.EventManager.DayEnding.RaiseEmpty();
         }
 
+        /// <summary>Get the load/edit operations to apply to an asset by querying registered <see cref="IContentEvents.AssetRequested"/> event handlers.</summary>
+        /// <param name="asset">The asset info being requested.</param>
+        private IList<AssetOperationGroup> RequestAssetOperations(IAssetInfo asset)
+        {
+            List<AssetOperationGroup> operations = new();
+
+            this.EventManager.AssetRequested.Raise(
+                invoke: (mod, invoke) =>
+                {
+                    AssetRequestedEventArgs args = new(mod, asset.Name);
+
+                    invoke(args);
+
+                    if (args.LoadOperations.Any() || args.EditOperations.Any())
+                    {
+                        operations.Add(
+                            new AssetOperationGroup(
+                                mod,
+                                args.LoadOperations.Select(p => new AssetLoadOperation(mod, assetInfo => p.GetData(assetInfo))).ToArray(),
+                                args.EditOperations.Select(p => new AssetEditOperation(mod, assetInfo => p.ApplyEdit(assetInfo))).ToArray()
+                            )
+                        );
+                    }
+                }
+            );
+
+            return operations;
+        }
+
         /// <summary>Raised immediately before the player returns to the title screen.</summary>
         private void OnReturningToTitle()
         {
@@ -1142,7 +1171,17 @@ namespace StardewModdingAPI.Framework
             // Game1._temporaryContent initializing from SGame constructor
             if (this.ContentCore == null)
             {
-                this.ContentCore = new ContentCoordinator(serviceProvider, rootDirectory, Thread.CurrentThread.CurrentUICulture, this.Monitor, this.Reflection, this.Toolkit.JsonHelper, this.InitializeBeforeFirstAssetLoaded, this.Settings.AggressiveMemoryOptimizations);
+                this.ContentCore = new ContentCoordinator(
+                    serviceProvider: serviceProvider,
+                    rootDirectory: rootDirectory,
+                    currentCulture: Thread.CurrentThread.CurrentUICulture,
+                    monitor: this.Monitor,
+                    reflection: this.Reflection,
+                    jsonHelper: this.Toolkit.JsonHelper,
+                    onLoadingFirstAsset: this.InitializeBeforeFirstAssetLoaded,
+                    aggressiveMemoryOptimizations: this.Settings.AggressiveMemoryOptimizations,
+                    requestAssetOperations: this.RequestAssetOperations
+                );
                 if (this.ContentCore.Language != this.Translator.LocaleEnum)
                     this.Translator.SetLocale(this.ContentCore.GetLocale(), this.ContentCore.Language);
 

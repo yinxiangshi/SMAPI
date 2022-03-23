@@ -100,6 +100,14 @@ namespace StardewModdingAPI.Framework.Events
         /// <param name="match">A lambda which returns true if the event should be raised for the given mod.</param>
         public void Raise(TEventArgs args, Func<IModMetadata, bool> match = null)
         {
+            this.Raise((_, invoke) => invoke(args), match);
+        }
+
+        /// <summary>Raise the event and notify all handlers.</summary>
+        /// <param name="invoke">Invoke an event handler. This receives the mod which registered the handler, and should invoke the callback with the event arguments to pass it.</param>
+        /// <param name="match">A lambda which returns true if the event should be raised for the given mod.</param>
+        public void Raise(Action<IModMetadata, Action<TEventArgs>> invoke, Func<IModMetadata, bool> match = null)
+        {
             // skip if no handlers
             if (this.Handlers.Count == 0)
                 return;
@@ -128,7 +136,7 @@ namespace StardewModdingAPI.Framework.Events
 
                 try
                 {
-                    handler.Handler.Invoke(null, args);
+                    invoke(handler.SourceMod, args => handler.Handler.Invoke(null, args));
                 }
                 catch (Exception ex)
                 {
