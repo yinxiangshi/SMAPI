@@ -1122,11 +1122,7 @@ namespace StardewModdingAPI.Framework
                     if (args.LoadOperations.Any() || args.EditOperations.Any())
                     {
                         operations.Add(
-                            new AssetOperationGroup(
-                                mod,
-                                args.LoadOperations.Select(p => new AssetLoadOperation(mod, assetInfo => p.GetData(assetInfo))).ToArray(),
-                                args.EditOperations.Select(p => new AssetEditOperation(mod, assetInfo => p.ApplyEdit(assetInfo))).ToArray()
-                            )
+                            new AssetOperationGroup(mod, args.LoadOperations.ToArray(), args.EditOperations.ToArray())
                         );
                     }
                 }
