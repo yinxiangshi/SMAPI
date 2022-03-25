@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 
 namespace StardewModdingAPI.Events
@@ -11,7 +12,7 @@ namespace StardewModdingAPI.Events
         ** Accessors
         *********/
         /// <summary>The asset names that were invalidated.</summary>
-        public IEnumerable<IAssetName> Names { get; }
+        public IReadOnlySet<IAssetName> Names { get; }
 
 
         /*********
@@ -21,7 +22,7 @@ namespace StardewModdingAPI.Events
         /// <param name="names">The asset names that were invalidated.</param>
         internal AssetsInvalidatedEventArgs(IEnumerable<IAssetName> names)
         {
-            this.Names = names.ToArray();
+            this.Names = names.ToImmutableHashSet();
         }
     }
 }
