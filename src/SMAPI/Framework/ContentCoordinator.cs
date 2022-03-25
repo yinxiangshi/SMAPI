@@ -49,6 +49,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>A callback to invoke the first time *any* game content manager loads an asset.</summary>
         private readonly Action OnLoadingFirstAsset;
 
+        /// <summary>A callback to invoke when an asset is fully loaded.</summary>
+        private readonly Action<BaseContentManager, IAssetName> OnAssetLoaded;
+
         /// <summary>A callback to invoke when any asset names have been invalidated from the cache.</summary>
         private readonly Action<IEnumerable<IAssetName>> OnAssetsInvalidated;
 
@@ -111,16 +114,18 @@ namespace StardewModdingAPI.Framework
         /// <param name="reflection">Simplifies access to private code.</param>
         /// <param name="jsonHelper">Encapsulates SMAPI's JSON file parsing.</param>
         /// <param name="onLoadingFirstAsset">A callback to invoke the first time *any* game content manager loads an asset.</param>
+        /// <param name="onAssetLoaded">A callback to invoke when an asset is fully loaded.</param>
         /// <param name="aggressiveMemoryOptimizations">Whether to enable more aggressive memory optimizations.</param>
         /// <param name="onAssetsInvalidated">A callback to invoke when any asset names have been invalidated from the cache.</param>
         /// <param name="requestAssetOperations">Get the load/edit operations to apply to an asset by querying registered <see cref="IContentEvents.AssetRequested"/> event handlers.</param>
-        public ContentCoordinator(IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, IMonitor monitor, Reflector reflection, JsonHelper jsonHelper, Action onLoadingFirstAsset, bool aggressiveMemoryOptimizations, Action<IEnumerable<IAssetName>> onAssetsInvalidated, Func<IAssetInfo, IList<AssetOperationGroup>> requestAssetOperations)
+        public ContentCoordinator(IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, IMonitor monitor, Reflector reflection, JsonHelper jsonHelper, Action onLoadingFirstAsset, Action<BaseContentManager, IAssetName> onAssetLoaded, bool aggressiveMemoryOptimizations, Action<IEnumerable<IAssetName>> onAssetsInvalidated, Func<IAssetInfo, IList<AssetOperationGroup>> requestAssetOperations)
         {
             this.AggressiveMemoryOptimizations = aggressiveMemoryOptimizations;
             this.Monitor = monitor ?? throw new ArgumentNullException(nameof(monitor));
             this.Reflection = reflection;
             this.JsonHelper = jsonHelper;
             this.OnLoadingFirstAsset = onLoadingFirstAsset;
+            this.OnAssetLoaded = onAssetLoaded;
             this.OnAssetsInvalidated = onAssetsInvalidated;
             this.RequestAssetOperations = requestAssetOperations;
             this.FullRootDirectory = Path.Combine(Constants.GamePath, rootDirectory);
@@ -135,6 +140,7 @@ namespace StardewModdingAPI.Framework
                     reflection: reflection,
                     onDisposing: this.OnDisposing,
                     onLoadingFirstAsset: onLoadingFirstAsset,
+                    onAssetLoaded: onAssetLoaded,
                     aggressiveMemoryOptimizations: aggressiveMemoryOptimizations
                 )
             );
@@ -148,6 +154,7 @@ namespace StardewModdingAPI.Framework
                 reflection: reflection,
                 onDisposing: this.OnDisposing,
                 onLoadingFirstAsset: onLoadingFirstAsset,
+                onAssetLoaded: onAssetLoaded,
                 aggressiveMemoryOptimizations: aggressiveMemoryOptimizations
             );
             this.ContentManagers.Add(contentManagerForAssetPropagation);
@@ -172,6 +179,7 @@ namespace StardewModdingAPI.Framework
                     reflection: this.Reflection,
                     onDisposing: this.OnDisposing,
                     onLoadingFirstAsset: this.OnLoadingFirstAsset,
+                    onAssetLoaded: this.OnAssetLoaded,
                     aggressiveMemoryOptimizations: this.AggressiveMemoryOptimizations
                 );
                 this.ContentManagers.Add(manager);

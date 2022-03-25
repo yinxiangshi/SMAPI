@@ -19,6 +19,7 @@ using Newtonsoft.Json;
 using StardewModdingAPI.Enums;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework.Content;
+using StardewModdingAPI.Framework.ContentManagers;
 using StardewModdingAPI.Framework.Events;
 using StardewModdingAPI.Framework.Exceptions;
 using StardewModdingAPI.Framework.Input;
@@ -1106,6 +1107,15 @@ namespace StardewModdingAPI.Framework
             this.EventManager.DayEnding.RaiseEmpty();
         }
 
+        /// <summary>A callback invoked after an asset is fully loaded through a content manager.</summary>
+        /// <param name="contentManager">The content manager through which the asset was loaded.</param>
+        /// <param name="assetName">The asset name that was loaded.</param>
+        private void OnAssetLoaded(IContentManager contentManager, IAssetName assetName)
+        {
+            if (this.EventManager.AssetReady.HasListeners())
+                this.EventManager.AssetReady.Raise(new AssetReadyEventArgs(assetName));
+        }
+
         /// <summary>A callback invoked after assets have been invalidated from the content cache.</summary>
         /// <param name="assetNames">The invalidated asset names.</param>
         private void OnAssetsInvalidated(IEnumerable<IAssetName> assetNames)
@@ -1183,6 +1193,7 @@ namespace StardewModdingAPI.Framework
                     reflection: this.Reflection,
                     jsonHelper: this.Toolkit.JsonHelper,
                     onLoadingFirstAsset: this.InitializeBeforeFirstAssetLoaded,
+                    onAssetLoaded: this.OnAssetLoaded,
                     onAssetsInvalidated: this.OnAssetsInvalidated,
                     aggressiveMemoryOptimizations: this.Settings.AggressiveMemoryOptimizations,
                     requestAssetOperations: this.RequestAssetOperations

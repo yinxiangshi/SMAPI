@@ -35,6 +35,9 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <summary>A callback to invoke the first time *any* game content manager loads an asset.</summary>
         private readonly Action OnLoadingFirstAsset;
 
+        /// <summary>A callback to invoke when an asset is fully loaded.</summary>
+        private readonly Action<BaseContentManager, IAssetName> OnAssetLoaded;
+
 
         /*********
         ** Public methods
@@ -49,11 +52,13 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <param name="reflection">Simplifies access to private code.</param>
         /// <param name="onDisposing">A callback to invoke when the content manager is being disposed.</param>
         /// <param name="onLoadingFirstAsset">A callback to invoke the first time *any* game content manager loads an asset.</param>
+        /// <param name="onAssetLoaded">A callback to invoke when an asset is fully loaded.</param>
         /// <param name="aggressiveMemoryOptimizations">Whether to enable more aggressive memory optimizations.</param>
-        public GameContentManager(string name, IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, ContentCoordinator coordinator, IMonitor monitor, Reflector reflection, Action<BaseContentManager> onDisposing, Action onLoadingFirstAsset, bool aggressiveMemoryOptimizations)
+        public GameContentManager(string name, IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, ContentCoordinator coordinator, IMonitor monitor, Reflector reflection, Action<BaseContentManager> onDisposing, Action onLoadingFirstAsset, Action<BaseContentManager, IAssetName> onAssetLoaded, bool aggressiveMemoryOptimizations)
             : base(name, serviceProvider, rootDirectory, currentCulture, coordinator, monitor, reflection, onDisposing, isNamespaced: false, aggressiveMemoryOptimizations: aggressiveMemoryOptimizations)
         {
             this.OnLoadingFirstAsset = onLoadingFirstAsset;
+            this.OnAssetLoaded = onAssetLoaded;
         }
 
         /// <inheritdoc />
@@ -129,8 +134,11 @@ namespace StardewModdingAPI.Framework.ContentManagers
                 });
             }
 
-            // update cache & return data
+            // update cache
             this.TrackAsset(assetName, data, language, useCache);
+
+            // raise event & return data
+            this.OnAssetLoaded(this, assetName);
             return data;
         }
 

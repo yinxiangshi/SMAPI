@@ -1,10 +1,8 @@
-using System.Diagnostics.CodeAnalysis;
 using StardewModdingAPI.Events;
 
 namespace StardewModdingAPI.Framework.Events
 {
     /// <summary>Manages SMAPI events.</summary>
-    [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Private fields are deliberately named to simplify organisation.")]
     internal class EventManager
     {
         /*********
@@ -18,6 +16,9 @@ namespace StardewModdingAPI.Framework.Events
 
         /// <inheritdoc cref="IContentEvents.AssetsInvalidated" />
         public readonly ManagedEvent<AssetsInvalidatedEventArgs> AssetsInvalidated;
+
+        /// <inheritdoc cref="IContentEvents.AssetReady" />
+        public readonly ManagedEvent<AssetReadyEventArgs> AssetReady;
 
 
         /****
@@ -202,6 +203,7 @@ namespace StardewModdingAPI.Framework.Events
             // init events
             this.AssetRequested = ManageEventOf<AssetRequestedEventArgs>(nameof(IModEvents.Content), nameof(IContentEvents.AssetRequested));
             this.AssetsInvalidated = ManageEventOf<AssetsInvalidatedEventArgs>(nameof(IModEvents.Content), nameof(IContentEvents.AssetsInvalidated));
+            this.AssetReady = ManageEventOf<AssetReadyEventArgs>(nameof(IModEvents.Content), nameof(IContentEvents.AssetReady));
 
             this.MenuChanged = ManageEventOf<MenuChangedEventArgs>(nameof(IModEvents.Display), nameof(IDisplayEvents.MenuChanged));
             this.Rendering = ManageEventOf<RenderingEventArgs>(nameof(IModEvents.Display), nameof(IDisplayEvents.Rendering), isPerformanceCritical: true);
