@@ -13,5 +13,8 @@ namespace StardewModdingAPI.Events
         /// If the asset is requested multiple times in the same tick (e.g. once to check if it exists and once to load it), SMAPI might only raise the event once and reuse the cached result.
         /// </remarks>
         event EventHandler<AssetRequestedEventArgs> AssetRequested;
+
+        /// <summary>Raised after one or more assets were invalidated from the content cache by a mod, so they'll be reloaded next time they're requested. If the assets will be reloaded or propagated automatically, this event is raised before that happens.</summary>
+        event EventHandler<AssetsInvalidatedEventArgs> AssetsInvalidated;
     }
 }

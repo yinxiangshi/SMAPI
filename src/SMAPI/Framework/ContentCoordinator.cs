@@ -49,6 +49,12 @@ namespace StardewModdingAPI.Framework
         /// <summary>A callback to invoke the first time *any* game content manager loads an asset.</summary>
         private readonly Action OnLoadingFirstAsset;
 
+        /// <summary>A callback to invoke when any asset names have been invalidated from the cache.</summary>
+        private readonly Action<IEnumerable<IAssetName>> OnAssetsInvalidated;
+
+        /// <summary>Get the load/edit operations to apply to an asset by querying registered <see cref="IContentEvents.AssetRequested"/> event handlers.</summary>
+        private readonly Func<IAssetInfo, IList<AssetOperationGroup>> RequestAssetOperations;
+
         /// <summary>The loaded content managers (including the <see cref="MainContentManager"/>).</summary>
         private readonly List<IContentManager> ContentManagers = new();
 
@@ -70,9 +76,6 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>The language enum values indexed by locale code.</summary>
         private Lazy<Dictionary<string, LocalizedContentManager.LanguageCode>> LocaleCodes;
-
-        /// <summary>Get the load/edit operations to apply to an asset by querying registered <see cref="IContentEvents.AssetRequested"/> event handlers.</summary>
-        private readonly Func<IAssetInfo, IList<AssetOperationGroup>> RequestAssetOperations;
 
         /// <summary>The cached asset load/edit operations to apply, indexed by asset name.</summary>
         private readonly TickCacheDictionary<IAssetName, AssetOperationGroup[]> AssetOperationsByKey = new();
@@ -109,14 +112,16 @@ namespace StardewModdingAPI.Framework
         /// <param name="jsonHelper">Encapsulates SMAPI's JSON file parsing.</param>
         /// <param name="onLoadingFirstAsset">A callback to invoke the first time *any* game content manager loads an asset.</param>
         /// <param name="aggressiveMemoryOptimizations">Whether to enable more aggressive memory optimizations.</param>
+        /// <param name="onAssetsInvalidated">A callback to invoke when any asset names have been invalidated from the cache.</param>
         /// <param name="requestAssetOperations">Get the load/edit operations to apply to an asset by querying registered <see cref="IContentEvents.AssetRequested"/> event handlers.</param>
-        public ContentCoordinator(IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, IMonitor monitor, Reflector reflection, JsonHelper jsonHelper, Action onLoadingFirstAsset, bool aggressiveMemoryOptimizations, Func<IAssetInfo, IList<AssetOperationGroup>> requestAssetOperations)
+        public ContentCoordinator(IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, IMonitor monitor, Reflector reflection, JsonHelper jsonHelper, Action onLoadingFirstAsset, bool aggressiveMemoryOptimizations, Action<IEnumerable<IAssetName>> onAssetsInvalidated, Func<IAssetInfo, IList<AssetOperationGroup>> requestAssetOperations)
         {
             this.AggressiveMemoryOptimizations = aggressiveMemoryOptimizations;
             this.Monitor = monitor ?? throw new ArgumentNullException(nameof(monitor));
             this.Reflection = reflection;
             this.JsonHelper = jsonHelper;
             this.OnLoadingFirstAsset = onLoadingFirstAsset;
+            this.OnAssetsInvalidated = onAssetsInvalidated;
             this.RequestAssetOperations = requestAssetOperations;
             this.FullRootDirectory = Path.Combine(Constants.GamePath, rootDirectory);
             this.ContentManagers.Add(
@@ -257,7 +262,7 @@ namespace StardewModdingAPI.Framework
             // Note that we *must* propagate changes here, otherwise when mods invalidate the cache later to reapply
             // their changes, the assets won't be found in the cache so no changes will be propagated.
             if (LocalizedContentManager.CurrentLanguageCode != LocalizedContentManager.LanguageCode.en)
-                this.InvalidateCache((contentManager, key, type) => contentManager is GameContentManager);
+                this.InvalidateCache((contentManager, _, _) => contentManager is GameContentManager);
         }
 
         /// <summary>Parse a raw asset name.</summary>
@@ -347,7 +352,7 @@ namespace StardewModdingAPI.Framework
         public IEnumerable<IAssetName> InvalidateCache(Func<IAssetInfo, bool> predicate, bool dispose = false)
         {
             string locale = this.GetLocale();
-            return this.InvalidateCache((contentManager, rawName, type) =>
+            return this.InvalidateCache((_, rawName, type) =>
             {
                 IAssetName assetName = this.ParseAssetName(rawName);
                 IAssetInfo info = new AssetInfo(locale, assetName, type, this.MainContentManager.AssertAndNormalizeAssetName);
@@ -393,13 +398,16 @@ namespace StardewModdingAPI.Framework
                 }
             });
 
-            // clear cached editor checks
-            foreach (IAssetName name in invalidatedAssets.Keys)
-                this.AssetOperationsByKey.Remove(name);
-
-            // reload core game assets
+            // handle invalidation
             if (invalidatedAssets.Any())
             {
+                // clear cached editor checks
+                foreach (IAssetName name in invalidatedAssets.Keys)
+                    this.AssetOperationsByKey.Remove(name);
+
+                // raise event
+                this.OnAssetsInvalidated(invalidatedAssets.Keys);
+
                 // propagate changes to the game
                 this.CoreAssets.Propagate(
                     assets: invalidatedAssets.ToDictionary(p => p.Key, p => p.Value),

@@ -16,6 +16,9 @@ namespace StardewModdingAPI.Framework.Events
         /// <inheritdoc cref="IContentEvents.AssetRequested" />
         public readonly ManagedEvent<AssetRequestedEventArgs> AssetRequested;
 
+        /// <inheritdoc cref="IContentEvents.AssetsInvalidated" />
+        public readonly ManagedEvent<AssetsInvalidatedEventArgs> AssetsInvalidated;
+
 
         /****
         ** Display
@@ -198,6 +201,7 @@ namespace StardewModdingAPI.Framework.Events
 
             // init events
             this.AssetRequested = ManageEventOf<AssetRequestedEventArgs>(nameof(IModEvents.Content), nameof(IContentEvents.AssetRequested));
+            this.AssetsInvalidated = ManageEventOf<AssetsInvalidatedEventArgs>(nameof(IModEvents.Content), nameof(IContentEvents.AssetsInvalidated));
 
             this.MenuChanged = ManageEventOf<MenuChangedEventArgs>(nameof(IModEvents.Display), nameof(IDisplayEvents.MenuChanged));
             this.Rendering = ManageEventOf<RenderingEventArgs>(nameof(IModEvents.Display), nameof(IDisplayEvents.Rendering), isPerformanceCritical: true);

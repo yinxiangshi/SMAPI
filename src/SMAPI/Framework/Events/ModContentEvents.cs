@@ -16,6 +16,13 @@ namespace StardewModdingAPI.Framework.Events
             remove => this.EventManager.AssetRequested.Remove(value);
         }
 
+        /// <inheritdoc />
+        public event EventHandler<AssetsInvalidatedEventArgs> AssetsInvalidated
+        {
+            add => this.EventManager.AssetsInvalidated.Add(value, this.Mod);
+            remove => this.EventManager.AssetsInvalidated.Remove(value);
+        }
+
 
         /*********
         ** Public methods

@@ -1106,6 +1106,14 @@ namespace StardewModdingAPI.Framework
             this.EventManager.DayEnding.RaiseEmpty();
         }
 
+        /// <summary>A callback invoked after assets have been invalidated from the content cache.</summary>
+        /// <param name="assetNames">The invalidated asset names.</param>
+        private void OnAssetsInvalidated(IEnumerable<IAssetName> assetNames)
+        {
+            if (this.EventManager.AssetsInvalidated.HasListeners())
+                this.EventManager.AssetsInvalidated.Raise(new AssetsInvalidatedEventArgs(assetNames));
+        }
+
         /// <summary>Get the load/edit operations to apply to an asset by querying registered <see cref="IContentEvents.AssetRequested"/> event handlers.</summary>
         /// <param name="asset">The asset info being requested.</param>
         private IList<AssetOperationGroup> RequestAssetOperations(IAssetInfo asset)
@@ -1175,6 +1183,7 @@ namespace StardewModdingAPI.Framework
                     reflection: this.Reflection,
                     jsonHelper: this.Toolkit.JsonHelper,
                     onLoadingFirstAsset: this.InitializeBeforeFirstAssetLoaded,
+                    onAssetsInvalidated: this.OnAssetsInvalidated,
                     aggressiveMemoryOptimizations: this.Settings.AggressiveMemoryOptimizations,
                     requestAssetOperations: this.RequestAssetOperations
                 );
