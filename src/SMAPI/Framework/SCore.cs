@@ -1113,15 +1113,15 @@ namespace StardewModdingAPI.Framework
         private void OnAssetLoaded(IContentManager contentManager, IAssetName assetName)
         {
             if (this.EventManager.AssetReady.HasListeners())
-                this.EventManager.AssetReady.Raise(new AssetReadyEventArgs(assetName));
+                this.EventManager.AssetReady.Raise(new AssetReadyEventArgs(assetName, assetName.GetBaseAssetName()));
         }
 
         /// <summary>A callback invoked after assets have been invalidated from the content cache.</summary>
         /// <param name="assetNames">The invalidated asset names.</param>
-        private void OnAssetsInvalidated(IEnumerable<IAssetName> assetNames)
+        private void OnAssetsInvalidated(IList<IAssetName> assetNames)
         {
             if (this.EventManager.AssetsInvalidated.HasListeners())
-                this.EventManager.AssetsInvalidated.Raise(new AssetsInvalidatedEventArgs(assetNames));
+                this.EventManager.AssetsInvalidated.Raise(new AssetsInvalidatedEventArgs(assetNames, assetNames.Select(p => p.GetBaseAssetName())));
         }
 
         /// <summary>Get the load/edit operations to apply to an asset by querying registered <see cref="IContentEvents.AssetRequested"/> event handlers.</summary>
@@ -1133,7 +1133,7 @@ namespace StardewModdingAPI.Framework
             this.EventManager.AssetRequested.Raise(
                 invoke: (mod, invoke) =>
                 {
-                    AssetRequestedEventArgs args = new(mod, asset.Name, this.GetOnBehalfOfContentPack);
+                    AssetRequestedEventArgs args = new(mod, asset.Name, asset.NameWithoutLocale, this.GetOnBehalfOfContentPack);
 
                     invoke(args);
 

@@ -40,5 +40,8 @@ namespace StardewModdingAPI
         /// <remarks>For example, <c>Characters/Dialogue/Abigail</c> is directly under <c>Characters/Dialogue</c> but not <c>Characters</c> or <c>Characters/Dialogue/Ab</c>. To allow sub-paths, use <see cref="StartsWith"/> instead.</remarks>
         /// <param name="assetFolder">The asset path to check. This doesn't need a trailing slash.</param>
         bool IsDirectlyUnderPath(string assetFolder);
+
+        /// <summary>Get an asset name representing the <see cref="BaseName"/> without locale.</summary>
+        internal IAssetName GetBaseAssetName();
     }
 }

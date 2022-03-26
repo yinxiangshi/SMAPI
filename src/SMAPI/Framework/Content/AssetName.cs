@@ -142,9 +142,18 @@ namespace StardewModdingAPI.Framework.Content
         }
 
 
+        /// <inheritdoc />
         public bool IsDirectlyUnderPath(string assetFolder)
         {
             return this.StartsWith(assetFolder + "/", allowPartialWord: false, allowSubfolder: false);
+        }
+
+        /// <inheritdoc />
+        IAssetName IAssetName.GetBaseAssetName()
+        {
+            return this.LocaleCode == null
+                ? this
+                : new AssetName(this.BaseName, null, null);
         }
 
         /// <inheritdoc />

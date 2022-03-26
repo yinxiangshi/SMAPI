@@ -23,8 +23,11 @@ namespace StardewModdingAPI.Framework.Content
         public IAssetName Name { get; }
 
         /// <inheritdoc />
-        [Obsolete($"Use {nameof(Name)} instead.")]
-        public string AssetName => this.Name.Name;
+        public IAssetName NameWithoutLocale { get; }
+
+        /// <inheritdoc />
+        [Obsolete($"Use {nameof(Name)} or {nameof(NameWithoutLocale)} instead.")]
+        public string AssetName => this.NameWithoutLocale.Name;
 
         /// <inheritdoc />
         public Type DataType { get; }
@@ -42,15 +45,16 @@ namespace StardewModdingAPI.Framework.Content
         {
             this.Locale = locale;
             this.Name = assetName;
+            this.NameWithoutLocale = assetName.GetBaseAssetName();
             this.DataType = type;
             this.GetNormalizedPath = getNormalizedPath;
         }
 
         /// <inheritdoc />
-        [Obsolete($"Use {nameof(Name)}.{nameof(IAssetName.IsEquivalentTo)} instead.")]
+        [Obsolete($"Use {nameof(Name)}.{nameof(IAssetName.IsEquivalentTo)} or {nameof(NameWithoutLocale)}.{nameof(IAssetName.IsEquivalentTo)} instead.")]
         public bool AssetNameEquals(string path)
         {
-            return this.Name.IsEquivalentTo(path);
+            return this.NameWithoutLocale.IsEquivalentTo(path);
         }
 
 

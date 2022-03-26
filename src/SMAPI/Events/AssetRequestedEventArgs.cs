@@ -26,6 +26,10 @@ namespace StardewModdingAPI.Events
         /// <summary>The name of the asset being requested.</summary>
         public IAssetName Name { get; }
 
+        /// <summary>The <see cref="Name"/> with any locale codes stripped.</summary>
+        /// <remarks>For example, if <see cref="Name"/> contains a locale like <c>Data/Bundles.fr-FR</c>, this will be the name without locale like <c>Data/Bundles</c>. If the name has no locale, this field is equivalent.</remarks>
+        public IAssetName NameWithoutLocale { get; }
+
         /// <summary>The load operations requested by the event handler.</summary>
         internal IList<AssetLoadOperation> LoadOperations { get; } = new List<AssetLoadOperation>();
 
@@ -39,11 +43,13 @@ namespace StardewModdingAPI.Events
         /// <summary>Construct an instance.</summary>
         /// <param name="mod">The mod handling the event.</param>
         /// <param name="name">The name of the asset being requested.</param>
+        /// <param name="nameWithoutLocale">The <paramref name="name"/> with any locale codes stripped.</param>
         /// <param name="getOnBehalfOf">Get the mod metadata for a content pack, if it's a valid content pack for the mod.</param>
-        internal AssetRequestedEventArgs(IModMetadata mod, IAssetName name, Func<IModMetadata, string, string, IModMetadata> getOnBehalfOf)
+        internal AssetRequestedEventArgs(IModMetadata mod, IAssetName name, IAssetName nameWithoutLocale, Func<IModMetadata, string, string, IModMetadata> getOnBehalfOf)
         {
             this.Mod = mod;
             this.Name = name;
+            this.NameWithoutLocale = nameWithoutLocale;
             this.GetOnBehalfOf = getOnBehalfOf;
         }
 

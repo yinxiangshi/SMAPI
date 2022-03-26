@@ -14,8 +14,12 @@ namespace StardewModdingAPI
         /// <summary>The asset name being read.</summary>
         public IAssetName Name { get; }
 
+        /// <summary>The <see cref="Name"/> with any locale codes stripped.</summary>
+        /// <remarks>For example, if <see cref="Name"/> contains a locale like <c>Data/Bundles.fr-FR</c>, this will be the name without locale like <c>Data/Bundles</c>. If the name has no locale, this field is equivalent.</remarks>
+        public IAssetName NameWithoutLocale { get; }
+
         /// <summary>The normalized asset name being read. The format may change between platforms; see <see cref="AssetNameEquals"/> to compare with a known path.</summary>
-        [Obsolete($"Use {nameof(Name)} instead.")]
+        [Obsolete($"Use {nameof(Name)} or {nameof(NameWithoutLocale)} instead.")]
         string AssetName { get; }
 
         /// <summary>The content data type.</summary>
@@ -27,7 +31,7 @@ namespace StardewModdingAPI
         *********/
         /// <summary>Get whether the asset name being loaded matches a given name after normalization.</summary>
         /// <param name="path">The expected asset path, relative to the game's content folder and without the .xnb extension or locale suffix (like 'Data\ObjectInformation').</param>
-        [Obsolete($"Use {nameof(Name)}.{nameof(IAssetName.IsEquivalentTo)} instead.")]
+        [Obsolete($"Use {nameof(Name)}.{nameof(IAssetName.IsEquivalentTo)} or {nameof(NameWithoutLocale)}.{nameof(IAssetName.IsEquivalentTo)} instead.")]
         bool AssetNameEquals(string path);
     }
 }

@@ -53,7 +53,7 @@ namespace StardewModdingAPI.Framework
         private readonly Action<BaseContentManager, IAssetName> OnAssetLoaded;
 
         /// <summary>A callback to invoke when any asset names have been invalidated from the cache.</summary>
-        private readonly Action<IEnumerable<IAssetName>> OnAssetsInvalidated;
+        private readonly Action<IList<IAssetName>> OnAssetsInvalidated;
 
         /// <summary>Get the load/edit operations to apply to an asset by querying registered <see cref="IContentEvents.AssetRequested"/> event handlers.</summary>
         private readonly Func<IAssetInfo, IList<AssetOperationGroup>> RequestAssetOperations;
@@ -118,7 +118,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="aggressiveMemoryOptimizations">Whether to enable more aggressive memory optimizations.</param>
         /// <param name="onAssetsInvalidated">A callback to invoke when any asset names have been invalidated from the cache.</param>
         /// <param name="requestAssetOperations">Get the load/edit operations to apply to an asset by querying registered <see cref="IContentEvents.AssetRequested"/> event handlers.</param>
-        public ContentCoordinator(IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, IMonitor monitor, Reflector reflection, JsonHelper jsonHelper, Action onLoadingFirstAsset, Action<BaseContentManager, IAssetName> onAssetLoaded, bool aggressiveMemoryOptimizations, Action<IEnumerable<IAssetName>> onAssetsInvalidated, Func<IAssetInfo, IList<AssetOperationGroup>> requestAssetOperations)
+        public ContentCoordinator(IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, IMonitor monitor, Reflector reflection, JsonHelper jsonHelper, Action onLoadingFirstAsset, Action<BaseContentManager, IAssetName> onAssetLoaded, bool aggressiveMemoryOptimizations, Action<IList<IAssetName>> onAssetsInvalidated, Func<IAssetInfo, IList<AssetOperationGroup>> requestAssetOperations)
         {
             this.AggressiveMemoryOptimizations = aggressiveMemoryOptimizations;
             this.Monitor = monitor ?? throw new ArgumentNullException(nameof(monitor));
@@ -414,7 +414,7 @@ namespace StardewModdingAPI.Framework
                     this.AssetOperationsByKey.Remove(name);
 
                 // raise event
-                this.OnAssetsInvalidated(invalidatedAssets.Keys);
+                this.OnAssetsInvalidated(invalidatedAssets.Keys.ToArray());
 
                 // propagate changes to the game
                 this.CoreAssets.Propagate(
