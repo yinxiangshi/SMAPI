@@ -26,7 +26,7 @@ namespace StardewModdingAPI.Framework.Content
         public IAssetName NameWithoutLocale { get; }
 
         /// <inheritdoc />
-        [Obsolete($"Use {nameof(Name)} or {nameof(NameWithoutLocale)} instead.")]
+        [Obsolete($"Use {nameof(Name)} or {nameof(NameWithoutLocale)} instead. This property will be removed in SMAPI 4.0.0.")]
         public string AssetName
         {
             get
@@ -64,7 +64,7 @@ namespace StardewModdingAPI.Framework.Content
         }
 
         /// <inheritdoc />
-        [Obsolete($"Use {nameof(Name)}.{nameof(IAssetName.IsEquivalentTo)} or {nameof(NameWithoutLocale)}.{nameof(IAssetName.IsEquivalentTo)} instead.")]
+        [Obsolete($"Use {nameof(Name)}.{nameof(IAssetName.IsEquivalentTo)} or {nameof(NameWithoutLocale)}.{nameof(IAssetName.IsEquivalentTo)} instead. This method will be removed in SMAPI 4.0.0.")]
         public bool AssetNameEquals(string path)
         {
             SCore.DeprecationManager.Warn(

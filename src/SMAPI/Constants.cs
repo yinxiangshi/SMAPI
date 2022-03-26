@@ -77,7 +77,7 @@ namespace StardewModdingAPI
         public static GameFramework GameFramework { get; } = EarlyConstants.GameFramework;
 
         /// <summary>The path to the game folder.</summary>
-        [Obsolete($"Use {nameof(Constants)}.{nameof(GamePath)} instead.")]
+        [Obsolete($"Use {nameof(Constants)}.{nameof(GamePath)} instead. This property will be removed in SMAPI 4.0.0.")]
         public static string ExecutionPath
         {
             get
