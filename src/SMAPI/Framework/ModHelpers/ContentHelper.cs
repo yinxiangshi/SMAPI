@@ -104,6 +104,12 @@ namespace StardewModdingAPI.Framework.ModHelpers
         }
 
         /// <inheritdoc />
+        public IAssetName ParseAssetName(string rawName)
+        {
+            return this.ContentCore.ParseAssetName(rawName);
+        }
+
+        /// <inheritdoc />
         public T Load<T>(string key, ContentSource source = ContentSource.ModFolder)
         {
             IAssetName assetName = this.ContentCore.ParseAssetName(key);

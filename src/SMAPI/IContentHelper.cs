@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using StardewModdingAPI.Framework.Content;
 using StardewValley;
 using xTile;
 
@@ -30,6 +31,11 @@ namespace StardewModdingAPI
         /*********
         ** Public methods
         *********/
+        /// <summary>Parse a raw asset name.</summary>
+        /// <param name="rawName">The raw asset name to parse.</param>
+        /// <exception cref="ArgumentException">The <paramref name="rawName"/> is null or empty.</exception>
+        IAssetName ParseAssetName(string rawName);
+
         /// <summary>Load content from the game folder or mod folder (if not already cached), and return it. When loading a <c>.png</c> file, this must be called outside the game's draw loop.</summary>
         /// <typeparam name="T">The expected data type. The main supported types are <see cref="Map"/>, <see cref="Texture2D"/>, dictionaries, and lists; other types may be supported by the game's content pipeline.</typeparam>
         /// <param name="key">The asset key to fetch (if the <paramref name="source"/> is <see cref="ContentSource.GameContent"/>), or the local path to a content file relative to the mod folder.</param>
