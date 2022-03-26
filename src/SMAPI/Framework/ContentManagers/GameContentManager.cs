@@ -267,7 +267,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             }
         }
 
-        /// <summary>Load the initial asset from the registered <see cref="Loaders"/>.</summary>
+        /// <summary>Load the initial asset from the registered loaders.</summary>
         /// <param name="info">The basic asset metadata.</param>
         /// <returns>Returns the loaded asset metadata, or <c>null</c> if no loader matched.</returns>
         private IAssetData ApplyLoader<T>(IAssetInfo info)
@@ -296,11 +296,11 @@ namespace StardewModdingAPI.Framework.ContentManagers
             try
             {
                 data = (T)loader.GetData(info);
-                this.Monitor.Log($"{mod.DisplayName} loaded asset '{info.Name}'.");
+                this.Monitor.Log($"{mod.DisplayName} loaded asset '{info.Name}'{this.GetOnBehalfOfLabel(loader.OnBehalfOf)}.");
             }
             catch (Exception ex)
             {
-                mod.LogAsMod($"Mod crashed when loading asset '{info.Name}'. SMAPI will use the default asset instead. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
+                mod.LogAsMod($"Mod crashed when loading asset '{info.Name}'{this.GetOnBehalfOfLabel(loader.OnBehalfOf)}. SMAPI will use the default asset instead. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
                 return null;
             }
 
@@ -310,7 +310,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
                 : null;
         }
 
-        /// <summary>Apply any <see cref="Editors"/> to a loaded asset.</summary>
+        /// <summary>Apply any editors to a loaded asset.</summary>
         /// <typeparam name="T">The asset type.</typeparam>
         /// <param name="info">The basic asset metadata.</param>
         /// <param name="asset">The loaded asset.</param>
@@ -343,22 +343,22 @@ namespace StardewModdingAPI.Framework.ContentManagers
                 try
                 {
                     editor.ApplyEdit(asset);
-                    this.Monitor.Log($"{mod.DisplayName} edited {info.Name}.");
+                    this.Monitor.Log($"{mod.DisplayName} edited {info.Name}{this.GetOnBehalfOfLabel(editor.OnBehalfOf)}.");
                 }
                 catch (Exception ex)
                 {
-                    mod.LogAsMod($"Mod crashed when editing asset '{info.Name}', which may cause errors in-game. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
+                    mod.LogAsMod($"Mod crashed when editing asset '{info.Name}'{this.GetOnBehalfOfLabel(editor.OnBehalfOf)}, which may cause errors in-game. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
                 }
 
                 // validate edit
                 if (asset.Data == null)
                 {
-                    mod.LogAsMod($"Mod incorrectly set asset '{info.Name}' to a null value; ignoring override.", LogLevel.Warn);
+                    mod.LogAsMod($"Mod incorrectly set asset '{info.Name}'{this.GetOnBehalfOfLabel(editor.OnBehalfOf)} to a null value; ignoring override.", LogLevel.Warn);
                     asset = GetNewData(prevAsset);
                 }
                 else if (!(asset.Data is T))
                 {
-                    mod.LogAsMod($"Mod incorrectly set asset '{asset.Name}' to incompatible type '{asset.Data.GetType()}', expected '{typeof(T)}'; ignoring override.", LogLevel.Warn);
+                    mod.LogAsMod($"Mod incorrectly set asset '{asset.Name}'{this.GetOnBehalfOfLabel(editor.OnBehalfOf)} to incompatible type '{asset.Data.GetType()}', expected '{typeof(T)}'; ignoring override.", LogLevel.Warn);
                     asset = GetNewData(prevAsset);
                 }
             }
@@ -407,6 +407,16 @@ namespace StardewModdingAPI.Framework.ContentManagers
 
             error = $"{errorPhrase}, but an asset can't be loaded multiple times. SMAPI will use the default asset instead; uninstall one of the mods to fix this. (Message for modders: you should usually use {typeof(IAssetEditor)} instead to avoid conflicts.)";
             return false;
+        }
+
+        /// <summary>Get a parenthetical label for log messages for the content pack on whose behalf the action is being performed, if any.</summary>
+        /// <param name="onBehalfOf">The content pack on whose behalf the action is being performed.</param>
+        private string GetOnBehalfOfLabel(IModMetadata onBehalfOf)
+        {
+            if (onBehalfOf == null)
+                return string.Empty;
+
+            return $" (for the '{onBehalfOf.Manifest.Name}' content pack)";
         }
 
         /// <summary>Validate that an asset loaded by a mod is valid and won't cause issues, and fix issues if possible.</summary>

@@ -606,7 +606,11 @@ namespace StardewModdingAPI.Framework
                     mod: loader.Mod,
                     loadOperations: new[]
                     {
-                        new AssetLoadOperation(loader.Mod, assetInfo => loader.Data.Load<T>(assetInfo))
+                        new AssetLoadOperation(
+                            mod: loader.Mod,
+                            onBehalfOf: null,
+                            getData: assetInfo => loader.Data.Load<T>(assetInfo)
+                        )
                     },
                     editOperations: Array.Empty<AssetEditOperation>()
                 );
@@ -633,7 +637,11 @@ namespace StardewModdingAPI.Framework
                     loadOperations: Array.Empty<AssetLoadOperation>(),
                     editOperations: new[]
                     {
-                        new AssetEditOperation(editor.Mod, assetData => editor.Data.Edit<T>(assetData))
+                        new AssetEditOperation(
+                            mod: editor.Mod,
+                            onBehalfOf: null,
+                            applyEdit: assetData => editor.Data.Edit<T>(assetData)
+                        )
                     }
                 );
             }

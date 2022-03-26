@@ -16,6 +16,9 @@ namespace StardewModdingAPI.Events
         /// <summary>The mod handling the event.</summary>
         private readonly IModMetadata Mod;
 
+        /// <summary>Get the mod metadata for a content pack, if it's a valid content pack for the mod.</summary>
+        private readonly Func<IModMetadata, string, string, IModMetadata> GetOnBehalfOf;
+
 
         /*********
         ** Accessors
@@ -36,14 +39,17 @@ namespace StardewModdingAPI.Events
         /// <summary>Construct an instance.</summary>
         /// <param name="mod">The mod handling the event.</param>
         /// <param name="name">The name of the asset being requested.</param>
-        internal AssetRequestedEventArgs(IModMetadata mod, IAssetName name)
+        /// <param name="getOnBehalfOf">Get the mod metadata for a content pack, if it's a valid content pack for the mod.</param>
+        internal AssetRequestedEventArgs(IModMetadata mod, IAssetName name, Func<IModMetadata, string, string, IModMetadata> getOnBehalfOf)
         {
             this.Mod = mod;
             this.Name = name;
+            this.GetOnBehalfOf = getOnBehalfOf;
         }
 
         /// <summary>Provide the initial instance for the asset, instead of trying to load it from the game's <c>Content</c> folder.</summary>
         /// <param name="load">Get the initial instance of an asset.</param>
+        /// <param name="onBehalfOf">The content pack ID on whose behalf you're applying the change. This is only valid for content packs for your mod.</param>
         /// <remarks>
         /// Usage notes:
         /// <list type="bullet">
@@ -51,10 +57,14 @@ namespace StardewModdingAPI.Events
         ///   <item>Each asset can logically only have one initial instance. If multiple loads apply at the same time, SMAPI will raise an error and ignore all of them. If you're making changes to the existing asset instead of replacing it, you should use <see cref="Edit"/> instead to avoid those limitations and improve mod compatibility.</item>
         /// </list>
         /// </remarks>
-        public void LoadFrom(Func<object> load)
+        public void LoadFrom(Func<object> load, string onBehalfOf = null)
         {
             this.LoadOperations.Add(
-                new AssetLoadOperation(this.Mod, _ => load())
+                new AssetLoadOperation(
+                    mod: this.Mod,
+                    onBehalfOf: this.GetOnBehalfOf(this.Mod, onBehalfOf, "load assets"),
+                    getData: _ => load()
+                )
             );
         }
 
@@ -71,12 +81,16 @@ namespace StardewModdingAPI.Events
         public void LoadFromModFile<TAsset>(string relativePath)
         {
             this.LoadOperations.Add(
-                new AssetLoadOperation(this.Mod, _ => this.Mod.Mod.Helper.Content.Load<TAsset>(relativePath))
+                new AssetLoadOperation(
+                    mod: this.Mod,
+                    onBehalfOf: null,
+                    _ => this.Mod.Mod.Helper.Content.Load<TAsset>(relativePath))
             );
         }
 
         /// <summary>Edit the asset after it's loaded.</summary>
         /// <param name="apply">Apply changes to the asset.</param>
+        /// <param name="onBehalfOf">The content pack ID on whose behalf you're applying the change. This is only valid for content packs for your mod.</param>
         /// <remarks>
         /// Usage notes:
         /// <list type="bullet">
@@ -84,10 +98,14 @@ namespace StardewModdingAPI.Events
         ///   <item>You can apply any number of edits to the asset. Each edit will be applied on top of the previous one (i.e. it'll see the merged asset from all previous edits as its input).</item>
         /// </list>
         /// </remarks>
-        public void Edit(Action<IAssetData> apply)
+        public void Edit(Action<IAssetData> apply, string onBehalfOf = null)
         {
             this.EditOperations.Add(
-                new AssetEditOperation(this.Mod, apply)
+                new AssetEditOperation(
+                    mod: this.Mod,
+                    onBehalfOf: this.GetOnBehalfOf(this.Mod, onBehalfOf, "edit assets"),
+                    apply
+                )
             );
         }
     }

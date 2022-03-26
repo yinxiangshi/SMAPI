@@ -1133,7 +1133,7 @@ namespace StardewModdingAPI.Framework
             this.EventManager.AssetRequested.Raise(
                 invoke: (mod, invoke) =>
                 {
-                    AssetRequestedEventArgs args = new(mod, asset.Name);
+                    AssetRequestedEventArgs args = new(mod, asset.Name, this.GetOnBehalfOfContentPack);
 
                     invoke(args);
 
@@ -1147,6 +1147,36 @@ namespace StardewModdingAPI.Framework
             );
 
             return operations;
+        }
+
+        /// <summary>Get the mod metadata for a content pack whose ID matches <paramref name="id"/>, if it's a valid content pack for the given <paramref name="mod"/>.</summary>
+        /// <param name="mod">The mod requesting to act on the content pack's behalf.</param>
+        /// <param name="id">The content pack ID.</param>
+        /// <param name="verb">The verb phrase indicating what action will be performed, like 'load assets' or 'edit assets'.</param>
+        /// <returns>Returns the content pack metadata if valid, else <c>null</c>.</returns>
+        private IModMetadata GetOnBehalfOfContentPack(IModMetadata mod, string id, string verb)
+        {
+            if (id == null)
+                return null;
+
+            string errorPrefix = $"Can't {verb} on behalf of content pack ID '{id}'";
+
+            // get target mod
+            IModMetadata onBehalfOf = this.ModRegistry.Get(id);
+            if (onBehalfOf == null)
+            {
+                mod.LogAsModOnce($"{errorPrefix}: there's no content pack installed with that ID.", LogLevel.Warn);
+                return null;
+            }
+
+            // make sure it's a content pack for the requesting mod
+            if (!onBehalfOf.IsContentPack || !string.Equals(onBehalfOf.Manifest?.ContentPackFor?.UniqueID, mod.Manifest.UniqueID))
+            {
+                mod.LogAsModOnce($"{errorPrefix}: that isn't a content pack for this mod.", LogLevel.Warn);
+                return null;
+            }
+
+            return onBehalfOf;
         }
 
         /// <summary>Raised immediately before the player returns to the title screen.</summary>
