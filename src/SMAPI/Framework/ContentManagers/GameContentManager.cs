@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework.Content;
 using StardewModdingAPI.Framework.Exceptions;
 using StardewModdingAPI.Framework.Reflection;
@@ -275,7 +276,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             // find matching loader
             AssetLoadOperation loader;
             {
-                AssetLoadOperation[] loaders = this.GetLoaders<T>(info).ToArray();
+                AssetLoadOperation[] loaders = this.GetLoaders<T>(info).OrderByDescending(p => p.Priority).ToArray();
 
                 if (!this.AssertMaxOneRequiredLoader(info, loaders, out string error))
                 {
@@ -283,9 +284,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
                     return null;
                 }
 
-                loader =
-                    loaders.FirstOrDefault(p => !p.AllowSkipOnConflict)
-                    ?? loaders.FirstOrDefault();
+                loader = loaders.FirstOrDefault();
             }
 
             // no loader found
@@ -396,7 +395,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <returns>Returns true if only one loader will apply, else false.</returns>
         private bool AssertMaxOneRequiredLoader(IAssetInfo info, AssetLoadOperation[] loaders, out string error)
         {
-            AssetLoadOperation[] required = loaders.Where(p => !p.AllowSkipOnConflict).ToArray();
+            AssetLoadOperation[] required = loaders.Where(p => p.Priority == AssetLoadPriority.Exclusive).ToArray();
             if (required.Length <= 1)
             {
                 error = null;
@@ -405,6 +404,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
 
             string[] loaderNames = required
                 .Select(p => p.Mod.DisplayName + this.GetOnBehalfOfLabel(p.OnBehalfOf))
+                .OrderBy(p => p)
                 .Distinct()
                 .ToArray();
             string errorPhrase = loaderNames.Length > 1

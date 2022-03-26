@@ -1,4 +1,5 @@
 using System;
+using StardewModdingAPI.Events;
 
 namespace StardewModdingAPI.Framework.Content
 {
@@ -14,8 +15,8 @@ namespace StardewModdingAPI.Framework.Content
         /// <summary>The content pack on whose behalf the asset is being loaded, if any.</summary>
         public IModMetadata OnBehalfOf { get; }
 
-        /// <summary>Whether to allow skipping this operation to resolve a load conflict.</summary>
-        public bool AllowSkipOnConflict { get; }
+        /// <summary>If there are multiple loads that apply to the same asset, the priority with which this one should be applied.</summary>
+        public AssetLoadPriority Priority { get; }
 
         /// <summary>Load the initial value for an asset.</summary>
         public Func<IAssetInfo, object> GetData { get; }
@@ -26,13 +27,13 @@ namespace StardewModdingAPI.Framework.Content
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="mod">The mod applying the edit.</param>
-        /// <param name="allowSkipOnConflict">Whether to allow skipping this operation to resolve a load conflict.</param>
+        /// <param name="priority">If there are multiple loads that apply to the same asset, the priority with which this one should be applied.</param>
         /// <param name="onBehalfOf">The content pack on whose behalf the asset is being loaded, if any.</param>
         /// <param name="getData">Load the initial value for an asset.</param>
-        public AssetLoadOperation(IModMetadata mod, bool allowSkipOnConflict, IModMetadata onBehalfOf, Func<IAssetInfo, object> getData)
+        public AssetLoadOperation(IModMetadata mod, AssetLoadPriority priority, IModMetadata onBehalfOf, Func<IAssetInfo, object> getData)
         {
             this.Mod = mod;
-            this.AllowSkipOnConflict = allowSkipOnConflict;
+            this.Priority = priority;
             this.OnBehalfOf = onBehalfOf;
             this.GetData = getData;
         }

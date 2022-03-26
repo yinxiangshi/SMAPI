@@ -608,7 +608,7 @@ namespace StardewModdingAPI.Framework
                     {
                         new AssetLoadOperation(
                             mod: loader.Mod,
-                            allowSkipOnConflict: false,
+                            priority: AssetLoadPriority.Exclusive,
                             onBehalfOf: null,
                             getData: assetInfo => loader.Data.Load<T>(assetInfo)
                         )
