@@ -640,6 +640,7 @@ namespace StardewModdingAPI.Framework
                     {
                         new AssetEditOperation(
                             mod: editor.Mod,
+                            priority: AssetEditPriority.Default,
                             onBehalfOf: null,
                             applyEdit: assetData => editor.Data.Edit<T>(assetData)
                         )

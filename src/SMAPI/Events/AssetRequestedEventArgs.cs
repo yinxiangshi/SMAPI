@@ -100,6 +100,7 @@ namespace StardewModdingAPI.Events
 
         /// <summary>Edit the asset after it's loaded.</summary>
         /// <param name="apply">Apply changes to the asset.</param>
+        /// <param name="priority">If there are multiple edits that apply to the same asset, the priority with which this one should be applied.</param>
         /// <param name="onBehalfOf">The content pack ID on whose behalf you're applying the change. This is only valid for content packs for your mod.</param>
         /// <remarks>
         /// Usage notes:
@@ -108,11 +109,12 @@ namespace StardewModdingAPI.Events
         ///   <item>You can apply any number of edits to the asset. Each edit will be applied on top of the previous one (i.e. it'll see the merged asset from all previous edits as its input).</item>
         /// </list>
         /// </remarks>
-        public void Edit(Action<IAssetData> apply, string onBehalfOf = null)
+        public void Edit(Action<IAssetData> apply, AssetEditPriority priority = AssetEditPriority.Default, string onBehalfOf = null)
         {
             this.EditOperations.Add(
                 new AssetEditOperation(
                     mod: this.Mod,
+                    priority: priority,
                     onBehalfOf: this.GetOnBehalfOf(this.Mod, onBehalfOf, "edit assets"),
                     apply
                 )

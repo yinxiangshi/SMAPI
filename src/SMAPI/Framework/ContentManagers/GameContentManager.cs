@@ -82,9 +82,12 @@ namespace StardewModdingAPI.Framework.ContentManagers
             AssetLoadOperation[] loaders = this.GetLoaders<object>(info).ToArray();
 
             if (!this.AssertMaxOneRequiredLoader(info, loaders, out string error))
+            {
                 this.Monitor.Log(error, LogLevel.Warn);
+                return false;
+            }
 
-            return loaders.Length == 1;
+            return loaders.Any();
         }
 
         /// <inheritdoc />
@@ -334,7 +337,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             }
 
             // edit asset
-            AssetEditOperation[] editors = this.GetEditors<T>(info).ToArray();
+            AssetEditOperation[] editors = this.GetEditors<T>(info).OrderBy(p => p.Priority).ToArray();
             foreach (AssetEditOperation editor in editors)
             {
                 IModMetadata mod = editor.Mod;
