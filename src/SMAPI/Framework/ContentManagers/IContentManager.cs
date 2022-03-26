@@ -32,12 +32,17 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <param name="assetName">The normalized asset name.</param>
         bool DoesAssetExist(IAssetName assetName);
 
-        /// <summary>Load an asset that has been processed by the content pipeline.</summary>
+        /// <summary>Load an asset through the content pipeline, using a localized variant of the <paramref name="assetName"/> if available.</summary>
         /// <typeparam name="T">The type of asset to load.</typeparam>
         /// <param name="assetName">The asset name relative to the loader root directory.</param>
-        /// <param name="language">The language code for which to load content.</param>
         /// <param name="useCache">Whether to read/write the loaded asset to the asset cache.</param>
-        T Load<T>(IAssetName assetName, LocalizedContentManager.LanguageCode language, bool useCache);
+        T LoadLocalized<T>(IAssetName assetName, LocalizedContentManager.LanguageCode language, bool useCache);
+
+        /// <summary>Load an asset through the content pipeline, using the exact asset name without checking for localized variants.</summary>
+        /// <typeparam name="T">The type of asset to load.</typeparam>
+        /// <param name="assetName">The asset name relative to the loader root directory.</param>
+        /// <param name="useCache">Whether to read/write the loaded asset to the asset cache.</param>
+        T LoadExact<T>(IAssetName assetName, bool useCache);
 
         /// <summary>Assert that the given key has a valid format and return a normalized form consistent with the underlying cache.</summary>
         /// <param name="assetName">The asset key to check.</param>
@@ -53,8 +58,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
 
         /// <summary>Get whether the content manager has already loaded and cached the given asset.</summary>
         /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
-        /// <param name="language">The language.</param>
-        bool IsLoaded(IAssetName assetName, LocalizedContentManager.LanguageCode language);
+        bool IsLoaded(IAssetName assetName);
 
         /// <summary>Purge matched assets from the cache.</summary>
         /// <param name="predicate">Matches the asset keys to invalidate.</param>

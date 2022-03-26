@@ -4,11 +4,9 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework.Content;
-using StardewModdingAPI.Framework.Exceptions;
 using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Framework.Utilities;
 using StardewModdingAPI.Internal;
@@ -91,7 +89,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
         }
 
         /// <inheritdoc />
-        public override T Load<T>(IAssetName assetName, LanguageCode language, bool useCache)
+        public override T LoadExact<T>(IAssetName assetName, bool useCache)
         {
             // raise first-load callback
             if (GameContentManager.IsFirstLoad)
@@ -100,19 +98,15 @@ namespace StardewModdingAPI.Framework.ContentManagers
                 this.OnLoadingFirstAsset();
             }
 
-            // normalize asset name
-            if (assetName.LanguageCode.HasValue)
-                return this.Load<T>(this.Coordinator.ParseAssetName(assetName.BaseName), assetName.LanguageCode.Value, useCache);
-
             // get from cache
-            if (useCache && this.IsLoaded(assetName, language))
-                return this.RawLoad<T>(assetName, language, useCache: true);
+            if (useCache && this.IsLoaded(assetName))
+                return this.RawLoad<T>(assetName, useCache: true);
 
             // get managed asset
             if (this.Coordinator.TryParseManagedAssetKey(assetName.Name, out string contentManagerID, out IAssetName relativePath))
             {
                 T managedAsset = this.Coordinator.LoadManagedAsset<T>(contentManagerID, relativePath);
-                this.TrackAsset(assetName, managedAsset, language, useCache);
+                this.TrackAsset(assetName, managedAsset, useCache);
                 return managedAsset;
             }
 
@@ -122,42 +116,27 @@ namespace StardewModdingAPI.Framework.ContentManagers
             {
                 this.Monitor.Log($"Broke loop while loading asset '{assetName}'.", LogLevel.Warn);
                 this.Monitor.Log($"Bypassing mod loaders for this asset. Stack trace:\n{Environment.StackTrace}");
-                data = this.RawLoad<T>(assetName, language, useCache);
+                data = this.RawLoad<T>(assetName, useCache);
             }
             else
             {
                 data = this.AssetsBeingLoaded.Track(assetName.Name, () =>
                 {
-                    string locale = this.GetLocale(language);
-                    IAssetInfo info = new AssetInfo(locale, assetName, typeof(T), this.AssertAndNormalizeAssetName);
+                    IAssetInfo info = new AssetInfo(assetName.LocaleCode, assetName, typeof(T), this.AssertAndNormalizeAssetName);
                     IAssetData asset =
                         this.ApplyLoader<T>(info)
-                        ?? new AssetDataForObject(info, this.RawLoad<T>(assetName, language, useCache), this.AssertAndNormalizeAssetName);
+                        ?? new AssetDataForObject(info, this.RawLoad<T>(assetName, useCache), this.AssertAndNormalizeAssetName);
                     asset = this.ApplyEditors<T>(info, asset);
                     return (T)asset.Data;
                 });
             }
 
             // update cache
-            this.TrackAsset(assetName, data, language, useCache);
+            this.TrackAsset(assetName, data, useCache);
 
             // raise event & return data
             this.OnAssetLoaded(this, assetName);
             return data;
-        }
-
-        /// <inheritdoc />
-        public override bool IsLoaded(IAssetName assetName, LanguageCode language)
-        {
-            string cachedKey = null;
-            bool localized =
-                language != LanguageCode.en
-                && !this.Coordinator.IsManagedAssetKey(assetName)
-                && this.LocalizedAssetNames.TryGetValue(assetName.Name, out cachedKey);
-
-            return localized
-                ? this.Cache.ContainsKey(cachedKey)
-                : this.Cache.ContainsKey(assetName.Name);
         }
 
         /// <inheritdoc />
@@ -175,7 +154,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
 
             // invalidate translatable assets
             string[] invalidated = this
-                .InvalidateCache((key, type) =>
+                .InvalidateCache((key, _) =>
                     removeAssetNames.Contains(key)
                     || removeAssetNames.Contains(this.Coordinator.ParseAssetName(key).BaseName)
                 )
@@ -196,81 +175,6 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /*********
         ** Private methods
         *********/
-        /// <inheritdoc />
-        protected override void TrackAsset<T>(IAssetName assetName, T value, LanguageCode language, bool useCache)
-        {
-            // handle explicit language in asset name
-            {
-                if (assetName.LanguageCode.HasValue)
-                {
-                    this.TrackAsset(this.Coordinator.ParseAssetName(assetName.BaseName), value, assetName.LanguageCode.Value, useCache);
-                    return;
-                }
-            }
-
-            // save to cache
-            // Note: even if the asset was loaded and cached right before this method was called,
-            // we need to fully re-inject it here for two reasons:
-            //   1. So we can look up an asset by its base or localized key (the game/XNA logic
-            //      only caches by the most specific key).
-            //   2. Because a mod asset loader/editor may have changed the asset in a way that
-            //      doesn't change the instance stored in the cache, e.g. using `asset.ReplaceWith`.
-            if (useCache)
-            {
-                IAssetName translatedKey = new AssetName(assetName.Name, this.GetLocale(language), language);
-                base.TrackAsset(assetName, value, language, useCache: true);
-                if (this.Cache.ContainsKey(translatedKey.Name))
-                    base.TrackAsset(translatedKey, value, language, useCache: true);
-
-                // track whether the injected asset is translatable for is-loaded lookups
-                if (this.Cache.ContainsKey(translatedKey.Name))
-                    this.LocalizedAssetNames[assetName.Name] = translatedKey.Name;
-                else if (this.Cache.ContainsKey(assetName.Name))
-                    this.LocalizedAssetNames[assetName.Name] = assetName.Name;
-                else
-                    this.Monitor.Log($"Asset '{assetName}' could not be found in the cache immediately after injection.", LogLevel.Error);
-            }
-        }
-
-        /// <summary>Load an asset file directly from the underlying content manager.</summary>
-        /// <typeparam name="T">The type of asset to load.</typeparam>
-        /// <param name="assetName">The normalized asset key.</param>
-        /// <param name="language">The language code for which to load content.</param>
-        /// <param name="useCache">Whether to read/write the loaded asset to the asset cache.</param>
-        /// <remarks>Derived from <see cref="LocalizedContentManager.Load{T}(string, LocalizedContentManager.LanguageCode)"/>.</remarks>
-        private T RawLoad<T>(IAssetName assetName, LanguageCode language, bool useCache)
-        {
-            try
-            {
-                // use cached key
-                if (language == this.Language && this.LocalizedAssetNames.TryGetValue(assetName.Name, out string cachedKey))
-                    return base.RawLoad<T>(cachedKey, useCache);
-
-                // try translated key
-                if (language != LanguageCode.en)
-                {
-                    string translatedKey = $"{assetName}.{this.GetLocale(language)}";
-                    try
-                    {
-                        T obj = base.RawLoad<T>(translatedKey, useCache);
-                        this.LocalizedAssetNames[assetName.Name] = translatedKey;
-                        return obj;
-                    }
-                    catch (ContentLoadException)
-                    {
-                        this.LocalizedAssetNames[assetName.Name] = assetName.Name;
-                    }
-                }
-
-                // try base asset
-                return base.RawLoad<T>(assetName.Name, useCache);
-            }
-            catch (ContentLoadException ex) when (ex.InnerException is FileNotFoundException { InnerException: null })
-            {
-                throw new SContentLoadException($"Error loading \"{assetName}\": it isn't in the Content folder and no mod provided it.");
-            }
-        }
-
         /// <summary>Load the initial asset from the registered loaders.</summary>
         /// <param name="info">The basic asset metadata.</param>
         /// <returns>Returns the loaded asset metadata, or <c>null</c> if no loader matched.</returns>

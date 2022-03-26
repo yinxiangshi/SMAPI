@@ -10,6 +10,7 @@
     * Added `--use-current-shell` to avoid opening a separate terminal window.
     * Fixed `--no-terminal` still opening a terminal window, even if nothing is logged to it (thanks to Ryhon0!).
   * Fixed warning text when a mod causes an asset load conflict with itself.
+  * Fixed support for `_international` content assets (used in the movie theater).
 
 * For mod authors:
   * Added [content events](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Events#Content), which will replace `IAssetEditor` and `IAssetLoader` in SMAPI 4.0.0.  

@@ -61,9 +61,6 @@ namespace StardewModdingAPI.Framework
         /// <summary>The loaded content managers (including the <see cref="MainContentManager"/>).</summary>
         private readonly List<IContentManager> ContentManagers = new();
 
-        /// <summary>The language code for language-agnostic mod assets.</summary>
-        private readonly LocalizedContentManager.LanguageCode DefaultLanguage = Constants.DefaultLanguage;
-
         /// <summary>Whether the content coordinator has been disposed.</summary>
         private bool IsDisposed;
 
@@ -350,7 +347,7 @@ namespace StardewModdingAPI.Framework
                 throw new InvalidOperationException($"The '{contentManagerID}' prefix isn't handled by any mod.");
 
             // get fresh asset
-            return contentManager.Load<T>(relativePath, this.DefaultLanguage, useCache: false);
+            return contentManager.LoadExact<T>(relativePath, useCache: false);
         }
 
         /// <summary>Purge matched assets from the cache.</summary>
@@ -467,9 +464,9 @@ namespace StardewModdingAPI.Framework
             return this.ContentManagerLock.InReadLock(() =>
             {
                 List<object> values = new List<object>();
-                foreach (IContentManager content in this.ContentManagers.Where(p => !p.IsNamespaced && p.IsLoaded(assetName, p.Language)))
+                foreach (IContentManager content in this.ContentManagers.Where(p => !p.IsNamespaced && p.IsLoaded(assetName)))
                 {
-                    object value = content.Load<object>(assetName, this.Language, useCache: true);
+                    object value = content.LoadExact<object>(assetName, useCache: true);
                     values.Add(value);
                 }
                 return values;
@@ -582,6 +579,8 @@ namespace StardewModdingAPI.Framework
         /// <param name="info">The asset info to load or edit.</param>
         private IEnumerable<AssetOperationGroup> GetAssetOperationsWithoutCache<T>(IAssetInfo info)
         {
+            IAssetInfo legacyInfo = this.GetLegacyAssetInfo(info);
+
             // new content API
             foreach (AssetOperationGroup group in this.RequestAssetOperations(info))
                 yield return group;
@@ -592,12 +591,12 @@ namespace StardewModdingAPI.Framework
                 // check if loader applies
                 try
                 {
-                    if (!loader.Data.CanLoad<T>(info))
+                    if (!loader.Data.CanLoad<T>(legacyInfo))
                         continue;
                 }
                 catch (Exception ex)
                 {
-                    loader.Mod.LogAsMod($"Mod failed when checking whether it could load asset '{info.Name}', and will be ignored. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
+                    loader.Mod.LogAsMod($"Mod failed when checking whether it could load asset '{legacyInfo.Name}', and will be ignored. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
                     continue;
                 }
 
@@ -610,7 +609,9 @@ namespace StardewModdingAPI.Framework
                             mod: loader.Mod,
                             priority: AssetLoadPriority.Exclusive,
                             onBehalfOf: null,
-                            getData: assetInfo => loader.Data.Load<T>(assetInfo)
+                            getData: assetInfo => loader.Data.Load<T>(
+                                this.GetLegacyAssetInfo(assetInfo)
+                            )
                         )
                     },
                     editOperations: Array.Empty<AssetEditOperation>()
@@ -623,12 +624,12 @@ namespace StardewModdingAPI.Framework
                 // check if editor applies
                 try
                 {
-                    if (!editor.Data.CanEdit<T>(info))
+                    if (!editor.Data.CanEdit<T>(legacyInfo))
                         continue;
                 }
                 catch (Exception ex)
                 {
-                    editor.Mod.LogAsMod($"Mod crashed when checking whether it could edit asset '{info.Name}', and will be ignored. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
+                    editor.Mod.LogAsMod($"Mod crashed when checking whether it could edit asset '{legacyInfo.Name}', and will be ignored. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
                     continue;
                 }
 
@@ -642,11 +643,75 @@ namespace StardewModdingAPI.Framework
                             mod: editor.Mod,
                             priority: AssetEditPriority.Default,
                             onBehalfOf: null,
-                            applyEdit: assetData => editor.Data.Edit<T>(assetData)
+                            applyEdit: assetData => editor.Data.Edit<T>(
+                                this.GetLegacyAssetData(assetData)
+                            )
                         )
                     }
                 );
             }
+        }
+
+        /// <summary>Get an asset info compatible with legacy <see cref="IAssetLoader"/> and <see cref="IAssetEditor"/> instances, which always expect the base name.</summary>
+        /// <param name="asset">The asset info.</param>
+        private IAssetInfo GetLegacyAssetInfo(IAssetInfo asset)
+        {
+            if (!this.TryGetLegacyAssetName(asset.Name, out IAssetName legacyName))
+                return asset;
+
+            return new AssetInfo(
+                locale: null,
+                assetName: legacyName,
+                type: asset.DataType,
+                getNormalizedPath: this.MainContentManager.AssertAndNormalizeAssetName
+            );
+        }
+
+        /// <summary>Get an asset data compatible with legacy <see cref="IAssetLoader"/> and <see cref="IAssetEditor"/> instances, which always expect the base name.</summary>
+        /// <param name="asset">The asset data.</param>
+        private IAssetData GetLegacyAssetData(IAssetData asset)
+        {
+            if (!this.TryGetLegacyAssetName(asset.Name, out IAssetName legacyName))
+                return asset;
+
+            return asset.Name.LocaleCode == null
+                ? asset
+                : new AssetDataForObject(
+                    locale: null,
+                    assetName: legacyName,
+                    data: asset.Data,
+                    getNormalizedPath: this.MainContentManager.AssertAndNormalizeAssetName
+                );
+        }
+
+        /// <summary>Get an asset name compatible with legacy <see cref="IAssetLoader"/> and <see cref="IAssetEditor"/> instances, which always expect the base name.</summary>
+        /// <param name="asset">The asset name to map.</param>
+        /// <param name="newAsset">The legacy asset name (or the <paramref name="asset"/> if no change is needed).</param>
+        /// <returns>Returns whether any change is needed for legacy compatibility.</returns>
+        private bool TryGetLegacyAssetName(IAssetName asset, out IAssetName newAsset)
+        {
+            // strip _international suffix
+            const string internationalSuffix = "_international";
+            if (asset.Name.EndsWith(internationalSuffix))
+            {
+                newAsset = new AssetName(
+                    baseName: asset.Name[..^internationalSuffix.Length],
+                    localeCode: null,
+                    languageCode: null
+                );
+                return true;
+            }
+
+            // else strip locale
+            if (asset.LocaleCode != null)
+            {
+                newAsset = new AssetName(asset.BaseName, null, null);
+                return true;
+            }
+
+            // else no change needed
+            newAsset = asset;
+            return false;
         }
     }
 }

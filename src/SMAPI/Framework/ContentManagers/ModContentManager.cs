@@ -61,6 +61,8 @@ namespace StardewModdingAPI.Framework.ContentManagers
             this.GameContentManager = gameContentManager;
             this.JsonHelper = jsonHelper;
             this.ModName = modName;
+
+            this.TryLocalizeKeys = false;
         }
 
         /// <inheritdoc />
@@ -80,14 +82,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
         }
 
         /// <inheritdoc />
-        public override T Load<T>(string assetName, LanguageCode language)
-        {
-            IAssetName parsedName = this.Coordinator.ParseAssetName(assetName);
-            return this.Load<T>(parsedName, language, useCache: false);
-        }
-
-        /// <inheritdoc />
-        public override T Load<T>(IAssetName assetName, LanguageCode language, bool useCache)
+        public override T LoadExact<T>(IAssetName assetName, bool useCache)
         {
             // disable caching
             // This is necessary to avoid assets being shared between content managers, which can
@@ -96,11 +91,6 @@ namespace StardewModdingAPI.Framework.ContentManagers
             // for more background info.
             if (useCache)
                 throw new InvalidOperationException("Mod content managers don't support asset caching.");
-
-            // disable language handling
-            // Mod files don't support automatic translation logic, so this should never happen.
-            if (language != this.DefaultLanguage)
-                throw new InvalidOperationException("Localized assets aren't supported by the mod content manager.");
 
             // resolve managed asset key
             {
@@ -130,14 +120,14 @@ namespace StardewModdingAPI.Framework.ContentManagers
                         {
                             // the underlying content manager adds a .xnb extension implicitly, so
                             // we need to strip it here to avoid trying to load a '.xnb.xnb' file.
-                            string loadName = assetName.Name[..^".xnb".Length];
+                            IAssetName loadName = this.Coordinator.ParseAssetName(assetName.Name[..^".xnb".Length]);
 
                             // load asset
                             asset = this.RawLoad<T>(loadName, useCache: false);
                             if (asset is Map map)
                             {
-                                map.assetPath = loadName;
-                                this.FixTilesheetPaths(map, relativeMapPath: loadName, fixEagerPathPrefixes: true);
+                                map.assetPath = loadName.Name;
+                                this.FixTilesheetPaths(map, relativeMapPath: loadName.Name, fixEagerPathPrefixes: true);
                             }
                         }
                         break;
@@ -201,14 +191,8 @@ namespace StardewModdingAPI.Framework.ContentManagers
             }
 
             // track & return asset
-            this.TrackAsset(assetName, asset, language, useCache);
+            this.TrackAsset(assetName, asset, useCache);
             return asset;
-        }
-
-        /// <inheritdoc />
-        public override bool IsLoaded(IAssetName assetName, LanguageCode language)
-        {
-            return this.Cache.ContainsKey(assetName.Name);
         }
 
         /// <inheritdoc />
@@ -371,7 +355,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             IAssetName contentKey = this.Coordinator.ParseAssetName(this.GetContentKeyForTilesheetImageSource(relativePath));
             try
             {
-                this.GameContentManager.Load<Texture2D>(contentKey, this.Language, useCache: true); // no need to bypass cache here, since we're not storing the asset
+                this.GameContentManager.LoadLocalized<Texture2D>(contentKey, this.GameContentManager.Language, useCache: true); // no need to bypass cache here, since we're not storing the asset
                 assetName = contentKey;
                 return true;
             }
