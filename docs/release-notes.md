@@ -12,7 +12,8 @@
   * Fixed warning text when a mod causes an asset load conflict with itself.
 
 * For mod authors:
-  * Added [content events](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Events#Content), which will replace `IAssetEditor` and `IAssetLoader` in SMAPI 4.0.0. These include new features not supported by the old API like content pack labels.
+  * Added [content events](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Events#Content), which will replace `IAssetEditor` and `IAssetLoader` in SMAPI 4.0.0.  
+    _These include new features not supported by the old API, like load conflict resolution and content pack labels. They also support new cases like easily detecting when an asset has been changed._
   * Overhauled [mod-provided APIs](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Integrations#Mod-provided_APIs) (thanks to Shockah!).  
     _This adds support for many previously-unsupported cases: proxied interfaces in return values or input arguments, proxied enums if their values match, generic methods, and more._
   * Added `Constants.ContentPath`.

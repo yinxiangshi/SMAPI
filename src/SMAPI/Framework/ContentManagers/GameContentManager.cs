@@ -80,7 +80,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             IAssetInfo info = new AssetInfo(locale, assetName, typeof(object), this.AssertAndNormalizeAssetName);
             AssetLoadOperation[] loaders = this.GetLoaders<object>(info).ToArray();
 
-            if (!this.AssertMaxOneLoader(info, loaders, out string error))
+            if (!this.AssertMaxOneRequiredLoader(info, loaders, out string error))
                 this.Monitor.Log(error, LogLevel.Warn);
 
             return loaders.Length == 1;
@@ -277,13 +277,15 @@ namespace StardewModdingAPI.Framework.ContentManagers
             {
                 AssetLoadOperation[] loaders = this.GetLoaders<T>(info).ToArray();
 
-                if (!this.AssertMaxOneLoader(info, loaders, out string error))
+                if (!this.AssertMaxOneRequiredLoader(info, loaders, out string error))
                 {
                     this.Monitor.Log(error, LogLevel.Warn);
                     return null;
                 }
 
-                loader = loaders.FirstOrDefault();
+                loader =
+                    loaders.FirstOrDefault(p => !p.AllowSkipOnConflict)
+                    ?? loaders.FirstOrDefault();
             }
 
             // no loader found
@@ -392,20 +394,21 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <param name="loaders">The asset loaders to apply.</param>
         /// <param name="error">The error message to show to the user, if the method returns false.</param>
         /// <returns>Returns true if only one loader will apply, else false.</returns>
-        private bool AssertMaxOneLoader(IAssetInfo info, AssetLoadOperation[] loaders, out string error)
+        private bool AssertMaxOneRequiredLoader(IAssetInfo info, AssetLoadOperation[] loaders, out string error)
         {
-            if (loaders.Length <= 1)
+            AssetLoadOperation[] required = loaders.Where(p => !p.AllowSkipOnConflict).ToArray();
+            if (required.Length <= 1)
             {
                 error = null;
                 return true;
             }
 
-            string[] loaderNames = loaders
+            string[] loaderNames = required
                 .Select(p => p.Mod.DisplayName + this.GetOnBehalfOfLabel(p.OnBehalfOf))
                 .Distinct()
                 .ToArray();
             string errorPhrase = loaderNames.Length > 1
-                ? $"Multiple mods want to provide '{info.Name}' asset: {string.Join(", ", loaderNames)}"
+                ? $"Multiple mods want to provide the '{info.Name}' asset: {string.Join(", ", loaderNames)}"
                 : $"The '{loaderNames[0]}' mod wants to provide the '{info.Name}' asset multiple times";
 
             error = $"{errorPhrase}. An asset can't be loaded multiple times, so SMAPI will use the default asset instead. Uninstall one of the mods to fix this. (Message for modders: you should usually use {typeof(IAssetEditor)} instead to avoid conflicts.)";
