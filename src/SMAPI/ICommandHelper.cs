@@ -21,6 +21,7 @@ namespace StardewModdingAPI
         /// <param name="name">The command name.</param>
         /// <param name="arguments">The command arguments.</param>
         /// <returns>Returns whether a matching command was triggered.</returns>
+        [Obsolete("Manually triggering console commands will no longer be supported in SMAPI 4.0.0.")]
         bool Trigger(string name, string[] arguments);
     }
 }
