@@ -305,7 +305,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             }
 
             // return matched asset
-            return this.TryFixAndValidateLoadedAsset(info, data, mod)
+            return this.TryFixAndValidateLoadedAsset(info, data, loader)
                 ? new AssetDataForObject(info, data, this.AssertAndNormalizeAssetName)
                 : null;
         }
@@ -401,39 +401,45 @@ namespace StardewModdingAPI.Framework.ContentManagers
             }
 
             string[] loaderNames = loaders
-                .Select(p => p.Mod.DisplayName)
+                .Select(p => p.Mod.DisplayName + this.GetOnBehalfOfLabel(p.OnBehalfOf))
                 .Distinct()
                 .ToArray();
             string errorPhrase = loaderNames.Length > 1
-                ? $"Multiple mods want to provide '{info.Name}' asset ({string.Join(", ", loaderNames)})"
+                ? $"Multiple mods want to provide '{info.Name}' asset: {string.Join(", ", loaderNames)}"
                 : $"The '{loaderNames[0]}' mod wants to provide the '{info.Name}' asset multiple times";
 
-            error = $"{errorPhrase}, but an asset can't be loaded multiple times. SMAPI will use the default asset instead; uninstall one of the mods to fix this. (Message for modders: you should usually use {typeof(IAssetEditor)} instead to avoid conflicts.)";
+            error = $"{errorPhrase}. An asset can't be loaded multiple times, so SMAPI will use the default asset instead. Uninstall one of the mods to fix this. (Message for modders: you should usually use {typeof(IAssetEditor)} instead to avoid conflicts.)";
             return false;
         }
 
         /// <summary>Get a parenthetical label for log messages for the content pack on whose behalf the action is being performed, if any.</summary>
         /// <param name="onBehalfOf">The content pack on whose behalf the action is being performed.</param>
-        private string GetOnBehalfOfLabel(IModMetadata onBehalfOf)
+        /// <param name="parenthetical">whether to format the label as a parenthetical shown after the mod name like <c> (for the 'X' content pack)</c>, instead of a standalone label like <c>the 'X' content pack</c>.</param>
+        /// <returns>Returns the on-behalf-of label if applicable, else <c>null</c>.</returns>
+        private string GetOnBehalfOfLabel(IModMetadata onBehalfOf, bool parenthetical = true)
         {
             if (onBehalfOf == null)
-                return string.Empty;
+                return null;
 
-            return $" (for the '{onBehalfOf.Manifest.Name}' content pack)";
+            return parenthetical
+                ? $" (for the '{onBehalfOf.Manifest.Name}' content pack)"
+                : $"the '{onBehalfOf.Manifest.Name}' content pack";
         }
 
         /// <summary>Validate that an asset loaded by a mod is valid and won't cause issues, and fix issues if possible.</summary>
         /// <typeparam name="T">The asset type.</typeparam>
         /// <param name="info">The basic asset metadata.</param>
         /// <param name="data">The loaded asset data.</param>
-        /// <param name="mod">The mod which loaded the asset.</param>
+        /// <param name="loader">The loader which loaded the asset.</param>
         /// <returns>Returns whether the asset passed validation checks (after any fixes were applied).</returns>
-        private bool TryFixAndValidateLoadedAsset<T>(IAssetInfo info, T data, IModMetadata mod)
+        private bool TryFixAndValidateLoadedAsset<T>(IAssetInfo info, T data, AssetLoadOperation loader)
         {
+            IModMetadata mod = loader.Mod;
+
             // can't load a null asset
             if (data == null)
             {
-                mod.LogAsMod($"SMAPI blocked asset replacement for '{info.Name}': mod incorrectly set asset to a null value.", LogLevel.Error);
+                mod.LogAsMod($"SMAPI blocked asset replacement for '{info.Name}': {this.GetOnBehalfOfLabel(loader.OnBehalfOf, parenthetical: false) ?? "mod"} incorrectly set asset to a null value.", LogLevel.Error);
                 return false;
             }
 
@@ -459,15 +465,15 @@ namespace StardewModdingAPI.Framework.ContentManagers
                         // This is temporary: mods shouldn't do this for any vanilla map, but these are the ones we know will crash. Showing a warning for others instead gives modders time to update their mods, while still simplifying troubleshooting.
                         bool isFarmMap = info.Name.IsEquivalentTo("Maps/Farm") || info.Name.IsEquivalentTo("Maps/Farm_Combat") || info.Name.IsEquivalentTo("Maps/Farm_Fishing") || info.Name.IsEquivalentTo("Maps/Farm_Foraging") || info.Name.IsEquivalentTo("Maps/Farm_FourCorners") || info.Name.IsEquivalentTo("Maps/Farm_Island") || info.Name.IsEquivalentTo("Maps/Farm_Mining");
 
-                        string reason = $"mod reordered the original tilesheets, which {(isFarmMap ? "would cause a crash" : "often causes crashes")}.\nTechnical details for mod author: Expected order: {string.Join(", ", vanillaTilesheetRefs.Select(p => p.Id))}. See https://stardewvalleywiki.com/Modding:Maps#Tilesheet_order for help.";
+                        string reason = $"{this.GetOnBehalfOfLabel(loader.OnBehalfOf, parenthetical: false) ?? "mod"} reordered the original tilesheets, which {(isFarmMap ? "would cause a crash" : "often causes crashes")}.\nTechnical details for mod author: Expected order: {string.Join(", ", vanillaTilesheetRefs.Select(p => p.Id))}. See https://stardewvalleywiki.com/Modding:Maps#Tilesheet_order for help.";
 
                         SCore.DeprecationManager.PlaceholderWarn("3.8.2", DeprecationLevel.PendingRemoval);
                         if (isFarmMap)
                         {
-                            mod.LogAsMod($"SMAPI blocked '{info.Name}' map load: {reason}", LogLevel.Error);
+                            mod.LogAsMod($"SMAPI blocked a '{info.Name}' map load: {reason}", LogLevel.Error);
                             return false;
                         }
-                        mod.LogAsMod($"SMAPI found an issue with '{info.Name}' map load: {reason}", LogLevel.Warn);
+                        mod.LogAsMod($"SMAPI found an issue with a '{info.Name}' map load: {reason}", LogLevel.Warn);
                     }
                 }
             }
