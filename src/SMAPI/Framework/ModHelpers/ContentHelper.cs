@@ -44,16 +44,42 @@ namespace StardewModdingAPI.Framework.ModHelpers
         public LocalizedContentManager.LanguageCode CurrentLocaleConstant => this.GameContentManager.Language;
 
         /// <summary>The observable implementation of <see cref="AssetEditors"/>.</summary>
-        internal ObservableCollection<IAssetEditor> ObservableAssetEditors { get; } = new ObservableCollection<IAssetEditor>();
+        internal ObservableCollection<IAssetEditor> ObservableAssetEditors { get; } = new();
 
         /// <summary>The observable implementation of <see cref="AssetLoaders"/>.</summary>
-        internal ObservableCollection<IAssetLoader> ObservableAssetLoaders { get; } = new ObservableCollection<IAssetLoader>();
+        internal ObservableCollection<IAssetLoader> ObservableAssetLoaders { get; } = new();
 
         /// <inheritdoc />
-        public IList<IAssetLoader> AssetLoaders => this.ObservableAssetLoaders;
+        public IList<IAssetLoader> AssetLoaders
+        {
+            get
+            {
+                SCore.DeprecationManager.Warn(
+                    source: this.ModName,
+                    nounPhrase: $"{nameof(IContentHelper)}.{nameof(IContentHelper.AssetLoaders)}",
+                    version: "3.14.0",
+                    severity: DeprecationLevel.Notice
+                );
+
+                return this.ObservableAssetLoaders;
+            }
+        }
 
         /// <inheritdoc />
-        public IList<IAssetEditor> AssetEditors => this.ObservableAssetEditors;
+        public IList<IAssetEditor> AssetEditors
+        {
+            get
+            {
+                SCore.DeprecationManager.Warn(
+                    source: this.ModName,
+                    nounPhrase: $"{nameof(IContentHelper)}.{nameof(IContentHelper.AssetEditors)}",
+                    version: "3.14.0",
+                    severity: DeprecationLevel.Notice
+                );
+
+                return this.ObservableAssetEditors;
+            }
+        }
 
 
         /*********

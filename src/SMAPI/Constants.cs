@@ -77,8 +77,21 @@ namespace StardewModdingAPI
         public static GameFramework GameFramework { get; } = EarlyConstants.GameFramework;
 
         /// <summary>The path to the game folder.</summary>
-        [Obsolete($"Use {nameof(GamePath)} instead.")]
-        public static string ExecutionPath => Constants.GamePath;
+        [Obsolete($"Use {nameof(Constants)}.{nameof(GamePath)} instead.")]
+        public static string ExecutionPath
+        {
+            get
+            {
+                SCore.DeprecationManager.Warn(
+                    source: SCore.DeprecationManager.GetSourceNameFromStack(),
+                    nounPhrase: $"{nameof(Constants)}.{nameof(Constants.ExecutionPath)}",
+                    version: "3.14.0",
+                    severity: DeprecationLevel.Notice
+                );
+
+                return Constants.GamePath;
+            }
+        }
 
         /// <summary>The path to the game folder.</summary>
         public static string GamePath { get; } = EarlyConstants.GamePath;

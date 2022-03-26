@@ -27,7 +27,20 @@ namespace StardewModdingAPI.Framework.Content
 
         /// <inheritdoc />
         [Obsolete($"Use {nameof(Name)} or {nameof(NameWithoutLocale)} instead.")]
-        public string AssetName => this.NameWithoutLocale.Name;
+        public string AssetName
+        {
+            get
+            {
+                SCore.DeprecationManager.Warn(
+                    source: SCore.DeprecationManager.GetSourceNameFromStack(),
+                    nounPhrase: $"{nameof(IAssetInfo)}.{nameof(IAssetInfo.AssetName)}",
+                    version: "3.14.0",
+                    severity: DeprecationLevel.Notice
+                );
+
+                return this.NameWithoutLocale.Name;
+            }
+        }
 
         /// <inheritdoc />
         public Type DataType { get; }
@@ -54,6 +67,14 @@ namespace StardewModdingAPI.Framework.Content
         [Obsolete($"Use {nameof(Name)}.{nameof(IAssetName.IsEquivalentTo)} or {nameof(NameWithoutLocale)}.{nameof(IAssetName.IsEquivalentTo)} instead.")]
         public bool AssetNameEquals(string path)
         {
+            SCore.DeprecationManager.Warn(
+                source: SCore.DeprecationManager.GetSourceNameFromStack(),
+                nounPhrase: $"{nameof(IAssetInfo)}.{nameof(IAssetInfo.AssetNameEquals)}",
+                version: "3.14.0",
+                severity: DeprecationLevel.Notice
+            );
+
+
             return this.NameWithoutLocale.IsEquivalentTo(path);
         }
 

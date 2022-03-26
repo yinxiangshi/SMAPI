@@ -1609,9 +1609,28 @@ namespace StardewModdingAPI.Framework
                 {
                     // ReSharper disable SuspiciousTypeConversion.Global
                     if (metadata.Mod is IAssetEditor editor)
+                    {
+                        SCore.DeprecationManager.Warn(
+                            source: metadata.DisplayName,
+                            nounPhrase: $"{nameof(IAssetEditor)}",
+                            version: "3.14.0",
+                            severity: DeprecationLevel.Notice
+                        );
+
                         this.ContentCore.Editors.Add(new ModLinked<IAssetEditor>(metadata, editor));
+                    }
+
                     if (metadata.Mod is IAssetLoader loader)
+                    {
+                        SCore.DeprecationManager.Warn(
+                            source: metadata.DisplayName,
+                            nounPhrase: $"{nameof(IAssetLoader)}",
+                            version: "3.14.0",
+                            severity: DeprecationLevel.Notice
+                        );
+
                         this.ContentCore.Loaders.Add(new ModLinked<IAssetLoader>(metadata, loader));
+                    }
                     // ReSharper restore SuspiciousTypeConversion.Global
 
                     helper.ObservableAssetEditors.CollectionChanged += (sender, e) => this.OnAssetInterceptorsChanged(metadata, e.NewItems?.Cast<IAssetEditor>(), e.OldItems?.Cast<IAssetEditor>(), this.ContentCore.Editors);

@@ -12,6 +12,7 @@ namespace StardewModdingAPI
         string Locale { get; }
 
         /// <summary>The asset name being read.</summary>
+        /// <remarks>NOTE: when reading this field from an <see cref="IAssetLoader"/> or <see cref="IAssetEditor"/> implementation, it's always equivalent to <see cref="NameWithoutLocale"/> for backwards compatibility.</remarks>
         public IAssetName Name { get; }
 
         /// <summary>The <see cref="Name"/> with any locale codes stripped.</summary>
