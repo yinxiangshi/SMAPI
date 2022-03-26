@@ -20,6 +20,9 @@ namespace StardewModdingAPI.Framework.Events
         /// <inheritdoc cref="IContentEvents.AssetReady" />
         public readonly ManagedEvent<AssetReadyEventArgs> AssetReady;
 
+        /// <inheritdoc cref="IContentEvents.LocaleChanged" />
+        public readonly ManagedEvent<LocaleChangedEventArgs> LocaleChanged;
+
 
         /****
         ** Display
@@ -204,6 +207,7 @@ namespace StardewModdingAPI.Framework.Events
             this.AssetRequested = ManageEventOf<AssetRequestedEventArgs>(nameof(IModEvents.Content), nameof(IContentEvents.AssetRequested));
             this.AssetsInvalidated = ManageEventOf<AssetsInvalidatedEventArgs>(nameof(IModEvents.Content), nameof(IContentEvents.AssetsInvalidated));
             this.AssetReady = ManageEventOf<AssetReadyEventArgs>(nameof(IModEvents.Content), nameof(IContentEvents.AssetReady));
+            this.LocaleChanged = ManageEventOf<LocaleChangedEventArgs>(nameof(IModEvents.Content), nameof(IContentEvents.LocaleChanged));
 
             this.MenuChanged = ManageEventOf<MenuChangedEventArgs>(nameof(IModEvents.Display), nameof(IDisplayEvents.MenuChanged));
             this.Rendering = ManageEventOf<RenderingEventArgs>(nameof(IModEvents.Display), nameof(IDisplayEvents.Rendering), isPerformanceCritical: true);

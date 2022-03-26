@@ -19,5 +19,9 @@ namespace StardewModdingAPI.Events
         /// <summary>Raised after an asset is loaded by the content pipeline, after all mod edits specified via <see cref="AssetRequested"/> have been applied.</summary>
         /// <remarks>This event is only raised if something requested the asset from the content pipeline. Invalidating an asset from the content cache won't necessarily reload it automatically.</remarks>
         event EventHandler<AssetReadyEventArgs> AssetReady;
+
+        /// <summary>Raised after the game language changes.</summary>
+        /// <remarks>For non-English players, this may be raised during startup when the game switches to the previously selected language.</remarks>
+        event EventHandler<LocaleChangedEventArgs> LocaleChanged;
     }
 }

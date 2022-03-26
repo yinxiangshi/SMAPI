@@ -30,6 +30,13 @@ namespace StardewModdingAPI.Framework.Events
             remove => this.EventManager.AssetReady.Remove(value);
         }
 
+        /// <inheritdoc />
+        public event EventHandler<LocaleChangedEventArgs> LocaleChanged
+        {
+            add => this.EventManager.LocaleChanged.Add(value, this.Mod);
+            remove => this.EventManager.LocaleChanged.Remove(value);
+        }
+
 
         /*********
         ** Public methods
