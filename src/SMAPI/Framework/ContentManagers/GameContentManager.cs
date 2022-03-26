@@ -400,7 +400,10 @@ namespace StardewModdingAPI.Framework.ContentManagers
                 return true;
             }
 
-            string[] loaderNames = loaders.Select(p => p.Mod.DisplayName).ToArray();
+            string[] loaderNames = loaders
+                .Select(p => p.Mod.DisplayName)
+                .Distinct()
+                .ToArray();
             string errorPhrase = loaderNames.Length > 1
                 ? $"Multiple mods want to provide '{info.Name}' asset ({string.Join(", ", loaderNames)})"
                 : $"The '{loaderNames[0]}' mod wants to provide the '{info.Name}' asset multiple times";

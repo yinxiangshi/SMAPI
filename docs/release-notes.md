@@ -9,6 +9,7 @@
   * Improved [command-line arguments](technical/smapi.md#command-line-arguments) on Linux/macOS:
     * Added `--use-current-shell` to avoid opening a separate terminal window.
     * Fixed `--no-terminal` still opening a terminal window, even if nothing is logged to it (thanks to Ryhon0!).
+  * Fixed warning text when a mod causes an asset load conflict with itself.
 
 * For mod authors:
   * Added [content events](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Events#Content), which will replace `IAssetEditor` and `IAssetLoader` in SMAPI 4.0.0. These include new features not supported by the old API like content pack labels.
