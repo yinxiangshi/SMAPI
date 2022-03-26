@@ -137,16 +137,18 @@ namespace StardewModdingAPI.Framework.ContentManagers
 
                 try
                 {
-                    this.LoadExact<T>(localizedName, useCache: useCache);
+                    T data = this.LoadExact<T>(localizedName, useCache: useCache);
                     LocalizedContentManager.localizedAssetNames[assetName.Name] = localizedName.Name;
+                    return data;
                 }
                 catch (ContentLoadException)
                 {
                     localizedName = new AssetName(assetName.BaseName + "_international", null, null);
                     try
                     {
-                        this.LoadExact<T>(localizedName, useCache: useCache);
+                        T data = this.LoadExact<T>(localizedName, useCache: useCache);
                         LocalizedContentManager.localizedAssetNames[assetName.Name] = localizedName.Name;
+                        return data;
                     }
                     catch (ContentLoadException)
                     {
@@ -158,15 +160,12 @@ namespace StardewModdingAPI.Framework.ContentManagers
             // use cached key
             string rawName = LocalizedContentManager.localizedAssetNames[assetName.Name];
             if (assetName.Name != rawName)
-                assetName = this.Coordinator.ParseAssetName(assetName.Name);
+                assetName = this.Coordinator.ParseAssetName(rawName);
             return this.LoadExact<T>(assetName, useCache: useCache);
         }
 
         /// <inheritdoc />
         public abstract T LoadExact<T>(IAssetName assetName, bool useCache);
-
-        /// <inheritdoc />
-        public virtual void OnLocaleChanged() { }
 
         /// <inheritdoc />
         [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local", Justification = "Parameter is only used for assertion checks by design.")]

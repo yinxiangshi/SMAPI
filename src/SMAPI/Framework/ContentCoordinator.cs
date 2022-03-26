@@ -230,12 +230,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>Perform any updates needed when the locale changes.</summary>
         public void OnLocaleChanged()
         {
-            // reload affected content
+            // reset baseline cache
             this.ContentManagerLock.InReadLock(() =>
             {
-                foreach (IContentManager contentManager in this.ContentManagers)
-                    contentManager.OnLocaleChanged();
-
                 this.VanillaContentManager.Unload();
             });
         }

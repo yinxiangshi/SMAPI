@@ -65,8 +65,5 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <param name="dispose">Whether to dispose invalidated assets. This should only be <c>true</c> when they're being invalidated as part of a dispose, to avoid crashing the game.</param>
         /// <returns>Returns the invalidated asset names and instances.</returns>
         IDictionary<string, object> InvalidateCache(Func<string, Type, bool> predicate, bool dispose = false);
-
-        /// <summary>Perform any cleanup needed when the locale changes.</summary>
-        void OnLocaleChanged();
     }
 }

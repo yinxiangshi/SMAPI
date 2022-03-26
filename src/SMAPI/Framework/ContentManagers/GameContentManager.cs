@@ -25,9 +25,6 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <summary>The assets currently being intercepted by <see cref="IAssetLoader"/> instances. This is used to prevent infinite loops when a loader loads a new asset.</summary>
         private readonly ContextHash<string> AssetsBeingLoaded = new();
 
-        /// <summary>Maps asset names to their localized form, like <c>LooseSprites\Billboard => LooseSprites\Billboard.fr-FR</c> (localized) or <c>Maps\AnimalShop => Maps\AnimalShop</c> (not localized).</summary>
-        private IDictionary<string, string> LocalizedAssetNames => LocalizedContentManager.localizedAssetNames;
-
         /// <summary>Whether the next load is the first for any game content manager.</summary>
         private static bool IsFirstLoad = true;
 
@@ -137,32 +134,6 @@ namespace StardewModdingAPI.Framework.ContentManagers
             // raise event & return data
             this.OnAssetLoaded(this, assetName);
             return data;
-        }
-
-        /// <inheritdoc />
-        public override void OnLocaleChanged()
-        {
-            base.OnLocaleChanged();
-
-            // find assets for which a translatable version was loaded
-            HashSet<string> removeAssetNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            foreach (string key in this.LocalizedAssetNames.Where(p => p.Key != p.Value).Select(p => p.Key))
-            {
-                IAssetName assetName = this.Coordinator.ParseAssetName(key);
-                removeAssetNames.Add(assetName.BaseName);
-            }
-
-            // invalidate translatable assets
-            string[] invalidated = this
-                .InvalidateCache((key, _) =>
-                    removeAssetNames.Contains(key)
-                    || removeAssetNames.Contains(this.Coordinator.ParseAssetName(key).BaseName)
-                )
-                .Select(p => p.Key)
-                .OrderBy(p => p, StringComparer.OrdinalIgnoreCase)
-                .ToArray();
-            if (invalidated.Any())
-                this.Monitor.Log($"Invalidated {invalidated.Length} asset names: {string.Join(", ", invalidated)} for locale change.");
         }
 
         /// <inheritdoc />
