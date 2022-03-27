@@ -10,17 +10,18 @@ using xTile;
 namespace StardewModdingAPI
 {
     /// <summary>Provides an API for loading content assets.</summary>
+    [Obsolete($"Use {nameof(IMod.Helper)}.{nameof(IModHelper.GameContent)} or {nameof(IMod.Helper)}.{nameof(IModHelper.ModContent)} instead. This interface will be removed in SMAPI 4.0.0.")]
     public interface IContentHelper : IModLinked
     {
         /*********
         ** Accessors
         *********/
         /// <summary>Interceptors which provide the initial versions of matching content assets.</summary>
-        [Obsolete($"Use {nameof(IMod.Helper)}.{nameof(IModHelper.Events)}.{nameof(IModEvents.Content)} instead. This interface will be removed in SMAPI 4.0.0.")]
+        [Obsolete($"Use {nameof(IMod.Helper)}.{nameof(IModHelper.Events)}.{nameof(IModEvents.Content)} instead. This property will be removed in SMAPI 4.0.0.")]
         IList<IAssetLoader> AssetLoaders { get; }
 
         /// <summary>Interceptors which edit matching content assets after they're loaded.</summary>
-        [Obsolete($"Use {nameof(IMod.Helper)}.{nameof(IModHelper.Events)}.{nameof(IModEvents.Content)} instead. This interface will be removed in SMAPI 4.0.0.")]
+        [Obsolete($"Use {nameof(IMod.Helper)}.{nameof(IModHelper.Events)}.{nameof(IModEvents.Content)} instead. This property will be removed in SMAPI 4.0.0.")]
         IList<IAssetEditor> AssetEditors { get; }
 
         /// <summary>The game's current locale code (like <c>pt-BR</c>).</summary>
@@ -33,11 +34,6 @@ namespace StardewModdingAPI
         /*********
         ** Public methods
         *********/
-        /// <summary>Parse a raw asset name.</summary>
-        /// <param name="rawName">The raw asset name to parse.</param>
-        /// <exception cref="ArgumentException">The <paramref name="rawName"/> is null or empty.</exception>
-        IAssetName ParseAssetName(string rawName);
-
         /// <summary>Load content from the game folder or mod folder (if not already cached), and return it. When loading a <c>.png</c> file, this must be called outside the game's draw loop.</summary>
         /// <typeparam name="T">The expected data type. The main supported types are <see cref="Map"/>, <see cref="Texture2D"/>, dictionaries, and lists; other types may be supported by the game's content pipeline.</typeparam>
         /// <param name="key">The asset key to fetch (if the <paramref name="source"/> is <see cref="ContentSource.GameContent"/>), or the local path to a content file relative to the mod folder.</param>

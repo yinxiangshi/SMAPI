@@ -13,9 +13,6 @@ namespace StardewModdingAPI.Framework
         /*********
         ** Fields
         *********/
-        /// <summary>Provides an API for loading content assets.</summary>
-        private readonly IContentHelper Content;
-
         /// <summary>Encapsulates SMAPI's JSON file parsing.</summary>
         private readonly JsonHelper JsonHelper;
 
@@ -35,6 +32,9 @@ namespace StardewModdingAPI.Framework
         /// <inheritdoc />
         public ITranslationHelper Translation => this.TranslationImpl;
 
+        /// <inheritdoc />
+        public IModContentHelper ModContent { get; }
+
         /// <summary>The underlying translation helper.</summary>
         internal TranslationHelper TranslationImpl { get; set; }
 
@@ -45,14 +45,14 @@ namespace StardewModdingAPI.Framework
         /// <summary>Construct an instance.</summary>
         /// <param name="directoryPath">The full path to the content pack's folder.</param>
         /// <param name="manifest">The content pack's manifest.</param>
-        /// <param name="content">Provides an API for loading content assets.</param>
+        /// <param name="content">Provides an API for loading content assets from the content pack's folder.</param>
         /// <param name="translation">Provides translations stored in the content pack's <c>i18n</c> folder.</param>
         /// <param name="jsonHelper">Encapsulates SMAPI's JSON file parsing.</param>
-        public ContentPack(string directoryPath, IManifest manifest, IContentHelper content, TranslationHelper translation, JsonHelper jsonHelper)
+        public ContentPack(string directoryPath, IManifest manifest, IModContentHelper content, TranslationHelper translation, JsonHelper jsonHelper)
         {
             this.DirectoryPath = directoryPath;
             this.Manifest = manifest;
-            this.Content = content;
+            this.ModContent = content;
             this.TranslationImpl = translation;
             this.JsonHelper = jsonHelper;
 
@@ -95,21 +95,17 @@ namespace StardewModdingAPI.Framework
         }
 
         /// <inheritdoc />
+        [Obsolete]
         public T LoadAsset<T>(string key)
         {
-            key = PathUtilities.NormalizePath(key);
-
-            key = this.GetCaseInsensitiveRelativePath(key);
-            return this.Content.Load<T>(key, ContentSource.ModFolder);
+            return this.ModContent.Load<T>(key);
         }
 
         /// <inheritdoc />
+        [Obsolete]
         public string GetActualAssetKey(string key)
         {
-            key = PathUtilities.NormalizePath(key);
-
-            key = this.GetCaseInsensitiveRelativePath(key);
-            return this.Content.GetActualAssetKey(key, ContentSource.ModFolder);
+            return this.ModContent.GetInternalAssetName(key)?.Name;
         }
 
 

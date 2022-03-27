@@ -101,6 +101,18 @@ namespace StardewModdingAPI.Framework.Content
         }
 
         /// <inheritdoc />
+        public bool IsEquivalentTo(IAssetName assetName, bool useBaseName = false)
+        {
+            if (useBaseName)
+                return this.BaseName.Equals(assetName?.BaseName, StringComparison.OrdinalIgnoreCase);
+
+            if (assetName is AssetName impl)
+                return this.ComparableName == impl?.ComparableName;
+
+            return this.Name.Equals(assetName?.Name, StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <inheritdoc />
         public bool StartsWith(string prefix, bool allowPartialWord = true, bool allowSubfolder = true)
         {
             // asset keys never start with null

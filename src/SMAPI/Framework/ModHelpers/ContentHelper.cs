@@ -13,6 +13,7 @@ using StardewValley;
 namespace StardewModdingAPI.Framework.ModHelpers
 {
     /// <summary>Provides an API for loading content assets.</summary>
+    [Obsolete]
     internal class ContentHelper : BaseHelper, IContentHelper
     {
         /*********
@@ -44,11 +45,9 @@ namespace StardewModdingAPI.Framework.ModHelpers
         public LocalizedContentManager.LanguageCode CurrentLocaleConstant => this.GameContentManager.Language;
 
         /// <summary>The observable implementation of <see cref="AssetEditors"/>.</summary>
-        [Obsolete]
         internal ObservableCollection<IAssetEditor> ObservableAssetEditors { get; } = new();
 
         /// <summary>The observable implementation of <see cref="AssetLoaders"/>.</summary>
-        [Obsolete]
         internal ObservableCollection<IAssetLoader> ObservableAssetLoaders { get; } = new();
 
         /// <inheritdoc />
@@ -103,12 +102,6 @@ namespace StardewModdingAPI.Framework.ModHelpers
             this.ModContentManager = contentCore.CreateModContentManager(managedAssetPrefix, modName, modFolderPath, this.GameContentManager);
             this.ModName = modName;
             this.Monitor = monitor;
-        }
-
-        /// <inheritdoc />
-        public IAssetName ParseAssetName(string rawName)
-        {
-            return this.ContentCore.ParseAssetName(rawName);
         }
 
         /// <inheritdoc />

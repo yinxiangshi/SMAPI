@@ -30,6 +30,11 @@ namespace StardewModdingAPI
         /// <param name="useBaseName">Whether to compare the given name with the <see cref="BaseName"/> (if true) or <see cref="Name"/> (if false). This has no effect on any locale included in the given <paramref name="assetName"/>.</param>
         bool IsEquivalentTo(string assetName, bool useBaseName = false);
 
+        /// <summary>Get whether the given asset name is equivalent, ignoring capitalization and formatting.</summary>
+        /// <param name="assetName">The asset name to compare this instance to.</param>
+        /// <param name="useBaseName">Whether to compare the given name with the <see cref="BaseName"/> (if true) or <see cref="Name"/> (if false).</param>
+        bool IsEquivalentTo(IAssetName assetName, bool useBaseName = false);
+
         /// <summary>Get whether the asset name starts with the given value, ignoring capitalization and formatting. This can be used with a trailing slash to test for an asset folder, like <c>Data/</c>.</summary>
         /// <param name="prefix">The prefix to match.</param>
         /// <param name="allowPartialWord">Whether to match if the prefix occurs mid-word, so <c>Data/AchievementsToIgnore</c> matches prefix <c>Data/Achievements</c>. If this is false, the prefix only matches if the asset name starts with the prefix followed by a non-alphanumeric character (including <c>.</c>, <c>/</c>, or <c>\\</c>) or the end of string.</param>

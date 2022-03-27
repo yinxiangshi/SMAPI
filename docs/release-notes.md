@@ -17,10 +17,12 @@
 * For mod authors:
   * **Added [content events](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Events#Content), which will replace `IAssetEditor` and `IAssetLoader` in SMAPI 4.0.0.**  
     _These include new features not supported by the old API like load conflict resolution, edit priority, and content pack labels. They also support new cases like easily detecting when an asset has changed, and avoid data corruption issues in some edge cases._
+  * **Added `helper.GameContent` and `helper.ModContent`, which will replace `helper.Content` in SMAPI 4.0.0.**
   * **Overhauled [mod-provided API](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Integrations#Mod-provided_APIs) proxying** (thanks to Shockah!).  
     _This adds support for many previously unsupported cases: proxied interfaces in return values or input arguments, proxied enums if their values match, generic methods, and more. Existing mod APIs should work fine as-is._
   * **Deprecation warning:** The upcoming SMAPI 4.0 will remove deprecated APIs and break mods which haven't updated yet.  
     _See [_Migrate to SMAPI 4.0_](https://stardewvalleywiki.com/Modding:Migrate_to_SMAPI_4.0) for help updating your mod code. You can update your mod code now, there's no need to wait for the 4.0.0 release (which will happen in at least three months, and possibly later if needed to update open-source mods)._
+  * Added `IContentPack.ModContent` property.
   * Added `Constants.ContentPath`.
   * Added `IAssetName` fields to the info received by `IAssetEditor` and `IAssetLoader` methods.  
     _This adds methods for working with asset names, parsed locales, etc._

@@ -20,6 +20,9 @@ namespace StardewModdingAPI
         /// <summary>Provides translations stored in the content pack's <c>i18n</c> folder. See <see cref="IModHelper.Translation"/> for more info.</summary>
         ITranslationHelper Translation { get; }
 
+        /// <summary>An API for loading content assets from the content pack's files.</summary>
+        IModContentHelper ModContent { get; }
+
 
         /*********
         ** Public methods
@@ -47,11 +50,13 @@ namespace StardewModdingAPI
         /// <param name="key">The relative file path within the content pack (case-insensitive).</param>
         /// <exception cref="ArgumentException">The <paramref name="key"/> is empty or contains invalid characters.</exception>
         /// <exception cref="ContentLoadException">The content asset couldn't be loaded (e.g. because it doesn't exist).</exception>
+        [Obsolete($"Use {nameof(IContentPack.ModContent)}.{nameof(IModContentHelper.Load)} instead. This method will be removed in SMAPI 4.0.0.")]
         T LoadAsset<T>(string key);
 
         /// <summary>Get the underlying key in the game's content cache for an asset. This can be used to load custom map tilesheets, but should be avoided when you can use the content API instead. This does not validate whether the asset exists.</summary>
         /// <param name="key">The relative file path within the content pack (case-insensitive).</param>
         /// <exception cref="ArgumentException">The <paramref name="key"/> is empty or contains invalid characters.</exception>
+        [Obsolete($"Use {nameof(IContentPack.ModContent)}.{nameof(IModContentHelper.GetInternalAssetName)} instead. This method will be removed in SMAPI 4.0.0.")]
         string GetActualAssetKey(string key);
     }
 }
