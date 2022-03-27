@@ -58,9 +58,9 @@ namespace StardewModdingAPI.Framework.ContentManagers
         }
 
         /// <inheritdoc />
-        public override bool DoesAssetExist(IAssetName assetName)
+        public override bool DoesAssetExist<T>(IAssetName assetName)
         {
-            if (base.DoesAssetExist(assetName))
+            if (base.DoesAssetExist<T>(assetName))
                 return true;
 
             // vanilla asset
@@ -69,11 +69,11 @@ namespace StardewModdingAPI.Framework.ContentManagers
 
             // managed asset
             if (this.Coordinator.TryParseManagedAssetKey(assetName.Name, out string contentManagerID, out IAssetName relativePath))
-                return this.Coordinator.DoesManagedAssetExist(contentManagerID, relativePath);
+                return this.Coordinator.DoesManagedAssetExist<T>(contentManagerID, relativePath);
 
             // custom asset from a loader
             string locale = this.GetLocale();
-            IAssetInfo info = new AssetInfo(locale, assetName, typeof(object), this.AssertAndNormalizeAssetName);
+            IAssetInfo info = new AssetInfo(locale, assetName, typeof(T), this.AssertAndNormalizeAssetName);
             AssetLoadOperation[] loaders = this.GetLoaders<object>(info).ToArray();
 
             if (!this.AssertMaxOneRequiredLoader(info, loaders, out string error))

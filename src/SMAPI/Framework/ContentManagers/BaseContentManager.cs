@@ -97,7 +97,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
         }
 
         /// <inheritdoc />
-        public virtual bool DoesAssetExist(IAssetName assetName)
+        public virtual bool DoesAssetExist<T>(IAssetName assetName)
         {
             return this.Cache.ContainsKey(assetName.Name);
         }

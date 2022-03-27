@@ -1151,7 +1151,7 @@ namespace StardewModdingAPI.Framework
             this.EventManager.AssetRequested.Raise(
                 invoke: (mod, invoke) =>
                 {
-                    AssetRequestedEventArgs args = new(mod, asset.Name, asset.NameWithoutLocale, this.GetOnBehalfOfContentPack);
+                    AssetRequestedEventArgs args = new(mod, asset.Name, asset.NameWithoutLocale, asset.DataType, this.GetOnBehalfOfContentPack);
 
                     invoke(args);
 

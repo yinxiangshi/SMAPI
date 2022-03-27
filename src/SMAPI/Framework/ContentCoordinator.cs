@@ -315,9 +315,10 @@ namespace StardewModdingAPI.Framework
         }
 
         /// <summary>Get whether an asset from a mod folder exists.</summary>
+        /// <typeparam name="T">The expected asset type.</typeparam>
         /// <param name="contentManagerID">The unique name for the content manager which should load this asset.</param>
         /// <param name="assetName">The asset name within the mod folder.</param>
-        public bool DoesManagedAssetExist(string contentManagerID, IAssetName assetName)
+        public bool DoesManagedAssetExist<T>(string contentManagerID, IAssetName assetName)
         {
             // get content manager
             IContentManager contentManager = this.ContentManagerLock.InReadLock(() =>
@@ -327,7 +328,7 @@ namespace StardewModdingAPI.Framework
                 throw new InvalidOperationException($"The '{contentManagerID}' prefix isn't handled by any mod.");
 
             // get whether the asset exists
-            return contentManager.DoesAssetExist(assetName);
+            return contentManager.DoesAssetExist<T>(assetName);
         }
 
         /// <summary>Get a copy of an asset from a mod folder.</summary>

@@ -66,9 +66,9 @@ namespace StardewModdingAPI.Framework.ContentManagers
         }
 
         /// <inheritdoc />
-        public override bool DoesAssetExist(IAssetName assetName)
+        public override bool DoesAssetExist<T>(IAssetName assetName)
         {
-            if (base.DoesAssetExist(assetName))
+            if (base.DoesAssetExist<T>(assetName))
                 return true;
 
             FileInfo file = this.GetModFile(assetName.Name);

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using StardewModdingAPI.Framework.Content;
+using StardewModdingAPI.Events;
 using StardewValley;
 using xTile;
 
@@ -16,9 +16,11 @@ namespace StardewModdingAPI
         ** Accessors
         *********/
         /// <summary>Interceptors which provide the initial versions of matching content assets.</summary>
+        [Obsolete($"Use {nameof(IMod.Helper)}.{nameof(IModHelper.Events)}.{nameof(IModEvents.Content)} instead. This interface will be removed in SMAPI 4.0.0.")]
         IList<IAssetLoader> AssetLoaders { get; }
 
         /// <summary>Interceptors which edit matching content assets after they're loaded.</summary>
+        [Obsolete($"Use {nameof(IMod.Helper)}.{nameof(IModHelper.Events)}.{nameof(IModEvents.Content)} instead. This interface will be removed in SMAPI 4.0.0.")]
         IList<IAssetEditor> AssetEditors { get; }
 
         /// <summary>The game's current locale code (like <c>pt-BR</c>).</summary>

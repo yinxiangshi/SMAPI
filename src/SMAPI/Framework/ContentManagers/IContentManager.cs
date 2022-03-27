@@ -29,8 +29,9 @@ namespace StardewModdingAPI.Framework.ContentManagers
         ** Methods
         *********/
         /// <summary>Get whether an asset exists and can be loaded.</summary>
+        /// <typeparam name="T">The expected asset type.</typeparam>
         /// <param name="assetName">The normalized asset name.</param>
-        bool DoesAssetExist(IAssetName assetName);
+        bool DoesAssetExist<T>(IAssetName assetName);
 
         /// <summary>Load an asset through the content pipeline, using a localized variant of the <paramref name="assetName"/> if available.</summary>
         /// <typeparam name="T">The type of asset to load.</typeparam>
