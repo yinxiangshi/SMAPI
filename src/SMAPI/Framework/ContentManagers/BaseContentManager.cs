@@ -104,20 +104,21 @@ namespace StardewModdingAPI.Framework.ContentManagers
 
         /// <inheritdoc />
         [Obsolete("This method is implemented for the base game and should not be used directly. To load an asset from the underlying content manager directly, use " + nameof(BaseContentManager.RawLoad) + " instead.")]
-        public override T LoadBase<T>(string assetName)
+        public sealed override T LoadBase<T>(string assetName)
         {
             return this.Load<T>(assetName, LanguageCode.en);
         }
 
         /// <inheritdoc />
-        public override T Load<T>(string assetName)
+        public sealed override T Load<T>(string assetName)
         {
             return this.Load<T>(assetName, this.Language);
         }
 
         /// <inheritdoc />
-        public override T Load<T>(string assetName, LanguageCode language)
+        public sealed override T Load<T>(string assetName, LanguageCode language)
         {
+            assetName = this.PrenormalizeRawAssetName(assetName);
             IAssetName parsedName = this.Coordinator.ParseAssetName(assetName);
             return this.LoadLocalized<T>(parsedName, language, useCache: true);
         }
@@ -276,6 +277,21 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /*********
         ** Private methods
         *********/
+        /// <summary>Apply initial normalization to a raw asset name before it's parsed.</summary>
+        /// <param name="assetName">The asset name to normalize.</param>
+        private string PrenormalizeRawAssetName(string assetName)
+        {
+            // trim
+            assetName = assetName?.Trim();
+
+            // For legacy reasons, mods can pass .xnb file extensions to the content pipeline which
+            // are then stripped. This will be re-added as needed when reading from raw files.
+            if (assetName?.EndsWith(".xnb") == true)
+                assetName = assetName[..^".xnb".Length];
+
+            return assetName;
+        }
+
         /// <summary>Normalize path separators in a file path. For asset keys, see <see cref="AssertAndNormalizeAssetName"/> instead.</summary>
         /// <param name="path">The file path to normalize.</param>
         [Pure]

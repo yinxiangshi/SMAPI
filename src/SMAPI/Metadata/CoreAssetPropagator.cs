@@ -95,8 +95,6 @@ namespace StardewModdingAPI.Metadata
                 .Distinct()
                 .ToDictionary(name => name, _ => false);
 
-            this.Monitor.Log($"Propagating: {propagatedAssets.Keys.OrderBy(p => p.Name, StringComparer.OrdinalIgnoreCase)}", LogLevel.Alert);
-
             // group into optimized lists
             var buckets = assets.GroupBy(p =>
             {

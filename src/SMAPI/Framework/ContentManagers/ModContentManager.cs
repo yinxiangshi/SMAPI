@@ -32,9 +32,6 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <summary>The game content manager used for map tilesheets not provided by the mod.</summary>
         private readonly IContentManager GameContentManager;
 
-        /// <summary>The language code for language-agnostic mod assets.</summary>
-        private readonly LanguageCode DefaultLanguage = Constants.DefaultLanguage;
-
         /// <summary>If a map tilesheet's image source has no file extensions, the file extensions to check for in the local mod folder.</summary>
         private readonly string[] LocalTilesheetExtensions = { ".png", ".xnb" };
 
@@ -73,12 +70,6 @@ namespace StardewModdingAPI.Framework.ContentManagers
 
             FileInfo file = this.GetModFile(assetName.Name);
             return file.Exists;
-        }
-
-        /// <inheritdoc />
-        public override T Load<T>(string assetName)
-        {
-            return this.Load<T>(assetName, this.DefaultLanguage);
         }
 
         /// <inheritdoc />
@@ -222,14 +213,14 @@ namespace StardewModdingAPI.Framework.ContentManagers
         private FileInfo GetModFile(string path)
         {
             // try exact match
-            FileInfo file = new FileInfo(Path.Combine(this.FullRootDirectory, path));
+            FileInfo file = new(Path.Combine(this.FullRootDirectory, path));
 
             // try with default extension
-            if (!file.Exists && file.Extension == string.Empty)
+            if (!file.Exists)
             {
                 foreach (string extension in this.LocalTilesheetExtensions)
                 {
-                    FileInfo result = new FileInfo(file.FullName + extension);
+                    FileInfo result = new(file.FullName + extension);
                     if (result.Exists)
                     {
                         file = result;
