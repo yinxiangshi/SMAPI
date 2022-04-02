@@ -13,7 +13,7 @@ namespace StardewModdingAPI.Framework.Utilities
         ** Fields
         *********/
         /// <summary>The last game tick for which data was cached.</summary>
-        private int LastGameTick = -1;
+        private uint? LastGameTick;
 
         /// <summary>The underlying cached data.</summary>
         private readonly Dictionary<TKey, TValue> Cache = new();
@@ -28,10 +28,10 @@ namespace StardewModdingAPI.Framework.Utilities
         public TValue GetOrSet(TKey cacheKey, Func<TValue> get)
         {
             // clear cache on new tick
-            if (Game1.ticks != this.LastGameTick)
+            if (SCore.TicksElapsed != this.LastGameTick)
             {
                 this.Cache.Clear();
-                this.LastGameTick = Game1.ticks;
+                this.LastGameTick = SCore.TicksElapsed;
             }
 
             // fetch value
