@@ -15,7 +15,7 @@ using StardewModdingAPI.Framework.Utilities;
 using StardewModdingAPI.Internal;
 using StardewModdingAPI.Metadata;
 using StardewModdingAPI.Toolkit.Serialization;
-using StardewModdingAPI.Toolkit.Utilities;
+using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.GameData;
 using xTile;
@@ -80,6 +80,9 @@ namespace StardewModdingAPI.Framework
         /// <summary>The cached asset load/edit operations to apply, indexed by asset name.</summary>
         private readonly TickCacheDictionary<IAssetName, AssetOperationGroup[]> AssetOperationsByKey = new();
 
+        /// <summary>The previously created case-insensitive path caches by root path.</summary>
+        private readonly Dictionary<string, CaseInsensitivePathCache> CaseInsensitivePathCaches = new(StringComparer.OrdinalIgnoreCase);
+
 
         /*********
         ** Accessors
@@ -91,9 +94,11 @@ namespace StardewModdingAPI.Framework
         public LocalizedContentManager.LanguageCode Language => this.MainContentManager.Language;
 
         /// <summary>Interceptors which provide the initial versions of matching assets.</summary>
+        [Obsolete]
         public IList<ModLinked<IAssetLoader>> Loaders { get; } = new List<ModLinked<IAssetLoader>>();
 
         /// <summary>Interceptors which edit matching assets after they're loaded.</summary>
+        [Obsolete]
         public IList<ModLinked<IAssetEditor>> Editors { get; } = new List<ModLinked<IAssetEditor>>();
 
         /// <summary>The absolute path to the <see cref="ContentManager.RootDirectory"/>.</summary>
@@ -205,7 +210,8 @@ namespace StardewModdingAPI.Framework
                     reflection: this.Reflection,
                     jsonHelper: this.JsonHelper,
                     onDisposing: this.OnDisposing,
-                    aggressiveMemoryOptimizations: this.AggressiveMemoryOptimizations
+                    aggressiveMemoryOptimizations: this.AggressiveMemoryOptimizations,
+                    relativePathCache: this.GetCaseInsensitivePathCache(rootDirectory)
                 );
                 this.ContentManagers.Add(manager);
                 return manager;
@@ -475,6 +481,18 @@ namespace StardewModdingAPI.Framework
                 }
                 return values;
             });
+        }
+
+        /// <summary>Get a dictionary of relative paths within a root path, for case-insensitive file lookups.</summary>
+        /// <param name="rootPath">The root path to scan.</param>
+        public CaseInsensitivePathCache GetCaseInsensitivePathCache(string rootPath)
+        {
+            rootPath = PathUtilities.NormalizePath(rootPath);
+
+            if (!this.CaseInsensitivePathCaches.TryGetValue(rootPath, out CaseInsensitivePathCache cache))
+                this.CaseInsensitivePathCaches[rootPath] = cache = new CaseInsensitivePathCache(rootPath);
+
+            return cache;
         }
 
         /// <summary>Get the tilesheet ID order used by the unmodified version of a map asset.</summary>
