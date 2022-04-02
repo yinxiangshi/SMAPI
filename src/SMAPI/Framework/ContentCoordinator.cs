@@ -156,7 +156,7 @@ namespace StardewModdingAPI.Framework
             );
             this.ContentManagers.Add(contentManagerForAssetPropagation);
             this.VanillaContentManager = new LocalizedContentManager(serviceProvider, rootDirectory);
-            this.CoreAssets = new CoreAssetPropagator(this.MainContentManager, contentManagerForAssetPropagation, this.Monitor, reflection, aggressiveMemoryOptimizations, this.ParseAssetName);
+            this.CoreAssets = new CoreAssetPropagator(this.MainContentManager, contentManagerForAssetPropagation, this.Monitor, reflection, aggressiveMemoryOptimizations, name => this.ParseAssetName(name, allowLocales: true));
             this.LocaleCodes = new Lazy<Dictionary<string, LocalizedContentManager.LanguageCode>>(() => this.GetLocaleCodes(customLanguages: Enumerable.Empty<ModLanguage>()));
         }
 
@@ -269,11 +269,17 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>Parse a raw asset name.</summary>
         /// <param name="rawName">The raw asset name to parse.</param>
+        /// <param name="allowLocales">Whether to parse locales in the <paramref name="rawName"/>. If this is false, any locale codes in the name are treated as if they were part of the base name (e.g. for mod files).</param>
         /// <exception cref="ArgumentException">The <paramref name="rawName"/> is null or empty.</exception>
-        public AssetName ParseAssetName(string rawName)
+        public AssetName ParseAssetName(string rawName, bool allowLocales)
         {
             return !string.IsNullOrWhiteSpace(rawName)
-                ? AssetName.Parse(rawName, parseLocale: locale => this.LocaleCodes.Value.TryGetValue(locale, out LocalizedContentManager.LanguageCode langCode) ? langCode : null)
+                ? AssetName.Parse(
+                    rawName: rawName,
+                    parseLocale: allowLocales
+                        ? locale => this.LocaleCodes.Value.TryGetValue(locale, out LocalizedContentManager.LanguageCode langCode) ? langCode : null
+                        : _ => null
+                )
                 : throw new ArgumentException("The asset name can't be null or empty.", nameof(rawName));
         }
 
@@ -303,7 +309,7 @@ namespace StardewModdingAPI.Framework
             if (parts.Length != 3) // managed key prefix, mod id, relative path
                 return false;
             contentManagerID = Path.Combine(parts[0], parts[1]);
-            relativePath = this.ParseAssetName(parts[2]);
+            relativePath = this.ParseAssetName(parts[2], allowLocales: false);
             return true;
         }
 
@@ -357,7 +363,7 @@ namespace StardewModdingAPI.Framework
             string locale = this.GetLocale();
             return this.InvalidateCache((_, rawName, type) =>
             {
-                IAssetName assetName = this.ParseAssetName(rawName);
+                IAssetName assetName = this.ParseAssetName(rawName, allowLocales: true);
                 IAssetInfo info = new AssetInfo(locale, assetName, type, this.MainContentManager.AssertAndNormalizeAssetName);
                 return predicate(info);
             }, dispose);
@@ -378,7 +384,7 @@ namespace StardewModdingAPI.Framework
                 {
                     foreach ((string key, object asset) in contentManager.InvalidateCache((key, type) => predicate(contentManager, key, type), dispose))
                     {
-                        AssetName assetName = this.ParseAssetName(key);
+                        AssetName assetName = this.ParseAssetName(key, allowLocales: true);
                         if (!invalidatedAssets.ContainsKey(assetName))
                             invalidatedAssets[assetName] = asset.GetType();
                     }
@@ -394,7 +400,7 @@ namespace StardewModdingAPI.Framework
                             continue;
 
                         // get map path
-                        AssetName mapPath = this.ParseAssetName(this.MainContentManager.AssertAndNormalizeAssetName(location.mapPath.Value));
+                        AssetName mapPath = this.ParseAssetName(this.MainContentManager.AssertAndNormalizeAssetName(location.mapPath.Value), allowLocales: true);
                         if (!invalidatedAssets.ContainsKey(mapPath) && predicate(this.MainContentManager, mapPath.Name, typeof(Map)))
                             invalidatedAssets[mapPath] = typeof(Map);
                     }

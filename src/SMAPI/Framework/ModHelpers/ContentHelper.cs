@@ -107,7 +107,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <inheritdoc />
         public T Load<T>(string key, ContentSource source = ContentSource.ModFolder)
         {
-            IAssetName assetName = this.ContentCore.ParseAssetName(key);
+            IAssetName assetName = this.ContentCore.ParseAssetName(key, allowLocales: source == ContentSource.GameContent);
 
             try
             {
@@ -157,21 +157,21 @@ namespace StardewModdingAPI.Framework.ModHelpers
         public bool InvalidateCache(string key)
         {
             string actualKey = this.GetActualAssetKey(key, ContentSource.GameContent);
-            this.Monitor.Log($"Requested cache invalidation for '{actualKey}'.", LogLevel.Trace);
+            this.Monitor.Log($"Requested cache invalidation for '{actualKey}'.");
             return this.ContentCore.InvalidateCache(asset => asset.Name.IsEquivalentTo(actualKey)).Any();
         }
 
         /// <inheritdoc />
         public bool InvalidateCache<T>()
         {
-            this.Monitor.Log($"Requested cache invalidation for all assets of type {typeof(T)}. This is an expensive operation and should be avoided if possible.", LogLevel.Trace);
-            return this.ContentCore.InvalidateCache((contentManager, key, type) => typeof(T).IsAssignableFrom(type)).Any();
+            this.Monitor.Log($"Requested cache invalidation for all assets of type {typeof(T)}. This is an expensive operation and should be avoided if possible.");
+            return this.ContentCore.InvalidateCache((_, _, type) => typeof(T).IsAssignableFrom(type)).Any();
         }
 
         /// <inheritdoc />
         public bool InvalidateCache(Func<IAssetInfo, bool> predicate)
         {
-            this.Monitor.Log("Requested cache invalidation for all assets matching a predicate.", LogLevel.Trace);
+            this.Monitor.Log("Requested cache invalidation for all assets matching a predicate.");
             return this.ContentCore.InvalidateCache(predicate).Any();
         }
 
@@ -183,7 +183,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
 
             assetName ??= $"temp/{Guid.NewGuid():N}";
 
-            return new AssetDataForObject(this.CurrentLocale, this.ContentCore.ParseAssetName(assetName), data, this.NormalizeAssetName);
+            return new AssetDataForObject(this.CurrentLocale, this.ContentCore.ParseAssetName(assetName, allowLocales: true/* no way to know if it's a game or mod asset here*/), data, this.NormalizeAssetName);
         }
 
 

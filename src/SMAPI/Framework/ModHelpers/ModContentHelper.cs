@@ -43,7 +43,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <inheritdoc />
         public T Load<T>(string relativePath)
         {
-            IAssetName assetName = this.ContentCore.ParseAssetName(relativePath);
+            IAssetName assetName = this.ContentCore.ParseAssetName(relativePath, allowLocales: false);
 
             try
             {
@@ -69,7 +69,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
 
             relativePath ??= $"temp/{Guid.NewGuid():N}";
 
-            return new AssetDataForObject(this.ContentCore.GetLocale(), this.ContentCore.ParseAssetName(relativePath), data, key => this.ContentCore.ParseAssetName(key).Name);
+            return new AssetDataForObject(this.ContentCore.GetLocale(), this.ContentCore.ParseAssetName(relativePath, allowLocales: false), data, key => this.ContentCore.ParseAssetName(key, allowLocales: false).Name);
         }
     }
 }

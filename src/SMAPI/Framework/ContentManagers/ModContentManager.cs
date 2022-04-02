@@ -111,7 +111,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
                         {
                             // the underlying content manager adds a .xnb extension implicitly, so
                             // we need to strip it here to avoid trying to load a '.xnb.xnb' file.
-                            IAssetName loadName = this.Coordinator.ParseAssetName(assetName.Name[..^".xnb".Length]);
+                            IAssetName loadName = this.Coordinator.ParseAssetName(assetName.Name[..^".xnb".Length], allowLocales: false);
 
                             // load asset
                             asset = this.RawLoad<T>(loadName, useCache: false);
@@ -201,7 +201,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             string relativePath = PathUtilities.GetRelativePath(this.RootDirectory, file.FullName);
             string internalKey = Path.Combine(this.Name, relativePath);
 
-            return this.Coordinator.ParseAssetName(internalKey);
+            return this.Coordinator.ParseAssetName(internalKey, allowLocales: false);
         }
 
 
@@ -343,7 +343,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             }
 
             // get from game assets
-            IAssetName contentKey = this.Coordinator.ParseAssetName(this.GetContentKeyForTilesheetImageSource(relativePath));
+            IAssetName contentKey = this.Coordinator.ParseAssetName(this.GetContentKeyForTilesheetImageSource(relativePath), allowLocales: false);
             try
             {
                 this.GameContentManager.LoadLocalized<Texture2D>(contentKey, this.GameContentManager.Language, useCache: true); // no need to bypass cache here, since we're not storing the asset

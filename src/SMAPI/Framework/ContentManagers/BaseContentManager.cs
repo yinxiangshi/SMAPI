@@ -119,7 +119,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
         public sealed override T Load<T>(string assetName, LanguageCode language)
         {
             assetName = this.PrenormalizeRawAssetName(assetName);
-            IAssetName parsedName = this.Coordinator.ParseAssetName(assetName);
+            IAssetName parsedName = this.Coordinator.ParseAssetName(assetName, allowLocales: this.TryLocalizeKeys);
             return this.LoadLocalized<T>(parsedName, language, useCache: true);
         }
 
@@ -161,7 +161,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             // use cached key
             string rawName = LocalizedContentManager.localizedAssetNames[assetName.Name];
             if (assetName.Name != rawName)
-                assetName = this.Coordinator.ParseAssetName(rawName);
+                assetName = this.Coordinator.ParseAssetName(rawName, allowLocales: this.TryLocalizeKeys);
             return this.LoadExact<T>(assetName, useCache: useCache);
         }
 
@@ -213,7 +213,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             IDictionary<string, object> removeAssets = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
             this.Cache.Remove((key, asset) =>
             {
-                string baseAssetName = this.Coordinator.ParseAssetName(key).BaseName;
+                string baseAssetName = this.Coordinator.ParseAssetName(key, allowLocales: this.TryLocalizeKeys).BaseName;
 
                 // check if asset should be removed
                 bool remove = removeAssets.ContainsKey(baseAssetName);

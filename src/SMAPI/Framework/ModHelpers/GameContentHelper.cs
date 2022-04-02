@@ -58,13 +58,13 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <inheritdoc />
         public IAssetName ParseAssetName(string rawName)
         {
-            return this.ContentCore.ParseAssetName(rawName);
+            return this.ContentCore.ParseAssetName(rawName, allowLocales: true);
         }
 
         /// <inheritdoc />
         public T Load<T>(string key)
         {
-            IAssetName assetName = this.ContentCore.ParseAssetName(key);
+            IAssetName assetName = this.ContentCore.ParseAssetName(key, allowLocales: true);
             return this.Load<T>(assetName);
         }
 
@@ -117,7 +117,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
 
             assetName ??= $"temp/{Guid.NewGuid():N}";
 
-            return new AssetDataForObject(this.CurrentLocale, this.ContentCore.ParseAssetName(assetName), data, key => this.ParseAssetName(key).Name);
+            return new AssetDataForObject(this.CurrentLocale, this.ContentCore.ParseAssetName(assetName, allowLocales: true), data, key => this.ParseAssetName(key).Name);
         }
 
         /// <summary>Get the underlying game content manager.</summary>
