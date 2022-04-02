@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using StardewValley;
 
 namespace StardewModdingAPI.Framework.Utilities
 {
@@ -28,10 +27,10 @@ namespace StardewModdingAPI.Framework.Utilities
         public TValue GetOrSet(TKey cacheKey, Func<TValue> get)
         {
             // clear cache on new tick
-            if (SCore.TicksElapsed != this.LastGameTick)
+            if (SCore.ProcessTicksElapsed != this.LastGameTick)
             {
                 this.Cache.Clear();
-                this.LastGameTick = SCore.TicksElapsed;
+                this.LastGameTick = SCore.ProcessTicksElapsed;
             }
 
             // fetch value

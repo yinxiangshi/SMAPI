@@ -158,8 +158,11 @@ namespace StardewModdingAPI.Framework
         /// <remarks>This is only intended for use by external code like the Error Handler mod.</remarks>
         internal static SCore Instance { get; private set; }
 
-        /// <summary>The number of update ticks which have already executed. This is similar to <see cref="Game1.ticks"/>, but incremented more consistently for every tick.</summary>
+        /// <summary>The number of game update ticks which have already executed. This is similar to <see cref="Game1.ticks"/>, but incremented more consistently for every tick.</summary>
         internal static uint TicksElapsed { get; private set; }
+
+        /// <summary>A specialized form of <see cref="TicksElapsed"/> which is incremented each time SMAPI performs a processing tick (whether that's a game update, one wait cycle while synchronizing code, etc).</summary>
+        internal static uint ProcessTicksElapsed { get; private set; }
 
 
         /*********
@@ -558,6 +561,7 @@ namespace StardewModdingAPI.Framework
             finally
             {
                 SCore.TicksElapsed++;
+                SCore.ProcessTicksElapsed++;
             }
         }
 
@@ -631,6 +635,8 @@ namespace StardewModdingAPI.Framework
                     this.Reflection.GetMethod(Game1.game1, "UpdateTitleScreen").Invoke(Game1.currentGameTime); // run game logic to change music on load, etc
                     while (Game1.currentLoader?.MoveNext() == true)
                     {
+                        SCore.ProcessTicksElapsed++;
+
                         // raise load stage changed
                         switch (Game1.currentLoader.Current)
                         {
