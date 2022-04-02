@@ -1238,6 +1238,9 @@ namespace StardewModdingAPI.Metadata
         /// <param name="right">The second value to compare.</param>
         private bool IsSameBaseName(IAssetName left, string right)
         {
+            if (left is null || right is null)
+                return false;
+
             IAssetName parsedB = this.ParseAssetNameOrNull(right);
             return this.IsSameBaseName(left, parsedB);
         }
@@ -1247,6 +1250,9 @@ namespace StardewModdingAPI.Metadata
         /// <param name="right">The second value to compare.</param>
         private bool IsSameBaseName(IAssetName left, IAssetName right)
         {
+            if (left is null || right is null)
+                return false;
+
             return left.IsEquivalentTo(right.BaseName, useBaseName: true);
         }
 
