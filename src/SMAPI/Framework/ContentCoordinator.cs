@@ -655,6 +655,27 @@ namespace StardewModdingAPI.Framework
                     continue;
                 }
 
+                // HACK
+                //
+                // If two editors have the same priority, they're applied in registration order (so
+                // whichever was registered first is applied first). Mods often depend on this
+                // behavior, like Json Assets registering its interceptors before Content Patcher.
+                //
+                // Unfortunately the old & new content APIs have separate lists, so new-API
+                // interceptors always ran before old-API interceptors with the same priority,
+                // regardless of the registration order *between* APIs. Since the new API works in
+                // a fundamentally different way (i.e. loads/edits are defined on asset request
+                // instead of by registering a global 'editor' or 'loader' class), there's no way
+                // to track registration order between them.
+                //
+                // Until we drop the old content API in SMAPI 4.0.0, this sets the priority for
+                // specific legacy editors to maintain compatibility.
+                AssetEditPriority priority = editor.Data.GetType().FullName switch
+                {
+                    "JsonAssets.Framework.ContentInjector1" => AssetEditPriority.Default - 1, // must be applied before Content Patcher
+                    _ => AssetEditPriority.Default
+                };
+
                 // add operation
                 yield return new AssetOperationGroup(
                     mod: editor.Mod,
@@ -663,7 +684,7 @@ namespace StardewModdingAPI.Framework
                     {
                         new AssetEditOperation(
                             mod: editor.Mod,
-                            priority: AssetEditPriority.Default,
+                            priority: priority,
                             onBehalfOf: null,
                             applyEdit: assetData => editor.Data.Edit<T>(
                                 this.GetLegacyAssetData(assetData)
