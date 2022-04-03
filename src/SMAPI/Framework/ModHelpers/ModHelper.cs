@@ -13,7 +13,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         *********/
         /// <summary>The backing field for <see cref="Content"/>.</summary>
         [Obsolete]
-        private readonly IContentHelper ContentImpl;
+        private readonly ContentHelper ContentImpl;
 
 
         /*********
@@ -93,7 +93,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <param name="translationHelper">An API for reading translations stored in the mod's <c>i18n</c> folder.</param>
         /// <exception cref="ArgumentNullException">An argument is null or empty.</exception>
         /// <exception cref="InvalidOperationException">The <paramref name="modDirectory"/> path does not exist on disk.</exception>
-        public ModHelper(string modID, string modDirectory, Func<SInputState> currentInputState, IModEvents events, IContentHelper contentHelper, IGameContentHelper gameContentHelper, IModContentHelper modContentHelper, IContentPackHelper contentPackHelper, ICommandHelper commandHelper, IDataHelper dataHelper, IModRegistry modRegistry, IReflectionHelper reflectionHelper, IMultiplayerHelper multiplayer, ITranslationHelper translationHelper)
+        public ModHelper(string modID, string modDirectory, Func<SInputState> currentInputState, IModEvents events, ContentHelper contentHelper, IGameContentHelper gameContentHelper, IModContentHelper modContentHelper, IContentPackHelper contentPackHelper, ICommandHelper commandHelper, IDataHelper dataHelper, IModRegistry modRegistry, IReflectionHelper reflectionHelper, IMultiplayerHelper multiplayer, ITranslationHelper translationHelper)
             : base(modID)
         {
             // validate directory
@@ -116,6 +116,13 @@ namespace StardewModdingAPI.Framework.ModHelpers
             this.Multiplayer = multiplayer ?? throw new ArgumentNullException(nameof(multiplayer));
             this.Translation = translationHelper ?? throw new ArgumentNullException(nameof(translationHelper));
             this.Events = events;
+        }
+
+        /// <summary>Get the underlying instance for <see cref="IContentHelper"/>.</summary>
+        [Obsolete]
+        public ContentHelper GetLegacyContentHelper()
+        {
+            return this.ContentImpl;
         }
 
         /****

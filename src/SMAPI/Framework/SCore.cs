@@ -1629,7 +1629,7 @@ namespace StardewModdingAPI.Framework
             foreach (IModMetadata metadata in loadedMods)
             {
                 // add interceptors
-                if (metadata.Mod.Helper.Content is ContentHelper helper)
+                if (metadata.Mod.Helper is ModHelper helper)
                 {
                     // ReSharper disable SuspiciousTypeConversion.Global
                     if (metadata.Mod is IAssetEditor editor)
@@ -1657,8 +1657,9 @@ namespace StardewModdingAPI.Framework
                     }
                     // ReSharper restore SuspiciousTypeConversion.Global
 
-                    helper.ObservableAssetEditors.CollectionChanged += (sender, e) => this.OnAssetInterceptorsChanged(metadata, e.NewItems?.Cast<IAssetEditor>(), e.OldItems?.Cast<IAssetEditor>(), this.ContentCore.Editors);
-                    helper.ObservableAssetLoaders.CollectionChanged += (sender, e) => this.OnAssetInterceptorsChanged(metadata, e.NewItems?.Cast<IAssetLoader>(), e.OldItems?.Cast<IAssetLoader>(), this.ContentCore.Loaders);
+                    ContentHelper content = helper.GetLegacyContentHelper();
+                    content.ObservableAssetEditors.CollectionChanged += (sender, e) => this.OnAssetInterceptorsChanged(metadata, e.NewItems?.Cast<IAssetEditor>(), e.OldItems?.Cast<IAssetEditor>(), this.ContentCore.Editors);
+                    content.ObservableAssetLoaders.CollectionChanged += (sender, e) => this.OnAssetInterceptorsChanged(metadata, e.NewItems?.Cast<IAssetLoader>(), e.OldItems?.Cast<IAssetLoader>(), this.ContentCore.Loaders);
                 }
 
                 // call entry method
@@ -1879,7 +1880,7 @@ namespace StardewModdingAPI.Framework
                         IModEvents events = new ModEvents(mod, this.EventManager);
                         ICommandHelper commandHelper = new CommandHelper(mod, this.CommandManager);
                         CaseInsensitivePathCache relativePathCache = this.ContentCore.GetCaseInsensitivePathCache(mod.DirectoryPath);
-                        IContentHelper contentHelper = new ContentHelper(contentCore, mod.DirectoryPath, manifest.UniqueID, mod.DisplayName, monitor);
+                        ContentHelper contentHelper = new(contentCore, mod.DirectoryPath, manifest.UniqueID, mod.DisplayName, monitor);
                         GameContentHelper gameContentHelper = new(contentCore, manifest.UniqueID, mod.DisplayName, monitor);
                         IModContentHelper modContentHelper = new ModContentHelper(contentCore, mod.DirectoryPath, manifest.UniqueID, mod.DisplayName, gameContentHelper.GetUnderlyingContentManager(), relativePathCache);
                         IContentPackHelper contentPackHelper = new ContentPackHelper(manifest.UniqueID, new Lazy<IContentPack[]>(GetContentPacks), CreateFakeContentPack);
