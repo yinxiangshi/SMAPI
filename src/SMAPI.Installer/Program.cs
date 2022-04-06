@@ -31,7 +31,7 @@ namespace StardewModdingApi.Installer
         public static void Main(string[] args)
         {
             // find install bundle
-            FileInfo zipFile = new FileInfo(Path.Combine(Program.InstallerPath, "install.dat"));
+            FileInfo zipFile = new(Path.Combine(Program.InstallerPath, "install.dat"));
             if (!zipFile.Exists)
             {
                 Console.WriteLine($"Oops! Some of the installer files are missing; try re-downloading the installer. (Missing file: {zipFile.FullName})");
@@ -40,7 +40,7 @@ namespace StardewModdingApi.Installer
             }
 
             // unzip bundle into temp folder
-            DirectoryInfo bundleDir = new DirectoryInfo(Program.ExtractedBundlePath);
+            DirectoryInfo bundleDir = new(Program.ExtractedBundlePath);
             Console.WriteLine("Extracting install files...");
             ZipFile.ExtractToDirectory(zipFile.FullName, bundleDir.FullName);
 
@@ -70,7 +70,7 @@ namespace StardewModdingApi.Installer
         {
             try
             {
-                AssemblyName name = new AssemblyName(e.Name);
+                AssemblyName name = new(e.Name);
                 foreach (FileInfo dll in new DirectoryInfo(Program.InternalFilesPath).EnumerateFiles("*.dll"))
                 {
                     if (name.Name.Equals(AssemblyName.GetAssemblyName(dll.FullName).Name, StringComparison.OrdinalIgnoreCase))

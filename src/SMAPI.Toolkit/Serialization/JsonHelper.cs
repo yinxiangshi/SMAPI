@@ -14,7 +14,7 @@ namespace StardewModdingAPI.Toolkit.Serialization
         ** Accessors
         *********/
         /// <summary>The JSON settings to use when serializing and deserializing files.</summary>
-        public JsonSerializerSettings JsonSettings { get; } = new JsonSerializerSettings
+        public JsonSerializerSettings JsonSettings { get; } = new()
         {
             Formatting = Formatting.Indented,
             ObjectCreationHandling = ObjectCreationHandling.Replace, // avoid issue where default ICollection<T> values are duplicated each time the config is loaded

@@ -38,7 +38,7 @@ namespace StardewModdingAPI.Mods.SaveBackup
             try
             {
                 // init backup folder
-                DirectoryInfo backupFolder = new DirectoryInfo(this.BackupFolder);
+                DirectoryInfo backupFolder = new(this.BackupFolder);
                 backupFolder.Create();
 
                 // back up & prune saves
@@ -63,8 +63,8 @@ namespace StardewModdingAPI.Mods.SaveBackup
             try
             {
                 // get target path
-                FileInfo targetFile = new FileInfo(Path.Combine(backupFolder.FullName, this.FileName));
-                DirectoryInfo fallbackDir = new DirectoryInfo(Path.Combine(backupFolder.FullName, this.BackupLabel));
+                FileInfo targetFile = new(Path.Combine(backupFolder.FullName, this.FileName));
+                DirectoryInfo fallbackDir = new(Path.Combine(backupFolder.FullName, this.BackupLabel));
                 if (targetFile.Exists || fallbackDir.Exists)
                 {
                     this.Monitor.Log("Already backed up today.");
@@ -72,7 +72,7 @@ namespace StardewModdingAPI.Mods.SaveBackup
                 }
 
                 // copy saves to fallback directory (ignore non-save files/folders)
-                DirectoryInfo savesDir = new DirectoryInfo(Constants.SavesPath);
+                DirectoryInfo savesDir = new(Constants.SavesPath);
                 if (!this.RecursiveCopy(savesDir, fallbackDir, entry => this.MatchSaveFolders(savesDir, entry), copyRoot: false))
                 {
                     this.Monitor.Log("No saves found.");
@@ -190,8 +190,8 @@ namespace StardewModdingAPI.Mods.SaveBackup
         /// <param name="destination">The destination file to create.</param>
         private void CompressUsingMacProcess(string sourcePath, FileInfo destination)
         {
-            DirectoryInfo saveFolder = new DirectoryInfo(sourcePath);
-            ProcessStartInfo startInfo = new ProcessStartInfo
+            DirectoryInfo saveFolder = new(sourcePath);
+            ProcessStartInfo startInfo = new()
             {
                 FileName = "zip",
                 Arguments = $"-rq \"{destination.FullName}\" \"{saveFolder.Name}\" -x \"*.DS_Store\" -x \"__MACOSX\"",

@@ -14,38 +14,38 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
         ** Fields
         *********/
         /// <summary>A regex pattern matching the start of a SMAPI message.</summary>
-        private readonly Regex MessageHeaderPattern = new Regex(@"^\[(?<time>\d\d[:\.]\d\d[:\.]\d\d) (?<level>[a-z]+)(?: +screen_(?<screen>\d+))? +(?<modName>[^\]]+)\] ", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private readonly Regex MessageHeaderPattern = new(@"^\[(?<time>\d\d[:\.]\d\d[:\.]\d\d) (?<level>[a-z]+)(?: +screen_(?<screen>\d+))? +(?<modName>[^\]]+)\] ", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         /// <summary>A regex pattern matching SMAPI's initial platform info message.</summary>
-        private readonly Regex InfoLinePattern = new Regex(@"^SMAPI (?<apiVersion>.+) with Stardew Valley (?<gameVersion>.+) on (?<os>.+)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private readonly Regex InfoLinePattern = new(@"^SMAPI (?<apiVersion>.+) with Stardew Valley (?<gameVersion>.+) on (?<os>.+)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         /// <summary>A regex pattern matching SMAPI's mod folder path line.</summary>
-        private readonly Regex ModPathPattern = new Regex(@"^Mods go here: (?<path>.+)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private readonly Regex ModPathPattern = new(@"^Mods go here: (?<path>.+)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         /// <summary>A regex pattern matching SMAPI's log timestamp line.</summary>
-        private readonly Regex LogStartedAtPattern = new Regex(@"^Log started at (?<timestamp>.+) UTC", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private readonly Regex LogStartedAtPattern = new(@"^Log started at (?<timestamp>.+) UTC", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         /// <summary>A regex pattern matching the start of SMAPI's mod list.</summary>
-        private readonly Regex ModListStartPattern = new Regex(@"^Loaded \d+ mods:$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private readonly Regex ModListStartPattern = new(@"^Loaded \d+ mods:$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         /// <summary>A regex pattern matching an entry in SMAPI's mod list.</summary>
         /// <remarks>The author name and description are optional.</remarks>
-        private readonly Regex ModListEntryPattern = new Regex(@"^   (?<name>.+?) (?<version>[^\s]+)(?: by (?<author>[^\|]+))?(?: \| (?<description>.+))?$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private readonly Regex ModListEntryPattern = new(@"^   (?<name>.+?) (?<version>[^\s]+)(?: by (?<author>[^\|]+))?(?: \| (?<description>.+))?$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         /// <summary>A regex pattern matching the start of SMAPI's content pack list.</summary>
-        private readonly Regex ContentPackListStartPattern = new Regex(@"^Loaded \d+ content packs:$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private readonly Regex ContentPackListStartPattern = new(@"^Loaded \d+ content packs:$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         /// <summary>A regex pattern matching an entry in SMAPI's content pack list.</summary>
-        private readonly Regex ContentPackListEntryPattern = new Regex(@"^   (?<name>.+?) (?<version>[^\s]+)(?: by (?<author>[^\|]+))? \| for (?<for>[^\|]+)(?: \| (?<description>.+))?$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private readonly Regex ContentPackListEntryPattern = new(@"^   (?<name>.+?) (?<version>[^\s]+)(?: by (?<author>[^\|]+))? \| for (?<for>[^\|]+)(?: \| (?<description>.+))?$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         /// <summary>A regex pattern matching the start of SMAPI's mod update list.</summary>
-        private readonly Regex ModUpdateListStartPattern = new Regex(@"^You can update \d+ mods?:$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private readonly Regex ModUpdateListStartPattern = new(@"^You can update \d+ mods?:$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         /// <summary>A regex pattern matching an entry in SMAPI's mod update list.</summary>
-        private readonly Regex ModUpdateListEntryPattern = new Regex(@"^   (?<name>.+) (?<version>[^\s]+): (?<link>.+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private readonly Regex ModUpdateListEntryPattern = new(@"^   (?<name>.+) (?<version>[^\s]+): (?<link>.+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         /// <summary>A regex pattern matching SMAPI's update line.</summary>
-        private readonly Regex SmapiUpdatePattern = new Regex(@"^You can update SMAPI to (?<version>[^\s]+): (?<link>.+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private readonly Regex SmapiUpdatePattern = new(@"^You can update SMAPI to (?<version>[^\s]+): (?<link>.+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
 
         /*********
@@ -69,7 +69,7 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
                 }
 
                 // init log
-                ParsedLog log = new ParsedLog
+                ParsedLog log = new()
                 {
                     IsValid = true,
                     RawText = logText,
@@ -77,8 +77,8 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
                 };
 
                 // parse log messages
-                LogModInfo smapiMod = new LogModInfo { Name = "SMAPI", Author = "Pathoschild", Description = "", Loaded = true };
-                LogModInfo gameMod = new LogModInfo { Name = "game", Author = "", Description = "", Loaded = true };
+                LogModInfo smapiMod = new() { Name = "SMAPI", Author = "Pathoschild", Description = "", Loaded = true };
+                LogModInfo gameMod = new() { Name = "game", Author = "", Description = "", Loaded = true };
                 IDictionary<string, List<LogModInfo>> mods = new Dictionary<string, List<LogModInfo>>();
                 bool inModList = false;
                 bool inContentPackList = false;
@@ -288,8 +288,8 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
         /// <exception cref="LogParseException">The log text can't be parsed successfully.</exception>
         private IEnumerable<LogMessage> GetMessages(string logText)
         {
-            LogMessageBuilder builder = new LogMessageBuilder();
-            using StringReader reader = new StringReader(logText);
+            LogMessageBuilder builder = new();
+            using StringReader reader = new(logText);
             while (true)
             {
                 // read line

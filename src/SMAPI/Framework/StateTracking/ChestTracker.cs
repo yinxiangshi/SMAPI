@@ -18,10 +18,10 @@ namespace StardewModdingAPI.Framework.StateTracking
         private readonly IDictionary<Item, int> StackSizes;
 
         /// <summary>Items added since the last update.</summary>
-        private readonly HashSet<Item> Added = new HashSet<Item>(new ObjectReferenceComparer<Item>());
+        private readonly HashSet<Item> Added = new(new ObjectReferenceComparer<Item>());
 
         /// <summary>Items removed since the last update.</summary>
-        private readonly HashSet<Item> Removed = new HashSet<Item>(new ObjectReferenceComparer<Item>());
+        private readonly HashSet<Item> Removed = new(new ObjectReferenceComparer<Item>());
 
         /// <summary>The underlying inventory watcher.</summary>
         private readonly ICollectionWatcher<Item> InventoryWatcher;

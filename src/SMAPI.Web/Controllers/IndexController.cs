@@ -94,7 +94,7 @@ namespace StardewModdingAPI.Web.Controllers
                 // strip 'noinclude' blocks from release description
                 if (release != null)
                 {
-                    HtmlDocument doc = new HtmlDocument();
+                    HtmlDocument doc = new();
                     doc.LoadHtml(release.Body);
                     foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//*[@class='noinclude']")?.ToArray() ?? Array.Empty<HtmlNode>())
                         node.Remove();

@@ -16,7 +16,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Symbols
         private readonly ISymbolReaderProvider BaseProvider = new DefaultSymbolReaderProvider(throwIfNoSymbol: false);
 
         /// <summary>The symbol data loaded by absolute assembly path.</summary>
-        private readonly Dictionary<string, Stream> SymbolsByAssemblyPath = new Dictionary<string, Stream>(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, Stream> SymbolsByAssemblyPath = new(StringComparer.OrdinalIgnoreCase);
 
 
         /*********

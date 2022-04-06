@@ -93,7 +93,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="instanceIndex">The instance index.</param>
         public override Game1 CreateGameInstance(PlayerIndex playerIndex = PlayerIndex.One, int instanceIndex = 0)
         {
-            SInputState inputState = new SInputState();
+            SInputState inputState = new();
             return new SGame(playerIndex, instanceIndex, this.Monitor, this.Reflection, this.Events, inputState, this.ModHooks, this.Multiplayer, this.ExitGameImmediately, this.OnPlayerInstanceUpdating, this.OnGameContentLoaded);
         }
 

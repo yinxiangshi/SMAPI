@@ -132,7 +132,7 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
         };
 
         /// <summary>The diagnostic info for an implicit net field cast.</summary>
-        private readonly DiagnosticDescriptor AvoidImplicitNetFieldCastRule = new DiagnosticDescriptor(
+        private readonly DiagnosticDescriptor AvoidImplicitNetFieldCastRule = new(
             id: "AvoidImplicitNetFieldCast",
             title: "Netcode types shouldn't be implicitly converted",
             messageFormat: "This implicitly converts '{0}' from {1} to {2}, but {1} has unintuitive implicit conversion rules. Consider comparing against the actual value instead to avoid bugs. See https://smapi.io/package/avoid-implicit-net-field-cast for details.",
@@ -143,7 +143,7 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
         );
 
         /// <summary>The diagnostic info for an avoidable net field access.</summary>
-        private readonly DiagnosticDescriptor AvoidNetFieldRule = new DiagnosticDescriptor(
+        private readonly DiagnosticDescriptor AvoidNetFieldRule = new(
             id: "AvoidNetField",
             title: "Avoid Netcode types when possible",
             messageFormat: "'{0}' is a {1} field; consider using the {2} property instead. See https://smapi.io/package/avoid-net-field for details.",

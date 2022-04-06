@@ -88,7 +88,7 @@ namespace StardewModdingAPI.ModBuildConfig
                 Regex[] ignoreFilePatterns = this.GetCustomIgnorePatterns().ToArray();
 
                 // get mod info
-                ModFileManager package = new ModFileManager(this.ProjectDir, this.TargetDir, ignoreFilePaths, ignoreFilePatterns, bundleAssemblyTypes, this.ModDllName, validateRequiredModFiles: this.EnableModDeploy || this.EnableModZip);
+                ModFileManager package = new(this.ProjectDir, this.TargetDir, ignoreFilePaths, ignoreFilePatterns, bundleAssemblyTypes, this.ModDllName, validateRequiredModFiles: this.EnableModDeploy || this.EnableModZip);
 
                 // deploy mod files
                 if (this.EnableModDeploy)
@@ -246,7 +246,7 @@ namespace StardewModdingAPI.ModBuildConfig
             // create zip file
             Directory.CreateDirectory(Path.GetDirectoryName(zipPath)!);
             using Stream zipStream = new FileStream(zipPath, FileMode.Create, FileAccess.Write);
-            using ZipArchive archive = new ZipArchive(zipStream, ZipArchiveMode.Create);
+            using ZipArchive archive = new(zipStream, ZipArchiveMode.Create);
 
             foreach (var fileEntry in files)
             {

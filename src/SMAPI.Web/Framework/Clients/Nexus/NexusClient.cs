@@ -195,7 +195,7 @@ namespace StardewModdingAPI.Web.Framework.Clients.Nexus
         /// <param name="id">The mod ID.</param>
         private string GetModUrl(uint id)
         {
-            UriBuilder builder = new UriBuilder(this.WebClient.BaseClient.BaseAddress);
+            UriBuilder builder = new(this.WebClient.BaseClient.BaseAddress);
             builder.Path += string.Format(this.WebModUrlFormat, id);
             return builder.Uri.ToString();
         }

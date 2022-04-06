@@ -116,7 +116,7 @@ namespace SMAPI.Tests.Core
         public void Translation_ToString([ValueSource(nameof(TranslationTests.Samples))] string text)
         {
             // act
-            Translation translation = new Translation("pt-BR", "key", text);
+            Translation translation = new("pt-BR", "key", text);
 
             // assert
             if (translation.HasValue())
@@ -129,7 +129,7 @@ namespace SMAPI.Tests.Core
         public void Translation_ImplicitStringConversion([ValueSource(nameof(TranslationTests.Samples))] string text)
         {
             // act
-            Translation translation = new Translation("pt-BR", "key", text);
+            Translation translation = new("pt-BR", "key", text);
 
             // assert
             if (translation.HasValue())
@@ -182,7 +182,7 @@ namespace SMAPI.Tests.Core
             string expected = $"{start} tokens are properly replaced (including {middle} {middle}) {end}";
 
             // act
-            Translation translation = new Translation("pt-BR", "key", input);
+            Translation translation = new("pt-BR", "key", input);
             switch (structure)
             {
                 case "anonymous object":

@@ -135,7 +135,7 @@ namespace StardewModdingAPI.Web.Controllers
             bool isSmapiBeta = apiVersion.IsPrerelease() && apiVersion.PrereleaseTag.StartsWith("beta");
 
             // get latest versions
-            ModEntryModel result = new ModEntryModel { ID = search.ID };
+            ModEntryModel result = new() { ID = search.ID };
             IList<string> errors = new List<string>();
             ModEntryVersionModel main = null;
             ModEntryVersionModel optional = null;

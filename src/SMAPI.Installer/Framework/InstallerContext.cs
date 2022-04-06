@@ -12,7 +12,7 @@ namespace StardewModdingAPI.Installer.Framework
         ** Fields
         *********/
         /// <summary>The underlying toolkit game scanner.</summary>
-        private readonly GameScanner GameScanner = new GameScanner();
+        private readonly GameScanner GameScanner = new();
 
 
         /*********

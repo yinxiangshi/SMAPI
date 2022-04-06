@@ -36,13 +36,13 @@ namespace StardewModdingAPI.Framework.ModLoading
         private readonly AssemblyDefinitionResolver AssemblyDefinitionResolver;
 
         /// <summary>Provides assembly symbol readers for Mono.Cecil.</summary>
-        private readonly SymbolReaderProvider SymbolReaderProvider = new SymbolReaderProvider();
+        private readonly SymbolReaderProvider SymbolReaderProvider = new();
 
         /// <summary>Provides assembly symbol writers for Mono.Cecil.</summary>
-        private readonly SymbolWriterProvider SymbolWriterProvider = new SymbolWriterProvider();
+        private readonly SymbolWriterProvider SymbolWriterProvider = new();
 
         /// <summary>The objects to dispose as part of this instance.</summary>
-        private readonly HashSet<IDisposable> Disposables = new HashSet<IDisposable>();
+        private readonly HashSet<IDisposable> Disposables = new();
 
         /// <summary>Whether to rewrite mods for compatibility.</summary>
         private readonly bool RewriteMods;
@@ -141,8 +141,8 @@ namespace StardewModdingAPI.Framework.ModLoading
                         this.Monitor.Log($"      Loading {assembly.File.Name} (rewritten)...", LogLevel.Trace);
 
                     // load assembly
-                    using MemoryStream outAssemblyStream = new MemoryStream();
-                    using MemoryStream outSymbolStream = new MemoryStream();
+                    using MemoryStream outAssemblyStream = new();
+                    using MemoryStream outSymbolStream = new();
                     assembly.Definition.Write(outAssemblyStream, new WriterParameters { WriteSymbols = true, SymbolStream = outSymbolStream, SymbolWriterProvider = this.SymbolWriterProvider });
                     byte[] bytes = outAssemblyStream.ToArray();
                     lastAssembly = Assembly.Load(bytes, outSymbolStream.ToArray());
@@ -241,7 +241,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                 try
                 {
                     // read assembly with symbols
-                    FileInfo symbolsFile = new FileInfo(Path.Combine(Path.GetDirectoryName(file.FullName)!, Path.GetFileNameWithoutExtension(file.FullName)) + ".pdb");
+                    FileInfo symbolsFile = new(Path.Combine(Path.GetDirectoryName(file.FullName)!, Path.GetFileNameWithoutExtension(file.FullName)) + ".pdb");
                     if (symbolsFile.Exists)
                         this.SymbolReaderProvider.TryAddSymbolData(file.Name, () => this.TrackForDisposal(symbolsFile.OpenRead()));
                     assembly = this.TrackForDisposal(AssemblyDefinition.ReadAssembly(readStream, new ReaderParameters(ReadingMode.Immediate) { AssemblyResolver = assemblyResolver, InMemory = true, ReadSymbols = true, SymbolReaderProvider = this.SymbolReaderProvider }));
@@ -266,7 +266,7 @@ namespace StardewModdingAPI.Framework.ModLoading
             // yield referenced assemblies
             foreach (AssemblyNameReference dependency in assembly.MainModule.AssemblyReferences)
             {
-                FileInfo dependencyFile = new FileInfo(Path.Combine(file.Directory.FullName, $"{dependency.Name}.dll"));
+                FileInfo dependencyFile = new(Path.Combine(file.Directory.FullName, $"{dependency.Name}.dll"));
                 foreach (AssemblyParseResult result in this.GetReferencedLocalAssemblies(dependencyFile, visitedAssemblyNames, assemblyResolver))
                     yield return result;
             }
@@ -333,7 +333,7 @@ namespace StardewModdingAPI.Framework.ModLoading
 
             // find or rewrite code
             IInstructionHandler[] handlers = new InstructionMetadata().GetHandlers(this.ParanoidMode, platformChanged, this.RewriteMods).ToArray();
-            RecursiveRewriter rewriter = new RecursiveRewriter(
+            RecursiveRewriter rewriter = new(
                 module: module,
                 rewriteModule: curModule =>
                 {

@@ -285,7 +285,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework
                 case SObject.flowersCategory:
                     yield return this.TryCreate(ItemType.Object, this.CustomIDOffset * 5 + id, _ =>
                     {
-                        SObject honey = new SObject(Vector2.Zero, 340, $"{item.Name} Honey", false, true, false, false)
+                        SObject honey = new(Vector2.Zero, 340, $"{item.Name} Honey", false, true, false, false)
                         {
                             Name = $"{item.Name} Honey",
                             preservedParentSheetIndex = { id }

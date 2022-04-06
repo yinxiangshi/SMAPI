@@ -126,7 +126,7 @@ namespace StardewModdingApi.Installer
             /****
             ** Get basic info & set window title
             ****/
-            ModToolkit toolkit = new ModToolkit();
+            ModToolkit toolkit = new();
             var context = new InstallerContext();
             Console.Title = $"SMAPI {context.GetInstallerVersion()} installer on {context.Platform} {context.PlatformName}";
             Console.WriteLine();
@@ -246,7 +246,7 @@ namespace StardewModdingApi.Installer
                 }
 
                 // get folders
-                DirectoryInfo bundleDir = new DirectoryInfo(this.BundlePath);
+                DirectoryInfo bundleDir = new(this.BundlePath);
                 paths = new InstallerPaths(bundleDir, installDir);
             }
 
@@ -354,8 +354,8 @@ namespace StardewModdingApi.Installer
                 // move global save data folder (changed in 3.2)
                 {
                     string dataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley");
-                    DirectoryInfo oldDir = new DirectoryInfo(Path.Combine(dataPath, "Saves", ".smapi"));
-                    DirectoryInfo newDir = new DirectoryInfo(Path.Combine(dataPath, ".smapi"));
+                    DirectoryInfo oldDir = new(Path.Combine(dataPath, "Saves", ".smapi"));
+                    DirectoryInfo newDir = new(Path.Combine(dataPath, ".smapi"));
 
                     if (oldDir.Exists)
                     {
@@ -428,7 +428,7 @@ namespace StardewModdingApi.Installer
                     }
 
                     // add or replace bundled mods
-                    DirectoryInfo bundledModsDir = new DirectoryInfo(Path.Combine(paths.BundlePath, "Mods"));
+                    DirectoryInfo bundledModsDir = new(Path.Combine(paths.BundlePath, "Mods"));
                     if (bundledModsDir.Exists && bundledModsDir.EnumerateDirectories().Any())
                     {
                         this.PrintDebug("Adding bundled mods...");
@@ -450,7 +450,7 @@ namespace StardewModdingApi.Installer
 
                             // find target folder
                             ModFolder targetMod = targetMods.FirstOrDefault(p => p.Manifest?.UniqueID?.Equals(sourceMod.Manifest.UniqueID, StringComparison.OrdinalIgnoreCase) == true);
-                            DirectoryInfo defaultTargetFolder = new DirectoryInfo(Path.Combine(paths.ModsPath, sourceMod.Directory.Name));
+                            DirectoryInfo defaultTargetFolder = new(Path.Combine(paths.ModsPath, sourceMod.Directory.Name));
                             DirectoryInfo targetFolder = targetMod?.Directory ?? defaultTargetFolder;
                             this.PrintDebug(targetFolder.FullName == defaultTargetFolder.FullName
                                 ? $"   adding {sourceMod.Manifest.Name}..."
@@ -593,7 +593,7 @@ namespace StardewModdingApi.Installer
                     break;
 
                 case DirectoryInfo sourceDir:
-                    DirectoryInfo targetSubfolder = new DirectoryInfo(Path.Combine(targetFolder.FullName, sourceDir.Name));
+                    DirectoryInfo targetSubfolder = new(Path.Combine(targetFolder.FullName, sourceDir.Name));
                     foreach (var entry in sourceDir.EnumerateFileSystemInfos())
                         this.RecursiveCopy(entry, targetSubfolder, filter);
                     break;
@@ -717,7 +717,7 @@ namespace StardewModdingApi.Installer
                 // get directory
                 if (File.Exists(path))
                     path = Path.GetDirectoryName(path);
-                DirectoryInfo directory = new DirectoryInfo(path);
+                DirectoryInfo directory = new(path);
 
                 // validate path
                 if (!directory.Exists)
@@ -795,7 +795,7 @@ namespace StardewModdingApi.Installer
 
             // get path
             string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley");
-            DirectoryInfo modDir = new DirectoryInfo(Path.Combine(appDataPath, "Mods"));
+            DirectoryInfo modDir = new(Path.Combine(appDataPath, "Mods"));
 
             // check if migration needed
             if (!modDir.Exists)

@@ -14,7 +14,7 @@ namespace StardewModdingAPI.Framework.StateTracking.Snapshots
         ** Fields
         *********/
         /// <summary>An empty item list diff.</summary>
-        private readonly SnapshotItemListDiff EmptyItemListDiff = new SnapshotItemListDiff(Array.Empty<Item>(), Array.Empty<Item>(), Array.Empty<ItemStackSizeChange>());
+        private readonly SnapshotItemListDiff EmptyItemListDiff = new(Array.Empty<Item>(), Array.Empty<Item>(), Array.Empty<ItemStackSizeChange>());
 
 
         /*********
@@ -24,7 +24,7 @@ namespace StardewModdingAPI.Framework.StateTracking.Snapshots
         public Farmer Player { get; }
 
         /// <summary>The player's current location.</summary>
-        public SnapshotDiff<GameLocation> Location { get; } = new SnapshotDiff<GameLocation>();
+        public SnapshotDiff<GameLocation> Location { get; } = new();
 
         /// <summary>Tracks changes to the player's skill levels.</summary>
         public IDictionary<SkillType, SnapshotDiff<int>> Skills { get; } =

@@ -55,7 +55,7 @@ namespace MonoMod.Utils
             .GetType("System.RuntimeType+RuntimeTypeCache")
             ?.GetMethod("GetPropertyList", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
 
-        private static readonly ConditionalWeakTable<Type, CacheFixEntry> _CacheFixed = new ConditionalWeakTable<Type, CacheFixEntry>();
+        private static readonly ConditionalWeakTable<Type, CacheFixEntry> _CacheFixed = new();
 
         public static void Apply()
         {
@@ -144,7 +144,7 @@ namespace MonoMod.Utils
                     continue;
 
                 CacheFixEntry entry = _CacheFixed.GetValue(type, rt => {
-                    CacheFixEntry entryNew = new CacheFixEntry();
+                    CacheFixEntry entryNew = new();
                     object cache;
                     Array properties, fields;
 

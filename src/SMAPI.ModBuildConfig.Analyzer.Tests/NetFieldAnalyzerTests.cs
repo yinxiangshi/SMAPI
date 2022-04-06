@@ -93,7 +93,7 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests
         {
             // arrange
             string code = NetFieldAnalyzerTests.SampleProgram.Replace("{{test-code}}", codeText);
-            DiagnosticResult expected = new DiagnosticResult
+            DiagnosticResult expected = new()
             {
                 Id = "AvoidImplicitNetFieldCast",
                 Message = $"This implicitly converts '{expression}' from {fromType} to {toType}, but {fromType} has unintuitive implicit conversion rules. Consider comparing against the actual value instead to avoid bugs. See https://smapi.io/package/avoid-implicit-net-field-cast for details.",
@@ -135,7 +135,7 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests
         {
             // arrange
             string code = NetFieldAnalyzerTests.SampleProgram.Replace("{{test-code}}", codeText);
-            DiagnosticResult expected = new DiagnosticResult
+            DiagnosticResult expected = new()
             {
                 Id = "AvoidNetField",
                 Message = $"'{expression}' is a {netType} field; consider using the {suggestedProperty} property instead. See https://smapi.io/package/avoid-net-field for details.",

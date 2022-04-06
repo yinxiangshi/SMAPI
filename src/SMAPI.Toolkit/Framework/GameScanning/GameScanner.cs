@@ -45,7 +45,7 @@ namespace StardewModdingAPI.Toolkit.Framework.GameScanning
             // yield valid folders
             foreach (string path in paths)
             {
-                DirectoryInfo folder = new DirectoryInfo(path);
+                DirectoryInfo folder = new(path);
                 if (this.LooksLikeGameFolder(folder))
                     yield return folder;
             }
@@ -191,7 +191,7 @@ namespace StardewModdingAPI.Toolkit.Framework.GameScanning
                 yield break;
 
             // get targets file
-            FileInfo file = new FileInfo(Path.Combine(homePath, "stardewvalley.targets"));
+            FileInfo file = new(Path.Combine(homePath, "stardewvalley.targets"));
             if (!file.Exists)
                 yield break;
 

@@ -17,7 +17,7 @@ namespace StardewModdingAPI.Framework
         ** Fields
         *********/
         /// <summary>The underlying watchers for convenience. These are accessible individually as separate properties.</summary>
-        private readonly List<IWatcher> Watchers = new List<IWatcher>();
+        private readonly List<IWatcher> Watchers = new();
 
 
         /*********

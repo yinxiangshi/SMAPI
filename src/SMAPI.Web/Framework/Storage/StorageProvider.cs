@@ -103,7 +103,7 @@ namespace StardewModdingAPI.Web.Framework.Storage
                         // fetch file
                         Response<BlobDownloadInfo> response = await blob.DownloadAsync();
                         using BlobDownloadInfo result = response.Value;
-                        using StreamReader reader = new StreamReader(result.Content);
+                        using StreamReader reader = new(result.Content);
                         DateTimeOffset expiry = result.Details.LastModified + TimeSpan.FromDays(this.ExpiryDays);
                         string content = this.GzipHelper.DecompressString(reader.ReadToEnd());
 
@@ -130,7 +130,7 @@ namespace StardewModdingAPI.Web.Framework.Storage
                 else
                 {
                     // get file
-                    FileInfo file = new FileInfo(this.GetDevFilePath(id));
+                    FileInfo file = new(this.GetDevFilePath(id));
                     if (file.Exists && file.LastWriteTimeUtc.AddDays(this.ExpiryDays) < DateTime.UtcNow) // expired
                         file.Delete();
                     if (!file.Exists)

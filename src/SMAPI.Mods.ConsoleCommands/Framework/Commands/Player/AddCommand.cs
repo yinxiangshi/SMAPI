@@ -13,7 +13,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
         ** Fields
         *********/
         /// <summary>Provides methods for searching and constructing items.</summary>
-        private readonly ItemRepository Items = new ItemRepository();
+        private readonly ItemRepository Items = new();
 
         /// <summary>The type names recognized by this command.</summary>
         private readonly string[] ValidTypes = Enum.GetNames(typeof(ItemType)).Concat(new[] { "Name" }).ToArray();

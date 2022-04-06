@@ -127,7 +127,7 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
                 string pullRequestUrl = this.GetAttribute(node, "data-pr");
 
                 // parse stable compatibility
-                WikiCompatibilityInfo compatibility = new WikiCompatibilityInfo
+                WikiCompatibilityInfo compatibility = new()
                 {
                     Status = this.GetAttributeAsEnum<WikiCompatibilityStatus>(node, "data-status") ?? WikiCompatibilityStatus.Ok,
                     BrokeIn = this.GetAttribute(node, "data-broke-in"),

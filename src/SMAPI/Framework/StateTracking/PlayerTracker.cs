@@ -24,7 +24,7 @@ namespace StardewModdingAPI.Framework.StateTracking
         private GameLocation LastValidLocation;
 
         /// <summary>The underlying watchers.</summary>
-        private readonly List<IWatcher> Watchers = new List<IWatcher>();
+        private readonly List<IWatcher> Watchers = new();
 
 
         /*********

@@ -23,7 +23,7 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
         public string Mod { get; set; }
 
         /// <summary>The text for the next log message.</summary>
-        private readonly StringBuilder Text = new StringBuilder();
+        private readonly StringBuilder Text = new();
 
 
         /*********

@@ -24,7 +24,7 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
         /// <summary>Describes the diagnostic rule covered by the analyzer.</summary>
         private readonly IDictionary<string, DiagnosticDescriptor> Rules = new Dictionary<string, DiagnosticDescriptor>
         {
-            ["AvoidObsoleteField"] = new DiagnosticDescriptor(
+            ["AvoidObsoleteField"] = new(
                 id: "AvoidObsoleteField",
                 title: "Reference to obsolete field",
                 messageFormat: "The '{0}' field is obsolete and should be replaced with '{1}'. See https://smapi.io/package/avoid-obsolete-field for details.",

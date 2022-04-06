@@ -14,7 +14,7 @@ namespace StardewModdingAPI.Framework.Input
         private KeyboardState? State;
 
         /// <summary>The pressed buttons.</summary>
-        private readonly HashSet<Keys> PressedButtons = new HashSet<Keys>();
+        private readonly HashSet<Keys> PressedButtons = new();
 
 
         /*********

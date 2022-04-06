@@ -26,7 +26,7 @@ namespace StardewModdingAPI.Framework.Models
         };
 
         /// <summary>The default values for <see cref="SuppressUpdateChecks"/>, to log changes if different.</summary>
-        private static readonly HashSet<string> DefaultSuppressUpdateChecks = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private static readonly HashSet<string> DefaultSuppressUpdateChecks = new(StringComparer.OrdinalIgnoreCase)
         {
             "SMAPI.ConsoleCommands",
             "SMAPI.ErrorHandler",

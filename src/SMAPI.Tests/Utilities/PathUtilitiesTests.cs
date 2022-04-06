@@ -14,7 +14,7 @@ namespace SMAPI.Tests.Utilities
         /// <summary>Sample paths used in unit tests.</summary>
         public static readonly SamplePath[] SamplePaths = {
             // Windows absolute path
-            new SamplePath
+            new()
             {
                 OriginalPath = @"C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley",
 
@@ -26,7 +26,7 @@ namespace SMAPI.Tests.Utilities
             },
 
             // Windows absolute path (with trailing slash)
-            new SamplePath
+            new()
             {
                 OriginalPath = @"C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley\",
 
@@ -38,7 +38,7 @@ namespace SMAPI.Tests.Utilities
             },
 
             // Windows relative path
-            new SamplePath
+            new()
             {
                 OriginalPath = @"Content\Characters\Dialogue\Abigail",
 
@@ -50,7 +50,7 @@ namespace SMAPI.Tests.Utilities
             },
 
             // Windows relative path (with directory climbing)
-            new SamplePath
+            new()
             {
                 OriginalPath = @"..\..\Content",
 
@@ -62,7 +62,7 @@ namespace SMAPI.Tests.Utilities
             },
 
             // Windows UNC path
-            new SamplePath
+            new()
             {
                 OriginalPath = @"\\unc\path",
 
@@ -74,7 +74,7 @@ namespace SMAPI.Tests.Utilities
             },
 
             // Linux absolute path
-            new SamplePath
+            new()
             {
                 OriginalPath = @"/home/.steam/steam/steamapps/common/Stardew Valley",
 
@@ -86,7 +86,7 @@ namespace SMAPI.Tests.Utilities
             },
 
             // Linux absolute path (with trailing slash)
-            new SamplePath
+            new()
             {
                 OriginalPath = @"/home/.steam/steam/steamapps/common/Stardew Valley/",
 
@@ -98,7 +98,7 @@ namespace SMAPI.Tests.Utilities
             },
 
             // Linux absolute path (with ~)
-            new SamplePath
+            new()
             {
                 OriginalPath = @"~/.steam/steam/steamapps/common/Stardew Valley",
 
@@ -110,7 +110,7 @@ namespace SMAPI.Tests.Utilities
             },
 
             // Linux relative path
-            new SamplePath
+            new()
             {
                 OriginalPath = @"Content/Characters/Dialogue/Abigail",
 
@@ -122,7 +122,7 @@ namespace SMAPI.Tests.Utilities
             },
 
             // Linux relative path (with directory climbing)
-            new SamplePath
+            new()
             {
                 OriginalPath = @"../../Content",
 
@@ -134,7 +134,7 @@ namespace SMAPI.Tests.Utilities
             },
 
             // Mixed directory separators
-            new SamplePath
+            new()
             {
                 OriginalPath = @"C:\some/mixed\path/separators",
 

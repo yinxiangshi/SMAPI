@@ -199,7 +199,7 @@ namespace StardewModdingAPI
             }
 
             // load SMAPI
-            using SCore core = new SCore(modsPath, writeToConsole);
+            using SCore core = new(modsPath, writeToConsole);
             core.RunInteractively();
         }
 

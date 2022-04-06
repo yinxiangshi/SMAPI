@@ -11,7 +11,7 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
         ** Accessors
         *********/
         /// <summary>A singleton collection watcher instance.</summary>
-        public static ImmutableCollectionWatcher<TValue> Instance { get; } = new ImmutableCollectionWatcher<TValue>();
+        public static ImmutableCollectionWatcher<TValue> Instance { get; } = new();
 
         /// <summary>Whether the collection changed since the last reset.</summary>
         public bool IsChanged { get; } = false;

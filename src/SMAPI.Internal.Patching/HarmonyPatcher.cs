@@ -15,7 +15,7 @@ namespace StardewModdingAPI.Internal.Patching
         /// <param name="patchers">The patchers to apply.</param>
         public static Harmony Apply(string id, IMonitor monitor, params IPatcher[] patchers)
         {
-            Harmony harmony = new Harmony(id);
+            Harmony harmony = new(id);
 
             foreach (IPatcher patcher in patchers)
             {

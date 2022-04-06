@@ -136,7 +136,7 @@ namespace StardewModdingAPI.ModBuildConfig.Framework
             // project manifest
             bool hasProjectManifest = false;
             {
-                FileInfo manifest = new FileInfo(Path.Combine(projectDir, this.ManifestFileName));
+                FileInfo manifest = new(Path.Combine(projectDir, this.ManifestFileName));
                 if (manifest.Exists)
                 {
                     yield return Tuple.Create(this.ManifestFileName, manifest);
@@ -146,7 +146,7 @@ namespace StardewModdingAPI.ModBuildConfig.Framework
 
             // project i18n files
             bool hasProjectTranslations = false;
-            DirectoryInfo translationsFolder = new DirectoryInfo(Path.Combine(projectDir, "i18n"));
+            DirectoryInfo translationsFolder = new(Path.Combine(projectDir, "i18n"));
             if (translationsFolder.Exists)
             {
                 foreach (FileInfo file in translationsFolder.EnumerateFiles())
@@ -156,7 +156,7 @@ namespace StardewModdingAPI.ModBuildConfig.Framework
 
             // project assets folder
             bool hasAssetsFolder = false;
-            DirectoryInfo assetsFolder = new DirectoryInfo(Path.Combine(projectDir, "assets"));
+            DirectoryInfo assetsFolder = new(Path.Combine(projectDir, "assets"));
             if (assetsFolder.Exists)
             {
                 foreach (FileInfo file in assetsFolder.EnumerateFiles("*", SearchOption.AllDirectories))
@@ -168,7 +168,7 @@ namespace StardewModdingAPI.ModBuildConfig.Framework
             }
 
             // build output
-            DirectoryInfo buildFolder = new DirectoryInfo(targetDir);
+            DirectoryInfo buildFolder = new(targetDir);
             foreach (FileInfo file in buildFolder.EnumerateFiles("*", SearchOption.AllDirectories))
             {
                 // get path info

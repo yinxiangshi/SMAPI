@@ -34,7 +34,7 @@ namespace StardewModdingAPI.Toolkit
         ** Accessors
         *********/
         /// <summary>Encapsulates SMAPI's JSON parsing.</summary>
-        public JsonHelper JsonHelper { get; } = new JsonHelper();
+        public JsonHelper JsonHelper { get; } = new();
 
 
         /*********

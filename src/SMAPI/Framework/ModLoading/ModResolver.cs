@@ -401,7 +401,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         {
             foreach (string modRootPath in Directory.GetDirectories(rootPath))
             {
-                DirectoryInfo directory = new DirectoryInfo(modRootPath);
+                DirectoryInfo directory = new(modRootPath);
 
                 // if a folder only contains another folder, check the inner folder instead
                 while (!directory.GetFiles().Any() && directory.GetDirectories().Length == 1)

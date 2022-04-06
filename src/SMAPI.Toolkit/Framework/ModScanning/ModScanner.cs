@@ -18,7 +18,7 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
         private readonly JsonHelper JsonHelper;
 
         /// <summary>A list of filesystem entry names to ignore when checking whether a folder should be treated as a mod.</summary>
-        private readonly HashSet<Regex> IgnoreFilesystemNames = new HashSet<Regex>
+        private readonly HashSet<Regex> IgnoreFilesystemNames = new()
         {
             new Regex(@"^__folder_managed_by_vortex$", RegexOptions.Compiled | RegexOptions.IgnoreCase), // Vortex mod manager
             new Regex(@"(?:^\._|^\.DS_Store$|^__MACOSX$|^mcs$)", RegexOptions.Compiled | RegexOptions.IgnoreCase), // macOS
@@ -26,7 +26,7 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
         };
 
         /// <summary>A list of file extensions to ignore when searching for mod files.</summary>
-        private readonly HashSet<string> IgnoreFileExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private readonly HashSet<string> IgnoreFileExtensions = new(StringComparer.OrdinalIgnoreCase)
         {
             // text
             ".doc",
@@ -60,7 +60,7 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
         };
 
         /// <summary>The extensions for packed content files.</summary>
-        private readonly HashSet<string> StrictXnbModExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private readonly HashSet<string> StrictXnbModExtensions = new(StringComparer.OrdinalIgnoreCase)
         {
             ".xgs",
             ".xnb",
@@ -69,7 +69,7 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
         };
 
         /// <summary>The extensions for files which an XNB mod may contain, in addition to <see cref="StrictXnbModExtensions"/>.</summary>
-        private readonly HashSet<string> PotentialXnbModExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private readonly HashSet<string> PotentialXnbModExtensions = new(StringComparer.OrdinalIgnoreCase)
         {
             ".json",
             ".yaml"
@@ -96,7 +96,7 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
         /// <param name="rootPath">The root folder containing mods.</param>
         public IEnumerable<ModFolder> GetModFolders(string rootPath)
         {
-            DirectoryInfo root = new DirectoryInfo(rootPath);
+            DirectoryInfo root = new(rootPath);
             return this.GetModFolders(root, root);
         }
 
@@ -260,7 +260,7 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
             while (true)
             {
                 // check for manifest in current folder
-                FileInfo file = new FileInfo(Path.Combine(folder.FullName, "manifest.json"));
+                FileInfo file = new(Path.Combine(folder.FullName, "manifest.json"));
                 if (file.Exists)
                     return file;
 

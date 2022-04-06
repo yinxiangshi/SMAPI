@@ -121,7 +121,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
                 {
                     try
                     {
-                        BluePrint _ = new BluePrint(building.buildingType.Value);
+                        BluePrint _ = new(building.buildingType.Value);
                     }
                     catch (ContentLoadException)
                     {

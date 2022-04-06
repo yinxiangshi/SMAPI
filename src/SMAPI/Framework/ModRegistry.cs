@@ -13,7 +13,7 @@ namespace StardewModdingAPI.Framework
         ** Fields
         *********/
         /// <summary>The registered mod data.</summary>
-        private readonly List<IModMetadata> Mods = new List<IModMetadata>();
+        private readonly List<IModMetadata> Mods = new();
 
         /// <summary>An assembly full name => mod lookup.</summary>
         private readonly IDictionary<string, IModMetadata> ModNamesByAssembly = new Dictionary<string, IModMetadata>();
@@ -94,7 +94,7 @@ namespace StardewModdingAPI.Framework
         public IModMetadata GetFromStack()
         {
             // get stack frames
-            StackTrace stack = new StackTrace();
+            StackTrace stack = new();
             StackFrame[] frames = stack.GetFrames();
             if (frames == null)
                 return null;

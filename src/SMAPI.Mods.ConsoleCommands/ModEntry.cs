@@ -71,7 +71,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands
         /// <param name="args">The command arguments.</param>
         private void HandleCommand(IConsoleCommand command, string commandName, string[] args)
         {
-            ArgumentParser argParser = new ArgumentParser(commandName, args, this.Monitor);
+            ArgumentParser argParser = new(commandName, args, this.Monitor);
             command.Handle(this.Monitor, commandName, argParser);
         }
 

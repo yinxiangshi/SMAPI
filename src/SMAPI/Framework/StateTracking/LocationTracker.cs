@@ -19,7 +19,7 @@ namespace StardewModdingAPI.Framework.StateTracking
         ** Fields
         *********/
         /// <summary>The underlying watchers.</summary>
-        private readonly List<IWatcher> Watchers = new List<IWatcher>();
+        private readonly List<IWatcher> Watchers = new();
 
 
         /*********

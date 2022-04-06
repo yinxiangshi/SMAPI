@@ -197,7 +197,7 @@ namespace StardewModdingAPI.Web.Controllers
                 return null;
 
             // get matching file
-            DirectoryInfo schemaDir = new DirectoryInfo(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "schemas"));
+            DirectoryInfo schemaDir = new(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "schemas"));
             foreach (FileInfo file in schemaDir.EnumerateFiles("*.json"))
             {
                 if (file.Name.Equals($"{id}.json"))

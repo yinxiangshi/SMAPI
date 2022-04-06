@@ -12,14 +12,14 @@ namespace StardewModdingAPI.Framework.StateTracking.Snapshots
         ** Fields
         *********/
         /// <summary>A map of tracked locations.</summary>
-        private readonly Dictionary<GameLocation, LocationSnapshot> LocationsDict = new Dictionary<GameLocation, LocationSnapshot>(new ObjectReferenceComparer<GameLocation>());
+        private readonly Dictionary<GameLocation, LocationSnapshot> LocationsDict = new(new ObjectReferenceComparer<GameLocation>());
 
 
         /*********
         ** Accessors
         *********/
         /// <summary>Tracks changes to the location list.</summary>
-        public SnapshotListDiff<GameLocation> LocationList { get; } = new SnapshotListDiff<GameLocation>();
+        public SnapshotListDiff<GameLocation> LocationList { get; } = new();
 
         /// <summary>The tracked locations.</summary>
         public IEnumerable<LocationSnapshot> Locations => this.LocationsDict.Values;

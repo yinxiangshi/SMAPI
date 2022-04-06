@@ -11,10 +11,10 @@ namespace StardewModdingAPI.Framework
         ** Fields
         *********/
         /// <summary>The removed values.</summary>
-        private readonly List<T> RemovedImpl = new List<T>();
+        private readonly List<T> RemovedImpl = new();
 
         /// <summary>The added values.</summary>
-        private readonly List<T> AddedImpl = new List<T>();
+        private readonly List<T> AddedImpl = new();
 
 
         /*********

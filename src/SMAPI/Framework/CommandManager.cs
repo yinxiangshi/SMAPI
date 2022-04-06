@@ -166,7 +166,7 @@ namespace StardewModdingAPI.Framework
         {
             bool inQuotes = false;
             IList<string> args = new List<string>();
-            StringBuilder currentArg = new StringBuilder();
+            StringBuilder currentArg = new();
             foreach (char ch in input)
             {
                 if (ch == '"')

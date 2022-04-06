@@ -37,7 +37,7 @@ namespace StardewModdingAPI.Framework
         private readonly EventManager Events;
 
         /// <summary>The maximum number of consecutive attempts SMAPI should make to recover from a draw error.</summary>
-        private readonly Countdown DrawCrashTimer = new Countdown(60); // 60 ticks = roughly one second
+        private readonly Countdown DrawCrashTimer = new(60); // 60 ticks = roughly one second
 
         /// <summary>Simplifies access to private game code.</summary>
         private readonly Reflector Reflection;
@@ -71,14 +71,14 @@ namespace StardewModdingAPI.Framework
         public WatcherCore Watchers { get; private set; }
 
         /// <summary>A snapshot of the current <see cref="Watchers"/> state.</summary>
-        public WatcherSnapshot WatcherSnapshot { get; } = new WatcherSnapshot();
+        public WatcherSnapshot WatcherSnapshot { get; } = new();
 
         /// <summary>Whether the current update tick is the first one for this instance.</summary>
         public bool IsFirstTick = true;
 
         /// <summary>The number of ticks until SMAPI should notify mods that the game has loaded.</summary>
         /// <remarks>Skipping a few frames ensures the game finishes initializing the world before mods try to change it.</remarks>
-        public Countdown AfterLoadTimer { get; } = new Countdown(5);
+        public Countdown AfterLoadTimer { get; } = new(5);
 
         /// <summary>Whether the game is saving and SMAPI has already raised <see cref="IGameLoopEvents.Saving"/>.</summary>
         public bool IsBetweenSaveEvents { get; set; }
@@ -624,7 +624,7 @@ namespace StardewModdingAPI.Framework
                     if (tile != null)
                     {
                         Vector2 vector_draw_position = Game1.GlobalToLocal(Game1.viewport, tile_position * 64f);
-                        Location draw_location = new Location((int)vector_draw_position.X, (int)vector_draw_position.Y);
+                        Location draw_location = new((int)vector_draw_position.X, (int)vector_draw_position.Y);
                         Game1.mapDisplayDevice.DrawTile(tile, draw_location, (tile_position.Y * 64f - 1f) / 10000f);
                     }
                 }

@@ -30,7 +30,7 @@ namespace StardewModdingAPI.Framework.Commands
         {
             SearchResult[] matches = this.FilterPatches(args).OrderBy(p => p.MethodName).ToArray();
 
-            StringBuilder result = new StringBuilder();
+            StringBuilder result = new();
 
             if (!matches.Any())
                 result.AppendLine("No current patches match your search.");

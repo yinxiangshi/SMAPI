@@ -61,7 +61,7 @@ namespace SMAPI.Tests.Utilities
         public void Constructor_SetsExpectedValues([ValueSource(nameof(SDateTests.SampleSeasonValues))] string season, [ValueSource(nameof(SDateTests.ValidDays))] int day, [Values(1, 2, 100)] int year)
         {
             // act
-            SDate date = new SDate(day, season, year);
+            SDate date = new(day, season, year);
 
             // assert
             Assert.AreEqual(day, date.Day);
@@ -254,7 +254,7 @@ namespace SMAPI.Tests.Utilities
                 {
                     foreach (int day in SDateTests.ValidDays)
                     {
-                        SDate date = new SDate(day, season, year);
+                        SDate date = new(day, season, year);
                         int hash = date.GetHashCode();
                         if (hashes.TryGetValue(hash, out SDate otherDate))
                             Assert.Fail($"Received identical hash code {hash} for dates {otherDate} and {date}.");

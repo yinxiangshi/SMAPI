@@ -14,7 +14,7 @@ namespace StardewModdingAPI.Web.ViewModels
         ** Fields
         *********/
         /// <summary>A regex pattern matching characters to remove from a mod name to create the slug ID.</summary>
-        private readonly Regex SlugInvalidCharPattern = new Regex("[^a-z0-9]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private readonly Regex SlugInvalidCharPattern = new("[^a-z0-9]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
 
         /*********

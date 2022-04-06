@@ -29,7 +29,7 @@ namespace StardewModdingAPI.Web.Framework
         public static string PlainAction(this IUrlHelper helper, [AspMvcAction] string action, [AspMvcController] string controller, object values = null, bool absoluteUrl = false)
         {
             // get route values
-            RouteValueDictionary valuesDict = new RouteValueDictionary(values);
+            RouteValueDictionary valuesDict = new(values);
             foreach (var value in helper.ActionContext.RouteData.Values)
             {
                 if (!valuesDict.ContainsKey(value.Key))
@@ -45,7 +45,7 @@ namespace StardewModdingAPI.Web.Framework
             if (absoluteUrl)
             {
                 HttpRequest request = helper.ActionContext.HttpContext.Request;
-                Uri baseUri = new Uri($"{request.Scheme}://{request.Host}");
+                Uri baseUri = new($"{request.Scheme}://{request.Host}");
                 url = new Uri(baseUri, url).ToString();
             }
 

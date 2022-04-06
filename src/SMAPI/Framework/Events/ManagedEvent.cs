@@ -18,7 +18,7 @@ namespace StardewModdingAPI.Framework.Events
         protected readonly ModRegistry ModRegistry;
 
         /// <summary>The underlying event handlers.</summary>
-        private readonly List<ManagedEventHandler<TEventArgs>> Handlers = new List<ManagedEventHandler<TEventArgs>>();
+        private readonly List<ManagedEventHandler<TEventArgs>> Handlers = new();
 
         /// <summary>A cached snapshot of <see cref="Handlers"/>, or <c>null</c> to rebuild it next raise.</summary>
         private ManagedEventHandler<TEventArgs>[] CachedHandlers = Array.Empty<ManagedEventHandler<TEventArgs>>();

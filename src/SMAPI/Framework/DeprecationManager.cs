@@ -11,7 +11,7 @@ namespace StardewModdingAPI.Framework
         ** Fields
         *********/
         /// <summary>The deprecations which have already been logged (as 'mod name::noun phrase::version').</summary>
-        private readonly HashSet<string> LoggedDeprecations = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        private readonly HashSet<string> LoggedDeprecations = new(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>Encapsulates monitoring and logging for a given module.</summary>
         private readonly IMonitor Monitor;

@@ -395,7 +395,7 @@ namespace SMAPI.Tests.Utilities
         public void GameVersion(string versionStr)
         {
             // act
-            GameVersion version = new GameVersion(versionStr);
+            GameVersion version = new(versionStr);
 
             // assert
             Assert.AreEqual(versionStr, version.ToString(), "The game version did not round-trip to the same value.");

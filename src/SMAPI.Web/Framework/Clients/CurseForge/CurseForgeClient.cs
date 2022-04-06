@@ -17,7 +17,7 @@ namespace StardewModdingAPI.Web.Framework.Clients.CurseForge
         private readonly IClient Client;
 
         /// <summary>A regex pattern which matches a version number in a CurseForge mod file name.</summary>
-        private readonly Regex VersionInNamePattern = new Regex(@"^(?:.+? | *)v?(\d+\.\d+(?:\.\d+)?(?:-.+?)?) *(?:\.(?:zip|rar|7z))?$", RegexOptions.Compiled);
+        private readonly Regex VersionInNamePattern = new(@"^(?:.+? | *)v?(\d+\.\d+(?:\.\d+)?(?:-.+?)?) *(?:\.(?:zip|rar|7z))?$", RegexOptions.Compiled);
 
 
         /*********

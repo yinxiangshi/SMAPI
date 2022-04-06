@@ -13,7 +13,7 @@ namespace StardewModdingAPI.Framework.Reflection
         ** Fields
         *********/
         /// <summary>The cached fields and methods found via reflection.</summary>
-        private readonly MemoryCache Cache = new MemoryCache(typeof(Reflector).FullName);
+        private readonly MemoryCache Cache = new(typeof(Reflector).FullName);
 
         /// <summary>The sliding cache expiration time.</summary>
         private readonly TimeSpan SlidingCacheExpiry = TimeSpan.FromMinutes(5);
@@ -268,7 +268,7 @@ namespace StardewModdingAPI.Framework.Reflection
 
             // fetch & cache new value
             TMemberInfo result = fetch();
-            CacheEntry cacheEntry = new CacheEntry(result != null, result);
+            CacheEntry cacheEntry = new(result != null, result);
             this.Cache.Add(key, cacheEntry, new CacheItemPolicy { SlidingExpiration = this.SlidingCacheExpiry });
             return result;
         }

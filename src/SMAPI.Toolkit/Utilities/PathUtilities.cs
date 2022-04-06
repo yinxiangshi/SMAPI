@@ -100,8 +100,8 @@ namespace StardewModdingAPI.Toolkit.Utilities
             // though, this is only for compatibility with the mod build package.
 
             // convert to URIs
-            Uri from = new Uri(sourceDir.TrimEnd(PathUtilities.PossiblePathSeparators) + "/");
-            Uri to = new Uri(targetPath.TrimEnd(PathUtilities.PossiblePathSeparators) + "/");
+            Uri from = new(sourceDir.TrimEnd(PathUtilities.PossiblePathSeparators) + "/");
+            Uri to = new(targetPath.TrimEnd(PathUtilities.PossiblePathSeparators) + "/");
             if (from.Scheme != to.Scheme)
                 throw new InvalidOperationException($"Can't get path for '{targetPath}' relative to '{sourceDir}'.");
 

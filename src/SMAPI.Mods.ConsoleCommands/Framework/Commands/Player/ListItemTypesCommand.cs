@@ -10,7 +10,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
         ** Fields
         *********/
         /// <summary>Provides methods for searching and constructing items.</summary>
-        private readonly ItemRepository Items = new ItemRepository();
+        private readonly ItemRepository Items = new();
 
 
         /*********

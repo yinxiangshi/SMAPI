@@ -98,7 +98,7 @@ namespace StardewModdingAPI.Toolkit.Framework
         /// </remarks>
         private static bool IsRunningAndroid()
         {
-            using Process process = new Process
+            using Process process = new()
             {
                 StartInfo =
                 {

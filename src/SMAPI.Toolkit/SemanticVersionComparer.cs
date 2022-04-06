@@ -9,7 +9,7 @@ namespace StardewModdingAPI.Toolkit
         ** Accessors
         *********/
         /// <summary>A singleton instance of the comparer.</summary>
-        public static SemanticVersionComparer Instance { get; } = new SemanticVersionComparer();
+        public static SemanticVersionComparer Instance { get; } = new();
 
 
         /*********

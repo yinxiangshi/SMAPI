@@ -21,10 +21,10 @@ namespace StardewModdingAPI.Framework.Input
         private Vector2? LastPlayerTile;
 
         /// <summary>The buttons to press until the game next handles input.</summary>
-        private readonly HashSet<SButton> CustomPressedKeys = new HashSet<SButton>();
+        private readonly HashSet<SButton> CustomPressedKeys = new();
 
         /// <summary>The buttons to consider released until the actual button is released.</summary>
-        private readonly HashSet<SButton> CustomReleasedKeys = new HashSet<SButton>();
+        private readonly HashSet<SButton> CustomReleasedKeys = new();
 
         /// <summary>Whether there are new overrides in <see cref="CustomPressedKeys"/> or <see cref="CustomReleasedKeys"/> that haven't been applied to the previous state.</summary>
         private bool HasNewOverrides;
@@ -72,7 +72,7 @@ namespace StardewModdingAPI.Framework.Input
                 var controller = new GamePadStateBuilder(base.GetGamePadState());
                 var keyboard = new KeyboardStateBuilder(base.GetKeyboardState());
                 var mouse = new MouseStateBuilder(base.GetMouseState());
-                Vector2 cursorAbsolutePos = new Vector2((mouse.X * zoomMultiplier) + Game1.viewport.X, (mouse.Y * zoomMultiplier) + Game1.viewport.Y);
+                Vector2 cursorAbsolutePos = new((mouse.X * zoomMultiplier) + Game1.viewport.X, (mouse.Y * zoomMultiplier) + Game1.viewport.Y);
                 Vector2? playerTilePos = Context.IsPlayerFree ? Game1.player.getTileLocation() : (Vector2?)null;
                 HashSet<SButton> reallyDown = new HashSet<SButton>(this.GetPressedButtons(keyboard, mouse, controller));
 
@@ -203,8 +203,8 @@ namespace StardewModdingAPI.Framework.Input
         /// <param name="zoomMultiplier">The multiplier applied to pixel coordinates to adjust them for pixel zoom.</param>
         private CursorPosition GetCursorPosition(MouseState mouseState, Vector2 absolutePixels, float zoomMultiplier)
         {
-            Vector2 screenPixels = new Vector2(mouseState.X * zoomMultiplier, mouseState.Y * zoomMultiplier);
-            Vector2 tile = new Vector2((int)((Game1.viewport.X + screenPixels.X) / Game1.tileSize), (int)((Game1.viewport.Y + screenPixels.Y) / Game1.tileSize));
+            Vector2 screenPixels = new(mouseState.X * zoomMultiplier, mouseState.Y * zoomMultiplier);
+            Vector2 tile = new((int)((Game1.viewport.X + screenPixels.X) / Game1.tileSize), (int)((Game1.viewport.Y + screenPixels.Y) / Game1.tileSize));
             Vector2 grabTile = (Game1.mouseCursorTransparency > 0 && Utility.tileWithinRadiusOfPlayer((int)tile.X, (int)tile.Y, 1, Game1.player)) // derived from Game1.pressActionButton
                 ? tile
                 : Game1.player.GetGrabTile();

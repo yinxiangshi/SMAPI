@@ -56,10 +56,10 @@ namespace StardewModdingAPI.Framework
         private readonly bool LogNetworkTraffic;
 
         /// <summary>The backing field for <see cref="Peers"/>.</summary>
-        private readonly PerScreen<IDictionary<long, MultiplayerPeer>> PeersImpl = new PerScreen<IDictionary<long, MultiplayerPeer>>(() => new Dictionary<long, MultiplayerPeer>());
+        private readonly PerScreen<IDictionary<long, MultiplayerPeer>> PeersImpl = new(() => new Dictionary<long, MultiplayerPeer>());
 
         /// <summary>The backing field for <see cref="HostPeer"/>.</summary>
-        private readonly PerScreen<MultiplayerPeer> HostPeerImpl = new PerScreen<MultiplayerPeer>();
+        private readonly PerScreen<MultiplayerPeer> HostPeerImpl = new();
 
 
         /*********
@@ -196,7 +196,7 @@ namespace StardewModdingAPI.Framework
                         this.Monitor.Log($"Received context for farmhand {message.FarmerID} running {(model != null ? $"SMAPI {model.ApiVersion} with {model.Mods.Length} mods" : "vanilla")}.", LogLevel.Trace);
 
                         // store peer
-                        MultiplayerPeer newPeer = new MultiplayerPeer(
+                        MultiplayerPeer newPeer = new(
                             playerID: message.FarmerID,
                             screenID: this.GetScreenId(message.FarmerID),
                             model: model,
@@ -244,7 +244,7 @@ namespace StardewModdingAPI.Framework
                     if (!this.Peers.ContainsKey(message.FarmerID))
                     {
                         this.Monitor.Log($"Received connection for vanilla player {message.FarmerID}.", LogLevel.Trace);
-                        MultiplayerPeer peer = new MultiplayerPeer(
+                        MultiplayerPeer peer = new(
                             playerID: message.FarmerID,
                             screenID: this.GetScreenId(message.FarmerID),
                             model: null,
@@ -292,7 +292,7 @@ namespace StardewModdingAPI.Framework
                         this.Monitor.Log($"Received context for {(model?.IsHost == true ? "host" : "farmhand")} {message.FarmerID} running {(model != null ? $"SMAPI {model.ApiVersion} with {model.Mods.Length} mods" : "vanilla")}.", LogLevel.Trace);
 
                         // store peer
-                        MultiplayerPeer peer = new MultiplayerPeer(
+                        MultiplayerPeer peer = new(
                             playerID: message.FarmerID,
                             screenID: this.GetScreenId(message.FarmerID),
                             model: model,
@@ -420,7 +420,7 @@ namespace StardewModdingAPI.Framework
             }
 
             // get data to send
-            ModMessageModel model = new ModMessageModel(
+            ModMessageModel model = new(
                 fromPlayerID: Game1.player.UniqueMultiplayerID,
                 fromModID: fromModID,
                 toModIDs: toModIDs,
@@ -513,7 +513,7 @@ namespace StardewModdingAPI.Framework
             // forward to other players
             if (Context.IsMainPlayer && playerIDs.Any(p => p != Game1.player.UniqueMultiplayerID))
             {
-                ModMessageModel newModel = new ModMessageModel(model);
+                ModMessageModel newModel = new(model);
                 foreach (long playerID in playerIDs)
                 {
                     if (playerID != Game1.player.UniqueMultiplayerID && playerID != model.FromPlayerID && this.Peers.TryGetValue(playerID, out MultiplayerPeer peer))
@@ -544,7 +544,7 @@ namespace StardewModdingAPI.Framework
         /// <summary>Get the fields to include in a context sync message sent to other players.</summary>
         private object[] GetContextSyncMessageFields()
         {
-            RemoteContextModel model = new RemoteContextModel
+            RemoteContextModel model = new()
             {
                 IsHost = Context.IsWorldReady && Context.IsMainPlayer,
                 Platform = Constants.TargetPlatform,
@@ -571,7 +571,7 @@ namespace StardewModdingAPI.Framework
             if (!peer.HasSmapi)
                 return new object[] { "{}" };
 
-            RemoteContextModel model = new RemoteContextModel
+            RemoteContextModel model = new()
             {
                 IsHost = peer.IsHost,
                 Platform = peer.Platform.Value,

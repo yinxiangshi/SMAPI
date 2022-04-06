@@ -96,8 +96,8 @@ namespace StardewModdingAPI.Framework.Content
                 for (int y = 0; y < sourceArea.Value.Height; y++)
                 {
                     // calculate tile positions
-                    Point sourcePos = new Point(sourceArea.Value.X + x, sourceArea.Value.Y + y);
-                    Point targetPos = new Point(targetArea.Value.X + x, targetArea.Value.Y + y);
+                    Point sourcePos = new(sourceArea.Value.X + x, sourceArea.Value.Y + y);
+                    Point targetPos = new(targetArea.Value.X + x, targetArea.Value.Y + y);
 
                     // replace tiles on target-only layers
                     if (replaceAll)

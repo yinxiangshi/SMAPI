@@ -14,10 +14,10 @@ namespace StardewModdingAPI
         ** Fields
         *********/
         /// <summary>Whether the player has loaded a save and the world has finished initializing.</summary>
-        private static readonly PerScreen<bool> IsWorldReadyForScreen = new PerScreen<bool>();
+        private static readonly PerScreen<bool> IsWorldReadyForScreen = new();
 
         /// <summary>The current stage in the game's loading process.</summary>
-        private static readonly PerScreen<LoadStage> LoadStageForScreen = new PerScreen<LoadStage>();
+        private static readonly PerScreen<LoadStage> LoadStageForScreen = new();
 
         /// <summary>Whether a player save has been loaded.</summary>
         internal static bool IsSaveLoaded => Game1.hasLoadedGame && !(Game1.activeClickableMenu is TitleMenu);

@@ -90,7 +90,7 @@ namespace StardewModdingAPI.Web.Framework.Clients.Chucklefish
         /// <param name="id">The mod ID.</param>
         private string GetModUrl(uint id)
         {
-            UriBuilder builder = new UriBuilder(this.Client.BaseClient.BaseAddress);
+            UriBuilder builder = new(this.Client.BaseClient.BaseAddress);
             builder.Path += string.Format(this.ModPageUrlFormat, id);
             return builder.Uri.ToString();
         }
