@@ -219,7 +219,9 @@ namespace StardewModdingAPI.Framework.ContentManagers
         {
             // the underlying content manager adds a .xnb extension implicitly, so
             // we need to strip it here to avoid trying to load a '.xnb.xnb' file.
-            IAssetName loadName = this.Coordinator.ParseAssetName(assetName.Name[..^".xnb".Length], allowLocales: false);
+            IAssetName loadName = assetName.Name.EndsWith(".xnb", StringComparison.OrdinalIgnoreCase)
+                ? this.Coordinator.ParseAssetName(assetName.Name[..^".xnb".Length], allowLocales: false)
+                : assetName;
 
             // load asset
             T asset = this.RawLoad<T>(loadName, useCache: false);
