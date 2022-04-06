@@ -139,7 +139,7 @@ namespace StardewModdingAPI.Utilities
         public bool IsDown()
         {
             SButtonState state = this.GetState();
-            return state == SButtonState.Pressed || state == SButtonState.Held;
+            return state is SButtonState.Pressed or SButtonState.Held;
         }
 
         /// <summary>Get whether the input binding was just pressed this tick.</summary>

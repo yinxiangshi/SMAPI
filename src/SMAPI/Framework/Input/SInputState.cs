@@ -234,7 +234,7 @@ namespace StardewModdingAPI.Framework.Input
                     isDown: pressed.Contains(button)
                 );
 
-                if (button == SButton.MouseLeft || button == SButton.MouseMiddle || button == SButton.MouseRight || button == SButton.MouseX1 || button == SButton.MouseX2)
+                if (button is SButton.MouseLeft or SButton.MouseMiddle or SButton.MouseRight or SButton.MouseX1 or SButton.MouseX2)
                     mouseOverrides[button] = newState;
                 else if (button.TryGetKeyboard(out Keys _))
                     keyboardOverrides[button] = newState;

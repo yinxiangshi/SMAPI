@@ -137,7 +137,7 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
                     return new ModFolder(root, searchFolder, ModType.Xnb, null, ModParseError.XnbMod, "it's not a SMAPI mod (see https://smapi.io/xnb for info).");
 
                 // SMAPI installer
-                if (relevantFiles.Any(p => p.Name == "install on Linux.sh" || p.Name == "install on macOS.command" || p.Name == "install on Windows.bat"))
+                if (relevantFiles.Any(p => p.Name is "install on Linux.sh" or "install on macOS.command" or "install on Windows.bat"))
                     return new ModFolder(root, searchFolder, ModType.Invalid, null, ModParseError.ManifestMissing, "the SMAPI installer isn't a mod (you can delete this folder after running the installer file).");
 
                 // not a mod?

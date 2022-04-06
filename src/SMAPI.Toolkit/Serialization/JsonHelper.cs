@@ -48,7 +48,7 @@ namespace StardewModdingAPI.Toolkit.Serialization
             {
                 json = File.ReadAllText(fullPath);
             }
-            catch (Exception ex) when (ex is DirectoryNotFoundException || ex is FileNotFoundException)
+            catch (Exception ex) when (ex is DirectoryNotFoundException or FileNotFoundException)
             {
                 result = default(TModel);
                 return false;

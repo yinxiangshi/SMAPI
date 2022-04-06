@@ -75,7 +75,7 @@ namespace StardewModdingAPI.Web.Framework.Clients.Nexus
                 mod = await this.GetModFromApiAsync(parsedId);
 
             // page doesn't exist
-            if (mod == null || mod.Status == NexusModStatus.Hidden || mod.Status == NexusModStatus.NotPublished)
+            if (mod == null || mod.Status is NexusModStatus.Hidden or NexusModStatus.NotPublished)
                 return page.SetError(RemoteModStatus.DoesNotExist, "Found no Nexus mod with this ID.");
 
             // return info

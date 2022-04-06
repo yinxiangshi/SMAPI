@@ -118,11 +118,11 @@ namespace StardewModdingAPI.Utilities
                 return SButtonState.None;
 
             // mix of held + pressed => pressed
-            if (states.All(p => p == SButtonState.Pressed || p == SButtonState.Held))
+            if (states.All(p => p is SButtonState.Pressed or SButtonState.Held))
                 return SButtonState.Pressed;
 
             // mix of held + released => released
-            if (states.All(p => p == SButtonState.Held || p == SButtonState.Released))
+            if (states.All(p => p is SButtonState.Held or SButtonState.Released))
                 return SButtonState.Released;
 
             // not down last tick or now

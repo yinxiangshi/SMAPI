@@ -94,9 +94,8 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
                             this.RemoveObjects(location, obj =>
                                 obj is not Chest
                                 && (
-                                    obj.Name == "Weeds"
-                                    || obj.Name == "Stone"
-                                    || (obj.ParentSheetIndex == 294 || obj.ParentSheetIndex == 295)
+                                    obj.Name is "Weeds" or "Stone"
+                                    || obj.ParentSheetIndex is 294 or 295
                                 )
                             )
                             + this.RemoveResourceClumps(location, clump => this.DebrisClumps.Contains(clump.parentSheetIndex.Value));

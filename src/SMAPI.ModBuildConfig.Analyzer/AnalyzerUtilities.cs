@@ -64,7 +64,7 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
             }
 
             // conditional access
-            if (node is ConditionalAccessExpressionSyntax conditionalAccess && conditionalAccess.WhenNotNull is MemberBindingExpressionSyntax conditionalBinding)
+            if (node is ConditionalAccessExpressionSyntax { WhenNotNull: MemberBindingExpressionSyntax conditionalBinding } conditionalAccess)
             {
                 declaringType = semanticModel.GetTypeInfo(conditionalAccess.Expression).Type;
                 memberType = semanticModel.GetTypeInfo(node);

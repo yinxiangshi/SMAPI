@@ -58,7 +58,7 @@ namespace StardewModdingAPI.Web.Framework.Clients.Chucklefish
                     .GetAsync(string.Format(this.ModPageUrlFormat, parsedId))
                     .AsString();
             }
-            catch (ApiException ex) when (ex.Status == HttpStatusCode.NotFound || ex.Status == HttpStatusCode.Forbidden)
+            catch (ApiException ex) when (ex.Status is HttpStatusCode.NotFound or HttpStatusCode.Forbidden)
             {
                 return page.SetError(RemoteModStatus.DoesNotExist, "Found no Chucklefish mod with this ID.");
             }

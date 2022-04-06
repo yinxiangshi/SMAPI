@@ -37,7 +37,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
 
             // skip if not broken
             FieldDefinition fieldDefinition = fieldRef.Resolve();
-            if (fieldDefinition != null && !fieldDefinition.HasConstant)
+            if (fieldDefinition?.HasConstant == false)
                 return false;
 
             // rewrite if possible

@@ -32,11 +32,8 @@ namespace StardewModdingAPI.Framework.ModLoading
                 ModDataRecordVersionedFields dataRecord = modDatabase.Get(manifest?.UniqueID)?.GetVersionedFields(manifest);
 
                 // apply defaults
-                if (manifest != null && dataRecord != null)
-                {
-                    if (dataRecord.UpdateKey != null)
-                        manifest.UpdateKeys = new[] { dataRecord.UpdateKey };
-                }
+                if (manifest != null && dataRecord?.UpdateKey is not null)
+                    manifest.UpdateKeys = new[] { dataRecord.UpdateKey };
 
                 // build metadata
                 bool shouldIgnore = folder.Type == ModType.Ignored;

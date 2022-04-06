@@ -674,7 +674,7 @@ namespace StardewModdingAPI
             }
 
             // mouse
-            if (input == SButton.MouseLeft || input == SButton.MouseRight)
+            if (input is SButton.MouseLeft or SButton.MouseRight)
             {
                 button = new InputButton(mouseLeft: input == SButton.MouseLeft);
                 return true;
