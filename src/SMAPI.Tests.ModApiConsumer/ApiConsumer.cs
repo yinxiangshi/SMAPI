@@ -17,7 +17,7 @@ namespace SMAPI.Tests.ModApiConsumer
             // act
             int calls = 0;
             int lastValue = -1;
-            api.OnEventRaised += (sender, value) =>
+            api.OnEventRaised += (_, value) =>
             {
                 calls++;
                 lastValue = value;
@@ -34,7 +34,7 @@ namespace SMAPI.Tests.ModApiConsumer
             // act
             int calls = 0;
             int lastValue = -1;
-            api.OnEventRaisedProperty += (sender, value) =>
+            api.OnEventRaisedProperty += (_, value) =>
             {
                 calls++;
                 lastValue = value;

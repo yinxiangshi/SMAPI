@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using StardewValley;
 using StardewValley.Locations;
@@ -9,6 +10,7 @@ using SObject = StardewValley.Object;
 namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
 {
     /// <summary>A command which clears in-game objects.</summary>
+    [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "Loaded using reflection")]
     internal class ClearCommand : ConsoleCommand
     {
         /*********
@@ -113,7 +115,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
 
                 case "furniture":
                     {
-                        int removed = this.RemoveFurniture(location, furniture => true);
+                        int removed = this.RemoveFurniture(location, _ => true);
                         monitor.Log($"Done! Removed {removed} entities from {location.Name}.", LogLevel.Info);
                         break;
                     }
@@ -137,11 +139,11 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
                     {
                         bool everything = type == "everything";
                         int removed =
-                            this.RemoveFurniture(location, p => true)
-                            + this.RemoveObjects(location, p => true)
-                            + this.RemoveTerrainFeatures(location, p => true)
+                            this.RemoveFurniture(location, _ => true)
+                            + this.RemoveObjects(location, _ => true)
+                            + this.RemoveTerrainFeatures(location, _ => true)
                             + this.RemoveLargeTerrainFeatures(location, p => everything || p is not Bush bush || bush.isDestroyable(location, p.currentTileLocation))
-                            + this.RemoveResourceClumps(location, p => true);
+                            + this.RemoveResourceClumps(location, _ => true);
                         monitor.Log($"Done! Removed {removed} entities from {location.Name}.", LogLevel.Info);
                         break;
                     }

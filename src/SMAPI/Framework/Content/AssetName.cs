@@ -107,7 +107,7 @@ namespace StardewModdingAPI.Framework.Content
                 return this.BaseName.Equals(assetName?.BaseName, StringComparison.OrdinalIgnoreCase);
 
             if (assetName is AssetName impl)
-                return this.ComparableName == impl?.ComparableName;
+                return this.ComparableName == impl.ComparableName;
 
             return this.Name.Equals(assetName?.Name, StringComparison.OrdinalIgnoreCase);
         }

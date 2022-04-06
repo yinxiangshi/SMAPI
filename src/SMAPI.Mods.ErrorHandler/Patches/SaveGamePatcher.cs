@@ -77,7 +77,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         private static Exception Finalize_LoadFarmType(Exception __exception)
         {
             // missing custom farm type
-            if (__exception?.Message?.Contains("not a valid farm type") == true && !int.TryParse(SaveGame.loaded.whichFarm, out _))
+            if (__exception?.Message.Contains("not a valid farm type") == true && !int.TryParse(SaveGame.loaded.whichFarm, out _))
             {
                 SaveGamePatcher.Monitor.Log(__exception.GetLogSummary(), LogLevel.Error);
                 SaveGamePatcher.Monitor.Log($"Removed invalid custom farm type '{SaveGame.loaded.whichFarm}' to avoid a crash when loading save '{Constants.SaveFolderName}'. (Did you remove a custom farm type mod?)", LogLevel.Warn);

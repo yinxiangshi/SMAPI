@@ -232,13 +232,13 @@ namespace StardewModdingAPI.Framework
                     this.Toolkit.JsonHelper.JsonSettings.Converters.Add(converter);
 
                 // add error handlers
-                AppDomain.CurrentDomain.UnhandledException += (sender, e) => this.Monitor.Log($"Critical app domain exception: {e.ExceptionObject}", LogLevel.Error);
+                AppDomain.CurrentDomain.UnhandledException += (_, e) => this.Monitor.Log($"Critical app domain exception: {e.ExceptionObject}", LogLevel.Error);
 
                 // add more lenient assembly resolver
-                AppDomain.CurrentDomain.AssemblyResolve += (sender, e) => AssemblyLoader.ResolveAssembly(e.Name);
+                AppDomain.CurrentDomain.AssemblyResolve += (_, e) => AssemblyLoader.ResolveAssembly(e.Name);
 
                 // hook locale event
-                LocalizedContentManager.OnLanguageChange += locale => this.OnLocaleChanged();
+                LocalizedContentManager.OnLanguageChange += _ => this.OnLocaleChanged();
 
                 // override game
                 this.Multiplayer = new SMultiplayer(this.Monitor, this.EventManager, this.Toolkit.JsonHelper, this.ModRegistry, this.Reflection, this.OnModMessageReceived, this.Settings.LogNetworkTraffic);
@@ -1453,14 +1453,12 @@ namespace StardewModdingAPI.Framework
                 // check Stardew64Installer version
                 if (Constants.IsPatchedByStardew64Installer(out ISemanticVersion patchedByVersion))
                 {
-                    ISemanticVersion updateFound = null;
-                    string updateUrl = null;
                     try
                     {
                         // fetch update check
                         ModEntryModel response = client.GetModInfo(new[] { new ModSearchEntryModel("Steviegt6.Stardew64Installer", patchedByVersion, new[] { $"GitHub:{this.Settings.Stardew64InstallerGitHubProjectName}" }) }, apiVersion: Constants.ApiVersion, gameVersion: Constants.GameVersion, platform: Constants.Platform).Single().Value;
-                        updateFound = response.SuggestedUpdate?.Version;
-                        updateUrl = response.SuggestedUpdate?.Url ?? Constants.HomePageUrl;
+                        ISemanticVersion updateFound = response.SuggestedUpdate?.Version;
+                        string updateUrl = response.SuggestedUpdate?.Url ?? Constants.HomePageUrl;
 
                         // log message
                         if (updateFound != null)
@@ -1658,8 +1656,8 @@ namespace StardewModdingAPI.Framework
                     // ReSharper restore SuspiciousTypeConversion.Global
 
                     ContentHelper content = helper.GetLegacyContentHelper();
-                    content.ObservableAssetEditors.CollectionChanged += (sender, e) => this.OnAssetInterceptorsChanged(metadata, e.NewItems?.Cast<IAssetEditor>(), e.OldItems?.Cast<IAssetEditor>(), this.ContentCore.Editors);
-                    content.ObservableAssetLoaders.CollectionChanged += (sender, e) => this.OnAssetInterceptorsChanged(metadata, e.NewItems?.Cast<IAssetLoader>(), e.OldItems?.Cast<IAssetLoader>(), this.ContentCore.Loaders);
+                    content.ObservableAssetEditors.CollectionChanged += (_, e) => this.OnAssetInterceptorsChanged(metadata, e.NewItems?.Cast<IAssetEditor>(), e.OldItems?.Cast<IAssetEditor>(), this.ContentCore.Editors);
+                    content.ObservableAssetLoaders.CollectionChanged += (_, e) => this.OnAssetInterceptorsChanged(metadata, e.NewItems?.Cast<IAssetLoader>(), e.OldItems?.Cast<IAssetLoader>(), this.ContentCore.Loaders);
                 }
 
                 // call entry method

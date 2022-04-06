@@ -78,7 +78,7 @@ namespace StardewModdingAPI
                         }
                         catch
                         {
-                            continue;
+                            // ignore invalid DLL
                         }
                     }
                 }

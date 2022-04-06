@@ -1,6 +1,5 @@
 using System;
 using StardewModdingAPI.Toolkit.Framework.UpdateData;
-using StardewModdingAPI.Web.Framework.Clients;
 
 namespace StardewModdingAPI.Web.Framework.Caching.Mods
 {

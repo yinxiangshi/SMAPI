@@ -69,7 +69,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
             // get raw API
             IModMetadata mod = this.Registry.Get(uniqueID);
             if (mod?.Api != null && this.AccessedModApis.Add(mod.Manifest.UniqueID))
-                this.Monitor.Log($"Accessed mod-provided API for {mod.DisplayName}.", LogLevel.Trace);
+                this.Monitor.Log($"Accessed mod-provided API for {mod.DisplayName}.");
             return mod?.Api;
         }
 

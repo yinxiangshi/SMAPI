@@ -227,10 +227,7 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
 
                 // warn: implicit conversion
                 if (this.IsInvalidConversion(memberType.Type, memberType.ConvertedType))
-                {
                     context.ReportDiagnostic(Diagnostic.Create(this.AvoidImplicitNetFieldCastRule, context.Node.GetLocation(), context.Node, memberType.Type.Name, memberType.ConvertedType));
-                    return;
-                }
             });
         }
 

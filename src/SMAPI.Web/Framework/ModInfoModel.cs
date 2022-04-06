@@ -1,5 +1,3 @@
-using StardewModdingAPI.Web.Framework.Clients;
-
 namespace StardewModdingAPI.Web.Framework
 {
     /// <summary>Generic metadata about a mod.</summary>

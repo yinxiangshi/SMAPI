@@ -147,7 +147,7 @@ namespace StardewModdingAPI.Framework.Content
         {
             switch (sourceTile)
             {
-                case StaticTile _:
+                case StaticTile:
                     return new StaticTile(targetLayer, targetSheet, sourceTile.BlendMode, sourceTile.TileIndex);
 
                 case AnimatedTile animatedTile:

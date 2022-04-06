@@ -161,7 +161,7 @@ namespace StardewModdingAPI.Web.Controllers
                 return this.View("Index", this.GetModel(result.ID, schemaName, isEditView: true).SetContent(input, null).SetUploadError(result.UploadError));
 
             // redirect to view
-            return this.Redirect(this.Url.PlainAction("Index", "JsonValidator", new { schemaName = schemaName, id = result.ID }));
+            return this.Redirect(this.Url.PlainAction("Index", "JsonValidator", new { schemaName, id = result.ID }));
         }
 
 
@@ -317,13 +317,10 @@ namespace StardewModdingAPI.Web.Controllers
         /// <param name="key">The case-insensitive field key.</param>
         private T GetExtensionField<T>(JSchema schema, string key)
         {
-            if (schema.ExtensionData != null)
+            foreach ((string curKey, JToken value) in schema.ExtensionData)
             {
-                foreach ((string curKey, JToken value) in schema.ExtensionData)
-                {
-                    if (curKey.Equals(key, StringComparison.OrdinalIgnoreCase))
-                        return value.ToObject<T>();
-                }
+                if (curKey.Equals(key, StringComparison.OrdinalIgnoreCase))
+                    return value.ToObject<T>();
             }
 
             return default;

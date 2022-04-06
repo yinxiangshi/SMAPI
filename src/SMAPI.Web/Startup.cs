@@ -81,7 +81,7 @@ namespace StardewModdingAPI.Web
 
             // init Hangfire
             services
-                .AddHangfire((serv, config) =>
+                .AddHangfire((_, config) =>
                 {
                     config
                         .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)

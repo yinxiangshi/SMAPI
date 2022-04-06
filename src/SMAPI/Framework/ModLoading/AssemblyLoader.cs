@@ -138,7 +138,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                 if (changed)
                 {
                     if (!oneAssembly)
-                        this.Monitor.Log($"      Loading {assembly.File.Name} (rewritten)...", LogLevel.Trace);
+                        this.Monitor.Log($"      Loading {assembly.File.Name} (rewritten)...");
 
                     // load assembly
                     using MemoryStream outAssemblyStream = new();
@@ -150,7 +150,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                 else
                 {
                     if (!oneAssembly)
-                        this.Monitor.Log($"      Loading {assembly.File.Name}...", LogLevel.Trace);
+                        this.Monitor.Log($"      Loading {assembly.File.Name}...");
                     lastAssembly = Assembly.UnsafeLoadFrom(assembly.File.FullName);
                 }
 

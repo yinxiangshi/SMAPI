@@ -37,8 +37,6 @@ namespace StardewModdingAPI.Web.Framework.RedirectRules
         {
             // get requested host
             string host = context.HttpContext.Request.Host.Host;
-            if (host == null)
-                return null;
 
             // get new host
             host = this.Map(host);

@@ -31,7 +31,7 @@ namespace StardewModdingAPI.Framework.StateTracking.Snapshots
             Enum
                 .GetValues(typeof(SkillType))
                 .Cast<SkillType>()
-                .ToDictionary(skill => skill, skill => new SnapshotDiff<int>());
+                .ToDictionary(skill => skill, _ => new SnapshotDiff<int>());
 
         /// <summary>Get a list of inventory changes.</summary>
         public SnapshotItemListDiff Inventory { get; private set; }

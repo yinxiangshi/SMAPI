@@ -107,7 +107,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework
                     foreach (int id in this.TryLoad<int, string>("Data\\weapons").Keys)
                     {
                         yield return this.TryCreate(ItemType.Weapon, id, p => p.ID is >= 32 and <= 34
-                            ? (Item)new Slingshot(p.ID)
+                            ? new Slingshot(p.ID)
                             : new MeleeWeapon(p.ID)
                         );
                     }

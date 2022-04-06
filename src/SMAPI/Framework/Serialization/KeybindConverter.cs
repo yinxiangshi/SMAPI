@@ -44,7 +44,7 @@ namespace StardewModdingAPI.Framework.Serialization
             {
                 case JsonToken.Null:
                     return objectType == typeof(Keybind)
-                        ? (object)new Keybind()
+                        ? new Keybind()
                         : new KeybindList();
 
                 case JsonToken.String:

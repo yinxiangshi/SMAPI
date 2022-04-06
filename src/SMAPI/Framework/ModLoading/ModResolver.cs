@@ -237,7 +237,7 @@ namespace StardewModdingAPI.Framework.ModLoading
             // initialize metadata
             mods = mods.ToArray();
             var sortedMods = new Stack<IModMetadata>();
-            var states = mods.ToDictionary(mod => mod, mod => ModDependencyStatus.Queued);
+            var states = mods.ToDictionary(mod => mod, _ => ModDependencyStatus.Queued);
 
             // handle failed mods
             foreach (IModMetadata mod in mods.Where(m => m.Status == ModMetadataStatus.Failed))

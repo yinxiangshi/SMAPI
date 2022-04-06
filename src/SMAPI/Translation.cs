@@ -74,7 +74,7 @@ namespace StardewModdingAPI
                 {
                     foreach (DictionaryEntry entry in inputLookup)
                     {
-                        string key = entry.Key?.ToString().Trim();
+                        string key = entry.Key.ToString()?.Trim();
                         if (key != null)
                             tokenLookup[key] = entry.Value?.ToString();
                     }

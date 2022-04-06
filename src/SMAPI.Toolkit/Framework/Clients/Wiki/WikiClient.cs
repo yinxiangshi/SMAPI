@@ -65,7 +65,7 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
 
                 foreach (var entry in this.ParseOverrideEntries(modNodes))
                 {
-                    if (entry.Ids?.Any() != true || !entry.HasChanges)
+                    if (entry.Ids.Any() != true || !entry.HasChanges)
                         continue;
 
                     foreach (string id in entry.Ids)

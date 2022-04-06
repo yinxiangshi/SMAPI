@@ -76,7 +76,7 @@ namespace StardewModdingAPI.Utilities
         /// <summary>Remove all active values.</summary>
         public void ResetAllScreens()
         {
-            this.RemoveScreens(p => true);
+            this.RemoveScreens(_ => true);
         }
 
 

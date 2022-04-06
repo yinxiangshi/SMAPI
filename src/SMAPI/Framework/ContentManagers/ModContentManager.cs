@@ -124,7 +124,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             }
 
             // track & return asset
-            this.TrackAsset(assetName, asset, useCache);
+            this.TrackAsset(assetName, asset, useCache: false);
             return asset;
         }
 

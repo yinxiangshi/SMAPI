@@ -308,7 +308,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
         {
             return useCache
                 ? base.LoadBase<T>(assetName.Name)
-                : base.ReadAsset<T>(assetName.Name, disposable => this.Disposables.Add(new WeakReference<IDisposable>(disposable)));
+                : this.ReadAsset<T>(assetName.Name, disposable => this.Disposables.Add(new WeakReference<IDisposable>(disposable)));
         }
 
         /// <summary>Add tracking data to an asset and add it to the cache.</summary>

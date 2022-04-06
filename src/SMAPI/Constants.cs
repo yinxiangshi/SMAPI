@@ -170,9 +170,6 @@ namespace StardewModdingAPI
         /// <summary>The target game platform as a SMAPI toolkit constant.</summary>
         internal static Platform Platform { get; } = (Platform)Constants.TargetPlatform;
 
-        /// <summary>The language code for non-translated mod assets.</summary>
-        internal static LocalizedContentManager.LanguageCode DefaultLanguage { get; } = LocalizedContentManager.LanguageCode.en;
-
 
         /*********
         ** Internal methods

@@ -22,7 +22,7 @@ namespace StardewModdingAPI.Web.Framework.RedirectRules
         /// <param name="except">Matches requests which should be ignored.</param>
         public RedirectToHttpsRule(Func<HttpRequest, bool> except = null)
         {
-            this.Except = except ?? (req => false);
+            this.Except = except ?? (_ => false);
             this.StatusCode = HttpStatusCode.RedirectKeepVerb;
         }
 

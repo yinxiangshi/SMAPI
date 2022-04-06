@@ -40,8 +40,8 @@
             smapi.logParser({
                 logStarted: new Date(@this.ForJson(log?.Timestamp)),
                 showPopup: @this.ForJson(log == null),
-                showMods: @this.ForJson(log?.Mods?.Select(p => Model.GetSlug(p.Name)).Distinct().ToDictionary(slug => slug, slug => true)),
-                showSections: @this.ForJson(Enum.GetNames(typeof(LogSection)).ToDictionary(section => section, section => false)),
+                showMods: @this.ForJson(log?.Mods?.Select(p => Model.GetSlug(p.Name)).Distinct().ToDictionary(slug => slug, _ => true)),
+                showSections: @this.ForJson(Enum.GetNames(typeof(LogSection)).ToDictionary(section => section, _ => false)),
                 showLevels: @this.ForJson(defaultFilters),
                 enableFilters: @this.ForJson(!Model.ShowRaw),
                 screenIds: @this.ForJson(screenIds)
@@ -207,7 +207,7 @@ else if (log?.IsValid == true)
                                     @if (mod.HasUpdate)
                                     {
                                         <a href="@mod.UpdateLink" target="_blank">
-                                            @(mod.Version == null ? @mod.UpdateVersion : $"{mod.Version} → {mod.UpdateVersion}")
+                                            @(mod.Version == null ? mod.UpdateVersion : $"{mod.Version} → {mod.UpdateVersion}")
                                         </a>
                                     }
                                     else

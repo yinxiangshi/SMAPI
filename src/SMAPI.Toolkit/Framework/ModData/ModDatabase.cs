@@ -22,7 +22,7 @@ namespace StardewModdingAPI.Toolkit.Framework.ModData
         *********/
         /// <summary>Construct an empty instance.</summary>
         public ModDatabase()
-        : this(Array.Empty<ModDataRecord>(), key => null) { }
+        : this(Array.Empty<ModDataRecord>(), _ => null) { }
 
         /// <summary>Construct an instance.</summary>
         /// <param name="records">The underlying mod data records indexed by default display name.</param>

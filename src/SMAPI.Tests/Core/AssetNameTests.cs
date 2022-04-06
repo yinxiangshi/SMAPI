@@ -33,7 +33,7 @@ namespace SMAPI.Tests.Core
 
             // act
             string calledWithLocale = null;
-            IAssetName assetName = AssetName.Parse(name, parseLocale: locale => expectedLanguageCode);
+            IAssetName assetName = AssetName.Parse(name, parseLocale: _ => expectedLanguageCode);
 
             // assert
             assetName.Name.Should()
@@ -161,7 +161,7 @@ namespace SMAPI.Tests.Core
             AssetName name = AssetName.Parse(mainAssetName, _ => null);
 
             // assert value is the same for any combination of options
-            bool result = name.StartsWith(prefix, true, true);
+            bool result = name.StartsWith(prefix);
             foreach (bool allowPartialWord in new[] { true, false })
             {
                 foreach (bool allowSubfolder in new[] { true, true })

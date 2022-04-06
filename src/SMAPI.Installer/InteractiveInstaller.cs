@@ -562,7 +562,7 @@ namespace StardewModdingApi.Installer
             {
                 try
                 {
-                    FileUtilities.ForceDelete(Directory.Exists(path) ? new DirectoryInfo(path) : (FileSystemInfo)new FileInfo(path));
+                    FileUtilities.ForceDelete(Directory.Exists(path) ? new DirectoryInfo(path) : new FileInfo(path));
                     break;
                 }
                 catch (Exception ex)

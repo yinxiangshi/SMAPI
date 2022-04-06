@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using StardewModdingAPI.Toolkit.Framework.UpdateData;
-using StardewModdingAPI.Web.Framework.Clients;
 
 namespace StardewModdingAPI.Web.Framework.Caching.Mods
 {

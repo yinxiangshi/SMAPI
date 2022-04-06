@@ -211,7 +211,7 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
                         {
                             Match match = this.ModPathPattern.Match(message.Text);
                             log.ModPath = match.Groups["path"].Value;
-                            int lastDelimiterPos = log.ModPath.LastIndexOfAny(new char[] { '/', '\\' });
+                            int lastDelimiterPos = log.ModPath.LastIndexOfAny(new[] { '/', '\\' });
                             log.GamePath = lastDelimiterPos >= 0
                                 ? log.ModPath.Substring(0, lastDelimiterPos)
                                 : log.ModPath;

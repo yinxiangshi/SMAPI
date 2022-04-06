@@ -1,8 +1,10 @@
-﻿using StardewValley;
+using System.Diagnostics.CodeAnalysis;
+using StardewValley;
 
 namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
 {
     /// <summary>A command which sends a debug command to the game.</summary>
+    [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "Loaded using reflection")]
     internal class DebugCommand : ConsoleCommand
     {
         /*********

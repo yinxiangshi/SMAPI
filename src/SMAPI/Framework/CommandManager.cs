@@ -65,7 +65,7 @@ namespace StardewModdingAPI.Framework
         /// <exception cref="ArgumentException">There's already a command with that name.</exception>
         public CommandManager Add(IInternalCommand command, IMonitor monitor)
         {
-            return this.Add(null, command.Name, command.Description, (name, args) => command.HandleCommand(args, monitor));
+            return this.Add(null, command.Name, command.Description, (_, args) => command.HandleCommand(args, monitor));
         }
 
         /// <summary>Get a command by its unique name.</summary>

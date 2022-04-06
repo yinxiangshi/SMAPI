@@ -1,9 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
 using StardewValley;
 using StardewValley.Locations;
 
 namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
 {
     /// <summary>A command which moves the player to the next mine level.</summary>
+    [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "Loaded using reflection")]
     internal class DownMineLevelCommand : ConsoleCommand
     {
         /*********

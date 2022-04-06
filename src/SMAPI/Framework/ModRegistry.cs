@@ -96,8 +96,6 @@ namespace StardewModdingAPI.Framework
             // get stack frames
             StackTrace stack = new();
             StackFrame[] frames = stack.GetFrames();
-            if (frames == null)
-                return null;
 
             // search stack for a source assembly
             foreach (StackFrame frame in frames)

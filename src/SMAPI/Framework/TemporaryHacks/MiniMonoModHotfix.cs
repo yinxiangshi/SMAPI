@@ -126,7 +126,7 @@ namespace MonoMod.Utils
         }
 
         public static Type GetRealDeclaringType(this MemberInfo member)
-            => member.DeclaringType ?? member.Module?.GetModuleType();
+            => member.DeclaringType ?? member.Module.GetModuleType();
 
         public static void FixReflectionCache(this Type type)
         {
