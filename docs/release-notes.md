@@ -9,6 +9,7 @@
     * Added `--use-current-shell` to avoid opening a separate terminal window.
     * Fixed `--no-terminal` still opening a terminal window, even if nothing is logged to it (thanks to Ryhon0!).
   * SMAPI now fixes many case-sensitive mod file path issues automatically.
+  * Dropped update checks for the unofficial 64-bit patcher (obsolete since SMAPI 3.12.6).
   * Improved translations. Thanks to ChulkyBow (updated Ukrainian)!
 
 * For the Console Commands mod:

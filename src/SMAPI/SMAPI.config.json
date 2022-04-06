@@ -70,11 +70,6 @@ copy all the settings, or you may cause bugs due to overridden changes in future
     "GitHubProjectName": "Pathoschild/SMAPI",
 
     /**
-     * Stardew64Installer's GitHub project name, used to perform update checks.
-     */
-    "Stardew64InstallerGitHubProjectName": "Steviegt6/Stardew64Installer",
-
-    /**
      * The base URL for SMAPI's web API, used to perform update checks.
      */
     "WebApiBaseUrl": "https://smapi.io/api/",
