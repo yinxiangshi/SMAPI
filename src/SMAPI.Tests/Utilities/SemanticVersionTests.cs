@@ -455,7 +455,7 @@ namespace SMAPI.Tests.Utilities
                 TestContext.WriteLine($"Exception thrown:\n{ex}");
                 return;
             }
-            catch (Exception ex) when (!(ex is AssertionException))
+            catch (Exception ex) when (ex is not AssertionException)
             {
                 TestContext.WriteLine($"Exception thrown:\n{ex}");
                 Assert.Fail(message ?? $"Didn't throw the expected exception; expected {typeof(T).FullName}, got {ex.GetType().FullName}.");

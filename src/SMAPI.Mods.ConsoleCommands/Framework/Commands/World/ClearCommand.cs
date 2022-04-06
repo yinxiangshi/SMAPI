@@ -92,7 +92,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
 
                         removed +=
                             this.RemoveObjects(location, obj =>
-                                !(obj is Chest)
+                                obj is not Chest
                                 && (
                                     obj.Name == "Weeds"
                                     || obj.Name == "Stone"
@@ -141,7 +141,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
                             this.RemoveFurniture(location, p => true)
                             + this.RemoveObjects(location, p => true)
                             + this.RemoveTerrainFeatures(location, p => true)
-                            + this.RemoveLargeTerrainFeatures(location, p => everything || !(p is Bush bush) || bush.isDestroyable(location, p.currentTileLocation))
+                            + this.RemoveLargeTerrainFeatures(location, p => everything || p is not Bush bush || bush.isDestroyable(location, p.currentTileLocation))
                             + this.RemoveResourceClumps(location, p => true);
                         monitor.Log($"Done! Removed {removed} entities from {location.Name}.", LogLevel.Info);
                         break;

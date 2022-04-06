@@ -808,7 +808,7 @@ namespace StardewModdingApi.Installer
             {
                 // get type
                 bool isDir = entry is DirectoryInfo;
-                if (!isDir && !(entry is FileInfo))
+                if (!isDir && entry is not FileInfo)
                     continue; // should never happen
 
                 // delete packaged mods (newer version bundled into SMAPI)

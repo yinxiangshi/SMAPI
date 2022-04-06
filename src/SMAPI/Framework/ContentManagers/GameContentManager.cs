@@ -235,7 +235,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
                     mod.LogAsMod($"Mod incorrectly set asset '{info.Name}'{this.GetOnBehalfOfLabel(editor.OnBehalfOf)} to a null value; ignoring override.", LogLevel.Warn);
                     asset = GetNewData(prevAsset);
                 }
-                else if (!(asset.Data is T))
+                else if (asset.Data is not T)
                 {
                     mod.LogAsMod($"Mod incorrectly set asset '{asset.Name}'{this.GetOnBehalfOfLabel(editor.OnBehalfOf)} to incompatible type '{asset.Data.GetType()}', expected '{typeof(T)}'; ignoring override.", LogLevel.Warn);
                     asset = GetNewData(prevAsset);

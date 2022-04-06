@@ -580,7 +580,7 @@ namespace StardewModdingAPI.Framework
                 *********/
                 if (this.JustReturnedToTitle)
                 {
-                    if (!(Game1.mapDisplayDevice is SDisplayDevice))
+                    if (Game1.mapDisplayDevice is not SDisplayDevice)
                         Game1.mapDisplayDevice = this.GetMapDisplayDevice();
 
                     this.JustReturnedToTitle = false;

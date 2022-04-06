@@ -47,7 +47,7 @@ namespace StardewModdingAPI.Framework.Content
         /// <inheritdoc />
         public TData GetData<TData>()
         {
-            if (!(this.Data is TData))
+            if (this.Data is not TData)
                 throw new InvalidCastException($"The content data of type {this.Data.GetType().FullName} can't be converted to the requested {typeof(TData).FullName}.");
             return (TData)this.Data;
         }

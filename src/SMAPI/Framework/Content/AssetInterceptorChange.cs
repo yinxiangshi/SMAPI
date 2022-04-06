@@ -36,7 +36,7 @@ namespace StardewModdingAPI.Framework.Content
             this.Instance = instance ?? throw new ArgumentNullException(nameof(instance));
             this.WasAdded = wasAdded;
 
-            if (!(instance is IAssetEditor) && !(instance is IAssetLoader))
+            if (instance is not (IAssetEditor or IAssetLoader))
                 throw new InvalidCastException($"The provided {nameof(instance)} value must be an {nameof(IAssetEditor)} or {nameof(IAssetLoader)} instance.");
         }
 

@@ -20,7 +20,7 @@ namespace StardewModdingAPI
         private static readonly PerScreen<LoadStage> LoadStageForScreen = new();
 
         /// <summary>Whether a player save has been loaded.</summary>
-        internal static bool IsSaveLoaded => Game1.hasLoadedGame && !(Game1.activeClickableMenu is TitleMenu);
+        internal static bool IsSaveLoaded => Game1.hasLoadedGame && Game1.activeClickableMenu is not TitleMenu;
 
         /// <summary>Whether the game is currently writing to the save file.</summary>
         internal static bool IsSaving => Game1.activeClickableMenu is SaveGameMenu || Game1.activeClickableMenu is ShippingMenu; // saving is performed by SaveGameMenu, but it's wrapped by ShippingMenu on days when the player shipping something
@@ -86,7 +86,7 @@ namespace StardewModdingAPI
         public static bool HasRemotePlayers => Context.IsMultiplayer && !Game1.hasLocalClientsOnly;
 
         /// <summary>Whether the current player is the main player. This is always true in single-player, and true when hosting in multiplayer.</summary>
-        public static bool IsMainPlayer => Game1.IsMasterGame && Context.ScreenId == 0 && !(TitleMenu.subMenu is FarmhandMenu);
+        public static bool IsMainPlayer => Game1.IsMasterGame && Context.ScreenId == 0 && TitleMenu.subMenu is not FarmhandMenu;
 
 
         /*********
