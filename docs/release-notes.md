@@ -2,45 +2,55 @@
 
 # Release notes
 ## Upcoming release
-* For players:
-  * Fixed support for `_international` content assets (used in the movie theater).
-  * Fixed the warning text when a mod causes an asset load conflict with itself.
-  * Improved Linux/macOS [command-line arguments](technical/smapi.md#command-line-arguments):
-    * Added `--use-current-shell` to avoid opening a separate terminal window.
-    * Fixed `--no-terminal` still opening a terminal window, even if nothing is logged to it (thanks to Ryhon0!).
-  * SMAPI now fixes many case-sensitive mod file path issues automatically.
+### For players
+* Changes:
+  * On Linux, SMAPI now fixes many issues with case-sensitive mod paths automatically.
+  * On Linux/macOS, added `--use-current-shell` [command-line argument](technical/smapi.md#command-line-arguments) to avoid opening a separate terminal window.
   * Dropped update checks for the unofficial 64-bit patcher (obsolete since SMAPI 3.12.6).
   * Improved translations. Thanks to ChulkyBow (updated Ukrainian)!
+* Fixes:
+  * Fixed some movie theater textures not translated when loaded through SMAPI (specifically assets with the `_international` suffix).
+  * Fixed the warning text when a mod causes an asset load conflict with itself.
+  * Fixed `--no-terminal` [command-line argument](technical/smapi.md#command-line-arguments) on Linux/macOS still opening a terminal window, even if nothing is logged to it (thanks to Ryhon0!).
+  * Fixed `player_add` console command not handling journal scraps and secret notes correctly.
+  * Fixed `set_farm_type` console command not updating warps.
 
-* For the Console Commands mod:
-  * Fixed `player_add` not handling journal scraps and secret notes correctly.
-  * Fixed `set_farm_type` not updating warps.
+### For the web UI
+* Updated the JSON validator/schema for Content Patcher 1.25.0.
+* Added `data-*` attributes to the log parser page for external tools.
+* Fixed JSON validator showing incorrect error for update keys without a subkey.
 
-* For mod authors:
-  * **Major changes as part of the upcoming SMAPI 4.0.0:**
-    * Added [content events](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Events#Content), which will replace `IAssetEditor` and `IAssetLoader` in SMAPI 4.0.0.  
-      _These include new features not supported by the old API like load conflict resolution, edit priority, and content pack labels. They also support new cases like easily detecting when an asset has changed, and avoid data corruption issues in some edge cases._
-    * Added `helper.GameContent` and `helper.ModContent`, which will replace `helper.Content` in SMAPI 4.0.0.
-    * Overhauled [mod-provided API](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Integrations#Mod-provided_APIs) proxying (thanks to Shockah!).  
-      _This adds support for many previously unsupported cases: proxied interfaces in return values or input arguments, proxied enums if their values match, generic methods, and more. Existing mod APIs should work fine as-is._
-    * Mod files loaded through SMAPI APIs (including `helper.Content.Load`) are now case-insensitive, even on Linux.
-    * **Deprecation warning:** The upcoming SMAPI 4.0 will remove deprecated APIs and break mods which haven't updated yet.  
-    _See [_Migrate to SMAPI 4.0_](https://stardewvalleywiki.com/Modding:Migrate_to_SMAPI_4.0) for help updating your mod code. You can update your mod code now, there's no need to wait for the 4.0.0 release (which will happen in at least three months, and possibly later if needed to update open-source mods)._
+
+### For mod authors
+This is a big release that includes the new APIs planned for SMAPI 4.0.0, alongside the old ones.
+
+For C# mod authors: SMAPI 4.0.0 will release _no sooner_ than August 2022 (and later if needed to
+update open-source mods). At that point it will **remove all deprecated APIs and break C# mods
+which haven't updated yet**. See [_Migrate to SMAPI 4.0_](https://stardewvalleywiki.com/Modding:Migrate_to_SMAPI_4.0)
+for help updating your mod code. (You can update now, there's no need to wait for 4.0.0.)
+
+For content pack authors: SMAPI 4.0.0 won't affect content packs. They should work fine as long as
+the C# mod that loads them is updated.
+
+* Major changes:
+  * Added [content events](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Events#Content), which will replace `IAssetEditor` and `IAssetLoader` in SMAPI 4.0.0.  
+    _These include new features not supported by the old API like load conflict resolution, edit priority, and content pack labels. They also support new cases like easily detecting when an asset has changed, and avoid data corruption issues in some edge cases._
+  * Added `helper.GameContent` and `helper.ModContent`, which will replace `helper.Content` in SMAPI 4.0.0.
+  * Overhauled [mod-provided API](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Integrations#Mod-provided_APIs) proxying (thanks to Shockah!).  
+    _This adds support for many previously unsupported cases: proxied interfaces in return values or input arguments, proxied enums if their values match, generic methods, and more. Existing mod APIs should work fine as-is._
+  * Mod files loaded through SMAPI APIs (including `helper.Content.Load`) are now case-insensitive, even on Linux.
+* Other improvements:
   * Added `IContentPack.ModContent` property.
   * Added `Constants.ContentPath`.
   * Added `IAssetName` fields to the info received by `IAssetEditor` and `IAssetLoader` methods.  
     _This adds methods for working with asset names, parsed locales, etc._
   * Added `helper.Content.ParseAssetName` to get an `IAssetName` for an arbitrary asset key.
   * If an asset is loaded multiple times in the same tick, `IAssetLoader.CanLoad` and `IAssetEditor.CanEdit` are now cached unless invalidated by `helper.Content.InvalidateCache`.
-  * The `ISemanticVersion` comparison methods (`CompareTo`, `IsBetween`, `IsNewerThan`, and `IsOlderThan`) now allow null values. A null version is always considered smaller than any non-null version per [best practices](https://docs.microsoft.com/en-us/dotnet/api/system.icomparable-1.compareto#remarks).
+  * The `ISemanticVersion` comparison methods (`CompareTo`, `IsBetween`, `IsNewerThan`, and `IsOlderThan`) now allow null values. A null version is always considered older than any non-null version per [best practices](https://docs.microsoft.com/en-us/dotnet/api/system.icomparable-1.compareto#remarks).
+* Fixes:
   * Fixed the `SDate` constructor being case-sensitive.
   * Fixed support for using locale codes from custom languages in asset names (e.g. `Data/Achievements.eo-EU`).
   * Fixed issue where suppressing `[Left|Right]Thumbstick[Down|Left]` keys would suppress the opposite direction instead.
-
-* For the web UI:
-  * Updated the JSON validator/schema for Content Patcher 1.25.0.
-  * Added `data-*` attributes to log parser page for external tools.
-  * Fixed JSON validator warning shown for update keys without a subkey.
 
 ## 3.13.4
 Released 16 January 2022 for Stardew Valley 1.5.6 or later.
