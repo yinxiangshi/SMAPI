@@ -219,11 +219,16 @@ namespace SMAPI.Tests.Utilities
         [TestCase("1.0-beta.2", "1.0-beta.1", ExpectedResult = 1)]
         [TestCase("1.0-beta.10", "1.0-beta.2", ExpectedResult = 1)]
         [TestCase("1.0-beta-10", "1.0-beta-2", ExpectedResult = 1)]
+
+        // null
+        [TestCase("1.0.0", null, ExpectedResult = 1)] // null is always less than any value per CompareTo remarks
         public int CompareTo(string versionStrA, string versionStrB)
         {
             // arrange
             ISemanticVersion versionA = new SemanticVersion(versionStrA);
-            ISemanticVersion versionB = new SemanticVersion(versionStrB);
+            ISemanticVersion versionB = versionStrB != null
+                ? new SemanticVersion(versionStrB)
+                : null;
 
             // assert
             return versionA.CompareTo(versionB);
@@ -262,14 +267,19 @@ namespace SMAPI.Tests.Utilities
         [TestCase("1.0-beta.2", "1.0-beta.1", ExpectedResult = false)]
         [TestCase("1.0-beta.10", "1.0-beta.2", ExpectedResult = false)]
         [TestCase("1.0-beta-10", "1.0-beta-2", ExpectedResult = false)]
+
+        // null
+        [TestCase("1.0.0", null, ExpectedResult = false)] // null is always less than any value per CompareTo remarks
         public bool IsOlderThan(string versionStrA, string versionStrB)
         {
             // arrange
             ISemanticVersion versionA = new SemanticVersion(versionStrA);
-            ISemanticVersion versionB = new SemanticVersion(versionStrB);
+            ISemanticVersion versionB = versionStrB != null
+                ? new SemanticVersion(versionStrB)
+                : null;
 
             // assert
-            Assert.AreEqual(versionA.IsOlderThan(versionB), versionA.IsOlderThan(versionB.ToString()), "The two signatures returned different results.");
+            Assert.AreEqual(versionA.IsOlderThan(versionB), versionA.IsOlderThan(versionB?.ToString()), "The two signatures returned different results.");
             return versionA.IsOlderThan(versionB);
         }
 
@@ -306,14 +316,19 @@ namespace SMAPI.Tests.Utilities
         [TestCase("1.0-beta.2", "1.0-beta.1", ExpectedResult = true)]
         [TestCase("1.0-beta.10", "1.0-beta.2", ExpectedResult = true)]
         [TestCase("1.0-beta-10", "1.0-beta-2", ExpectedResult = true)]
+
+        // null
+        [TestCase("1.0.0", null, ExpectedResult = true)] // null is always less than any value per CompareTo remarks
         public bool IsNewerThan(string versionStrA, string versionStrB)
         {
             // arrange
             ISemanticVersion versionA = new SemanticVersion(versionStrA);
-            ISemanticVersion versionB = new SemanticVersion(versionStrB);
+            ISemanticVersion versionB = versionStrB != null
+                ? new SemanticVersion(versionStrB)
+                : null;
 
             // assert
-            Assert.AreEqual(versionA.IsNewerThan(versionB), versionA.IsNewerThan(versionB.ToString()), "The two signatures returned different results.");
+            Assert.AreEqual(versionA.IsNewerThan(versionB), versionA.IsNewerThan(versionB?.ToString()), "The two signatures returned different results.");
             return versionA.IsNewerThan(versionB);
         }
 
@@ -324,7 +339,7 @@ namespace SMAPI.Tests.Utilities
         /// <param name="versionStr">The main version.</param>
         /// <param name="lowerStr">The lower version number.</param>
         /// <param name="upperStr">The upper version number.</param>
-        [Test(Description = "Assert that version.IsNewerThan returns the expected value.")]
+        [Test(Description = "Assert that version.IsBetween returns the expected value.")]
         // is between
         [TestCase("0.5.7-beta.3", "0.5.7-beta.3", "0.5.7-beta.3", ExpectedResult = true)]
         [TestCase("1.0", "1.0", "1.1", ExpectedResult = true)]
@@ -332,6 +347,7 @@ namespace SMAPI.Tests.Utilities
         [TestCase("1.0", "0.5", "1.1", ExpectedResult = true)]
         [TestCase("1.0-beta.2", "1.0-beta.1", "1.0-beta.3", ExpectedResult = true)]
         [TestCase("1.0-beta-2", "1.0-beta-1", "1.0-beta-3", ExpectedResult = true)]
+        [TestCase("1.0.0", null, "1.0.0", ExpectedResult = true)] // null is always less than any value per CompareTo remarks
 
         // is not between
         [TestCase("1.0-beta", "1.0", "1.1", ExpectedResult = false)]
@@ -339,15 +355,20 @@ namespace SMAPI.Tests.Utilities
         [TestCase("1.0-beta.2", "1.1", "1.0", ExpectedResult = false)]
         [TestCase("1.0-beta.2", "1.0-beta.10", "1.0-beta.3", ExpectedResult = false)]
         [TestCase("1.0-beta-2", "1.0-beta-10", "1.0-beta-3", ExpectedResult = false)]
+        [TestCase("1.0.0", "1.0.0", null, ExpectedResult = false)] // null is always less than any value per CompareTo remarks
         public bool IsBetween(string versionStr, string lowerStr, string upperStr)
         {
             // arrange
-            ISemanticVersion lower = new SemanticVersion(lowerStr);
-            ISemanticVersion upper = new SemanticVersion(upperStr);
+            ISemanticVersion lower = lowerStr != null
+                ? new SemanticVersion(lowerStr)
+                : null;
+            ISemanticVersion upper = upperStr != null
+                ? new SemanticVersion(upperStr)
+                : null;
             ISemanticVersion version = new SemanticVersion(versionStr);
 
             // assert
-            Assert.AreEqual(version.IsBetween(lower, upper), version.IsBetween(lower.ToString(), upper.ToString()), "The two signatures returned different results.");
+            Assert.AreEqual(version.IsBetween(lower, upper), version.IsBetween(lower?.ToString(), upper?.ToString()), "The two signatures returned different results.");
             return version.IsBetween(lower, upper);
         }
 

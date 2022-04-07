@@ -32,6 +32,7 @@
     _This adds methods for working with asset names, parsed locales, etc._
   * Added `helper.Content.ParseAssetName` to get an `IAssetName` for an arbitrary asset key.
   * If an asset is loaded multiple times in the same tick, `IAssetLoader.CanLoad` and `IAssetEditor.CanEdit` are now cached unless invalidated by `helper.Content.InvalidateCache`.
+  * The `ISemanticVersion` comparison methods (`CompareTo`, `IsBetween`, `IsNewerThan`, and `IsOlderThan`) now allow null values. A null version is always considered smaller than any non-null version per [best practices](https://docs.microsoft.com/en-us/dotnet/api/system.icomparable-1.compareto#remarks).
   * Fixed the `SDate` constructor being case-sensitive.
   * Fixed support for using locale codes from custom languages in asset names (e.g. `Data/Achievements.eo-EU`).
   * Fixed issue where suppressing `[Left|Right]Thumbstick[Down|Left]` keys would suppress the opposite direction instead.

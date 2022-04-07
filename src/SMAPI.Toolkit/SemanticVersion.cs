@@ -108,9 +108,9 @@ namespace StardewModdingAPI.Toolkit
         /// <inheritdoc />
         public int CompareTo(ISemanticVersion other)
         {
-            if (other == null)
-                throw new ArgumentNullException(nameof(other));
-            return this.CompareTo(other.MajorVersion, other.MinorVersion, other.PatchVersion, (other as SemanticVersion)?.PlatformRelease ?? 0, other.PrereleaseTag);
+            return other == null
+                ? 1
+                : this.CompareTo(other.MajorVersion, other.MinorVersion, other.PatchVersion, (other as SemanticVersion)?.PlatformRelease ?? 0, other.PrereleaseTag);
         }
 
         /// <inheritdoc />
@@ -134,7 +134,11 @@ namespace StardewModdingAPI.Toolkit
         /// <inheritdoc />
         public bool IsOlderThan(string other)
         {
-            return this.IsOlderThan(new SemanticVersion(other, allowNonStandard: true));
+            ISemanticVersion otherVersion = other != null
+                ? new SemanticVersion(other, allowNonStandard: true)
+                : null;
+
+            return this.IsOlderThan(otherVersion);
         }
 
         /// <inheritdoc />
@@ -146,7 +150,11 @@ namespace StardewModdingAPI.Toolkit
         /// <inheritdoc />
         public bool IsNewerThan(string other)
         {
-            return this.IsNewerThan(new SemanticVersion(other, allowNonStandard: true));
+            ISemanticVersion otherVersion = other != null
+                ? new SemanticVersion(other, allowNonStandard: true)
+                : null;
+
+            return this.IsNewerThan(otherVersion);
         }
 
         /// <inheritdoc />
@@ -158,7 +166,14 @@ namespace StardewModdingAPI.Toolkit
         /// <inheritdoc />
         public bool IsBetween(string min, string max)
         {
-            return this.IsBetween(new SemanticVersion(min, allowNonStandard: true), new SemanticVersion(max, allowNonStandard: true));
+            ISemanticVersion minVersion = min != null
+                ? new SemanticVersion(min, allowNonStandard: true)
+                : null;
+            ISemanticVersion maxVersion = max != null
+                ? new SemanticVersion(max, allowNonStandard: true)
+                : null;
+
+            return this.IsBetween(minVersion, maxVersion);
         }
 
         /// <inheritdoc cref="ISemanticVersion.ToString" />
