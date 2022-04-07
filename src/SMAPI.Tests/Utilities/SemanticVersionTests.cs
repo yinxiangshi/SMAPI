@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
@@ -63,10 +61,10 @@ namespace SMAPI.Tests.Utilities
         [TestCase("apple")]
         [TestCase("-apple")]
         [TestCase("-5")]
-        public void Constructor_FromString_WithInvalidValues(string input)
+        public void Constructor_FromString_WithInvalidValues(string? input)
         {
             if (input == null)
-                this.AssertAndLogException<ArgumentNullException>(() => new SemanticVersion(input));
+                this.AssertAndLogException<ArgumentNullException>(() => new SemanticVersion(input!));
             else
                 this.AssertAndLogException<FormatException>(() => new SemanticVersion(input));
         }
@@ -93,7 +91,7 @@ namespace SMAPI.Tests.Utilities
         [TestCase("1.2.3.4-some-tag.4      ")]
         public void Constructor_FromString_Standard_DisallowsNonStandardVersion(string input)
         {
-            Assert.Throws<FormatException>(() => new SemanticVersion(input));
+            Assert.Throws<FormatException>(() => _ = new SemanticVersion(input));
         }
 
         /// <summary>Assert the parsed version when constructed from standard parts.</summary>
@@ -112,7 +110,7 @@ namespace SMAPI.Tests.Utilities
         [TestCase(1, 2, 3, "some-tag.4   ", null, ExpectedResult = "1.2.3-some-tag.4")]
         [TestCase(1, 2, 3, "some-tag.4   ", "build.004", ExpectedResult = "1.2.3-some-tag.4+build.004")]
         [TestCase(1, 2, 0, null, "3.4.5-build.004", ExpectedResult = "1.2.0+3.4.5-build.004")]
-        public string Constructor_FromParts(int major, int minor, int patch, string prerelease, string build)
+        public string Constructor_FromParts(int major, int minor, int patch, string? prerelease, string? build)
         {
             // act
             ISemanticVersion version = new SemanticVersion(major, minor, patch, prerelease, build);
@@ -222,11 +220,11 @@ namespace SMAPI.Tests.Utilities
 
         // null
         [TestCase("1.0.0", null, ExpectedResult = 1)] // null is always less than any value per CompareTo remarks
-        public int CompareTo(string versionStrA, string versionStrB)
+        public int CompareTo(string versionStrA, string? versionStrB)
         {
             // arrange
             ISemanticVersion versionA = new SemanticVersion(versionStrA);
-            ISemanticVersion versionB = versionStrB != null
+            ISemanticVersion? versionB = versionStrB != null
                 ? new SemanticVersion(versionStrB)
                 : null;
 
@@ -270,11 +268,11 @@ namespace SMAPI.Tests.Utilities
 
         // null
         [TestCase("1.0.0", null, ExpectedResult = false)] // null is always less than any value per CompareTo remarks
-        public bool IsOlderThan(string versionStrA, string versionStrB)
+        public bool IsOlderThan(string versionStrA, string? versionStrB)
         {
             // arrange
             ISemanticVersion versionA = new SemanticVersion(versionStrA);
-            ISemanticVersion versionB = versionStrB != null
+            ISemanticVersion? versionB = versionStrB != null
                 ? new SemanticVersion(versionStrB)
                 : null;
 
@@ -319,11 +317,11 @@ namespace SMAPI.Tests.Utilities
 
         // null
         [TestCase("1.0.0", null, ExpectedResult = true)] // null is always less than any value per CompareTo remarks
-        public bool IsNewerThan(string versionStrA, string versionStrB)
+        public bool IsNewerThan(string versionStrA, string? versionStrB)
         {
             // arrange
             ISemanticVersion versionA = new SemanticVersion(versionStrA);
-            ISemanticVersion versionB = versionStrB != null
+            ISemanticVersion? versionB = versionStrB != null
                 ? new SemanticVersion(versionStrB)
                 : null;
 
@@ -356,13 +354,13 @@ namespace SMAPI.Tests.Utilities
         [TestCase("1.0-beta.2", "1.0-beta.10", "1.0-beta.3", ExpectedResult = false)]
         [TestCase("1.0-beta-2", "1.0-beta-10", "1.0-beta-3", ExpectedResult = false)]
         [TestCase("1.0.0", "1.0.0", null, ExpectedResult = false)] // null is always less than any value per CompareTo remarks
-        public bool IsBetween(string versionStr, string lowerStr, string upperStr)
+        public bool IsBetween(string versionStr, string? lowerStr, string? upperStr)
         {
             // arrange
-            ISemanticVersion lower = lowerStr != null
+            ISemanticVersion? lower = lowerStr != null
                 ? new SemanticVersion(lowerStr)
                 : null;
-            ISemanticVersion upper = upperStr != null
+            ISemanticVersion? upper = upperStr != null
                 ? new SemanticVersion(upperStr)
                 : null;
             ISemanticVersion version = new SemanticVersion(versionStr);
@@ -436,7 +434,7 @@ namespace SMAPI.Tests.Utilities
         /// <param name="prerelease">The prerelease tag.</param>
         /// <param name="build">The build metadata.</param>
         /// <param name="nonStandard">Whether the version should be marked as non-standard.</param>
-        private void AssertParts(ISemanticVersion version, int major, int minor, int patch, string prerelease, string build, bool nonStandard)
+        private void AssertParts(ISemanticVersion version, int major, int minor, int patch, string? prerelease, string? build, bool nonStandard)
         {
             Assert.AreEqual(major, version.MajorVersion, "The major version doesn't match.");
             Assert.AreEqual(minor, version.MinorVersion, "The minor version doesn't match.");
@@ -449,9 +447,8 @@ namespace SMAPI.Tests.Utilities
         /// <summary>Assert that the expected exception type is thrown, and log the action output and thrown exception.</summary>
         /// <typeparam name="T">The expected exception type.</typeparam>
         /// <param name="action">The action which may throw the exception.</param>
-        /// <param name="message">The message to log if the expected exception isn't thrown.</param>
         [SuppressMessage("ReSharper", "UnusedParameter.Local", Justification = "The message argument is deliberately only used in precondition checks since this is an assertion method.")]
-        private void AssertAndLogException<T>(Func<object> action, string message = null)
+        private void AssertAndLogException<T>(Func<object> action)
             where T : Exception
         {
             this.AssertAndLogException<T>(() =>
@@ -466,7 +463,7 @@ namespace SMAPI.Tests.Utilities
         /// <param name="action">The action which may throw the exception.</param>
         /// <param name="message">The message to log if the expected exception isn't thrown.</param>
         [SuppressMessage("ReSharper", "UnusedParameter.Local", Justification = "The message argument is deliberately only used in precondition checks since this is an assertion method.")]
-        private void AssertAndLogException<T>(Action action, string message = null)
+        private void AssertAndLogException<T>(Action action, string? message = null)
             where T : Exception
         {
             try
