@@ -95,7 +95,13 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <param name="translationHelper">An API for reading translations stored in the mod's <c>i18n</c> folder.</param>
         /// <exception cref="ArgumentNullException">An argument is null or empty.</exception>
         /// <exception cref="InvalidOperationException">The <paramref name="modDirectory"/> path does not exist on disk.</exception>
-        public ModHelper(string modID, string modDirectory, Func<SInputState> currentInputState, IModEvents events, ContentHelper contentHelper, IGameContentHelper gameContentHelper, IModContentHelper modContentHelper, IContentPackHelper contentPackHelper, ICommandHelper commandHelper, IDataHelper dataHelper, IModRegistry modRegistry, IReflectionHelper reflectionHelper, IMultiplayerHelper multiplayer, ITranslationHelper translationHelper)
+        public ModHelper(
+            string modID, string modDirectory, Func<SInputState> currentInputState, IModEvents events,
+#pragma warning disable CS0612 // deprecated code
+            ContentHelper contentHelper,
+#pragma warning restore CS0612
+            IGameContentHelper gameContentHelper, IModContentHelper modContentHelper, IContentPackHelper contentPackHelper, ICommandHelper commandHelper, IDataHelper dataHelper, IModRegistry modRegistry, IReflectionHelper reflectionHelper, IMultiplayerHelper multiplayer, ITranslationHelper translationHelper
+        )
             : base(modID)
         {
             // validate directory
@@ -106,7 +112,9 @@ namespace StardewModdingAPI.Framework.ModHelpers
 
             // initialize
             this.DirectoryPath = modDirectory;
+#pragma warning disable CS0612 // deprecated code
             this.ContentImpl = contentHelper ?? throw new ArgumentNullException(nameof(contentHelper));
+#pragma warning restore CS0612
             this.GameContent = gameContentHelper ?? throw new ArgumentNullException(nameof(gameContentHelper));
             this.ModContent = modContentHelper ?? throw new ArgumentNullException(nameof(modContentHelper));
             this.ContentPacks = contentPackHelper ?? throw new ArgumentNullException(nameof(contentPackHelper));

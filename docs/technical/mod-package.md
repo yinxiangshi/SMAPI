@@ -414,6 +414,7 @@ when you compile it.
 ## Release notes
 ## Upcoming release
 * Added detection for Xbox app game folders.
+* Internal refactoring.
 
 ## 4.0.0
 Released 30 November 2021.

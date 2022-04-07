@@ -34,7 +34,6 @@ namespace SMAPI.Tests.Core
             name = PathUtilities.NormalizeAssetName(name);
 
             // act
-            string calledWithLocale = null;
             IAssetName assetName = AssetName.Parse(name, parseLocale: _ => expectedLanguageCode);
 
             // assert

@@ -610,6 +610,7 @@ namespace StardewModdingAPI.Framework
                 yield return group;
 
             // legacy load operations
+#pragma warning disable CS0612, CS0618 // deprecated code
             foreach (ModLinked<IAssetLoader> loader in this.Loaders)
             {
                 // check if loader applies
@@ -695,6 +696,7 @@ namespace StardewModdingAPI.Framework
                     }
                 );
             }
+#pragma warning restore CS0612, CS0618
         }
 
         /// <summary>Get an asset info compatible with legacy <see cref="IAssetLoader"/> and <see cref="IAssetEditor"/> instances, which always expect the base name.</summary>

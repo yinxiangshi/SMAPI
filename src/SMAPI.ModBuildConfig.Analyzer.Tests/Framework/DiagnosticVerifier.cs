@@ -43,7 +43,7 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests.Framework
         /// <param name="expected"> DiagnosticResults that should appear after the analyzer is run on the source</param>
         protected void VerifyCSharpDiagnostic(string source, params DiagnosticResult[] expected)
         {
-            VerifyDiagnostics(new[] { source }, LanguageNames.CSharp, GetCSharpDiagnosticAnalyzer(), expected);
+            this.VerifyDiagnostics(new[] { source }, LanguageNames.CSharp, this.GetCSharpDiagnosticAnalyzer(), expected);
         }
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests.Framework
         /// <param name="expected">DiagnosticResults that should appear after the analyzer is run on the sources</param>
         protected void VerifyCSharpDiagnostic(string[] sources, params DiagnosticResult[] expected)
         {
-            VerifyDiagnostics(sources, LanguageNames.CSharp, GetCSharpDiagnosticAnalyzer(), expected);
+            this.VerifyDiagnostics(sources, LanguageNames.CSharp, this.GetCSharpDiagnosticAnalyzer(), expected);
         }
 
         /// <summary>
@@ -67,8 +67,8 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests.Framework
         /// <param name="expected">DiagnosticResults that should appear after the analyzer is run on the sources</param>
         private void VerifyDiagnostics(string[] sources, string language, DiagnosticAnalyzer analyzer, params DiagnosticResult[] expected)
         {
-            var diagnostics = GetSortedDiagnostics(sources, language, analyzer);
-            VerifyDiagnosticResults(diagnostics, analyzer, expected);
+            var diagnostics = DiagnosticVerifier.GetSortedDiagnostics(sources, language, analyzer);
+            DiagnosticVerifier.VerifyDiagnosticResults(diagnostics, analyzer, expected);
         }
 
         #endregion
@@ -88,7 +88,7 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests.Framework
 
             if (expectedCount != actualCount)
             {
-                string diagnosticsOutput = actualResults.Any() ? FormatDiagnostics(analyzer, actualResults.ToArray()) : "    NONE.";
+                string diagnosticsOutput = actualResults.Any() ? DiagnosticVerifier.FormatDiagnostics(analyzer, actualResults.ToArray()) : "    NONE.";
 
                 Assert.IsTrue(false,
                     string.Format("Mismatch between number of diagnostics returned, expected \"{0}\" actual \"{1}\"\r\n\r\nDiagnostics:\r\n{2}\r\n", expectedCount, actualCount, diagnosticsOutput));
@@ -105,12 +105,12 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests.Framework
                     {
                         Assert.IsTrue(false,
                             string.Format("Expected:\nA project diagnostic with No location\nActual:\n{0}",
-                            FormatDiagnostics(analyzer, actual)));
+                            DiagnosticVerifier.FormatDiagnostics(analyzer, actual)));
                     }
                 }
                 else
                 {
-                    VerifyDiagnosticLocation(analyzer, actual, actual.Location, expected.Locations.First());
+                    DiagnosticVerifier.VerifyDiagnosticLocation(analyzer, actual, actual.Location, expected.Locations.First());
                     var additionalLocations = actual.AdditionalLocations.ToArray();
 
                     if (additionalLocations.Length != expected.Locations.Length - 1)
@@ -118,12 +118,12 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests.Framework
                         Assert.IsTrue(false,
                             string.Format("Expected {0} additional locations but got {1} for Diagnostic:\r\n    {2}\r\n",
                                 expected.Locations.Length - 1, additionalLocations.Length,
-                                FormatDiagnostics(analyzer, actual)));
+                                DiagnosticVerifier.FormatDiagnostics(analyzer, actual)));
                     }
 
                     for (int j = 0; j < additionalLocations.Length; ++j)
                     {
-                        VerifyDiagnosticLocation(analyzer, actual, additionalLocations[j], expected.Locations[j + 1]);
+                        DiagnosticVerifier.VerifyDiagnosticLocation(analyzer, actual, additionalLocations[j], expected.Locations[j + 1]);
                     }
                 }
 
@@ -131,21 +131,21 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests.Framework
                 {
                     Assert.IsTrue(false,
                         string.Format("Expected diagnostic id to be \"{0}\" was \"{1}\"\r\n\r\nDiagnostic:\r\n    {2}\r\n",
-                            expected.Id, actual.Id, FormatDiagnostics(analyzer, actual)));
+                            expected.Id, actual.Id, DiagnosticVerifier.FormatDiagnostics(analyzer, actual)));
                 }
 
                 if (actual.Severity != expected.Severity)
                 {
                     Assert.IsTrue(false,
                         string.Format("Expected diagnostic severity to be \"{0}\" was \"{1}\"\r\n\r\nDiagnostic:\r\n    {2}\r\n",
-                            expected.Severity, actual.Severity, FormatDiagnostics(analyzer, actual)));
+                            expected.Severity, actual.Severity, DiagnosticVerifier.FormatDiagnostics(analyzer, actual)));
                 }
 
                 if (actual.GetMessage() != expected.Message)
                 {
                     Assert.IsTrue(false,
                         string.Format("Expected diagnostic message to be \"{0}\" was \"{1}\"\r\n\r\nDiagnostic:\r\n    {2}\r\n",
-                            expected.Message, actual.GetMessage(), FormatDiagnostics(analyzer, actual)));
+                            expected.Message, actual.GetMessage(), DiagnosticVerifier.FormatDiagnostics(analyzer, actual)));
                 }
             }
         }
@@ -163,7 +163,7 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests.Framework
 
             Assert.IsTrue(actualSpan.Path == expected.Path || (actualSpan.Path != null && actualSpan.Path.Contains("Test0.") && expected.Path.Contains("Test.")),
                 string.Format("Expected diagnostic to be in file \"{0}\" was actually in file \"{1}\"\r\n\r\nDiagnostic:\r\n    {2}\r\n",
-                    expected.Path, actualSpan.Path, FormatDiagnostics(analyzer, diagnostic)));
+                    expected.Path, actualSpan.Path, DiagnosticVerifier.FormatDiagnostics(analyzer, diagnostic)));
 
             var actualLinePosition = actualSpan.StartLinePosition;
 
@@ -174,7 +174,7 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests.Framework
                 {
                     Assert.IsTrue(false,
                         string.Format("Expected diagnostic to be on line \"{0}\" was actually on line \"{1}\"\r\n\r\nDiagnostic:\r\n    {2}\r\n",
-                            expected.Line, actualLinePosition.Line + 1, FormatDiagnostics(analyzer, diagnostic)));
+                            expected.Line, actualLinePosition.Line + 1, DiagnosticVerifier.FormatDiagnostics(analyzer, diagnostic)));
                 }
             }
 
@@ -185,7 +185,7 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests.Framework
                 {
                     Assert.IsTrue(false,
                         string.Format("Expected diagnostic to start at column \"{0}\" was actually at column \"{1}\"\r\n\r\nDiagnostic:\r\n    {2}\r\n",
-                            expected.Column, actualLinePosition.Character + 1, FormatDiagnostics(analyzer, diagnostic)));
+                            expected.Column, actualLinePosition.Character + 1, DiagnosticVerifier.FormatDiagnostics(analyzer, diagnostic)));
                 }
             }
         }

@@ -38,6 +38,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <summary>Load an asset through the content pipeline, using a localized variant of the <paramref name="assetName"/> if available.</summary>
         /// <typeparam name="T">The type of asset to load.</typeparam>
         /// <param name="assetName">The asset name relative to the loader root directory.</param>
+        /// <param name="language">The language for which to load the asset.</param>
         /// <param name="useCache">Whether to read/write the loaded asset to the asset cache.</param>
         T LoadLocalized<T>(IAssetName assetName, LocalizedContentManager.LanguageCode language, bool useCache);
 

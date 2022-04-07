@@ -1593,6 +1593,7 @@ namespace StardewModdingAPI.Framework
 
             // initialize loaded non-content-pack mods
             this.Monitor.Log("Launching mods...", LogLevel.Debug);
+#pragma warning disable CS0612, CS0618 // deprecated code
             foreach (IModMetadata metadata in loadedMods)
             {
                 // add interceptors
@@ -1628,6 +1629,7 @@ namespace StardewModdingAPI.Framework
                     content.ObservableAssetEditors.CollectionChanged += (_, e) => this.OnAssetInterceptorsChanged(metadata, e.NewItems?.Cast<IAssetEditor>(), e.OldItems?.Cast<IAssetEditor>(), this.ContentCore.Editors);
                     content.ObservableAssetLoaders.CollectionChanged += (_, e) => this.OnAssetInterceptorsChanged(metadata, e.NewItems?.Cast<IAssetLoader>(), e.OldItems?.Cast<IAssetLoader>(), this.ContentCore.Loaders);
                 }
+#pragma warning restore CS0612, CS0618
 
                 // call entry method
                 try
@@ -1847,7 +1849,9 @@ namespace StardewModdingAPI.Framework
                         IModEvents events = new ModEvents(mod, this.EventManager);
                         ICommandHelper commandHelper = new CommandHelper(mod, this.CommandManager);
                         CaseInsensitivePathCache relativePathCache = this.ContentCore.GetCaseInsensitivePathCache(mod.DirectoryPath);
+#pragma warning disable CS0612 // deprecated code
                         ContentHelper contentHelper = new(contentCore, mod.DirectoryPath, manifest.UniqueID, mod.DisplayName, monitor);
+#pragma warning restore CS0612
                         GameContentHelper gameContentHelper = new(contentCore, manifest.UniqueID, mod.DisplayName, monitor);
                         IModContentHelper modContentHelper = new ModContentHelper(contentCore, mod.DirectoryPath, manifest.UniqueID, mod.DisplayName, gameContentHelper.GetUnderlyingContentManager(), relativePathCache);
                         IContentPackHelper contentPackHelper = new ContentPackHelper(manifest.UniqueID, new Lazy<IContentPack[]>(GetContentPacks), CreateFakeContentPack);
