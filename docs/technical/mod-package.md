@@ -413,8 +413,18 @@ when you compile it.
 
 ## Release notes
 ## Upcoming release
+* Migrated from .NET Standard 2.0 to .NET 5.0.  
 * Added detection for Xbox app game folders.
 * Internal refactoring.
+
+**Troubleshooting:**  
+Due to the framework change, you might see build errors like _task failed unexpectedly_ that mentions `System.Runtime Version=5.0.0`. If so:
+
+1. Make sure you have Visual Studio 2022 or later.
+2. Exit all instances of Visual Studio.
+3. Delete the hidden `.vs` folder in your solution folder.
+4. Delete the `bin` and `obj` folders in each project folder.
+5. Reopen the solution and rebuild, and now it should work fine.
 
 ## 4.0.0
 Released 30 November 2021.
