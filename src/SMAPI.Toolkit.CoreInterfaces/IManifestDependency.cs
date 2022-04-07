@@ -1,5 +1,3 @@
-#nullable disable
-
 namespace StardewModdingAPI
 {
     /// <summary>A mod dependency listed in a mod manifest.</summary>
@@ -12,7 +10,7 @@ namespace StardewModdingAPI
         string UniqueID { get; }
 
         /// <summary>The minimum required version (if any).</summary>
-        ISemanticVersion MinimumVersion { get; }
+        ISemanticVersion? MinimumVersion { get; }
 
         /// <summary>Whether the dependency must be installed to use the mod.</summary>
         bool IsRequired { get; }

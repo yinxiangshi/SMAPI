@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -52,11 +50,11 @@ namespace SMAPI.Tests.Core
 
             // act
             IModMetadata[] mods = new ModResolver().ReadManifests(new ModToolkit(), rootFolder, new ModDatabase()).ToArray();
-            IModMetadata mod = mods.FirstOrDefault();
+            IModMetadata? mod = mods.FirstOrDefault();
 
             // assert
             Assert.AreEqual(1, mods.Length, 0, $"Expected to find one manifest, found {mods.Length} instead.");
-            Assert.AreEqual(ModMetadataStatus.Failed, mod.Status, "The mod metadata was not marked failed.");
+            Assert.AreEqual(ModMetadataStatus.Failed, mod!.Status, "The mod metadata was not marked failed.");
             Assert.IsNotNull(mod.Error, "The mod metadata did not have an error message set.");
         }
 
@@ -91,12 +89,12 @@ namespace SMAPI.Tests.Core
 
             // act
             IModMetadata[] mods = new ModResolver().ReadManifests(new ModToolkit(), rootFolder, new ModDatabase()).ToArray();
-            IModMetadata mod = mods.FirstOrDefault();
+            IModMetadata? mod = mods.FirstOrDefault();
 
             // assert
             Assert.AreEqual(1, mods.Length, 0, "Expected to find one manifest.");
             Assert.IsNotNull(mod, "The loaded manifest shouldn't be null.");
-            Assert.AreEqual(null, mod.DataRecord, "The data record should be null since we didn't provide one.");
+            Assert.AreEqual(null, mod!.DataRecord, "The data record should be null since we didn't provide one.");
             Assert.AreEqual(modFolder, mod.DirectoryPath, "The directory path doesn't match.");
             Assert.AreEqual(null, mod.Error, "The error should be null since parsing should have succeeded.");
             Assert.AreEqual(ModMetadataStatus.Found, mod.Status, "The status doesn't match.");
@@ -215,7 +213,7 @@ namespace SMAPI.Tests.Core
             // create DLL
             string modFolder = Path.Combine(this.GetTempFolderPath(), Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(modFolder);
-            File.WriteAllText(Path.Combine(modFolder, manifest.EntryDll), "");
+            File.WriteAllText(Path.Combine(modFolder, manifest.EntryDll!), "");
 
             // arrange
             Mock<IModMetadata> mock = new Mock<IModMetadata>(MockBehavior.Strict);
@@ -480,21 +478,20 @@ namespace SMAPI.Tests.Core
         /// <param name="contentPackForID">The <see cref="IManifest.ContentPackFor"/> value.</param>
         /// <param name="minimumApiVersion">The <see cref="IManifest.MinimumApiVersion"/> value.</param>
         /// <param name="dependencies">The <see cref="IManifest.Dependencies"/> value.</param>
-        private Manifest GetManifest(string id = null, string name = null, string version = null, string entryDll = null, string contentPackForID = null, string minimumApiVersion = null, IManifestDependency[] dependencies = null)
+        private Manifest GetManifest(string? id = null, string? name = null, string? version = null, string? entryDll = null, string? contentPackForID = null, string? minimumApiVersion = null, IManifestDependency[]? dependencies = null)
         {
-            return new Manifest
-            {
-                UniqueID = id ?? $"{Sample.String()}.{Sample.String()}",
-                Name = name ?? id ?? Sample.String(),
-                Author = Sample.String(),
-                Description = Sample.String(),
-                Version = version != null ? new SemanticVersion(version) : new SemanticVersion(Sample.Int(), Sample.Int(), Sample.Int(), Sample.String()),
-                EntryDll = entryDll ?? $"{Sample.String()}.dll",
-                ContentPackFor = contentPackForID != null ? new ManifestContentPackFor { UniqueID = contentPackForID } : null,
-                MinimumApiVersion = minimumApiVersion != null ? new SemanticVersion(minimumApiVersion) : null,
-                Dependencies = dependencies ?? Array.Empty<IManifestDependency>(),
-                UpdateKeys = Array.Empty<string>()
-            };
+            return new Manifest(
+                uniqueId: id ?? $"{Sample.String()}.{Sample.String()}",
+                name: name ?? id ?? Sample.String(),
+                author: Sample.String(),
+                description: Sample.String(),
+                version: version != null ? new SemanticVersion(version) : new SemanticVersion(Sample.Int(), Sample.Int(), Sample.Int(), Sample.String()),
+                entryDll: entryDll ?? $"{Sample.String()}.dll",
+                contentPackFor: contentPackForID != null ? new ManifestContentPackFor(contentPackForID, null) : null,
+                minimumApiVersion: minimumApiVersion != null ? new SemanticVersion(minimumApiVersion) : null,
+                dependencies: dependencies ?? Array.Empty<IManifestDependency>(),
+                updateKeys: Array.Empty<string>()
+            );
         }
 
         /// <summary>Get a randomized basic manifest.</summary>
@@ -510,7 +507,7 @@ namespace SMAPI.Tests.Core
         /// <param name="allowStatusChange">Whether the code being tested is allowed to change the mod status.</param>
         private Mock<IModMetadata> GetMetadata(string uniqueID, string[] dependencies, bool allowStatusChange = false)
         {
-            IManifest manifest = this.GetManifest(id: uniqueID, version: "1.0", dependencies: dependencies?.Select(dependencyID => (IManifestDependency)new ManifestDependency(dependencyID, null)).ToArray());
+            IManifest manifest = this.GetManifest(id: uniqueID, version: "1.0", dependencies: dependencies?.Select(dependencyID => (IManifestDependency)new ManifestDependency(dependencyID, null as ISemanticVersion)).ToArray());
             return this.GetMetadata(manifest, allowStatusChange);
         }
 
@@ -538,7 +535,7 @@ namespace SMAPI.Tests.Core
         /// <summary>Set up a mock mod metadata for <see cref="ModResolver.ValidateManifests"/>.</summary>
         /// <param name="mod">The mock mod metadata.</param>
         /// <param name="modRecord">The extra metadata about the mod from SMAPI's internal data (if any).</param>
-        private void SetupMetadataForValidation(Mock<IModMetadata> mod, ModDataRecordVersionedFields modRecord = null)
+        private void SetupMetadataForValidation(Mock<IModMetadata> mod, ModDataRecordVersionedFields? modRecord = null)
         {
             mod.Setup(p => p.Status).Returns(ModMetadataStatus.Found);
             mod.Setup(p => p.DataRecord).Returns(() => null);

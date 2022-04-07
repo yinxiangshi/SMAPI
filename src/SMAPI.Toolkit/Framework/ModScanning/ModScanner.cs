@@ -171,14 +171,6 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
                 }
             }
 
-            // normalize display fields
-            if (manifest != null)
-            {
-                manifest.Name = this.StripNewlines(manifest.Name);
-                manifest.Description = this.StripNewlines(manifest.Description);
-                manifest.Author = this.StripNewlines(manifest.Author);
-            }
-
             // get mod type
             ModType type;
             {
@@ -364,13 +356,6 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
             }
 
             return hasVortexMarker;
-        }
-
-        /// <summary>Strip newlines from a string.</summary>
-        /// <param name="input">The input to strip.</param>
-        private string StripNewlines(string input)
-        {
-            return input?.Replace("\r", "").Replace("\n", "");
         }
     }
 }

@@ -1,5 +1,3 @@
-#nullable disable
-
 namespace StardewModdingAPI
 {
     /// <summary>Indicates which mod can read the content pack represented by the containing manifest.</summary>
@@ -9,6 +7,6 @@ namespace StardewModdingAPI
         string UniqueID { get; }
 
         /// <summary>The minimum required version (if any).</summary>
-        ISemanticVersion MinimumVersion { get; }
+        ISemanticVersion? MinimumVersion { get; }
     }
 }

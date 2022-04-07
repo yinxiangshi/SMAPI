@@ -35,7 +35,7 @@ namespace StardewModdingAPI.Framework.ModLoading
 
                 // apply defaults
                 if (manifest != null && dataRecord?.UpdateKey is not null)
-                    manifest.UpdateKeys = new[] { dataRecord.UpdateKey };
+                    manifest.OverrideUpdateKeys(dataRecord.UpdateKey);
 
                 // build metadata
                 bool shouldIgnore = folder.Type == ModType.Ignored;
