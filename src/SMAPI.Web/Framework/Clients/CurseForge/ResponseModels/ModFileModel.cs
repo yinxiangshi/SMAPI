@@ -1,3 +1,5 @@
+#nullable disable
+
 namespace StardewModdingAPI.Web.Framework.Clients.CurseForge.ResponseModels
 {
     /// <summary>Metadata from the CurseForge API about a mod file.</summary>

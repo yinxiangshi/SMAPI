@@ -1,3 +1,5 @@
+#nullable disable
+
 namespace StardewModdingAPI.Web.Framework.ConfigModels
 {
     /// <summary>Override update-check metadata for a mod.</summary>

@@ -1,3 +1,5 @@
+#nullable disable
+
 // This temporary utility fixes an esoteric issue in XNA Framework where deserialization depends on
 // the order of fields returned by Type.GetFields, but that order changes after Harmony/MonoMod use
 // reflection to access the fields due to an issue in .NET Framework.

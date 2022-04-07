@@ -1,3 +1,5 @@
+#nullable disable
+
 namespace StardewModdingAPI.Web.Framework.Compression
 {
     /// <summary>Handles GZip compression logic.</summary>

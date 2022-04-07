@@ -1,3 +1,5 @@
+#nullable disable
+
 using System;
 using System.Text;
 using StardewModdingAPI.Web.Framework.LogParsing.Models;

@@ -1,3 +1,5 @@
+#nullable disable
+
 namespace StardewModdingAPI.Events
 {
     /// <summary>Manages access to events raised by SMAPI.</summary>

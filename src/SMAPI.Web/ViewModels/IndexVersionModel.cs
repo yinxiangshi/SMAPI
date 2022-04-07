@@ -1,3 +1,5 @@
+#nullable disable
+
 namespace StardewModdingAPI.Web.ViewModels
 {
     /// <summary>The fields for a SMAPI version.</summary>

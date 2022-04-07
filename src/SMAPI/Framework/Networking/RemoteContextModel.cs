@@ -1,3 +1,5 @@
+#nullable disable
+
 namespace StardewModdingAPI.Framework.Networking
 {
     /// <summary>Metadata about the game, SMAPI, and installed mods exchanged with connected computers.</summary>

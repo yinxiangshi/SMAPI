@@ -1,3 +1,5 @@
+#nullable disable
+
 // <generated />
 using System.Collections.Generic;
 using System.Linq;

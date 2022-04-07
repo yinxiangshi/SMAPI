@@ -1,3 +1,5 @@
+#nullable disable
+
 namespace StardewModdingAPI.Framework.Commands
 {
     /// <summary>A core SMAPI console command.</summary>

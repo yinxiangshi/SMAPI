@@ -1,3 +1,5 @@
+#nullable disable
+
 namespace StardewModdingAPI.Framework.Events
 {
     /// <summary>An internal base class for event API classes.</summary>

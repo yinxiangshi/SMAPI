@@ -1,3 +1,5 @@
+#nullable disable
+
 // ReSharper disable CheckNamespace, InconsistentNaming -- matches Stardew Valley's code
 #pragma warning disable 649 // (never assigned) -- only used to test type conversions
 using System.Collections.Generic;

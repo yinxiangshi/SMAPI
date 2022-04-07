@@ -1,3 +1,5 @@
+#nullable disable
+
 // ReSharper disable CheckNamespace, InconsistentNaming -- matches Stardew Valley's code
 using Netcode;
 

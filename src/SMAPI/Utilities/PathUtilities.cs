@@ -1,3 +1,5 @@
+#nullable disable
+
 using System.Diagnostics.Contracts;
 using ToolkitPathUtilities = StardewModdingAPI.Toolkit.Utilities.PathUtilities;
 

@@ -1,3 +1,5 @@
+#nullable disable
+
 using Mono.Cecil;
 using StardewModdingAPI.Framework.ModLoading.Framework;
 

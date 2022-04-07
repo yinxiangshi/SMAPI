@@ -1,3 +1,5 @@
+#nullable disable
+
 namespace StardewModdingAPI.Web.Framework.LogParsing.Models
 {
     /// <summary>Metadata about a mod or content pack in the log.</summary>

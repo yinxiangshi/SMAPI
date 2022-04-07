@@ -1,3 +1,5 @@
+#nullable disable
+
 namespace StardewModdingAPI.Web.ViewModels.JsonValidator
 {
     /// <summary>The view model for a JSON validation request.</summary>

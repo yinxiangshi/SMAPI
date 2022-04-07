@@ -1,3 +1,5 @@
+#nullable disable
+
 using StardewModdingAPI.Framework.StateTracking;
 
 namespace StardewModdingAPI.Framework

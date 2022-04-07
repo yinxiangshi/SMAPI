@@ -1,3 +1,5 @@
+#nullable disable
+
 using StardewModdingAPI.Toolkit.Framework.Clients.Wiki;
 
 namespace StardewModdingAPI.Web.ViewModels

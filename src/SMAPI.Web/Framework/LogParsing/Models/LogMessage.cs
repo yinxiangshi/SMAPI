@@ -1,3 +1,5 @@
+#nullable disable
+
 namespace StardewModdingAPI.Web.Framework.LogParsing.Models
 {
     /// <summary>A parsed log message.</summary>

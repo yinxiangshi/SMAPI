@@ -1,3 +1,5 @@
+#nullable disable
+
 using Newtonsoft.Json;
 
 namespace StardewModdingAPI.Web.Framework.Clients.GitHub

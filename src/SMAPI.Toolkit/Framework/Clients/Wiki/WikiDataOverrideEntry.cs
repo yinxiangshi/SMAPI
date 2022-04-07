@@ -1,7 +1,5 @@
 using System;
 
-#nullable enable
-
 namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
 {
     /// <summary>The data overrides to apply to matching mods.</summary>

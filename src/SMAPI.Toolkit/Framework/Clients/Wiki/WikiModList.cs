@@ -1,3 +1,5 @@
+#nullable disable
+
 namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
 {
     /// <summary>Metadata from the wiki's mod compatibility list.</summary>

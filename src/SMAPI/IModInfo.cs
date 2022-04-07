@@ -1,3 +1,5 @@
+#nullable disable
+
 namespace StardewModdingAPI
 {
     /// <summary>Metadata for a loaded mod.</summary>

@@ -1,3 +1,5 @@
+#nullable disable
+
 using Netcode;
 
 namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers

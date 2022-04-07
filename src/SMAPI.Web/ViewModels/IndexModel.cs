@@ -1,3 +1,5 @@
+#nullable disable
+
 namespace StardewModdingAPI.Web.ViewModels
 {
     /// <summary>The view model for the index page.</summary>

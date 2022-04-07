@@ -1,3 +1,5 @@
+#nullable disable
+
 using System;
 using System.Text.RegularExpressions;
 using StardewModdingAPI.Toolkit.Framework;

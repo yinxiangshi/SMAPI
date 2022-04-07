@@ -1,3 +1,5 @@
+#nullable disable
+
 using System.Collections.Generic;
 
 namespace StardewModdingAPI.Web.Framework.Clients.ModDrop.ResponseModels

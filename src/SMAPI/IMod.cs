@@ -1,3 +1,5 @@
+#nullable disable
+
 namespace StardewModdingAPI
 {
     /// <summary>The implementation for a Stardew Valley mod.</summary>

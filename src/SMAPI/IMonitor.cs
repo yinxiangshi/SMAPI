@@ -1,3 +1,5 @@
+#nullable disable
+
 namespace StardewModdingAPI
 {
     /// <summary>Encapsulates monitoring and logging for a given module.</summary>

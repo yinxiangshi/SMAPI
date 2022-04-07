@@ -1,3 +1,5 @@
+#nullable disable
+
 namespace StardewModdingAPI.Web.Framework.Clients.Pastebin
 {
     /// <summary>The response for a get-paste request.</summary>

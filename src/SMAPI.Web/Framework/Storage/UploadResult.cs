@@ -1,3 +1,5 @@
+#nullable disable
+
 namespace StardewModdingAPI.Web.Framework.Storage
 {
     /// <summary>The result of an attempt to upload a file.</summary>

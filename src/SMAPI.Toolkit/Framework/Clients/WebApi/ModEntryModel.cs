@@ -1,3 +1,5 @@
+#nullable disable
+
 using System;
 
 namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi

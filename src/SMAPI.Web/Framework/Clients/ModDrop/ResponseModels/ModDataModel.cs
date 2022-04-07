@@ -1,3 +1,5 @@
+#nullable disable
+
 namespace StardewModdingAPI.Web.Framework.Clients.ModDrop.ResponseModels
 {
     /// <summary>Metadata about a mod from the ModDrop API.</summary>

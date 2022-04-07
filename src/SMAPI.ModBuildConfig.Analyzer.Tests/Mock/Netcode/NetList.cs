@@ -1,3 +1,5 @@
+#nullable disable
+
 // ReSharper disable CheckNamespace -- matches Stardew Valley's code
 using System.Collections;
 using System.Collections.Generic;

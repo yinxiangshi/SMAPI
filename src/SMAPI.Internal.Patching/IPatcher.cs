@@ -1,3 +1,5 @@
+#nullable disable
+
 using HarmonyLib;
 
 namespace StardewModdingAPI.Internal.Patching

@@ -1,3 +1,5 @@
+#nullable disable
+
 namespace StardewModdingAPI.Web.Framework
 {
     /// <summary>Generic metadata about a mod.</summary>

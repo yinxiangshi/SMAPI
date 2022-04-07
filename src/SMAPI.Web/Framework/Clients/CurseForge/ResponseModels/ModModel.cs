@@ -1,3 +1,5 @@
+#nullable disable
+
 namespace StardewModdingAPI.Web.Framework.Clients.CurseForge.ResponseModels
 {
     /// <summary>An mod from the CurseForge API.</summary>

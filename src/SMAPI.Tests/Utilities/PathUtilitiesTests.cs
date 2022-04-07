@@ -1,3 +1,5 @@
+#nullable disable
+
 using System.IO;
 using NUnit.Framework;
 using StardewModdingAPI.Toolkit.Utilities;

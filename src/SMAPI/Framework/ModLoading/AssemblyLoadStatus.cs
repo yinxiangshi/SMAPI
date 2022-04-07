@@ -1,3 +1,5 @@
+#nullable disable
+
 namespace StardewModdingAPI.Framework.ModLoading
 {
     /// <summary>Indicates the result of an assembly load.</summary>

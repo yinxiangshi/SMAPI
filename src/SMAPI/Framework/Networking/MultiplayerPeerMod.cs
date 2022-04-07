@@ -1,3 +1,5 @@
+#nullable disable
+
 namespace StardewModdingAPI.Framework.Networking
 {
     internal class MultiplayerPeerMod : IMultiplayerPeerMod

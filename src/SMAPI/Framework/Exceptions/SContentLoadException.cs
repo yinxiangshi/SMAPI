@@ -1,4 +1,6 @@
-﻿using System;
+#nullable disable
+
+using System;
 using Microsoft.Xna.Framework.Content;
 
 namespace StardewModdingAPI.Framework.Exceptions

@@ -1,3 +1,5 @@
+#nullable disable
+
 namespace StardewModdingAPI.Web.Framework.ConfigModels
 {
     /// <summary>The update-check config for SMAPI's own update checks.</summary>

@@ -1,3 +1,5 @@
+#nullable disable
+
 using System.Collections.Generic;
 using StardewModdingAPI.Toolkit.Framework.UpdateData;
 

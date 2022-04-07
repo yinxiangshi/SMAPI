@@ -1,3 +1,5 @@
+#nullable disable
+
 namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
 {
     /// <summary>A mod entry in the wiki list.</summary>

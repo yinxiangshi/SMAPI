@@ -1,3 +1,5 @@
+#nullable disable
+
 namespace StardewModdingAPI.Framework.ModHelpers
 {
     /// <summary>The common base class for mod helpers.</summary>

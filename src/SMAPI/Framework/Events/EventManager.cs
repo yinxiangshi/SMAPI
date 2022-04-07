@@ -1,3 +1,5 @@
+#nullable disable
+
 using StardewModdingAPI.Events;
 
 namespace StardewModdingAPI.Framework.Events

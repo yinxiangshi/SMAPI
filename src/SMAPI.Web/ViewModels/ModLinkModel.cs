@@ -1,3 +1,5 @@
+#nullable disable
+
 namespace StardewModdingAPI.Web.ViewModels
 {
     /// <summary>Metadata about a link.</summary>

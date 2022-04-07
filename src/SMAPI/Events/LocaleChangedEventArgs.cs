@@ -1,3 +1,5 @@
+#nullable disable
+
 using System;
 using LanguageCode = StardewValley.LocalizedContentManager.LanguageCode;
 

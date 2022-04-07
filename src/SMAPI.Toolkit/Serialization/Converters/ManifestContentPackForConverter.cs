@@ -1,3 +1,5 @@
+#nullable disable
+
 using System;
 using Newtonsoft.Json;
 using StardewModdingAPI.Toolkit.Serialization.Models;

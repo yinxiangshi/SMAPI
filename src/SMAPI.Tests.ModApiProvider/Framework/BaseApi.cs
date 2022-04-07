@@ -1,3 +1,5 @@
+#nullable disable
+
 namespace SMAPI.Tests.ModApiProvider.Framework
 {
     /// <summary>The base class for <see cref="SimpleApi"/>.</summary>

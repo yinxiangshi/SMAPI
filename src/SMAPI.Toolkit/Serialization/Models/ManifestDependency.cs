@@ -1,3 +1,5 @@
+#nullable disable
+
 namespace StardewModdingAPI.Toolkit.Serialization.Models
 {
     /// <summary>A mod dependency listed in a mod manifest.</summary>

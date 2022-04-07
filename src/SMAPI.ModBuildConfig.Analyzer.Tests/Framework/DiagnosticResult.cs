@@ -1,3 +1,5 @@
+#nullable disable
+
 // <generated />
 using Microsoft.CodeAnalysis;
 using System;

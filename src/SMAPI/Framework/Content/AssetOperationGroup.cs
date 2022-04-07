@@ -1,3 +1,5 @@
+#nullable disable
+
 namespace StardewModdingAPI.Framework.Content
 {
     /// <summary>A set of operations to apply to an asset for a given <see cref="IAssetEditor"/> or <see cref="IAssetLoader"/> implementation.</summary>

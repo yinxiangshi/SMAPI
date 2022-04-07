@@ -1,3 +1,5 @@
+#nullable disable
+
 namespace StardewModdingAPI.Web.Framework.ConfigModels
 {
     /// <summary>The config settings for the API clients.</summary>

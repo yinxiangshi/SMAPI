@@ -1,3 +1,5 @@
+#nullable disable
+
 namespace StardewModdingAPI.Toolkit.Framework
 {
     /// <summary>Reads strings into a semantic version.</summary>

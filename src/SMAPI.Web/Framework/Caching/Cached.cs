@@ -1,3 +1,5 @@
+#nullable disable
+
 using System;
 
 namespace StardewModdingAPI.Web.Framework.Caching
