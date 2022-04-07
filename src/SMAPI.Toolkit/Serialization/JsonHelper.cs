@@ -1,7 +1,6 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -38,7 +37,7 @@ namespace StardewModdingAPI.Toolkit.Serialization
         /// <returns>Returns false if the file doesn't exist, else true.</returns>
         /// <exception cref="ArgumentException">The given <paramref name="fullPath"/> is empty or invalid.</exception>
         /// <exception cref="JsonReaderException">The file contains invalid JSON.</exception>
-        public bool ReadJsonFileIfExists<TModel>(string fullPath, out TModel result)
+        public bool ReadJsonFileIfExists<TModel>(string fullPath, [NotNullWhen(true)] out TModel? result)
         {
             // validate
             if (string.IsNullOrWhiteSpace(fullPath))
@@ -52,7 +51,7 @@ namespace StardewModdingAPI.Toolkit.Serialization
             }
             catch (Exception ex) when (ex is DirectoryNotFoundException or FileNotFoundException)
             {
-                result = default(TModel);
+                result = default;
                 return false;
             }
 
@@ -60,7 +59,7 @@ namespace StardewModdingAPI.Toolkit.Serialization
             try
             {
                 result = this.Deserialize<TModel>(json);
-                return true;
+                return result != null;
             }
             catch (Exception ex)
             {
@@ -90,7 +89,7 @@ namespace StardewModdingAPI.Toolkit.Serialization
                 throw new ArgumentException("The file path is empty or invalid.", nameof(fullPath));
 
             // create directory if needed
-            string dir = Path.GetDirectoryName(fullPath);
+            string dir = Path.GetDirectoryName(fullPath)!;
             if (dir == null)
                 throw new ArgumentException("The file path is invalid.", nameof(fullPath));
             if (!Directory.Exists(dir))
@@ -108,7 +107,8 @@ namespace StardewModdingAPI.Toolkit.Serialization
         {
             try
             {
-                return JsonConvert.DeserializeObject<TModel>(json, this.JsonSettings);
+                return JsonConvert.DeserializeObject<TModel>(json, this.JsonSettings)
+                    ?? throw new InvalidOperationException($"Couldn't deserialize model type '{typeof(TModel)}' from empty or null JSON.");
             }
             catch (JsonReaderException)
             {
@@ -117,7 +117,8 @@ namespace StardewModdingAPI.Toolkit.Serialization
                 {
                     try
                     {
-                        return JsonConvert.DeserializeObject<TModel>(json.Replace('“', '"').Replace('”', '"'), this.JsonSettings);
+                        return JsonConvert.DeserializeObject<TModel>(json.Replace('“', '"').Replace('”', '"'), this.JsonSettings)
+                            ?? throw new InvalidOperationException($"Couldn't deserialize model type '{typeof(TModel)}' from empty or null JSON.");
                     }
                     catch { /* rethrow original error */ }
                 }

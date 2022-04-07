@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Text.RegularExpressions;
 using Microsoft.Xna.Framework;

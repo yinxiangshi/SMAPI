@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -117,7 +115,7 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
         public ModFolder ReadFolder(DirectoryInfo root, DirectoryInfo searchFolder)
         {
             // find manifest.json
-            FileInfo manifestFile = this.FindManifest(searchFolder);
+            FileInfo? manifestFile = this.FindManifest(searchFolder);
 
             // set appropriate invalid-mod error
             if (manifestFile == null)
@@ -147,13 +145,13 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
             }
 
             // read mod info
-            Manifest manifest = null;
+            Manifest? manifest = null;
             ModParseError error = ModParseError.None;
-            string errorText = null;
+            string? errorText = null;
             {
                 try
                 {
-                    if (!this.JsonHelper.ReadJsonFileIfExists<Manifest>(manifestFile.FullName, out manifest) || manifest == null)
+                    if (!this.JsonHelper.ReadJsonFileIfExists<Manifest>(manifestFile.FullName, out manifest))
                     {
                         error = ModParseError.ManifestInvalid;
                         errorText = "its manifest is invalid.";
@@ -186,7 +184,7 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
             }
 
             // build result
-            return new ModFolder(root, manifestFile.Directory, type, manifest, error, errorText);
+            return new ModFolder(root, manifestFile.Directory!, type, manifest, error, errorText);
         }
 
 
@@ -249,7 +247,7 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
 
         /// <summary>Find the manifest for a mod folder.</summary>
         /// <param name="folder">The folder to search.</param>
-        private FileInfo FindManifest(DirectoryInfo folder)
+        private FileInfo? FindManifest(DirectoryInfo folder)
         {
             while (true)
             {

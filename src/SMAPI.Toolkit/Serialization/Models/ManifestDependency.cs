@@ -26,7 +26,7 @@ namespace StardewModdingAPI.Toolkit.Serialization.Models
         /// <param name="uniqueID">The unique mod ID to require.</param>
         /// <param name="minimumVersion">The minimum required version (if any).</param>
         /// <param name="required">Whether the dependency must be installed to use the mod.</param>
-        public ManifestDependency(string uniqueID, string minimumVersion, bool required = true)
+        public ManifestDependency(string uniqueID, string? minimumVersion, bool required = true)
             : this(
                 uniqueID: uniqueID,
                 minimumVersion: !string.IsNullOrWhiteSpace(minimumVersion)

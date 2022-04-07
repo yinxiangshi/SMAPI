@@ -1,5 +1,4 @@
-#nullable disable
-
+using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Contracts;
 using ToolkitPathUtilities = StardewModdingAPI.Toolkit.Utilities.PathUtilities;
 
@@ -22,14 +21,16 @@ namespace StardewModdingAPI.Utilities
         /// <param name="path">The path to split.</param>
         /// <param name="limit">The number of segments to match. Any additional segments will be merged into the last returned part.</param>
         [Pure]
-        public static string[] GetSegments(string path, int? limit = null)
+        public static string[] GetSegments(string? path, int? limit = null)
         {
             return ToolkitPathUtilities.GetSegments(path, limit);
         }
 
         /// <summary>Normalize an asset name to match how MonoGame's content APIs would normalize and cache it.</summary>
         /// <param name="assetName">The asset name to normalize.</param>
-        public static string NormalizeAssetName(string assetName)
+        [Pure]
+        [return: NotNullIfNotNull("assetName")]
+        public static string? NormalizeAssetName(string? assetName)
         {
             return ToolkitPathUtilities.NormalizeAssetName(assetName);
         }
@@ -38,7 +39,8 @@ namespace StardewModdingAPI.Utilities
         /// <param name="path">The file path to normalize.</param>
         /// <remarks>This should only be used for file paths. For asset names, use <see cref="NormalizeAssetName"/> instead.</remarks>
         [Pure]
-        public static string NormalizePath(string path)
+        [return: NotNullIfNotNull("path")]
+        public static string? NormalizePath(string? path)
         {
             return ToolkitPathUtilities.NormalizePath(path);
         }
@@ -46,7 +48,7 @@ namespace StardewModdingAPI.Utilities
         /// <summary>Get whether a path is relative and doesn't try to climb out of its containing folder (e.g. doesn't contain <c>../</c>).</summary>
         /// <param name="path">The path to check.</param>
         [Pure]
-        public static bool IsSafeRelativePath(string path)
+        public static bool IsSafeRelativePath(string? path)
         {
             return ToolkitPathUtilities.IsSafeRelativePath(path);
         }
@@ -54,7 +56,7 @@ namespace StardewModdingAPI.Utilities
         /// <summary>Get whether a string is a valid 'slug', containing only basic characters that are safe in all contexts (e.g. filenames, URLs, etc).</summary>
         /// <param name="str">The string to check.</param>
         [Pure]
-        public static bool IsSlug(string str)
+        public static bool IsSlug(string? str)
         {
             return ToolkitPathUtilities.IsSlug(str);
         }

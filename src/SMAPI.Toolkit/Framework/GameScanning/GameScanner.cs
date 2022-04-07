@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -41,7 +39,7 @@ namespace StardewModdingAPI.Toolkit.Framework.GameScanning
             IEnumerable<string> paths = this
                 .GetCustomInstallPaths()
                 .Concat(this.GetDefaultInstallPaths())
-                .Select(PathUtilities.NormalizePath)
+                .Select(path => PathUtilities.NormalizePath(path))
                 .Distinct(StringComparer.OrdinalIgnoreCase);
 
             // yield valid folders
@@ -80,10 +78,12 @@ namespace StardewModdingAPI.Toolkit.Framework.GameScanning
                 return GameFolderType.NoGameFound;
 
             // get assembly version
-            Version version;
+            Version? version;
             try
             {
                 version = AssemblyName.GetAssemblyName(executable.FullName).Version;
+                if (version == null)
+                    return GameFolderType.InvalidUnknown;
             }
             catch
             {
@@ -123,7 +123,7 @@ namespace StardewModdingAPI.Toolkit.Framework.GameScanning
                 case Platform.Linux:
                 case Platform.Mac:
                     {
-                        string home = Environment.GetEnvironmentVariable("HOME");
+                        string home = Environment.GetEnvironmentVariable("HOME")!;
 
                         // Linux
                         yield return $"{home}/GOG Games/Stardew Valley/game";
@@ -148,13 +148,13 @@ namespace StardewModdingAPI.Toolkit.Framework.GameScanning
                         };
                         foreach (var pair in registryKeys)
                         {
-                            string path = this.GetLocalMachineRegistryValue(pair.Key, pair.Value);
+                            string? path = this.GetLocalMachineRegistryValue(pair.Key, pair.Value);
                             if (!string.IsNullOrWhiteSpace(path))
                                 yield return path;
                         }
 
                         // via Steam library path
-                        string steamPath = this.GetCurrentUserRegistryValue(@"Software\Valve\Steam", "SteamPath");
+                        string? steamPath = this.GetCurrentUserRegistryValue(@"Software\Valve\Steam", "SteamPath");
                         if (steamPath != null)
                             yield return Path.Combine(steamPath.Replace('/', '\\'), @"steamapps\common\Stardew Valley");
 #endif
@@ -188,7 +188,7 @@ namespace StardewModdingAPI.Toolkit.Framework.GameScanning
         private IEnumerable<string> GetCustomInstallPaths()
         {
             // get home path
-            string homePath = Environment.GetEnvironmentVariable(this.Platform == Platform.Windows ? "USERPROFILE" : "HOME");
+            string homePath = Environment.GetEnvironmentVariable(this.Platform == Platform.Windows ? "USERPROFILE" : "HOME")!;
             if (string.IsNullOrWhiteSpace(homePath))
                 yield break;
 
@@ -210,7 +210,7 @@ namespace StardewModdingAPI.Toolkit.Framework.GameScanning
             }
 
             // get install path
-            XElement element = root.XPathSelectElement("//*[local-name() = 'GamePath']"); // can't use '//GamePath' due to the default namespace
+            XElement? element = root.XPathSelectElement("//*[local-name() = 'GamePath']"); // can't use '//GamePath' due to the default namespace
             if (!string.IsNullOrWhiteSpace(element?.Value))
                 yield return element.Value.Trim();
         }
@@ -219,27 +219,27 @@ namespace StardewModdingAPI.Toolkit.Framework.GameScanning
         /// <summary>Get the value of a key in the Windows HKLM registry.</summary>
         /// <param name="key">The full path of the registry key relative to HKLM.</param>
         /// <param name="name">The name of the value.</param>
-        private string GetLocalMachineRegistryValue(string key, string name)
+        private string? GetLocalMachineRegistryValue(string key, string name)
         {
             RegistryKey localMachine = Environment.Is64BitOperatingSystem ? RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64) : Registry.LocalMachine;
-            RegistryKey openKey = localMachine.OpenSubKey(key);
+            RegistryKey? openKey = localMachine.OpenSubKey(key);
             if (openKey == null)
                 return null;
             using (openKey)
-                return (string)openKey.GetValue(name);
+                return (string?)openKey.GetValue(name);
         }
 
         /// <summary>Get the value of a key in the Windows HKCU registry.</summary>
         /// <param name="key">The full path of the registry key relative to HKCU.</param>
         /// <param name="name">The name of the value.</param>
-        private string GetCurrentUserRegistryValue(string key, string name)
+        private string? GetCurrentUserRegistryValue(string key, string name)
         {
-            RegistryKey currentuser = Environment.Is64BitOperatingSystem ? RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, RegistryView.Registry64) : Registry.CurrentUser;
-            RegistryKey openKey = currentuser.OpenSubKey(key);
+            RegistryKey currentUser = Environment.Is64BitOperatingSystem ? RegistryKey.OpenBaseKey(RegistryHive.CurrentUser, RegistryView.Registry64) : Registry.CurrentUser;
+            RegistryKey? openKey = currentUser.OpenSubKey(key);
             if (openKey == null)
                 return null;
             using (openKey)
-                return (string)openKey.GetValue(name);
+                return (string?)openKey.GetValue(name);
         }
 #endif
     }

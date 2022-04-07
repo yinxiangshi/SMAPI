@@ -1,5 +1,3 @@
-#nullable disable
-
 using System.Collections.Generic;
 
 namespace StardewModdingAPI.Toolkit
@@ -18,7 +16,7 @@ namespace StardewModdingAPI.Toolkit
         ** Public methods
         *********/
         /// <inheritdoc />
-        public int Compare(ISemanticVersion x, ISemanticVersion y)
+        public int Compare(ISemanticVersion? x, ISemanticVersion? y)
         {
             if (object.ReferenceEquals(x, y))
                 return 0;

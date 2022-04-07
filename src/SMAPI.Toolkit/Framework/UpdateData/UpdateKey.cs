@@ -1,6 +1,5 @@
-#nullable disable
-
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace StardewModdingAPI.Toolkit.Framework.UpdateData
 {
@@ -17,10 +16,11 @@ namespace StardewModdingAPI.Toolkit.Framework.UpdateData
         public ModSiteKey Site { get; }
 
         /// <summary>The mod ID within the repository.</summary>
-        public string ID { get; }
+        [MemberNotNullWhen(true, nameof(LooksValid))]
+        public string? ID { get; }
 
         /// <summary>If specified, a substring in download names/descriptions to match.</summary>
-        public string Subkey { get; }
+        public string? Subkey { get; }
 
         /// <summary>Whether the update key seems to be valid.</summary>
         public bool LooksValid { get; }
@@ -34,9 +34,9 @@ namespace StardewModdingAPI.Toolkit.Framework.UpdateData
         /// <param name="site">The mod site containing the mod.</param>
         /// <param name="id">The mod ID within the site.</param>
         /// <param name="subkey">If specified, a substring in download names/descriptions to match.</param>
-        public UpdateKey(string rawText, ModSiteKey site, string id, string subkey)
+        public UpdateKey(string? rawText, ModSiteKey site, string? id, string? subkey)
         {
-            this.RawText = rawText?.Trim();
+            this.RawText = rawText?.Trim() ?? string.Empty;
             this.Site = site;
             this.ID = id?.Trim();
             this.Subkey = subkey?.Trim();
@@ -49,19 +49,19 @@ namespace StardewModdingAPI.Toolkit.Framework.UpdateData
         /// <param name="site">The mod site containing the mod.</param>
         /// <param name="id">The mod ID within the site.</param>
         /// <param name="subkey">If specified, a substring in download names/descriptions to match.</param>
-        public UpdateKey(ModSiteKey site, string id, string subkey)
+        public UpdateKey(ModSiteKey site, string? id, string? subkey)
             : this(UpdateKey.GetString(site, id, subkey), site, id, subkey) { }
 
         /// <summary>Parse a raw update key.</summary>
         /// <param name="raw">The raw update key to parse.</param>
-        public static UpdateKey Parse(string raw)
+        public static UpdateKey Parse(string? raw)
         {
             // extract site + ID
-            string rawSite;
-            string id;
+            string? rawSite;
+            string? id;
             {
-                string[] parts = raw?.Trim().Split(':');
-                if (parts == null || parts.Length != 2)
+                string[]? parts = raw?.Trim().Split(':');
+                if (parts?.Length != 2)
                     return new UpdateKey(raw, ModSiteKey.Unknown, null, null);
 
                 rawSite = parts[0].Trim();
@@ -71,7 +71,7 @@ namespace StardewModdingAPI.Toolkit.Framework.UpdateData
                 id = null;
 
             // extract subkey
-            string subkey = null;
+            string? subkey = null;
             if (id != null)
             {
                 string[] parts = id.Split('@');
@@ -111,7 +111,7 @@ namespace StardewModdingAPI.Toolkit.Framework.UpdateData
 
         /// <summary>Indicates whether the current object is equal to another object of the same type.</summary>
         /// <param name="other">An object to compare with this object.</param>
-        public bool Equals(UpdateKey other)
+        public bool Equals(UpdateKey? other)
         {
             if (!this.LooksValid)
             {
@@ -129,7 +129,7 @@ namespace StardewModdingAPI.Toolkit.Framework.UpdateData
 
         /// <summary>Determines whether the specified object is equal to the current object.</summary>
         /// <param name="obj">The object to compare with the current object.</param>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return obj is UpdateKey other && this.Equals(other);
         }
@@ -145,7 +145,7 @@ namespace StardewModdingAPI.Toolkit.Framework.UpdateData
         /// <param name="site">The mod site containing the mod.</param>
         /// <param name="id">The mod ID within the repository.</param>
         /// <param name="subkey">If specified, a substring in download names/descriptions to match.</param>
-        public static string GetString(ModSiteKey site, string id, string subkey = null)
+        public static string GetString(ModSiteKey site, string? id, string? subkey = null)
         {
             return $"{site}:{id}{subkey}".Trim();
         }

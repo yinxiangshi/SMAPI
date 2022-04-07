@@ -91,7 +91,7 @@ namespace StardewModdingAPI.Toolkit
         {
             if (version == null)
                 throw new ArgumentNullException(nameof(version), "The input version string can't be null.");
-            if (!SemanticVersionReader.TryParse(version, allowNonStandard, out int major, out int minor, out int patch, out int platformRelease, out string prereleaseTag, out string buildMetadata) || (!allowNonStandard && platformRelease != 0))
+            if (!SemanticVersionReader.TryParse(version, allowNonStandard, out int major, out int minor, out int patch, out int platformRelease, out string? prereleaseTag, out string? buildMetadata) || (!allowNonStandard && platformRelease != 0))
                 throw new FormatException($"The input '{version}' isn't a valid semantic version.");
 
             this.MajorVersion = major;

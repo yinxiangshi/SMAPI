@@ -1,5 +1,3 @@
-#nullable disable
-
 namespace StardewModdingAPI.Toolkit.Framework
 {
     /// <summary>Contains the SMAPI installer's constants and assumptions.</summary>
