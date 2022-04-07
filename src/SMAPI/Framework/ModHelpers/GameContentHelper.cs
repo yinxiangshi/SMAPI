@@ -75,7 +75,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         {
             try
             {
-                return this.GameContentManager.LoadLocalized<T>(assetName, this.CurrentLocaleConstant, useCache: false);
+                return this.GameContentManager.LoadLocalized<T>(assetName, this.CurrentLocaleConstant, useCache: true);
             }
             catch (Exception ex) when (ex is not SContentLoadException)
             {
