@@ -347,10 +347,6 @@ smapi.logParser = function (data, sectionUrl) {
                 type: Object,
                 required: true
             },
-            sectionExpanded: {
-                type: Boolean,
-                required: false
-            },
             highlight: {
                 type: Boolean,
                 required: false
@@ -379,7 +375,7 @@ smapi.logParser = function (data, sectionUrl) {
             const events = {};
             let toggleMessage;
             if (msg.IsStartOfSection) {
-                const visible = context.props.sectionExpanded;
+                const visible = msg.SectionName && window.app && app.sectionsAllow(msg.SectionName);
                 events.click = smapi.clickLogLine;
                 toggleMessage = visible ?
                     'This section is shown. Click here to hide it.' :
@@ -477,13 +473,6 @@ smapi.logParser = function (data, sectionUrl) {
             // Maybe not strictly necessary, but the Vue template is being
             // weird about accessing data entries on the app rather than
             // computed properties.
-            visibleSections: function () {
-                const ret = [];
-                for (const [k, v] of Object.entries(this.showSections))
-                    if (v !== false)
-                        ret.push(k);
-                return ret;
-            },
             hideContentPacks: function () {
                 return !data.showContentPacks;
             },
