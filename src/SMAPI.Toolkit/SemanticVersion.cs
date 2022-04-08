@@ -198,7 +198,12 @@ namespace StardewModdingAPI.Toolkit
         /// <param name="version">The version string.</param>
         /// <param name="parsed">The parsed representation.</param>
         /// <returns>Returns whether parsing the version succeeded.</returns>
-        public static bool TryParse(string? version, [NotNullWhen(true)] out ISemanticVersion? parsed)
+        public static bool TryParse(string? version,
+#if NET5_0_OR_GREATER
+            [NotNullWhen(true)]
+#endif
+            out ISemanticVersion? parsed
+        )
         {
             return SemanticVersion.TryParse(version, allowNonStandard: false, out parsed);
         }
@@ -208,7 +213,12 @@ namespace StardewModdingAPI.Toolkit
         /// <param name="allowNonStandard">Whether to allow non-standard extensions to semantic versioning.</param>
         /// <param name="parsed">The parsed representation.</param>
         /// <returns>Returns whether parsing the version succeeded.</returns>
-        public static bool TryParse(string? version, bool allowNonStandard, [NotNullWhen(true)] out ISemanticVersion? parsed)
+        public static bool TryParse(string? version, bool allowNonStandard,
+#if NET5_0_OR_GREATER
+            [NotNullWhen(true)]
+#endif
+            out ISemanticVersion? parsed
+        )
         {
             if (version == null)
             {

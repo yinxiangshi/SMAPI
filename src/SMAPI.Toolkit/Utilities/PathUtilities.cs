@@ -50,7 +50,9 @@ namespace StardewModdingAPI.Toolkit.Utilities
         /// <summary>Normalize an asset name to match how MonoGame's content APIs would normalize and cache it.</summary>
         /// <param name="assetName">The asset name to normalize.</param>
         [Pure]
+#if NET5_0_OR_GREATER
         [return: NotNullIfNotNull("assetName")]
+#endif
         public static string? NormalizeAssetName(string? assetName)
         {
             assetName = assetName?.Trim();
@@ -64,7 +66,9 @@ namespace StardewModdingAPI.Toolkit.Utilities
         /// <param name="path">The file path to normalize.</param>
         /// <remarks>This should only be used for file paths. For asset names, use <see cref="NormalizeAssetName"/> instead.</remarks>
         [Pure]
+#if NET5_0_OR_GREATER
         [return: NotNullIfNotNull("path")]
+#endif
         public static string? NormalizePath(string? path)
         {
             path = path?.Trim();
@@ -89,7 +93,7 @@ namespace StardewModdingAPI.Toolkit.Utilities
             }
 
             // keep trailing separator
-            if ((!hasRoot || segments.Any()) && PathUtilities.PossiblePathSeparators.Contains(path[^1]))
+            if ((!hasRoot || segments.Any()) && PathUtilities.PossiblePathSeparators.Contains(path[path.Length - 1]))
                 newPath += PathUtilities.PreferredPathSeparator;
 
             return newPath;
@@ -101,7 +105,43 @@ namespace StardewModdingAPI.Toolkit.Utilities
         [Pure]
         public static string GetRelativePath(string sourceDir, string targetPath)
         {
+#if NET5_0
             return Path.GetRelativePath(sourceDir, targetPath);
+#else
+            // NOTE:
+            // this is a heuristic implementation that works in the cases SMAPI needs it for, but it
+            // doesn't handle all edge cases (e.g. case-sensitivity on Linux, or traversing between
+            // UNC paths on Windows). SMAPI and mods will use the more robust .NET 5 version anyway
+            // though, this is only for compatibility with the mod build package.
+
+            // convert to URIs
+            Uri from = new(sourceDir.TrimEnd(PathUtilities.PossiblePathSeparators) + "/");
+            Uri to = new(targetPath.TrimEnd(PathUtilities.PossiblePathSeparators) + "/");
+            if (from.Scheme != to.Scheme)
+                throw new InvalidOperationException($"Can't get path for '{targetPath}' relative to '{sourceDir}'.");
+
+            // get relative path
+            string rawUrl = Uri.UnescapeDataString(from.MakeRelativeUri(to).ToString());
+            if (rawUrl.StartsWith("file://"))
+                rawUrl = PathUtilities.WindowsUncRoot + rawUrl.Substring("file://".Length);
+            string relative = PathUtilities.NormalizePath(rawUrl);
+
+            // normalize
+            if (relative == "")
+                relative = ".";
+            else
+            {
+                // trim trailing slash from URL
+                if (relative.EndsWith(PathUtilities.PreferredPathSeparator.ToString()))
+                    relative = relative.Substring(0, relative.Length - 1);
+
+                // fix root
+                if (relative.StartsWith("file:") && !targetPath.Contains("file:"))
+                    relative = relative.Substring("file:".Length);
+            }
+
+            return relative;
+#endif
         }
 
         /// <summary>Get whether a path is relative and doesn't try to climb out of its containing folder (e.g. doesn't contain <c>../</c>).</summary>

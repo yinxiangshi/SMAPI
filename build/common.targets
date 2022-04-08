@@ -5,7 +5,10 @@
     <Product>SMAPI</Product>
     <LangVersion>latest</LangVersion>
     <AssemblySearchPaths>$(AssemblySearchPaths);{GAC}</AssemblySearchPaths>
-    <Nullable>enable</Nullable>
+
+    <!--enable nullable annotations, except in .NET Standard 2.0 where they aren't supported-->
+    <Nullable Condition="'$(TargetFramework)' == 'net5.0'">enable</Nullable>
+    <NoWarn Condition="'$(TargetFramework)' != 'net5.0'">$(NoWarn);CS8632</NoWarn>
 
     <!--set platform-->
     <DefineConstants Condition="$(OS) == 'Windows_NT'">$(DefineConstants);SMAPI_FOR_WINDOWS</DefineConstants>

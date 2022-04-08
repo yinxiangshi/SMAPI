@@ -16,7 +16,9 @@ namespace StardewModdingAPI.Toolkit.Framework.UpdateData
         public ModSiteKey Site { get; }
 
         /// <summary>The mod ID within the repository.</summary>
+#if NET5_0_OR_GREATER
         [MemberNotNullWhen(true, nameof(LooksValid))]
+#endif
         public string? ID { get; }
 
         /// <summary>If specified, a substring in download names/descriptions to match.</summary>

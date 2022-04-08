@@ -105,7 +105,12 @@ namespace StardewModdingAPI.Toolkit.Framework
         /// <param name="raw">The raw characters to parse.</param>
         /// <param name="index">The index of the next character to read.</param>
         /// <param name="tag">The parsed tag.</param>
-        private static bool TryParseTag(char[] raw, ref int index, [NotNullWhen(true)] out string? tag)
+        private static bool TryParseTag(char[] raw, ref int index,
+#if NET5_0_OR_GREATER
+            [NotNullWhen(true)]
+#endif
+            out string? tag
+        )
         {
             // read tag length
             int length = 0;
