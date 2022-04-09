@@ -1,29 +1,15 @@
-/* globals $ */
+/* globals $, Vue */
 
+/**
+ * The global SMAPI module.
+ */
 var smapi = smapi || {};
+
+/**
+ * The Vue app for the current page.
+ * @type {Vue}
+ */
 var app;
-var messages;
-
-
-// Necessary helper method for updating our text filter in a performant way.
-// Wouldn't want to update it for every individually typed character.
-function debounce(fn, delay) {
-    var timeoutID = null
-    return function () {
-        clearTimeout(timeoutID)
-        var args = arguments
-        var that = this
-        timeoutID = setTimeout(function () {
-            fn.apply(that, args)
-        }, delay)
-    }
-}
-
-// Case insensitive text searching and match word searching is best done in
-// regex, so if the user isn't trying to use regex, escape their input.
-function escapeRegex(text) {
-    return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
 
 // Use a scroll event to apply a sticky effect to the filters / pagination
 // bar. We can't just use "position: sticky" due to how the page is structured
@@ -31,65 +17,133 @@ function escapeRegex(text) {
 $(function () {
     let sticking = false;
 
-    document.addEventListener("scroll", function (event) {
+    document.addEventListener("scroll", function () {
         const filters = document.getElementById("filters");
         const holder = document.getElementById("filterHolder");
         if (!filters || !holder)
             return;
 
         const offset = holder.offsetTop;
-        const should_stick = window.pageYOffset > offset;
-        if (should_stick === sticking)
+        const shouldStick = window.pageYOffset > offset;
+        if (shouldStick === sticking)
             return;
 
-        sticking = should_stick;
+        sticking = shouldStick;
         if (sticking) {
             holder.style.marginBottom = `calc(1em + ${filters.offsetHeight}px)`;
             filters.classList.add("sticky");
-        } else {
+        }
+        else {
             filters.classList.remove("sticky");
             holder.style.marginBottom = "";
         }
     });
 });
 
-// This method is called when we click a log line to toggle the visibility
-// of a section. Binding methods is problematic with functional components
-// so we just use the `data-section` parameter and our global reference
-// to the app.
-smapi.clickLogLine = function (event) {
-    app.toggleSection(event.currentTarget.dataset.section);
-    event.preventDefault();
-    return false;
-}
-
-// And these methods are called when doing pagination. Just makes things
-// easier, so may as well use helpers.
-smapi.prevPage = function () {
-    app.prevPage();
-}
-
-smapi.nextPage = function () {
-    app.nextPage();
-}
-
-smapi.changePage = function (event) {
-    if (typeof event === "number")
-        app.changePage(event);
-    else if (event) {
-        const page = parseInt(event.currentTarget.dataset.page);
-        if (!isNaN(page) && isFinite(page))
-            app.changePage(page);
-    }
-}
-
-
-smapi.logParser = function (state, sectionUrl) {
+/**
+ * Initialize a log parser view on the current page.
+ * @param {object} state The state options to use.
+ * @returns {void}
+ */
+smapi.logParser = function (state) {
     if (!state)
         state = {};
 
+    // internal helpers
+    const helpers = {
+        /**
+         * Get a handler which invokes the callback after a set delay, resetting the delay each time it's called.
+         * @param {(...*) => void} action The callback to invoke when the delay ends.
+         * @param {number} delay The number of milliseconds to delay the action after each call.
+         * @returns {() => void}
+         */
+        getDebouncedHandler(action, delay) {
+            let timeoutId = null;
+
+            return function () {
+                clearTimeout(timeoutId);
+
+                const args = arguments;
+                const self = this;
+
+                timeoutId = setTimeout(
+                    function () {
+                        action.apply(self, args);
+                    },
+                    delay
+                );
+            }
+        },
+
+        /**
+         * Escape regex special characters in the given string.
+         * @param {string} text
+         * @returns {string}
+         */
+        escapeRegex(text) {
+            return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        },
+
+        /**
+         * Format a number for the user's locale.
+         * @param {number} value The number to format.
+         * @returns {string}
+         */
+        formatNumber(value) {
+            const formatter = window.Intl && Intl.NumberFormat && new Intl.NumberFormat();
+            return formatter && formatter.format
+                ? formatter.format(value)
+                : `${value}`;
+        }
+    };
+
+    // internal event handlers
+    const handlers = {
+        /**
+         * Method called when the user clicks a log line to toggle the visibility of a section. Binding methods is problematic with functional components so we just use the `data-section` parameter and our global reference to the app.
+         * @param {any} event
+         * @returns {false}
+         */
+        clickLogLine(event) {
+            app.toggleSection(event.currentTarget.dataset.section);
+            event.preventDefault();
+            return false;
+        },
+
+        /**
+         * Navigate to the previous page of messages in the log.
+         * @returns {void}
+         */
+        prevPage() {
+            app.prevPage();
+        },
+
+        /**
+         * Navigate to the next page of messages in the log.
+         * @returns {void}
+         */
+        nextPage() {
+            app.nextPage();
+        },
+
+        /**
+         * Handle a click on a page number element.
+         * @param {number | Event} event
+         * @returns {void}
+         */
+        changePage(event) {
+            if (typeof event === "number")
+                app.changePage(event);
+            else if (event) {
+                const page = parseInt(event.currentTarget.dataset.page);
+                if (!isNaN(page) && isFinite(page))
+                    app.changePage(page);
+            }
+        }
+    };
+
     // internal filter counts
-    var stats = state.stats = {
+    const stats = state.stats = {
         modsShown: 0,
         modsHidden: 0
     };
@@ -98,7 +152,7 @@ smapi.logParser = function (state, sectionUrl) {
         // counts
         stats.modsShown = 0;
         stats.modsHidden = 0;
-        for (var key in state.showMods) {
+        for (let key in state.showMods) {
             if (state.showMods.hasOwnProperty(key)) {
                 if (state.showMods[key])
                     stats.modsShown++;
@@ -109,14 +163,14 @@ smapi.logParser = function (state, sectionUrl) {
     }
 
     // preprocess data for display
-    messages = state.data?.messages || [];
-    if (messages.length) {
+    state.messages = state.data?.messages || [];
+    if (state.messages.length) {
         const levels = state.data.logLevels;
         const sections = state.data.sections;
         const modSlugs = state.data.modSlugs;
 
-        for (let i = 0, length = messages.length; i < length; i++) {
-            const message = messages[i];
+        for (let i = 0, length = state.messages.length; i < length; i++) {
+            const message = state.messages[i];
 
             // add unique ID
             message.id = i;
@@ -136,10 +190,10 @@ smapi.logParser = function (state, sectionUrl) {
                     Section: message.Section,
                     Mod: message.Mod,
                     Repeated: message.Repeated,
-                    isRepeated: true,
+                    isRepeated: true
                 };
 
-                messages.splice(i + 1, 0, repeatNote);
+                state.messages.splice(i + 1, 0, repeatNote);
                 length++;
             }
 
@@ -147,55 +201,42 @@ smapi.logParser = function (state, sectionUrl) {
             Object.freeze(message);
         }
     }
-    Object.freeze(messages);
+    Object.freeze(state.messages);
 
     // set local time started
     if (state.logStarted)
         state.localTimeStarted = ("0" + state.logStarted.getHours()).slice(-2) + ":" + ("0" + state.logStarted.getMinutes()).slice(-2);
 
-    // Add some properties to the data we're passing to Vue.
-    state.totalMessages = messages.length;
-
+    // add the properties we're passing to Vue
+    state.totalMessages = state.messages.length;
     state.filterText = "";
     state.filterRegex = "";
-
     state.showContentPacks = true;
     state.useHighlight = true;
     state.useRegex = false;
     state.useInsensitive = true;
     state.useWord = false;
-
     state.perPage = 1000;
     state.page = 1;
 
-    // Now load these values.
+    // load saved values, if any
     if (localStorage.settings) {
         try {
             const saved = JSON.parse(localStorage.settings);
-            if (saved.hasOwnProperty("showContentPacks"))
-                state.showContentPacks = saved.showContentPacks;
-            if (saved.hasOwnProperty("useHighlight"))
-                dat.useHighlight = saved.useHighlight;
-            if (saved.hasOwnProperty("useRegex"))
-                state.useRegex = saved.useRegex;
-            if (saved.hasOwnProperty("useInsensitive"))
-                state.useInsensitive = saved.useInsensitive;
-            if (saved.hasOwnProperty("useWord"))
-                state.useWord = saved.useWord;
-        } catch { /* ignore errors */ }
+
+            state.showContentPacks = saved.showContentPacks ?? state.showContentPacks;
+            state.useHighlight = saved.useHighlight ?? state.useHighlight;
+            state.useRegex = saved.useRegex ?? state.useRegex;
+            state.useInsensitive = saved.useInsensitive ?? state.useInsensitive;
+            state.useWord = saved.useWord ?? state.useWord;
+        }
+        catch (error) {
+            // ignore settings if invalid
+        }
     }
 
-    // This would be easier if we could just use JSX but this project doesn't
-    // have a proper JavaScript build environment and I really don't feel
-    // like setting one up.
-
-    // Add a number formatter so that our numbers look nicer.
-    const fmt = window.Intl && Intl.NumberFormat && new Intl.NumberFormat();
-    function formatNumber(value) {
-        if (!fmt || !fmt.format) return `${value}`;
-        return fmt.format(value);
-    }
-    Vue.filter("number", formatNumber);
+    // add a number formatter so our numbers look nicer
+    Vue.filter("number", handlers.formatNumber);
 
     // Strictly speaking, we don't need this. However, due to the way our
     // Vue template is living in-page the browser is "helpful" and moves
@@ -205,11 +246,15 @@ smapi.logParser = function (state, sectionUrl) {
     Vue.component("log-table", {
         functional: true,
         render: function (createElement, context) {
-            return createElement("table", {
-                attrs: {
-                    id: "log"
-                }
-            }, context.children);
+            return createElement(
+                "table",
+                {
+                    attrs: {
+                        id: "log"
+                    }
+                },
+                context.children
+            );
         }
     });
 
@@ -220,29 +265,34 @@ smapi.logParser = function (state, sectionUrl) {
         functional: true,
         render: function (createElement, context) {
             const props = context.props;
-            if (props.pages > 1)
-                return createElement("div", {
-                    class: "stats"
-                }, [
-                    "showing ",
-                    createElement("strong", formatNumber(props.start + 1)),
-                    " to ",
-                    createElement("strong", formatNumber(props.end)),
-                    " of ",
-                    createElement("strong", formatNumber(props.filtered)),
-                    " (total: ",
-                    createElement("strong", formatNumber(props.total)),
-                    ")"
-                ]);
+            if (props.pages > 1) {
+                return createElement(
+                    "div",
+                    { class: "stats" },
+                    [
+                        "showing ",
+                        createElement("strong", helpers.formatNumber(props.start + 1)),
+                        " to ",
+                        createElement("strong", helpers.formatNumber(props.end)),
+                        " of ",
+                        createElement("strong", helpers.formatNumber(props.filtered)),
+                        " (total: ",
+                        createElement("strong", helpers.formatNumber(props.total)),
+                        ")"
+                    ]
+                );
+            }
 
-            return createElement("div", {
-                class: "stats"
-            }, [
-                "showing ",
-                createElement("strong", formatNumber(props.filtered)),
-                " out of ",
-                createElement("strong", formatNumber(props.total))
-            ]);
+            return createElement(
+                "div",
+                { class: "stats" },
+                [
+                    "showing ",
+                    createElement("strong", helpers.formatNumber(props.filtered)),
+                    " out of ",
+                    createElement("strong", helpers.formatNumber(props.total))
+                ]
+            );
         }
     });
 
@@ -256,15 +306,19 @@ smapi.logParser = function (state, sectionUrl) {
             links.push(" … ");
 
         visited.add(page);
-        links.push(createElement("span", {
-            class: page == currentPage ? "active" : null,
-            attrs: {
-                "data-page": page
+        links.push(createElement(
+            "span",
+            {
+                class: page === currentPage ? "active" : null,
+                attrs: {
+                    "data-page": page
+                },
+                on: {
+                    click: handlers.changePage
+                }
             },
-            on: {
-                click: smapi.changePage
-            }
-        }, formatNumber(page)));
+            helpers.formatNumber(page)
+        ));
     }
 
     Vue.component("pager", {
@@ -274,49 +328,55 @@ smapi.logParser = function (state, sectionUrl) {
             if (props.pages <= 1)
                 return null;
 
-            const visited = new Set;
+            const visited = new Set();
             const pageLinks = [];
 
             for (let i = 1; i <= 2; i++)
                 addPageLink(i, pageLinks, visited, createElement, props.page);
 
             for (let i = props.page - 2; i <= props.page + 2; i++) {
-                if (i < 1 || i > props.pages)
-                    continue;
-
-                addPageLink(i, pageLinks, visited, createElement, props.page);
+                if (i >= 1 && i <= props.pages)
+                    addPageLink(i, pageLinks, visited, createElement, props.page);
             }
 
             for (let i = props.pages - 2; i <= props.pages; i++) {
-                if (i < 1)
-                    continue;
-
-                addPageLink(i, pageLinks, visited, createElement, props.page);
+                if (i >= 1)
+                    addPageLink(i, pageLinks, visited, createElement, props.page);
             }
 
-            return createElement("div", {
-                class: "pager"
-            }, [
-                createElement("span", {
-                    class: props.page <= 1 ? "disabled" : null,
-                    on: {
-                        click: smapi.prevPage
-                    }
-                }, "Prev"),
-                " ",
-                "Page ",
-                formatNumber(props.page),
-                " of ",
-                formatNumber(props.pages),
-                " ",
-                createElement("span", {
-                    class: props.page >= props.pages ? "disabled" : null,
-                    on: {
-                        click: smapi.nextPage
-                    }
-                }, "Next"),
-                createElement("div", {}, pageLinks)
-            ]);
+            return createElement(
+                "div",
+                { class: "pager" },
+                [
+                    createElement(
+                        "span",
+                        {
+                            class: props.page <= 1 ? "disabled" : null,
+                            on: {
+                                click: handlers.prevPage
+                            }
+                        },
+                        "Prev"
+                    ),
+                    " ",
+                    "Page ",
+                    helpers.formatNumber(props.page),
+                    " of ",
+                    helpers.formatNumber(props.pages),
+                    " ",
+                    createElement(
+                        "span",
+                        {
+                            class: props.page >= props.pages ? "disabled" : null,
+                            on: {
+                                click: handlers.nextPage
+                            }
+                        },
+                        "Next"
+                    ),
+                    createElement("div", {}, pageLinks)
+                ]
+            );
         }
     });
 
@@ -342,26 +402,34 @@ smapi.logParser = function (state, sectionUrl) {
             const level = message.LevelName;
 
             if (message.isRepeated)
-                return createElement("tr", {
-                    class: [
-                        "mod",
-                        level,
-                        "mod-repeat"
+                return createElement(
+                    "tr",
+                    {
+                        class: [
+                            "mod",
+                            level,
+                            "mod-repeat"
+                        ]
+                    },
+                    [
+                        createElement(
+                            "td",
+                            {
+                                attrs: {
+                                    colspan: context.props.showScreenId ? 4 : 3
+                                }
+                            },
+                            ""
+                        ),
+                        createElement("td", `repeats ${message.Repeated} times`)
                     ]
-                }, [
-                    createElement("td", {
-                        attrs: {
-                            colspan: context.props.showScreenId ? 4 : 3
-                        }
-                    }, ""),
-                    createElement("td", `repeats ${message.Repeated} times`)
-                ]);
+                );
 
             const events = {};
             let toggleMessage;
             if (message.IsStartOfSection) {
                 const visible = message.SectionName && window.app && app.sectionsAllow(message.SectionName);
-                events.click = smapi.clickLogLine;
+                events.click = handlers.clickLogLine;
                 toggleMessage = visible
                     ? "This section is shown. Click here to hide it."
                     : "This section is hidden. Click here to show it.";
@@ -371,7 +439,9 @@ smapi.logParser = function (state, sectionUrl) {
             const filter = window.app && app.filterRegex;
             if (text && filter && context.props.highlight) {
                 text = [];
-                let match, consumed = 0, idx = 0;
+                let match;
+                let consumed = 0;
+                let index = 0;
                 filter.lastIndex = -1;
 
                 // Our logic to highlight the text is a bit funky because we
@@ -379,64 +449,85 @@ smapi.logParser = function (state, sectionUrl) {
                 // where a ton of single characters are in their own elements
                 // if the user gives us bad input.
 
-                while (match = filter.exec(message.Text)) {
+                while (true) {
+                    match = filter.exec(message.Text);
+                    if (!match)
+                        break;
+
                     // Do we have an area of non-matching text? This
                     // happens if the new match's index is further
                     // along than the last index.
-                    if (match.index > idx) {
+                    if (match.index > index) {
                         // Alright, do we have a previous match? If
                         // we do, we need to consume some text.
-                        if (consumed < idx)
-                            text.push(createElement("strong", {}, message.Text.slice(consumed, idx)));
+                        if (consumed < index)
+                            text.push(createElement("strong", {}, message.Text.slice(consumed, index)));
 
-                        text.push(message.Text.slice(idx, match.index));
+                        text.push(message.Text.slice(index, match.index));
                         consumed = match.index;
                     }
 
-                    idx = match.index + match[0].length;
+                    index = match.index + match[0].length;
                 }
 
                 // Add any trailing text after the last match was found.
                 if (consumed < message.Text.length) {
-                    if (consumed < idx)
-                        text.push(createElement("strong", {}, message.Text.slice(consumed, idx)));
+                    if (consumed < index)
+                        text.push(createElement("strong", {}, message.Text.slice(consumed, index)));
 
-                    if (idx < message.Text.length)
-                        text.push(message.Text.slice(idx));
+                    if (index < message.Text.length)
+                        text.push(message.Text.slice(index));
                 }
             }
 
-            return createElement("tr", {
-                class: [
-                    "mod",
-                    level,
-                    message.IsStartOfSection ? "section-start" : null
-                ],
-                attrs: {
-                    "data-section": message.SectionName
-                },
-                on: events
-            }, [
-                createElement("td", message.Time),
-                context.props.showScreenId ? createElement("td", message.ScreenId) : null,
-                createElement("td", level.toUpperCase()),
-                createElement("td", {
+            return createElement(
+                "tr",
+                {
+                    class: [
+                        "mod",
+                        level,
+                        message.IsStartOfSection ? "section-start" : null
+                    ],
                     attrs: {
-                        "data-title": message.Mod
-                    }
-                }, message.Mod),
-                createElement("td", [
-                    createElement("span", {
-                        class: "log-message-text"
-                    }, text),
-                    message.IsStartOfSection ? createElement("span", {
-                        class: "section-toggle-message"
-                    }, [
-                        " ",
-                        toggleMessage
-                    ]) : null
-                ])
-            ]);
+                        "data-section": message.SectionName
+                    },
+                    on: events
+                },
+                [
+                    createElement("td", message.Time),
+                    context.props.showScreenId ? createElement("td", message.ScreenId) : null,
+                    createElement("td", level.toUpperCase()),
+                    createElement(
+                        "td",
+                        {
+                            attrs: {
+                                "data-title": message.Mod
+                            }
+                        },
+                        message.Mod
+                    ),
+                    createElement(
+                        "td",
+                        [
+                            createElement(
+                                "span",
+                                { class: "log-message-text" },
+                                text
+                            ),
+                            message.IsStartOfSection
+                                ? createElement(
+                                    "span",
+                                    { class: "section-toggle-message" },
+                                    [
+                                        " ",
+                                        toggleMessage
+                                    ]
+                                )
+                                : null
+                        ]
+                    )
+                ]
+            );
         }
     });
 
@@ -463,44 +554,53 @@ smapi.logParser = function (state, sectionUrl) {
             },
 
             // Filter messages for visibility.
-            filterUseRegex: function () { return state.useRegex; },
-            filterInsensitive: function () { return state.useInsensitive; },
-            filterUseWord: function () { return state.useWord; },
-            shouldHighlight: function () { return state.useHighlight; },
+            filterUseRegex: function () {
+                return state.useRegex;
+            },
+            filterInsensitive: function () {
+                return state.useInsensitive;
+            },
+            filterUseWord: function () {
+                return state.useWord;
+            },
+            shouldHighlight: function () {
+                return state.useHighlight;
+            },
 
             filteredMessages: function () {
-                if (!messages)
+                if (!state.messages)
                     return [];
 
                 const start = performance.now();
-                const ret = [];
+                const filtered = [];
 
                 // This is slightly faster than messages.filter(), which is
                 // important when working with absolutely huge logs.
-                for (let i = 0, length = messages.length; i < length; i++) {
-                    const msg = messages[i];
+                for (let i = 0, length = state.messages.length; i < length; i++) {
+                    const msg = state.messages[i];
                     if (msg.SectionName && !msg.IsStartOfSection && !this.sectionsAllow(msg.SectionName))
                         continue;
 
                     if (!this.filtersAllow(msg.ModSlug, msg.LevelName))
                         continue;
 
-                    let text = msg.Text || (i > 0 ? messages[i - 1].Text : null);
+                    const text = msg.Text || (i > 0 ? state.messages[i - 1].Text : null);
 
                     if (this.filterRegex) {
                         this.filterRegex.lastIndex = -1;
                         if (!text || !this.filterRegex.test(text))
                             continue;
-                    } else if (this.filterText && (!text || text.indexOf(this.filterText) == -1))
+                    }
+                    else if (this.filterText && (!text || text.indexOf(this.filterText) === -1))
                         continue;
 
-                    ret.push(msg);
+                    filtered.push(msg);
                 }
 
                 const end = performance.now();
-                console.log(`filter took ${end - start}ms`);
+                //console.log(`applied ${(this.filterRegex ? "regex" : "text")} filter '${this.filterRegex || this.filterText}' in ${end - start}ms`);
 
-                return ret;
+                return filtered;
             },
 
             // And the rest are about pagination.
@@ -525,8 +625,7 @@ smapi.logParser = function (state, sectionUrl) {
             }
         },
         created: function () {
-            this.loadFromUrl = this.loadFromUrl.bind(this);
-            window.addEventListener("popstate", this.loadFromUrl);
+            window.addEventListener("popstate", () => this.loadFromUrl());
             this.loadFromUrl();
         },
         methods: {
@@ -536,19 +635,17 @@ smapi.logParser = function (state, sectionUrl) {
             // user can link to their exact page state for someone else?
             loadFromUrl: function () {
                 const params = new URL(location).searchParams;
-                if (params.has("PerPage"))
-                    try {
-                        const perPage = parseInt(params.get("PerPage"));
-                        if (!isNaN(perPage) && isFinite(perPage) && perPage > 0)
-                            state.perPage = perPage;
-                    } catch { /* ignore errors */ }
+                if (params.has("PerPage")) {
+                    const perPage = parseInt(params.get("PerPage"));
+                    if (!isNaN(perPage) && isFinite(perPage) && perPage > 0)
+                        state.perPage = perPage;
+                }
 
-                if (params.has("Page"))
-                    try {
-                        const page = parseInt(params.get("Page"));
-                        if (!isNaN(page) && isFinite(page) && page > 0)
-                            this.page = page;
-                    } catch { /* ignore errors */ }
+                if (params.has("Page")) {
+                    const page = parseInt(params.get("Page"));
+                    if (!isNaN(page) && isFinite(page) && page > 0)
+                        this.page = page;
+                }
             },
 
             toggleLevel: function (id) {
@@ -635,26 +732,30 @@ smapi.logParser = function (state, sectionUrl) {
             // a quarter second delay. We basically always build a regular expression
             // since we use it for highlighting, and it also make case insensitivity
             // much easier.
-            updateFilterText: debounce(function () {
-                let text = this.filterText = document.querySelector("input[type=text]").value;
-                if (!text || !text.length) {
-                    this.filterText = "";
-                    this.filterRegex = null;
-                } else {
-                    if (!state.useRegex)
-                        text = escapeRegex(text);
-                    this.filterRegex = new RegExp(
-                        state.useWord ? `\\b${text}\\b` : text,
-                        state.useInsensitive ? "ig" : "g"
-                    );
-                }
-            }, 250),
+            updateFilterText: helpers.getDebouncedHandler(
+                function () {
+                    let text = this.filterText = document.querySelector("input[type=text]").value;
+                    if (!text || !text.length) {
+                        this.filterText = "";
+                        this.filterRegex = null;
+                    }
+                    else {
+                        if (!state.useRegex)
+                            text = helpers.escapeRegex(text);
+                        this.filterRegex = new RegExp(
+                            state.useWord ? `\\b${text}\\b` : text,
+                            state.useInsensitive ? "ig" : "g"
+                        );
+                    }
+                },
+                250
+            ),
 
             toggleMod: function (id) {
                 if (!state.enableFilters)
                     return;
 
-                var curShown = this.showMods[id];
+                const curShown = this.showMods[id];
 
                 // first filter: only show this by default
                 if (stats.modsHidden === 0) {
@@ -684,7 +785,7 @@ smapi.logParser = function (state, sectionUrl) {
                 if (!state.enableFilters)
                     return;
 
-                for (var key in this.showMods) {
+                for (let key in this.showMods) {
                     if (this.showMods.hasOwnProperty(key)) {
                         this.showMods[key] = true;
                     }
@@ -696,7 +797,7 @@ smapi.logParser = function (state, sectionUrl) {
                 if (!state.enableFilters)
                     return;
 
-                for (var key in this.showMods) {
+                for (let key in this.showMods) {
                     if (this.showMods.hasOwnProperty(key)) {
                         this.showMods[key] = false;
                     }
@@ -717,7 +818,7 @@ smapi.logParser = function (state, sectionUrl) {
     /**********
     ** Upload form
     *********/
-    var input = $("#input");
+    const input = $("#input");
     if (input.length) {
         // file upload
         smapi.fileUpload({

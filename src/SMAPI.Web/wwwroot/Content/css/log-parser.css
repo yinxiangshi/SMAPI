@@ -113,7 +113,7 @@ table caption {
 }
 
 .table tr {
-    background: #eee
+    background: #eee;
 }
 
 #mods span.notice {
@@ -148,8 +148,10 @@ table caption {
     font-style: italic;
 }
 
-.content-packs--short {
+.table .content-packs-collapsed {
     opacity: 0.75;
+    font-size: 0.9em;
+    font-style: italic;
 }
 
 #metadata td:first-child {
@@ -157,7 +159,7 @@ table caption {
 }
 
 .table tr:nth-child(even) {
-    background: #fff
+    background: #fff;
 }
 
 #filters {

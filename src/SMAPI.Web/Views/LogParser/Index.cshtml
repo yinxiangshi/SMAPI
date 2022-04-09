@@ -68,8 +68,7 @@
                     showSections: @this.ForJson(Enum.GetNames(typeof(LogSection)).ToDictionary(section => section, _ => false)),
                     showLevels: @this.ForJson(defaultFilters),
                     enableFilters: @this.ForJson(!Model.ShowRaw)
-                },
-                "@this.Url.PlainAction("Index", "LogParser", values: null)"
+                }
             );
 
             new Tabby("[data-tabs]");
@@ -296,7 +295,7 @@ else if (log?.IsValid == true)
                     <span class="notice txt"><i>click any mod to filter</i></span>
                     <span class="notice btn txt" v-on:click="showAllMods" v-bind:class="{ invisible: !anyModsHidden }">show all</span>
                     <span class="notice btn txt" v-on:click="hideAllMods" v-bind:class="{ invisible: !anyModsShown || !anyModsHidden }">hide all</span>
-                    <span class="notice btn txt" v-on:click="toggleContentPacks">toggle content packs</span>
+                    <span class="notice btn txt" v-on:click="toggleContentPacks">toggle content packs in list</span>
                 }
             </caption>
             @foreach (var mod in log.Mods.Where(p => p.Loaded && !p.IsContentPack))
@@ -316,7 +315,7 @@ else if (log?.IsValid == true)
                                     <text>+ @contentPack.Name @contentPack.Version</text><br />
                                 }
                             </div>
-                            <span v-else class="content-packs--short"> (+ @contentPackList.Length Content Packs)</span>
+                            <span v-else class="content-packs-collapsed"> (+ @contentPackList.Length content packs)</span>
                         }
                     </td>
                     <td>
@@ -365,14 +364,14 @@ else if (log?.IsValid == true)
                         <div class="filter-text">
                             <input
                                 type="text"
-                                v-bind:class="{ active: filterText && filterText != '' }"
+                                v-bind:class="{ active: !!filterText }"
                                 v-on:input="updateFilterText"
-                                placeholder="filter..."
+                                placeholder="search to filter log..."
                             />
-                            <span role="button" v-bind:class="{ active: filterUseRegex }" v-on:click="toggleFilterUseRegex" title="Use Regular Expression">.*</span>
-                            <span role="button" v-bind:class="{ active: !filterInsensitive }" v-on:click="toggleFilterInsensitive" title="Match Case">aA</span>
-                            <span role="button" v-bind:class="{ active: filterUseWord, 'whole-word': true }" v-on:click="toggleFilterWord" title="Match Whole Word"><i>Ab</i></span>
-                            <span role="button" v-bind:class="{ active: shouldHighlight }" v-on:click="toggleHighlight" title="Highlight Matches">HL</span>
+                            <span role="button" v-bind:class="{ active: filterUseRegex }" v-on:click="toggleFilterUseRegex" title="Use regular expression syntax.">.*</span>
+                            <span role="button" v-bind:class="{ active: !filterInsensitive }" v-on:click="toggleFilterInsensitive" title="Match exact capitalization only.">aA</span>
+                            <span role="button" v-bind:class="{ active: filterUseWord, 'whole-word': true }" v-on:click="toggleFilterWord" title="Match whole word only."><i>“ ”</i></span>
+                            <span role="button" v-bind:class="{ active: shouldHighlight }" v-on:click="toggleHighlight" title="Highlight matches in the log text.">HL</span>
                         </div>
                         <filter-stats
                             v-bind:start="start"
@@ -393,9 +392,7 @@ else if (log?.IsValid == true)
 
             <noscript>
                 <div>
-                    This website uses JavaScript to display a filterable table. To view this log, please either
-                    <a href="@this.Url.PlainAction("Index", "LogParser", new { id = Model.PasteID, format = LogViewFormat.RawView })">view the raw log</a>
-                    or enable JavaScript.
+                    This website uses JavaScript to display a filterable table. To view this log, please enable JavaScript or <a href="@this.Url.PlainAction("Index", "LogParser", new { id = Model.PasteID, format = LogViewFormat.RawView })">view the raw log</a>.
                 </div>
                 <br/>
             </noscript>
