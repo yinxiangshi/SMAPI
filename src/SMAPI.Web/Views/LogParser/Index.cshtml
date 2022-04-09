@@ -16,18 +16,15 @@
 
     IDictionary<string, LogModInfo[]> contentPacks = Model.GetContentPacksByMod();
     IDictionary<string, bool> defaultFilters = Enum
-        .GetValues(typeof(LogLevel))
-        .Cast<LogLevel>()
+        .GetValues<LogLevel>()
         .ToDictionary(level => level.ToString().ToLower(), level => level != LogLevel.Trace);
 
     IDictionary<int, string> logLevels = Enum
-        .GetValues(typeof(LogLevel))
-        .Cast<LogLevel>()
+        .GetValues<LogLevel>()
         .ToDictionary(level => (int)level, level => level.ToString().ToLower());
 
     IDictionary<int, string> logSections = Enum
-        .GetValues(typeof(LogSection))
-        .Cast<LogSection>()
+        .GetValues<LogSection>()
         .ToDictionary(section => (int)section, section => section.ToString());
 
     string curPageUrl = this.Url.PlainAction("Index", "LogParser", new { id = Model.PasteID }, absoluteUrl: true);
