@@ -168,8 +168,8 @@ namespace StardewModdingAPI.Framework
         /// <summary>Construct an instance.</summary>
         /// <param name="modsPath">The path to search for mods.</param>
         /// <param name="writeToConsole">Whether to output log messages to the console.</param>
-        /// <param name="developerModeValue">null if not modified else whether to use developer mode</param>
-        public SCore(string modsPath, bool writeToConsole, bool? developerModeValue)
+        /// <param name="developerMode">Whether to enable development features, or <c>null</c> to use the value from the settings file.</param>
+        public SCore(string modsPath, bool writeToConsole, bool? developerMode)
         {
             SCore.Instance = this;
 
@@ -184,12 +184,7 @@ namespace StardewModdingAPI.Framework
 
             // init basics
             this.Settings = JsonConvert.DeserializeObject<SConfig>(File.ReadAllText(Constants.ApiConfigPath));
-
-            // temporary overwrite DeveloperMode Setting
-            if (developerModeValue.HasValue)
-            {
-                this.Settings.DeveloperMode = developerModeValue.Value;
-            }
+            this.Settings.DeveloperMode = developerMode ?? this.Settings.DeveloperMode;
 
             if (File.Exists(Constants.ApiUserConfigPath))
                 JsonConvert.PopulateObject(File.ReadAllText(Constants.ApiUserConfigPath), this.Settings);
