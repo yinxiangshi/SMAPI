@@ -22,7 +22,7 @@ function debounce(fn, delay) {
 // Case insensitive text searching and match word searching is best done in
 // regex, so if the user isn't trying to use regex, escape their input.
 function escapeRegex(text) {
-    return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 // Use a scroll event to apply a sticky effect to the filters / pagination
@@ -31,9 +31,9 @@ function escapeRegex(text) {
 $(function () {
     let sticking = false;
 
-    document.addEventListener('scroll', function (event) {
-        const filters = document.getElementById('filters');
-        const holder = document.getElementById('filterHolder');
+    document.addEventListener("scroll", function (event) {
+        const filters = document.getElementById("filters");
+        const holder = document.getElementById("filterHolder");
         if (!filters || !holder)
             return;
 
@@ -45,10 +45,10 @@ $(function () {
         sticking = should_stick;
         if (sticking) {
             holder.style.marginBottom = `calc(1em + ${filters.offsetHeight}px)`;
-            filters.classList.add('sticky');
+            filters.classList.add("sticky");
         } else {
-            filters.classList.remove('sticky');
-            holder.style.marginBottom = '';
+            filters.classList.remove("sticky");
+            holder.style.marginBottom = "";
         }
     });
 });
@@ -74,7 +74,7 @@ smapi.nextPage = function () {
 }
 
 smapi.changePage = function (event) {
-    if (typeof event === 'number')
+    if (typeof event === "number")
         app.changePage(event);
     else if (event) {
         const page = parseInt(event.currentTarget.dataset.page);
@@ -114,19 +114,19 @@ smapi.logParser = function (state, sectionUrl) {
     // a lot of JSON and use Vue to build the list. This is a lot more
     // performant and easier on memory.Our JSON is stored in special script
     // tags, that we later remove to let the browser clean up even more memory.
-    let nodeParsedMessages = document.querySelector('script#parsedMessages');
+    let nodeParsedMessages = document.querySelector("script#parsedMessages");
     if (nodeParsedMessages) {
         messages = JSON.parse(nodeParsedMessages.textContent) || [];
-        const logLevels = JSON.parse(document.querySelector('script#logLevels').textContent) || {};
-        const logSections = JSON.parse(document.querySelector('script#logSections').textContent) || {};
-        const modSlugs = JSON.parse(document.querySelector('script#modSlugs').textContent) || {};
+        const logLevels = JSON.parse(document.querySelector("script#logLevels").textContent) || {};
+        const logSections = JSON.parse(document.querySelector("script#logSections").textContent) || {};
+        const modSlugs = JSON.parse(document.querySelector("script#modSlugs").textContent) || {};
 
         // Remove all references to the script tags and remove them from the
         // DOM so that the browser can clean them up.
         nodeParsedMessages.remove();
-        document.querySelector('script#logLevels').remove();
-        document.querySelector('script#logSections').remove();
-        document.querySelector('script#modSlugs').remove();
+        document.querySelector("script#logLevels").remove();
+        document.querySelector("script#logSections").remove();
+        document.querySelector("script#modSlugs").remove();
         nodeParsedMessages = null;
 
         // Pre-process the messages since they aren't quite serialized in
@@ -171,8 +171,8 @@ smapi.logParser = function (state, sectionUrl) {
     // Add some properties to the data we're passing to Vue.
     state.totalMessages = messages.length;
 
-    state.filterText = '';
-    state.filterRegex = '';
+    state.filterText = "";
+    state.filterRegex = "";
 
     state.showContentPacks = true;
     state.useHighlight = true;
@@ -187,15 +187,15 @@ smapi.logParser = function (state, sectionUrl) {
     if (localStorage.settings) {
         try {
             const saved = JSON.parse(localStorage.settings);
-            if (saved.hasOwnProperty('showContentPacks'))
+            if (saved.hasOwnProperty("showContentPacks"))
                 state.showContentPacks = saved.showContentPacks;
-            if (saved.hasOwnProperty('useHighlight'))
+            if (saved.hasOwnProperty("useHighlight"))
                 dat.useHighlight = saved.useHighlight;
-            if (saved.hasOwnProperty('useRegex'))
+            if (saved.hasOwnProperty("useRegex"))
                 state.useRegex = saved.useRegex;
-            if (saved.hasOwnProperty('useInsensitive'))
+            if (saved.hasOwnProperty("useInsensitive"))
                 state.useInsensitive = saved.useInsensitive;
-            if (saved.hasOwnProperty('useWord'))
+            if (saved.hasOwnProperty("useWord"))
                 state.useWord = saved.useWord;
         } catch { /* ignore errors */ }
     }
@@ -210,19 +210,19 @@ smapi.logParser = function (state, sectionUrl) {
         if (!fmt || !fmt.format) return `${value}`;
         return fmt.format(value);
     }
-    Vue.filter('number', formatNumber);
+    Vue.filter("number", formatNumber);
 
     // Strictly speaking, we don't need this. However, due to the way our
     // Vue template is living in-page the browser is "helpful" and moves
     // our <log-line />s outside of a basic <table> since obviously they
     // aren't table rows and don't belong inside a table. By using another
     // Vue component, we avoid that.
-    Vue.component('log-table', {
+    Vue.component("log-table", {
         functional: true,
         render: function (createElement, context) {
-            return createElement('table', {
+            return createElement("table", {
                 attrs: {
-                    id: 'log'
+                    id: "log"
                 }
             }, context.children);
         }
@@ -231,32 +231,32 @@ smapi.logParser = function (state, sectionUrl) {
     // The <filter-stats /> component draws a nice message under the filters
     // telling a user how many messages match their filters, and also expands
     // on how many of them they're seeing because of pagination.
-    Vue.component('filter-stats', {
+    Vue.component("filter-stats", {
         functional: true,
         render: function (createElement, context) {
             const props = context.props;
             if (props.pages > 1)
-                return createElement('div', {
-                    class: 'stats'
+                return createElement("div", {
+                    class: "stats"
                 }, [
-                    'showing ',
-                    createElement('strong', formatNumber(props.start + 1)),
-                    ' to ',
-                    createElement('strong', formatNumber(props.end)),
-                    ' of ',
-                    createElement('strong', formatNumber(props.filtered)),
-                    ' (total: ',
-                    createElement('strong', formatNumber(props.total)),
-                    ')'
+                    "showing ",
+                    createElement("strong", formatNumber(props.start + 1)),
+                    " to ",
+                    createElement("strong", formatNumber(props.end)),
+                    " of ",
+                    createElement("strong", formatNumber(props.filtered)),
+                    " (total: ",
+                    createElement("strong", formatNumber(props.total)),
+                    ")"
                 ]);
 
-            return createElement('div', {
-                class: 'stats'
+            return createElement("div", {
+                class: "stats"
             }, [
-                'showing ',
-                createElement('strong', formatNumber(props.filtered)),
-                ' out of ',
-                createElement('strong', formatNumber(props.total))
+                "showing ",
+                createElement("strong", formatNumber(props.filtered)),
+                " out of ",
+                createElement("strong", formatNumber(props.total))
             ]);
         }
     });
@@ -268,13 +268,13 @@ smapi.logParser = function (state, sectionUrl) {
             return;
 
         if (page > 1 && !visited.has(page - 1))
-            links.push(' … ');
+            links.push(" … ");
 
         visited.add(page);
-        links.push(createElement('span', {
-            class: page == currentPage ? 'active' : null,
+        links.push(createElement("span", {
+            class: page == currentPage ? "active" : null,
             attrs: {
-                'data-page': page
+                "data-page": page
             },
             on: {
                 click: smapi.changePage
@@ -282,7 +282,7 @@ smapi.logParser = function (state, sectionUrl) {
         }, formatNumber(page)));
     }
 
-    Vue.component('pager', {
+    Vue.component("pager", {
         functional: true,
         render: function (createElement, context) {
             const props = context.props;
@@ -309,34 +309,34 @@ smapi.logParser = function (state, sectionUrl) {
                 addPageLink(i, pageLinks, visited, createElement, props.page);
             }
 
-            return createElement('div', {
-                class: 'pager'
+            return createElement("div", {
+                class: "pager"
             }, [
-                createElement('span', {
-                    class: props.page <= 1 ? 'disabled' : null,
+                createElement("span", {
+                    class: props.page <= 1 ? "disabled" : null,
                     on: {
                         click: smapi.prevPage
                     }
-                }, 'Prev'),
-                ' ',
-                'Page ',
+                }, "Prev"),
+                " ",
+                "Page ",
                 formatNumber(props.page),
-                ' of ',
+                " of ",
                 formatNumber(props.pages),
-                ' ',
-                createElement('span', {
-                    class: props.page >= props.pages ? 'disabled' : null,
+                " ",
+                createElement("span", {
+                    class: props.page >= props.pages ? "disabled" : null,
                     on: {
                         click: smapi.nextPage
                     }
-                }, 'Next'),
-                createElement('div', {}, pageLinks)
+                }, "Next"),
+                createElement("div", {}, pageLinks)
             ]);
         }
     });
 
     // Our <log-line /> functional component draws each log line.
-    Vue.component('log-line', {
+    Vue.component("log-line", {
         functional: true,
         props: {
             showScreenId: {
@@ -357,19 +357,19 @@ smapi.logParser = function (state, sectionUrl) {
             const level = msg.LevelName;
 
             if (msg.isRepeated)
-                return createElement('tr', {
+                return createElement("tr", {
                     class: [
                         "mod",
                         level,
                         "mod-repeat"
                     ]
                 }, [
-                    createElement('td', {
+                    createElement("td", {
                         attrs: {
                             colspan: context.props.showScreenId ? 4 : 3
                         }
-                    }, ''),
-                    createElement('td', `repeats ${msg.Repeated} times`)
+                    }, ""),
+                    createElement("td", `repeats ${msg.Repeated} times`)
                 ]);
 
             const events = {};
@@ -377,9 +377,9 @@ smapi.logParser = function (state, sectionUrl) {
             if (msg.IsStartOfSection) {
                 const visible = msg.SectionName && window.app && app.sectionsAllow(msg.SectionName);
                 events.click = smapi.clickLogLine;
-                toggleMessage = visible ?
-                    'This section is shown. Click here to hide it.' :
-                    'This section is hidden. Click here to show it.';
+                toggleMessage = visible
+                    ? "This section is shown. Click here to hide it."
+                    : "This section is hidden. Click here to show it.";
             }
 
             let text = msg.Text;
@@ -402,7 +402,7 @@ smapi.logParser = function (state, sectionUrl) {
                         // Alright, do we have a previous match? If
                         // we do, we need to consume some text.
                         if (consumed < idx)
-                            text.push(createElement('strong', {}, msg.Text.slice(consumed, idx)));
+                            text.push(createElement("strong", {}, msg.Text.slice(consumed, idx)));
 
                         text.push(msg.Text.slice(idx, match.index));
                         consumed = match.index;
@@ -414,40 +414,40 @@ smapi.logParser = function (state, sectionUrl) {
                 // Add any trailing text after the last match was found.
                 if (consumed < msg.Text.length) {
                     if (consumed < idx)
-                        text.push(createElement('strong', {}, msg.Text.slice(consumed, idx)));
+                        text.push(createElement("strong", {}, msg.Text.slice(consumed, idx)));
 
                     if (idx < msg.Text.length)
                         text.push(msg.Text.slice(idx));
                 }
             }
 
-            return createElement('tr', {
+            return createElement("tr", {
                 class: [
                     "mod",
                     level,
                     msg.IsStartOfSection ? "section-start" : null
                 ],
                 attrs: {
-                    'data-section': msg.SectionName
+                    "data-section": msg.SectionName
                 },
                 on: events
             }, [
-                createElement('td', msg.Time),
-                context.props.showScreenId ? createElement('td', msg.ScreenId) : null,
-                createElement('td', level.toUpperCase()),
-                createElement('td', {
+                createElement("td", msg.Time),
+                context.props.showScreenId ? createElement("td", msg.ScreenId) : null,
+                createElement("td", level.toUpperCase()),
+                createElement("td", {
                     attrs: {
-                        'data-title': msg.Mod
+                        "data-title": msg.Mod
                     }
                 }, msg.Mod),
-                createElement('td', [
-                    createElement('span', {
-                        class: 'log-message-text'
+                createElement("td", [
+                    createElement("span", {
+                        class: "log-message-text"
                     }, text),
-                    msg.IsStartOfSection ? createElement('span', {
-                        class: 'section-toggle-message'
+                    msg.IsStartOfSection ? createElement("span", {
+                        class: "section-toggle-message"
                     }, [
-                        ' ',
+                        " ",
                         toggleMessage
                     ]) : null
                 ])
@@ -457,7 +457,7 @@ smapi.logParser = function (state, sectionUrl) {
 
     // init app
     app = new Vue({
-        el: '#output',
+        el: "#output",
         data: state,
         computed: {
             anyModsHidden: function () {
@@ -541,7 +541,7 @@ smapi.logParser = function (state, sectionUrl) {
         },
         created: function () {
             this.loadFromUrl = this.loadFromUrl.bind(this);
-            window.addEventListener('popstate', this.loadFromUrl);
+            window.addEventListener("popstate", this.loadFromUrl);
             this.loadFromUrl();
         },
         methods: {
@@ -551,16 +551,16 @@ smapi.logParser = function (state, sectionUrl) {
             // user can link to their exact page state for someone else?
             loadFromUrl: function () {
                 const params = new URL(location).searchParams;
-                if (params.has('PerPage'))
+                if (params.has("PerPage"))
                     try {
-                        const perPage = parseInt(params.get('PerPage'));
+                        const perPage = parseInt(params.get("PerPage"));
                         if (!isNaN(perPage) && isFinite(perPage) && perPage > 0)
                             state.perPage = perPage;
                     } catch { /* ignore errors */ }
 
-                if (params.has('Page'))
+                if (params.has("Page"))
                     try {
-                        const page = parseInt(params.get('Page'));
+                        const page = parseInt(params.get("Page"));
                         if (!isNaN(page) && isFinite(page) && page > 0)
                             this.page = page;
                     } catch { /* ignore errors */ }
@@ -640,8 +640,8 @@ smapi.logParser = function (state, sectionUrl) {
             // really care about.
             updateUrl: function () {
                 const url = new URL(location);
-                url.searchParams.set('Page', state.page);
-                url.searchParams.set('PerPage', state.perPage);
+                url.searchParams.set("Page", state.page);
+                url.searchParams.set("PerPage", state.perPage);
 
                 window.history.replaceState(null, document.title, url.toString());
             },
@@ -651,16 +651,16 @@ smapi.logParser = function (state, sectionUrl) {
             // since we use it for highlighting, and it also make case insensitivity
             // much easier.
             updateFilterText: debounce(function () {
-                let text = this.filterText = document.querySelector('input[type=text]').value;
+                let text = this.filterText = document.querySelector("input[type=text]").value;
                 if (!text || !text.length) {
-                    this.filterText = '';
+                    this.filterText = "";
                     this.filterRegex = null;
                 } else {
                     if (!state.useRegex)
                         text = escapeRegex(text);
                     this.filterRegex = new RegExp(
                         state.useWord ? `\\b${text}\\b` : text,
-                        state.useInsensitive ? 'ig' : 'g'
+                        state.useInsensitive ? "ig" : "g"
                     );
                 }
             }, 250),
