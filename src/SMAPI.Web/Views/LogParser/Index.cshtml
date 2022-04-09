@@ -42,27 +42,40 @@
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1" crossorigin="anonymous"></script>
     <script src="~/Content/js/file-upload.js"></script>
     <script src="~/Content/js/log-parser.js"></script>
+
+    <script id="serializedData" type="application/json">
+        @if (!Model.ShowRaw)
+        {
+            <text>
+                {
+                    "messages": @this.ForJson(log?.Messages),
+                    "sections": @this.ForJson(logSections),
+                    "logLevels": @this.ForJson(logLevels),
+                    "modSlugs": @this.ForJson(log?.Mods.DistinctBy(p => p.Name).Select(p => new {p.Name, Slug = Model.GetSlug(p.Name)}).Where(p => p.Name != p.Slug).ToDictionary(p => p.Name, p => p.Slug)),
+                    "screenIds": @this.ForJson(screenIds)
+                }
+            </text>
+        }
+        else
+        {
+            <text>
+                {
+                    "messages": [],
+                    "sections": {},
+                    "logLevels": {},
+                    "modSlugs": {},
+                    "screenIds": []
+                }
+            </text>
+        }
+    </script>
+    
     <script>
         $(function() {
             smapi.logParser(
                 {
                     logStarted: new Date(@this.ForJson(log?.Timestamp)),
-                    @if (!Model.ShowRaw)
-                    {
-                        <text>
-                            data: {
-                                messages: @this.ForJson(log?.Messages),
-                                sections: @this.ForJson(logSections),
-                                logLevels: @this.ForJson(logLevels),
-                                modSlugs: @this.ForJson(log?.Mods.DistinctBy(p => p.Name).Select(p => new { p.Name, Slug = Model.GetSlug(p.Name) }).Where(p => p.Name != p.Slug).ToDictionary(p => p.Name, p => p.Slug)),
-                                screenIds: @this.ForJson(screenIds)
-                            },
-                        </text>
-                    }
-                    else
-                    {
-                        <text>data: null,</text>
-                    }
+                    dataElement: "script#serializedData",
                     showPopup: @this.ForJson(log == null),
                     showMods: @this.ForJson(log?.Mods.Select(p => Model.GetSlug(p.Name)).Distinct().ToDictionary(slug => slug, _ => true)),
                     showSections: @this.ForJson(Enum.GetNames(typeof(LogSection)).ToDictionary(section => section, _ => false)),

@@ -162,8 +162,14 @@ smapi.logParser = function (state) {
         }
     }
 
+    // load raw log data
+    {
+        const dataElement = document.querySelector(state.dataElement);
+        state.data = JSON.parse(dataElement.textContent.trim());
+    }
+
     // preprocess data for display
-    state.messages = state.data?.messages || [];
+    state.messages = state.data.messages || [];
     if (state.messages.length) {
         const levels = state.data.logLevels;
         const sections = state.data.sections;
