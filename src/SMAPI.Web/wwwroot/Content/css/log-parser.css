@@ -113,7 +113,7 @@ table caption {
 }
 
 .table tr {
-    background: #eee
+    background: #eee;
 }
 
 #mods span.notice {
@@ -148,18 +148,74 @@ table caption {
     font-style: italic;
 }
 
+.table .content-packs-collapsed {
+    opacity: 0.75;
+    font-size: 0.9em;
+    font-style: italic;
+}
+
 #metadata td:first-child {
     padding-right: 5px;
 }
 
 .table tr:nth-child(even) {
-    background: #fff
+    background: #fff;
 }
 
 #filters {
     margin: 1em 0 0 0;
-    padding: 0;
+    padding: 0 0 0.5em;
+    display: flex;
+    justify-content: space-between;
+    width: calc(100vw - 16em);
+}
+
+#filters > div {
+    align-self: center;
+}
+
+#filters .toggles {
+    display: flex;
+}
+
+#filters .toggles > div:first-child {
     font-weight: bold;
+    padding: 0.2em 1em 0 0;
+}
+
+#filters .filter-text {
+    margin-top: 0.5em;
+}
+
+#filters .stats {
+    margin-top: 0.5em;
+    font-size: 0.75em;
+}
+
+#filters.sticky {
+    position: fixed;
+    top: 0;
+    left: 0em;
+    background: #fff;
+    margin: 0;
+    padding: 0.5em;
+    width: calc(100% - 1em);
+}
+
+@media (min-width: 1020px) and (max-width: 1199px) {
+    #filters:not(.sticky) {
+        width: calc(100vw - 13em);
+    }
+}
+
+@media (max-width: 1019px) {
+    #filters:not(.sticky) {
+        width: calc(100vw - 3em);
+    }
+
+    #filters {
+        display: block;
+    }
 }
 
 #filters span {
@@ -173,6 +229,17 @@ table caption {
     color: #000;
     border-color: #880000;
     background-color: #fcc;
+
+    user-select: none;
+}
+
+#filters .filter-text span {
+    padding: 3px 0.5em;
+}
+
+#filters .whole-word i {
+    padding: 0 1px;
+    border: 1px dashed;
 }
 
 #filters span:hover {
@@ -188,11 +255,48 @@ table caption {
     background: #efe;
 }
 
+#filters .pager {
+    margin-top: 0.5em;
+    text-align: right;
+}
+
+#filters .pager div {
+    margin-top: 0.5em;
+}
+
+#filters .pager div span {
+    padding: 0 0.5em;
+    margin: 0 1px;
+}
+
+#filters .pager span {
+    background-color: #eee;
+    border-color: #888;
+}
+
+#filters .pager span.active {
+    font-weight: bold;
+    border-color: transparent;
+    background: transparent;
+    cursor: unset;
+}
+
+#filters .pager span.disabled {
+    opacity: 0.3;
+    cursor: unset;
+}
+
+#filters .pager span:not(.disabled):hover {
+    background-color: #fff;
+}
+
+
 /*********
 ** Log
 *********/
 #log .mod-repeat {
     font-size: 0.85em;
+    font-style: italic;
 }
 
 #log .trace {
@@ -235,6 +339,11 @@ table caption {
 
 #log .log-message-text {
     white-space: pre-wrap;
+}
+
+#log .log-message-text strong {
+    background-color: yellow;
+    font-weight: normal;
 }
 
 #log {

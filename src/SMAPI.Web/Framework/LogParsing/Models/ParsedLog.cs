@@ -1,6 +1,5 @@
-#nullable disable
-
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace StardewModdingAPI.Web.Framework.LogParsing.Models
 {
@@ -14,31 +13,32 @@ namespace StardewModdingAPI.Web.Framework.LogParsing.Models
         ** Metadata
         ****/
         /// <summary>Whether the log file was successfully parsed.</summary>
+        [MemberNotNullWhen(true, nameof(ParsedLog.RawText))]
         public bool IsValid { get; set; }
 
         /// <summary>An error message indicating why the log file is invalid.</summary>
-        public string Error { get; set; }
+        public string? Error { get; set; }
 
         /// <summary>The raw log text.</summary>
-        public string RawText { get; set; }
+        public string? RawText { get; set; }
 
         /****
         ** Log data
         ****/
         /// <summary>The SMAPI version.</summary>
-        public string ApiVersion { get; set; }
+        public string? ApiVersion { get; set; }
 
         /// <summary>The game version.</summary>
-        public string GameVersion { get; set; }
+        public string? GameVersion { get; set; }
 
         /// <summary>The player's operating system.</summary>
-        public string OperatingSystem { get; set; }
+        public string? OperatingSystem { get; set; }
 
         /// <summary>The game install path.</summary>
-        public string GamePath { get; set; }
+        public string? GamePath { get; set; }
 
         /// <summary>The mod folder path.</summary>
-        public string ModPath { get; set; }
+        public string? ModPath { get; set; }
 
         /// <summary>The ISO 8601 timestamp when the log was started.</summary>
         public DateTimeOffset Timestamp { get; set; }
@@ -47,6 +47,6 @@ namespace StardewModdingAPI.Web.Framework.LogParsing.Models
         public LogModInfo[] Mods { get; set; } = Array.Empty<LogModInfo>();
 
         /// <summary>The log messages.</summary>
-        public LogMessage[] Messages { get; set; }
+        public LogMessage[] Messages { get; set; } = Array.Empty<LogMessage>();
     }
 }
