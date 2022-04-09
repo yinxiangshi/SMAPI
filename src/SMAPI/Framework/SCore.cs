@@ -173,7 +173,8 @@ namespace StardewModdingAPI.Framework
         /// <summary>Construct an instance.</summary>
         /// <param name="modsPath">The path to search for mods.</param>
         /// <param name="writeToConsole">Whether to output log messages to the console.</param>
-        public SCore(string modsPath, bool writeToConsole)
+        /// <param name="developerMode">Whether to enable development features, or <c>null</c> to use the value from the settings file.</param>
+        public SCore(string modsPath, bool writeToConsole, bool? developerMode)
         {
             SCore.Instance = this;
 
@@ -190,6 +191,7 @@ namespace StardewModdingAPI.Framework
             this.Settings = JsonConvert.DeserializeObject<SConfig>(File.ReadAllText(Constants.ApiConfigPath));
             if (File.Exists(Constants.ApiUserConfigPath))
                 JsonConvert.PopulateObject(File.ReadAllText(Constants.ApiUserConfigPath), this.Settings);
+            this.Settings.DeveloperMode = developerMode ?? this.Settings.DeveloperMode;
 
             this.LogManager = new LogManager(logPath: logPath, colorConfig: this.Settings.ConsoleColors, writeToConsole: writeToConsole, isVerbose: this.Settings.VerboseLogging, isDeveloperMode: this.Settings.DeveloperMode, getScreenIdForLog: this.GetScreenIdForLog);
             this.CommandManager = new CommandManager(this.Monitor);

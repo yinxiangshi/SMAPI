@@ -181,27 +181,34 @@ namespace StardewModdingAPI
             bool writeToConsole = !args.Contains("--no-terminal") && Environment.GetEnvironmentVariable("SMAPI_NO_TERMINAL") == null;
 
             // get mods path
+            bool? developerMode = null;
             string modsPath;
             {
                 string rawModsPath = null;
 
-                // get from command line args
+                // get mods path from command line args
                 int pathIndex = Array.LastIndexOf(args, "--mods-path") + 1;
                 if (pathIndex >= 1 && args.Length >= pathIndex)
                     rawModsPath = args[pathIndex];
+
+                // get developer mode from command line args
+                if (args.Contains("--developer-mode"))
+                    developerMode = true;
+                if (args.Contains("--developer-mode-off"))
+                    developerMode = false;
 
                 // get from environment variables
                 if (string.IsNullOrWhiteSpace(rawModsPath))
                     rawModsPath = Environment.GetEnvironmentVariable("SMAPI_MODS_PATH");
 
-                // normalise
+                // normalize
                 modsPath = !string.IsNullOrWhiteSpace(rawModsPath)
                     ? Path.Combine(Constants.GamePath, rawModsPath)
                     : Constants.DefaultModsPath;
             }
 
             // load SMAPI
-            using SCore core = new(modsPath, writeToConsole);
+            using SCore core = new(modsPath, writeToConsole, developerMode);
             core.RunInteractively();
         }
 
