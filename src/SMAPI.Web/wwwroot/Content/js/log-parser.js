@@ -84,12 +84,12 @@ smapi.changePage = function (event) {
 }
 
 
-smapi.logParser = function (data, sectionUrl) {
-    if (!data)
-        data = {};
+smapi.logParser = function (state, sectionUrl) {
+    if (!state)
+        state = {};
 
     // internal filter counts
-    var stats = data.stats = {
+    var stats = state.stats = {
         modsShown: 0,
         modsHidden: 0
     };
@@ -98,9 +98,9 @@ smapi.logParser = function (data, sectionUrl) {
         // counts
         stats.modsShown = 0;
         stats.modsHidden = 0;
-        for (var key in data.showMods) {
-            if (data.showMods.hasOwnProperty(key)) {
-                if (data.showMods[key])
+        for (var key in state.showMods) {
+            if (state.showMods.hasOwnProperty(key)) {
+                if (state.showMods[key])
                     stats.modsShown++;
                 else
                     stats.modsHidden++;
@@ -165,38 +165,38 @@ smapi.logParser = function (data, sectionUrl) {
         messages = [];
 
     // set local time started
-    if (data.logStarted)
-        data.localTimeStarted = ("0" + data.logStarted.getHours()).slice(-2) + ":" + ("0" + data.logStarted.getMinutes()).slice(-2);
+    if (state.logStarted)
+        state.localTimeStarted = ("0" + state.logStarted.getHours()).slice(-2) + ":" + ("0" + state.logStarted.getMinutes()).slice(-2);
 
     // Add some properties to the data we're passing to Vue.
-    data.totalMessages = messages.length;
+    state.totalMessages = messages.length;
 
-    data.filterText = '';
-    data.filterRegex = '';
+    state.filterText = '';
+    state.filterRegex = '';
 
-    data.showContentPacks = true;
-    data.useHighlight = true;
-    data.useRegex = false;
-    data.useInsensitive = true;
-    data.useWord = false;
+    state.showContentPacks = true;
+    state.useHighlight = true;
+    state.useRegex = false;
+    state.useInsensitive = true;
+    state.useWord = false;
 
-    data.perPage = 1000;
-    data.page = 1;
+    state.perPage = 1000;
+    state.page = 1;
 
     // Now load these values.
     if (localStorage.settings) {
         try {
             const saved = JSON.parse(localStorage.settings);
             if (saved.hasOwnProperty('showContentPacks'))
-                data.showContentPacks = saved.showContentPacks;
+                state.showContentPacks = saved.showContentPacks;
             if (saved.hasOwnProperty('useHighlight'))
                 dat.useHighlight = saved.useHighlight;
             if (saved.hasOwnProperty('useRegex'))
-                data.useRegex = saved.useRegex;
+                state.useRegex = saved.useRegex;
             if (saved.hasOwnProperty('useInsensitive'))
-                data.useInsensitive = saved.useInsensitive;
+                state.useInsensitive = saved.useInsensitive;
             if (saved.hasOwnProperty('useWord'))
-                data.useWord = saved.useWord;
+                state.useWord = saved.useWord;
         } catch { /* ignore errors */ }
     }
 
@@ -458,7 +458,7 @@ smapi.logParser = function (data, sectionUrl) {
     // init app
     app = new Vue({
         el: '#output',
-        data: data,
+        data: state,
         computed: {
             anyModsHidden: function () {
                 return stats.modsHidden > 0;
@@ -474,14 +474,14 @@ smapi.logParser = function (data, sectionUrl) {
             // weird about accessing data entries on the app rather than
             // computed properties.
             hideContentPacks: function () {
-                return !data.showContentPacks;
+                return !state.showContentPacks;
             },
 
             // Filter messages for visibility.
-            filterUseRegex: function () { return data.useRegex; },
-            filterInsensitive: function () { return data.useInsensitive; },
-            filterUseWord: function () { return data.useWord; },
-            shouldHighlight: function () { return data.useHighlight; },
+            filterUseRegex: function () { return state.useRegex; },
+            filterInsensitive: function () { return state.useInsensitive; },
+            filterUseWord: function () { return state.useWord; },
+            shouldHighlight: function () { return state.useHighlight; },
 
             filteredMessages: function () {
                 if (!messages)
@@ -520,13 +520,13 @@ smapi.logParser = function (data, sectionUrl) {
 
             // And the rest are about pagination.
             start: function () {
-                return (this.page - 1) * data.perPage;
+                return (this.page - 1) * state.perPage;
             },
             end: function () {
                 return this.start + this.visibleMessages.length;
             },
             totalPages: function () {
-                return Math.ceil(this.filteredMessages.length / data.perPage);
+                return Math.ceil(this.filteredMessages.length / state.perPage);
             },
             // 
             visibleMessages: function () {
@@ -534,7 +534,7 @@ smapi.logParser = function (data, sectionUrl) {
                     return this.filteredMessages;
 
                 const start = this.start;
-                const end = start + data.perPage;
+                const end = start + state.perPage;
 
                 return this.filteredMessages.slice(start, end);
             }
@@ -555,7 +555,7 @@ smapi.logParser = function (data, sectionUrl) {
                     try {
                         const perPage = parseInt(params.get('PerPage'));
                         if (!isNaN(perPage) && isFinite(perPage) && perPage > 0)
-                            data.perPage = perPage;
+                            state.perPage = perPage;
                     } catch { /* ignore errors */ }
 
                 if (params.has('Page'))
@@ -567,37 +567,37 @@ smapi.logParser = function (data, sectionUrl) {
             },
 
             toggleLevel: function (id) {
-                if (!data.enableFilters)
+                if (!state.enableFilters)
                     return;
 
                 this.showLevels[id] = !this.showLevels[id];
             },
 
             toggleContentPacks: function () {
-                data.showContentPacks = !data.showContentPacks;
+                state.showContentPacks = !state.showContentPacks;
                 this.saveSettings();
             },
 
             toggleFilterUseRegex: function () {
-                data.useRegex = !data.useRegex;
+                state.useRegex = !state.useRegex;
                 this.saveSettings();
                 this.updateFilterText();
             },
 
             toggleFilterInsensitive: function () {
-                data.useInsensitive = !data.useInsensitive;
+                state.useInsensitive = !state.useInsensitive;
                 this.saveSettings();
                 this.updateFilterText();
             },
 
             toggleFilterWord: function () {
-                data.useWord = !data.useWord;
+                state.useWord = !state.useWord;
                 this.saveSettings();
                 this.updateFilterText();
             },
 
             toggleHighlight: function () {
-                data.useHighlight = !data.useHighlight;
+                state.useHighlight = !state.useHighlight;
                 this.saveSettings();
             },
 
@@ -626,11 +626,11 @@ smapi.logParser = function (data, sectionUrl) {
             // the user opens a log.
             saveSettings: function () {
                 localStorage.settings = JSON.stringify({
-                    showContentPacks: data.showContentPacks,
-                    useRegex: data.useRegex,
-                    useInsensitive: data.useInsensitive,
-                    useWord: data.useWord,
-                    useHighlight: data.useHighlight
+                    showContentPacks: state.showContentPacks,
+                    useRegex: state.useRegex,
+                    useInsensitive: state.useInsensitive,
+                    useWord: state.useWord,
+                    useHighlight: state.useHighlight
                 });
             },
 
@@ -640,8 +640,8 @@ smapi.logParser = function (data, sectionUrl) {
             // really care about.
             updateUrl: function () {
                 const url = new URL(location);
-                url.searchParams.set('Page', data.page);
-                url.searchParams.set('PerPage', data.perPage);
+                url.searchParams.set('Page', state.page);
+                url.searchParams.set('PerPage', state.perPage);
 
                 window.history.replaceState(null, document.title, url.toString());
             },
@@ -656,17 +656,17 @@ smapi.logParser = function (data, sectionUrl) {
                     this.filterText = '';
                     this.filterRegex = null;
                 } else {
-                    if (!data.useRegex)
+                    if (!state.useRegex)
                         text = escapeRegex(text);
                     this.filterRegex = new RegExp(
-                        data.useWord ? `\\b${text}\\b` : text,
-                        data.useInsensitive ? 'ig' : 'g'
+                        state.useWord ? `\\b${text}\\b` : text,
+                        state.useInsensitive ? 'ig' : 'g'
                     );
                 }
             }, 250),
 
             toggleMod: function (id) {
-                if (!data.enableFilters)
+                if (!state.enableFilters)
                     return;
 
                 var curShown = this.showMods[id];
@@ -689,14 +689,14 @@ smapi.logParser = function (data, sectionUrl) {
             },
 
             toggleSection: function (name) {
-                if (!data.enableFilters)
+                if (!state.enableFilters)
                     return;
 
                 this.showSections[name] = !this.showSections[name];
             },
 
             showAllMods: function () {
-                if (!data.enableFilters)
+                if (!state.enableFilters)
                     return;
 
                 for (var key in this.showMods) {
@@ -708,7 +708,7 @@ smapi.logParser = function (data, sectionUrl) {
             },
 
             hideAllMods: function () {
-                if (!data.enableFilters)
+                if (!state.enableFilters)
                     return;
 
                 for (var key in this.showMods) {
