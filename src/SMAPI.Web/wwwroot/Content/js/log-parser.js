@@ -108,61 +108,46 @@ smapi.logParser = function (state, sectionUrl) {
         }
     }
 
-    // load our data
+    // preprocess data for display
+    messages = state.data?.messages || [];
+    if (messages.length) {
+        const levels = state.data.logLevels;
+        const sections = state.data.sections;
+        const modSlugs = state.data.modSlugs;
 
-    // Rather than pre-rendering the list elements into the document, we read
-    // a lot of JSON and use Vue to build the list. This is a lot more
-    // performant and easier on memory.Our JSON is stored in special script
-    // tags, that we later remove to let the browser clean up even more memory.
-    let nodeParsedMessages = document.querySelector("script#parsedMessages");
-    if (nodeParsedMessages) {
-        messages = JSON.parse(nodeParsedMessages.textContent) || [];
-        const logLevels = JSON.parse(document.querySelector("script#logLevels").textContent) || {};
-        const logSections = JSON.parse(document.querySelector("script#logSections").textContent) || {};
-        const modSlugs = JSON.parse(document.querySelector("script#modSlugs").textContent) || {};
-
-        // Remove all references to the script tags and remove them from the
-        // DOM so that the browser can clean them up.
-        nodeParsedMessages.remove();
-        document.querySelector("script#logLevels").remove();
-        document.querySelector("script#logSections").remove();
-        document.querySelector("script#modSlugs").remove();
-        nodeParsedMessages = null;
-
-        // Pre-process the messages since they aren't quite serialized in
-        // the format we want. We also want to freeze every last message
-        // so that Vue won't install its change listening behavior.
         for (let i = 0, length = messages.length; i < length; i++) {
-            const msg = messages[i];
-            msg.id = i;
-            msg.LevelName = logLevels && logLevels[msg.Level];
-            msg.SectionName = logSections && logSections[msg.Section];
-            msg.ModSlug = modSlugs && modSlugs[msg.Mod] || msg.Mod;
+            const message = messages[i];
+
+            // add unique ID
+            message.id = i;
+
+            // add display values
+            message.LevelName = levels[message.Level];
+            message.SectionName = sections[message.Section];
+            message.ModSlug = modSlugs[message.Mod] || message.Mod;
 
             // For repeated messages, since our <log-line /> component
             // can't return two rows, just insert a second message
             // which will display as the message repeated notice.
-            if (msg.Repeated > 0 && ! msg.isRepeated) {
-                const second = {
+            if (message.Repeated > 0 && !message.isRepeated) {
+                const repeatNote = {
                     id: i + 1,
-                    Level: msg.Level,
-                    Section: msg.Section,
-                    Mod: msg.Mod,
-                    Repeated: msg.Repeated,
+                    Level: message.Level,
+                    Section: message.Section,
+                    Mod: message.Mod,
+                    Repeated: message.Repeated,
                     isRepeated: true,
                 };
 
-                messages.splice(i + 1, 0, second);
+                messages.splice(i + 1, 0, repeatNote);
                 length++;
             }
 
-            Object.freeze(msg);
+            // let Vue know the message won't change, so it doesn't need to monitor it
+            Object.freeze(message);
         }
-
-        Object.freeze(messages);
-
-    } else
-        messages = [];
+    }
+    Object.freeze(messages);
 
     // set local time started
     if (state.logStarted)
@@ -353,10 +338,10 @@ smapi.logParser = function (state, sectionUrl) {
             }
         },
         render: function (createElement, context) {
-            const msg = context.props.message;
-            const level = msg.LevelName;
+            const message = context.props.message;
+            const level = message.LevelName;
 
-            if (msg.isRepeated)
+            if (message.isRepeated)
                 return createElement("tr", {
                     class: [
                         "mod",
@@ -369,20 +354,20 @@ smapi.logParser = function (state, sectionUrl) {
                             colspan: context.props.showScreenId ? 4 : 3
                         }
                     }, ""),
-                    createElement("td", `repeats ${msg.Repeated} times`)
+                    createElement("td", `repeats ${message.Repeated} times`)
                 ]);
 
             const events = {};
             let toggleMessage;
-            if (msg.IsStartOfSection) {
-                const visible = msg.SectionName && window.app && app.sectionsAllow(msg.SectionName);
+            if (message.IsStartOfSection) {
+                const visible = message.SectionName && window.app && app.sectionsAllow(message.SectionName);
                 events.click = smapi.clickLogLine;
                 toggleMessage = visible
                     ? "This section is shown. Click here to hide it."
                     : "This section is hidden. Click here to show it.";
             }
 
-            let text = msg.Text;
+            let text = message.Text;
             const filter = window.app && app.filterRegex;
             if (text && filter && context.props.highlight) {
                 text = [];
@@ -394,7 +379,7 @@ smapi.logParser = function (state, sectionUrl) {
                 // where a ton of single characters are in their own elements
                 // if the user gives us bad input.
 
-                while (match = filter.exec(msg.Text)) {
+                while (match = filter.exec(message.Text)) {
                     // Do we have an area of non-matching text? This
                     // happens if the new match's index is further
                     // along than the last index.
@@ -402,9 +387,9 @@ smapi.logParser = function (state, sectionUrl) {
                         // Alright, do we have a previous match? If
                         // we do, we need to consume some text.
                         if (consumed < idx)
-                            text.push(createElement("strong", {}, msg.Text.slice(consumed, idx)));
+                            text.push(createElement("strong", {}, message.Text.slice(consumed, idx)));
 
-                        text.push(msg.Text.slice(idx, match.index));
+                        text.push(message.Text.slice(idx, match.index));
                         consumed = match.index;
                     }
 
@@ -412,12 +397,12 @@ smapi.logParser = function (state, sectionUrl) {
                 }
 
                 // Add any trailing text after the last match was found.
-                if (consumed < msg.Text.length) {
+                if (consumed < message.Text.length) {
                     if (consumed < idx)
-                        text.push(createElement("strong", {}, msg.Text.slice(consumed, idx)));
+                        text.push(createElement("strong", {}, message.Text.slice(consumed, idx)));
 
-                    if (idx < msg.Text.length)
-                        text.push(msg.Text.slice(idx));
+                    if (idx < message.Text.length)
+                        text.push(message.Text.slice(idx));
                 }
             }
 
@@ -425,26 +410,26 @@ smapi.logParser = function (state, sectionUrl) {
                 class: [
                     "mod",
                     level,
-                    msg.IsStartOfSection ? "section-start" : null
+                    message.IsStartOfSection ? "section-start" : null
                 ],
                 attrs: {
-                    "data-section": msg.SectionName
+                    "data-section": message.SectionName
                 },
                 on: events
             }, [
-                createElement("td", msg.Time),
-                context.props.showScreenId ? createElement("td", msg.ScreenId) : null,
+                createElement("td", message.Time),
+                context.props.showScreenId ? createElement("td", message.ScreenId) : null,
                 createElement("td", level.toUpperCase()),
                 createElement("td", {
                     attrs: {
-                        "data-title": msg.Mod
+                        "data-title": message.Mod
                     }
-                }, msg.Mod),
+                }, message.Mod),
                 createElement("td", [
                     createElement("span", {
                         class: "log-message-text"
                     }, text),
-                    msg.IsStartOfSection ? createElement("span", {
+                    message.IsStartOfSection ? createElement("span", {
                         class: "section-toggle-message"
                     }, [
                         " ",
@@ -467,7 +452,7 @@ smapi.logParser = function (state, sectionUrl) {
                 return stats.modsShown > 0;
             },
             showScreenId: function () {
-                return this.screenIds.length > 1;
+                return this.data.screenIds.length > 1;
             },
 
             // Maybe not strictly necessary, but the Vue template is being

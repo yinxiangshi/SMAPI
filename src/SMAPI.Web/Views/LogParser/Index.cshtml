@@ -44,13 +44,6 @@
     <link rel="stylesheet" href="~/Content/css/log-parser.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tabbyjs@12.0.3/dist/css/tabby-ui-vertical.min.css" />
 
-    @if (!Model.ShowRaw)
-    {
-    <script id="logSections" type="application/json">@this.ForJson(logSections)</script>
-    <script id="logLevels" type="application/json">@this.ForJson(logLevels)</script>
-    <script id="parsedMessages" type="application/json">@this.ForJson(log?.Messages)</script>
-    <script id="modSlugs" type="application/json">@this.ForJson(log?.Mods?.DistinctBy(m => m.Name).ToDictionary(m => m.Name, m => Model.GetSlug(m.Name)))</script>
-    }
     <script src="https://cdn.jsdelivr.net/npm/tabbyjs@12.0.3" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1" crossorigin="anonymous"></script>
@@ -58,15 +51,33 @@
     <script src="~/Content/js/log-parser.js"></script>
     <script>
         $(function() {
-            smapi.logParser({
-                logStarted: new Date(@this.ForJson(log?.Timestamp)),
-                showPopup: @this.ForJson(log == null),
-                showMods: @this.ForJson(log?.Mods?.Select(p => Model.GetSlug(p.Name)).Distinct().ToDictionary(slug => slug, _ => true)),
-                showSections: @this.ForJson(Enum.GetNames(typeof(LogSection)).ToDictionary(section => section, _ => false)),
-                showLevels: @this.ForJson(defaultFilters),
-                enableFilters: @this.ForJson(!Model.ShowRaw),
-                screenIds: @this.ForJson(screenIds)
-            }, '@this.Url.PlainAction("Index", "LogParser", values: null)');
+            smapi.logParser(
+                {
+                    logStarted: new Date(@this.ForJson(log?.Timestamp)),
+                    @if (!Model.ShowRaw)
+                    {
+                        <text>
+                            data: {
+                                messages: @this.ForJson(log?.Messages),
+                                sections: @this.ForJson(logSections),
+                                logLevels: @this.ForJson(logLevels),
+                                modSlugs: @this.ForJson(log?.Mods?.DistinctBy(p => p.Name).Select(p => new { p.Name, Slug = Model.GetSlug(p.Name) }).Where(p => p.Name != p.Slug).ToDictionary(p => p.Name, p => p.Slug)),
+                                screenIds: @this.ForJson(screenIds)
+                            },
+                        </text>
+                    }
+                    else
+                    {
+                        <text>data: null,</text>
+                    }
+                    showPopup: @this.ForJson(log == null),
+                    showMods: @this.ForJson(log?.Mods?.Select(p => Model.GetSlug(p.Name)).Distinct().ToDictionary(slug => slug, _ => true)),
+                    showSections: @this.ForJson(Enum.GetNames(typeof(LogSection)).ToDictionary(section => section, _ => false)),
+                    showLevels: @this.ForJson(defaultFilters),
+                    enableFilters: @this.ForJson(!Model.ShowRaw)
+                },
+                "@this.Url.PlainAction("Index", "LogParser", values: null)"
+            );
 
             new Tabby('[data-tabs]');
         });
