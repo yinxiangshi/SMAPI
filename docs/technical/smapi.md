@@ -33,11 +33,12 @@ argument | purpose
 `--uninstall` | Preselects the uninstall action, skipping the prompt asking what the user wants to do.
 `--game-path "path"` | Specifies the full path to the folder containing the Stardew Valley executable, skipping automatic detection and any prompt to choose a path. If the path is not valid, the installer displays an error.
 
-SMAPI itself recognises two arguments **on Windows only**, but these are intended for internal use
+SMAPI itself recognises five arguments **on Windows only**, but these are intended for internal use
 or testing and may change without warning. On Linux/macOS, see _environment variables_ below.
 
 argument | purpose
 -------- | -------
+`--developer-mode`<br />`--developer-mode-off` | Enable or disable features intended for mod developers. Currently this only makes `TRACE`-level messages appear in the console.
 `--no-terminal` | The SMAPI launcher won't try to open a terminal window, and SMAPI won't log anything to the console. (Messages will still be written to the log file.)
 `--use-current-shell` | The SMAPI launcher won't try to open a terminal window, but SMAPI will still log to the console. (Messages will still be written to the log file.)
 `--mods-path` | The path to search for mods, if not the standard `Mods` folder. This can be a path relative to the game folder (like `--mods-path "Mods (test)"`) or an absolute path.
@@ -49,6 +50,7 @@ can set temporary environment variables instead. For example:
 
 environment variable | purpose
 -------------------- | -------
+`SMAPI_DEVELOPER_MODE` | Equivalent to `--developer-mode` and `--developer-mode-off` above. The value must be `true` or `false`.
 `SMAPI_MODS_PATH` | Equivalent to `--mods-path` above.
 `SMAPI_NO_TERMINAL` | Equivalent to `--no-terminal` above.
 `SMAPI_USE_CURRENT_SHELL` | Equivalent to `--use-current-shell` above.

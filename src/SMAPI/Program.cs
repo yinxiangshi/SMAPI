@@ -200,6 +200,12 @@ namespace StardewModdingAPI
                 // get from environment variables
                 if (string.IsNullOrWhiteSpace(rawModsPath))
                     rawModsPath = Environment.GetEnvironmentVariable("SMAPI_MODS_PATH");
+                if (developerMode is null)
+                {
+                    string rawDeveloperMode = Environment.GetEnvironmentVariable("SMAPI_DEVELOPER_MODE");
+                    if (rawDeveloperMode != null)
+                        developerMode = bool.Parse(rawDeveloperMode);
+                }
 
                 // normalize
                 modsPath = !string.IsNullOrWhiteSpace(rawModsPath)
