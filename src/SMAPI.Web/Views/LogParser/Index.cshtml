@@ -1,7 +1,3 @@
-@{
-    #nullable disable
-}
-
 @using Humanizer
 @using StardewModdingAPI.Toolkit.Utilities
 @using StardewModdingAPI.Web.Framework
@@ -12,7 +8,7 @@
 @{
     ViewData["Title"] = "SMAPI log parser";
 
-    ParsedLog log = Model!.ParsedLog;
+    ParsedLog? log = Model!.ParsedLog;
 
     IDictionary<string, LogModInfo[]> contentPacks = Model.GetContentPacksByMod();
     IDictionary<string, bool> defaultFilters = Enum
@@ -29,7 +25,7 @@
 
     string curPageUrl = this.Url.PlainAction("Index", "LogParser", new { id = Model.PasteID }, absoluteUrl: true);
 
-    ISet<int> screenIds = new HashSet<int>(log?.Messages?.Select(p => p.ScreenId) ?? Array.Empty<int>());
+    ISet<int> screenIds = new HashSet<int>(log?.Messages.Select(p => p.ScreenId) ?? Array.Empty<int>());
 }
 
 @section Head {
@@ -58,7 +54,7 @@
                                 messages: @this.ForJson(log?.Messages),
                                 sections: @this.ForJson(logSections),
                                 logLevels: @this.ForJson(logLevels),
-                                modSlugs: @this.ForJson(log?.Mods?.DistinctBy(p => p.Name).Select(p => new { p.Name, Slug = Model.GetSlug(p.Name) }).Where(p => p.Name != p.Slug).ToDictionary(p => p.Name, p => p.Slug)),
+                                modSlugs: @this.ForJson(log?.Mods.DistinctBy(p => p.Name).Select(p => new { p.Name, Slug = Model.GetSlug(p.Name) }).Where(p => p.Name != p.Slug).ToDictionary(p => p.Name, p => p.Slug)),
                                 screenIds: @this.ForJson(screenIds)
                             },
                         </text>
@@ -68,7 +64,7 @@
                         <text>data: null,</text>
                     }
                     showPopup: @this.ForJson(log == null),
-                    showMods: @this.ForJson(log?.Mods?.Select(p => Model.GetSlug(p.Name)).Distinct().ToDictionary(slug => slug, _ => true)),
+                    showMods: @this.ForJson(log?.Mods.Select(p => Model.GetSlug(p.Name)).Distinct().ToDictionary(slug => slug, _ => true)),
                     showSections: @this.ForJson(Enum.GetNames(typeof(LogSection)).ToDictionary(section => section, _ => false)),
                     showLevels: @this.ForJson(defaultFilters),
                     enableFilters: @this.ForJson(!Model.ShowRaw)
@@ -76,7 +72,7 @@
                 "@this.Url.PlainAction("Index", "LogParser", values: null)"
             );
 
-            new Tabby('[data-tabs]');
+            new Tabby("[data-tabs]");
         });
     </script>
 }
@@ -217,12 +213,12 @@ else if (log?.IsValid == true)
                     Consider updating these mods to fix problems:
 
                     <table id="updates" class="table">
-                        @foreach (LogModInfo mod in log.Mods.Where(mod => (mod.HasUpdate && !mod.IsContentPack) || (contentPacks.TryGetValue(mod.Name, out LogModInfo[] contentPackList) && contentPackList.Any(pack => pack.HasUpdate))))
+                        @foreach (LogModInfo mod in log.Mods.Where(mod => (mod.HasUpdate && !mod.IsContentPack) || (contentPacks.TryGetValue(mod.Name, out LogModInfo[]? contentPackList) && contentPackList.Any(pack => pack.HasUpdate))))
                         {
                             <tr class="mod-entry">
                                 <td>
                                     <strong class=@(!mod.HasUpdate ? "hidden" : "")>@mod.Name</strong>
-                                    @if (contentPacks != null && contentPacks.TryGetValue(mod.Name, out LogModInfo[] contentPackList))
+                                    @if (contentPacks != null && contentPacks.TryGetValue(mod.Name, out LogModInfo[]? contentPackList))
                                     {
                                         <div class="content-packs">
                                             @foreach (LogModInfo contentPack in contentPackList.Where(pack => pack.HasUpdate))
@@ -305,8 +301,7 @@ else if (log?.IsValid == true)
             </caption>
             @foreach (var mod in log.Mods.Where(p => p.Loaded && !p.IsContentPack))
             {
-                LogModInfo[]? contentPackList;
-                if (contentPacks == null || !contentPacks.TryGetValue(mod.Name, out contentPackList))
+                if (contentPacks == null || !contentPacks.TryGetValue(mod.Name, out LogModInfo[]? contentPackList))
                     contentPackList = null;
 
                 <tr v-on:click="toggleMod('@Model.GetSlug(mod.Name)')" class="mod-entry" v-bind:class="{ hidden: !showMods['@Model.GetSlug(mod.Name)'] }">

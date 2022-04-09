@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Linq;
 using System.Text;
@@ -47,7 +45,7 @@ namespace StardewModdingAPI.Web.Controllers
         [HttpGet]
         [Route("log")]
         [Route("log/{id}")]
-        public async Task<ActionResult> Index(string id = null, LogViewFormat format = LogViewFormat.Default, bool renew = false)
+        public async Task<ActionResult> Index(string? id = null, LogViewFormat format = LogViewFormat.Default, bool renew = false)
         {
             // fresh page
             if (string.IsNullOrWhiteSpace(id))
@@ -89,7 +87,7 @@ namespace StardewModdingAPI.Web.Controllers
         public async Task<ActionResult> PostAsync()
         {
             // get raw log text
-            string input = this.Request.Form["input"].FirstOrDefault();
+            string? input = this.Request.Form["input"].FirstOrDefault();
             if (string.IsNullOrWhiteSpace(input))
                 return this.View("Index", this.GetModel(null, uploadError: "The log file seems to be empty."));
 
@@ -111,7 +109,7 @@ namespace StardewModdingAPI.Web.Controllers
         /// <param name="expiry">When the uploaded file will no longer be available.</param>
         /// <param name="uploadWarning">A non-blocking warning while uploading the log.</param>
         /// <param name="uploadError">An error which occurred while uploading the log.</param>
-        private LogParserModel GetModel(string pasteID, DateTime? expiry = null, string uploadWarning = null, string uploadError = null)
+        private LogParserModel GetModel(string? pasteID, DateTime? expiry = null, string? uploadWarning = null, string? uploadError = null)
         {
             Platform? platform = this.DetectClientPlatform();
 
