@@ -101,7 +101,7 @@ namespace StardewModdingAPI.Events
                     mod: this.Mod,
                     priority: priority,
                     onBehalfOf: null,
-                    _ => this.Mod.Mod.Helper.Content.Load<TAsset>(relativePath))
+                    _ => this.Mod.Mod.Helper.ModContent.Load<TAsset>(relativePath))
             );
         }
 
