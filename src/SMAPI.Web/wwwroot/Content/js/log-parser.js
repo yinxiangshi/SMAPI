@@ -166,6 +166,7 @@ smapi.logParser = function (state) {
     {
         const dataElement = document.querySelector(state.dataElement);
         state.data = JSON.parse(dataElement.textContent.trim());
+        dataElement.remove(); // let browser unload the data element since we won't need it anymore
     }
 
     // preprocess data for display
