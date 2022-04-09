@@ -184,10 +184,9 @@ namespace StardewModdingAPI.Framework
 
             // init basics
             this.Settings = JsonConvert.DeserializeObject<SConfig>(File.ReadAllText(Constants.ApiConfigPath));
-            this.Settings.DeveloperMode = developerMode ?? this.Settings.DeveloperMode;
-
             if (File.Exists(Constants.ApiUserConfigPath))
                 JsonConvert.PopulateObject(File.ReadAllText(Constants.ApiUserConfigPath), this.Settings);
+            this.Settings.DeveloperMode = developerMode ?? this.Settings.DeveloperMode;
 
             this.LogManager = new LogManager(logPath: logPath, colorConfig: this.Settings.ConsoleColors, writeToConsole: writeToConsole, isVerbose: this.Settings.VerboseLogging, isDeveloperMode: this.Settings.DeveloperMode, getScreenIdForLog: this.GetScreenIdForLog);
             this.CommandManager = new CommandManager(this.Monitor);
