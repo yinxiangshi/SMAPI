@@ -139,6 +139,11 @@ smapi.logParser = function (state) {
             return result;
         },
 
+        /**
+         * Convert a base-64 string to a BigInt.
+         * @param {string} value
+         * @returns {BigInt}
+         */
         b64ToBigInt(value) {
             const bin = atob(value);
             const hex = [];
@@ -152,6 +157,11 @@ smapi.logParser = function (state) {
             return BigInt(`0x${hex.join('')}`);
         },
 
+        /**
+         * Convert a BigInt to a base-64 string.
+         * @param {BigInt} value
+         * @returns {string}
+         */
         bigIntTo64(value) {
             let hex = value.toString(16);
             if (hex.length % 2) hex = `0${hex}`;
@@ -165,22 +175,79 @@ smapi.logParser = function (state) {
             return btoa(result.join(''));
         },
 
+        /**
+         * Make a base-64 string URL safe.
+         * @param {string} value
+         * @returns {string}
+         */
         b64ToUrl(value) {
             return value.replace(/\//g, '_').replace(/=/g, '-').replace(/\+/g, '.');
         },
 
+        /**
+         * Convert a URL safe base-64 string back to normal.
+         * @param {string} value
+         * @returns {string}
+         */
         urlTob64(value) {
             return value.replace(/_/g, '/').replace(/-/g, '=').replace(/\./g, '+');
         },
 
+        /**
+         * Convert an array of booleans to a BigInt bitmap, then convert that
+         * to a base-64 string, then make it URL safe.
+         * @param {Boolean[]} value
+         * @returns {string}
+         */
         toUrlBitmap(value) {
             return helpers.b64ToUrl(helpers.bigIntTo64(helpers.toBitmap(value)));
         },
 
+        /**
+         * Convert a URL safe base-64 string to a normal base-64 string, convert
+         * that to a BigInt, and then parse a bitmap from the BigInt.
+         * @param {string} value
+         * @param {Number} length The expected length of the bitmap.
+         */
         fromUrlBitmap(value, length = -1) {
             return helpers.fromBitmap(helpers.b64ToBigInt(helpers.urlTob64(value)), length);
-        }
+        },
 
+        /**
+         * Check the shallow equality of two objects.
+         * @param {Array} first
+         * @param {Array} second
+         * @returns {Boolean}
+         */
+        shallowEquals(first, second) {
+            if (typeof first !== "object" || typeof second !== "object")
+                return first === second;
+
+            if (first == null || second == null)
+                return first == null && second == null;
+
+            const f_array = Array.isArray(first);
+            const s_array = Array.isArray(second);
+
+            if (f_array !== s_array)
+                return false;
+
+            const f_keys = Object.keys(first);
+            const s_keys = Object.keys(second);
+
+            if (f_keys.length != s_keys.length)
+                return false;
+
+            for (const key of f_keys) {
+                if (!s_keys.includes(key))
+                    return false;
+
+                if (first[key] !== second[key])
+                    return false;
+            }
+
+            return true;
+        }
     };
 
     // internal event handlers
@@ -311,6 +378,10 @@ smapi.logParser = function (state) {
     state.useWord = false;
     state.perPage = 1000;
     state.page = 1;
+
+    state.defaultMods = JSON.parse(JSON.stringify(state.showMods));
+    state.defaultSections = JSON.parse(JSON.stringify(state.showSections));
+    state.defaultLevels = JSON.parse(JSON.stringify(state.showLevels));
 
     // load saved values, if any
     if (localStorage.settings) {
@@ -786,9 +857,20 @@ smapi.logParser = function (state) {
                 url.searchParams.set("Page", state.page);
                 url.searchParams.set("PerPage", state.perPage);
 
-                url.searchParams.set("Mods", stats.modsHidden == 0 ? "all" : stats.modsShown == 0 ? "none" : helpers.toUrlBitmap(Object.values(this.showMods)));
-                url.searchParams.set("Levels", helpers.toUrlBitmap(Object.values(this.showLevels)));
-                url.searchParams.set("Sections", helpers.toUrlBitmap(Object.values(this.showSections)));
+                if (!helpers.shallowEquals(this.showMods, state.defaultMods))
+                    url.searchParams.set("Mods", stats.modsHidden == 0 ? "all" : stats.modsShown == 0 ? "none" : helpers.toUrlBitmap(Object.values(this.showMods)));
+                else
+                    url.searchParams.delete("Mods");
+
+                if (!helpers.shallowEquals(this.showLevels, state.defaultLevels))
+                    url.searchParams.set("Levels", helpers.toUrlBitmap(Object.values(this.showLevels)));
+                else
+                    url.searchParams.delete("Levels");
+
+                if (!helpers.shallowEquals(this.showSections, state.defaultSections))
+                    url.searchParams.set("Sections", helpers.toUrlBitmap(Object.values(this.showSections)));
+                else
+                    url.searchParams.delete("Sections");
 
                 if (state.filterText && state.filterText.length) {
                     url.searchParams.set("Filter", state.filterText);
