@@ -77,14 +77,19 @@
                     logStarted: new Date(@this.ForJson(log?.Timestamp)),
                     dataElement: "script#serializedData",
                     showPopup: @this.ForJson(log == null),
-                    showMods: @this.ForJson(log?.Mods.Select(p => Model.GetSlug(p.Name)).Distinct().ToDictionary(slug => slug, _ => true)),
+                    showMods: @this.ForJson(log?.Mods.Where(p => p.Loaded && !p.IsContentPack).Select(p => Model.GetSlug(p.Name)).Distinct().ToDictionary(slug => slug, _ => true)),
                     showSections: @this.ForJson(Enum.GetNames(typeof(LogSection)).ToDictionary(section => section, _ => false)),
                     showLevels: @this.ForJson(defaultFilters),
                     enableFilters: @this.ForJson(!Model.ShowRaw)
                 }
             );
 
-            new Tabby("[data-tabs]");
+            @if (log == null)
+            {
+                <text>
+                    new Tabby("[data-tabs]");
+                </text>
+            }
         });
     </script>
 }
@@ -378,6 +383,7 @@ else if (log?.IsValid == true)
                             <input
                                 type="text"
                                 v-bind:class="{ active: !!filterText }"
+                                v-model="filterText"
                                 v-on:input="updateFilterText"
                                 placeholder="search to filter log..."
                             />
@@ -390,7 +396,7 @@ else if (log?.IsValid == true)
                             v-bind:start="start"
                             v-bind:end="end"
                             v-bind:pages="totalPages"
-                            v-bind:filtered="filteredMessages.length"
+                            v-bind:filtered="filteredMessages.total"
                             v-bind:total="totalMessages"
                         />
                     </div>

@@ -94,7 +94,93 @@ smapi.logParser = function (state) {
             return formatter && formatter.format
                 ? formatter.format(value)
                 : `${value}`;
+        },
+
+        /**
+         * Convert an array of boolean values into a bitmap.
+         * @param {Boolean[]} value An array of boolean values
+         * @returns {BigInt}
+         */
+        toBitmap(value) {
+            let result = BigInt(0);
+            if (!Array.isArray(value))
+                return value ? BigInt(1) : BigInt(0);
+
+            for (let i = 0; i < value.length; i++) {
+                if (value[i])
+                    result += BigInt(2) ** BigInt(value.length - i - 1);
+            }
+
+            return result;
+        },
+
+        /**
+         * Convert a bitmap into an array of boolean values.
+         * @param {BigInt} value The bitmap
+         * @param {Number} length The expected length of the result
+         * @returns {Boolean[]}
+         */
+        fromBitmap(value, length = -1) {
+            if (typeof value != "bigint")
+                value = "";
+            else
+                value = value.toString(2);
+
+            const result = [];
+            while (length > value.length) {
+                result.push(false);
+                length--;
+            }
+
+            for (let i = 0; i < value.length; i++) {
+                result.push(value[i] === "1" ? true : false);
+            }
+
+            return result;
+        },
+
+        b64ToBigInt(value) {
+            const bin = atob(value);
+            const hex = [];
+
+            for (let i = 0; i < bin.length; i++) {
+                let h = bin.charCodeAt(i).toString(16);
+                if (h.length % 2) h = `0${h}`;
+                hex.push(h);
+            }
+
+            return BigInt(`0x${hex.join('')}`);
+        },
+
+        bigIntTo64(value) {
+            let hex = value.toString(16);
+            if (hex.length % 2) hex = `0${hex}`;
+
+            const result = [];
+            for (let i = 0; i < hex.length; i += 2) {
+                const val = parseInt(hex.slice(i, i + 2), 16);
+                result.push(String.fromCharCode(val));
+            }
+
+            return btoa(result.join(''));
+        },
+
+        b64ToUrl(value) {
+            return value.replace(/\//g, '_').replace(/=/g, '-').replace(/\+/g, '.');
+        },
+
+        urlTob64(value) {
+            return value.replace(/_/g, '/').replace(/-/g, '=').replace(/\./g, '+');
+        },
+
+        toUrlBitmap(value) {
+            return helpers.b64ToUrl(helpers.bigIntTo64(helpers.toBitmap(value)));
+        },
+
+        fromUrlBitmap(value, length = -1) {
+            return helpers.fromBitmap(helpers.b64ToBigInt(helpers.urlTob64(value)), length);
         }
+
     };
 
     // internal event handlers
@@ -272,32 +358,19 @@ smapi.logParser = function (state) {
         functional: true,
         render: function (createElement, context) {
             const props = context.props;
-            if (props.pages > 1) {
-                return createElement(
-                    "div",
-                    { class: "stats" },
-                    [
-                        "showing ",
-                        createElement("strong", helpers.formatNumber(props.start + 1)),
-                        " to ",
-                        createElement("strong", helpers.formatNumber(props.end)),
-                        " of ",
-                        createElement("strong", helpers.formatNumber(props.filtered)),
-                        " (total: ",
-                        createElement("strong", helpers.formatNumber(props.total)),
-                        ")"
-                    ]
-                );
-            }
-
             return createElement(
                 "div",
                 { class: "stats" },
                 [
                     "showing ",
+                    createElement("strong", helpers.formatNumber(props.start + 1)),
+                    " to ",
+                    createElement("strong", helpers.formatNumber(props.end)),
+                    " of ",
                     createElement("strong", helpers.formatNumber(props.filtered)),
-                    " out of ",
-                    createElement("strong", helpers.formatNumber(props.total))
+                    " (total: ",
+                    createElement("strong", helpers.formatNumber(props.total)),
+                    ")"
                 ]
             );
         }
@@ -578,34 +651,39 @@ smapi.logParser = function (state) {
                 if (!state.messages)
                     return [];
 
-                const start = performance.now();
+                //const start = performance.now();
                 const filtered = [];
+
+                let total = 0;
 
                 // This is slightly faster than messages.filter(), which is
                 // important when working with absolutely huge logs.
                 for (let i = 0, length = state.messages.length; i < length; i++) {
                     const msg = state.messages[i];
-                    if (msg.SectionName && !msg.IsStartOfSection && !this.sectionsAllow(msg.SectionName))
-                        continue;
-
                     if (!this.filtersAllow(msg.ModSlug, msg.LevelName))
                         continue;
 
-                    const text = msg.Text || (i > 0 ? state.messages[i - 1].Text : null);
-
                     if (this.filterRegex) {
+                        const text = msg.Text || (i > 0 ? state.messages[i - 1].Text : null);
                         this.filterRegex.lastIndex = -1;
                         if (!text || !this.filterRegex.test(text))
                             continue;
                     }
-                    else if (this.filterText && (!text || text.indexOf(this.filterText) === -1))
+
+                    total++;
+
+                    if (msg.SectionName && !msg.IsStartOfSection && !this.sectionsAllow(msg.SectionName))
                         continue;
 
                     filtered.push(msg);
                 }
 
-                const end = performance.now();
-                //console.log(`applied ${(this.filterRegex ? "regex" : "text")} filter '${this.filterRegex || this.filterText}' in ${end - start}ms`);
+                filtered.total = total;
+
+                Object.freeze(filtered);
+
+                //const end = performance.now();
+                //console.log(`applied ${(this.useRegex ? "regex" : "text")} filter '${this.filterRegex}' in ${end - start}ms`);
 
                 return filtered;
             },
@@ -636,10 +714,6 @@ smapi.logParser = function (state) {
             this.loadFromUrl();
         },
         methods: {
-            // Mostly I wanted people to know they can override the PerPage
-            // message count with a URL parameter, but we can read Page too.
-            // In the future maybe we should read *all* filter state so a
-            // user can link to their exact page state for someone else?
             loadFromUrl: function () {
                 const params = new URL(location).searchParams;
                 if (params.has("PerPage")) {
@@ -653,6 +727,78 @@ smapi.logParser = function (state) {
                     if (!isNaN(page) && isFinite(page) && page > 0)
                         this.page = page;
                 }
+
+                let updateFilter = false;
+
+                if (params.has("Filter")) {
+                    state.filterText = params.get("Filter");
+                    updateFilter = true;
+                }
+
+                if (params.has("FilterMode")) {
+                    const values = helpers.fromUrlBitmap(params.get("FilterMode"), 3);
+                    state.useRegex = values[0];
+                    state.useInsensitive = values[1];
+                    state.useWord = values[2];
+                    updateFilter = true;
+                }
+
+                if (params.has("Mods")) {
+                    const keys = Object.keys(this.showMods);
+                    const value = params.get("Mods");
+                    const values = value === "all" ? true : value === "none" ? false : helpers.fromUrlBitmap(value, keys.length);
+
+                    for (let i = 0; i < keys.length; i++) {
+                        this.showMods[keys[i]] = Array.isArray(values) ? values[i] : values;
+                    }
+
+                    updateModFilters();
+                }
+
+                if (params.has("Levels")) {
+                    const keys = Object.keys(this.showLevels);
+                    const values = helpers.fromUrlBitmap(params.get("Levels"), keys.length);
+
+                    for (let i = 0; i < keys.length; i++) {
+                        this.showLevels[keys[i]] = values[i];
+                    }
+                }
+
+                if (params.has("Sections")) {
+                    const keys = Object.keys(this.showSections);
+                    const values = helpers.fromUrlBitmap(params.get("Levels"), keys.length);
+
+                    for (let i = 0; i < keys.length; i++) {
+                        this.showSections[keys[i]] = values[i];
+                    }
+                }
+
+                if (updateFilter)
+                    this.updateFilterText();
+            },
+
+            // Whenever the page state changed, replace the current page URL. Using
+            // replaceState rather than pushState to avoid filling the tab history
+            // with tons of useless history steps the user probably doesn't
+            // really care about.
+            updateUrl: function () {
+                const url = new URL(location);
+                url.searchParams.set("Page", state.page);
+                url.searchParams.set("PerPage", state.perPage);
+
+                url.searchParams.set("Mods", stats.modsHidden == 0 ? "all" : stats.modsShown == 0 ? "none" : helpers.toUrlBitmap(Object.values(this.showMods)));
+                url.searchParams.set("Levels", helpers.toUrlBitmap(Object.values(this.showLevels)));
+                url.searchParams.set("Sections", helpers.toUrlBitmap(Object.values(this.showSections)));
+
+                if (state.filterText && state.filterText.length) {
+                    url.searchParams.set("Filter", state.filterText);
+                    url.searchParams.set("FilterMode", helpers.toUrlBitmap([state.useRegex, state.useInsensitive, state.useWord]));
+                } else {
+                    url.searchParams.delete("Filter");
+                    url.searchParams.delete("FilterMode");
+                }
+
+                window.history.replaceState(null, document.title, url.toString());
             },
 
             toggleLevel: function (id) {
@@ -660,6 +806,7 @@ smapi.logParser = function (state) {
                     return;
 
                 this.showLevels[id] = !this.showLevels[id];
+                this.updateUrl();
             },
 
             toggleContentPacks: function () {
@@ -723,25 +870,13 @@ smapi.logParser = function (state) {
                 });
             },
 
-            // Whenever the page is changed, replace the current page URL. Using
-            // replaceState rather than pushState to avoid filling the tab history
-            // with tons of useless history steps the user probably doesn't
-            // really care about.
-            updateUrl: function () {
-                const url = new URL(location);
-                url.searchParams.set("Page", state.page);
-                url.searchParams.set("PerPage", state.perPage);
-
-                window.history.replaceState(null, document.title, url.toString());
-            },
-
             // We don't want to update the filter text often, so use a debounce with
             // a quarter second delay. We basically always build a regular expression
             // since we use it for highlighting, and it also make case insensitivity
             // much easier.
             updateFilterText: helpers.getDebouncedHandler(
                 function () {
-                    let text = this.filterText = document.querySelector("input[type=text]").value;
+                    let text = state.filterText;
                     if (!text || !text.length) {
                         this.filterText = "";
                         this.filterRegex = null;
@@ -754,6 +889,8 @@ smapi.logParser = function (state) {
                             state.useInsensitive ? "ig" : "g"
                         );
                     }
+
+                    this.updateUrl();
                 },
                 250
             ),
@@ -779,6 +916,7 @@ smapi.logParser = function (state) {
                     this.showMods[id] = !this.showMods[id];
 
                 updateModFilters();
+                this.updateUrl();
             },
 
             toggleSection: function (name) {
@@ -786,6 +924,7 @@ smapi.logParser = function (state) {
                     return;
 
                 this.showSections[name] = !this.showSections[name];
+                this.updateUrl();
             },
 
             showAllMods: function () {
@@ -798,6 +937,7 @@ smapi.logParser = function (state) {
                     }
                 }
                 updateModFilters();
+                this.updateUrl();
             },
 
             hideAllMods: function () {
@@ -810,6 +950,7 @@ smapi.logParser = function (state) {
                     }
                 }
                 updateModFilters();
+                this.updateUrl();
             },
 
             filtersAllow: function (modId, level) {
