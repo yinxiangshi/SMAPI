@@ -306,8 +306,8 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
         /// <param name="entry">The file or folder.</param>
         private bool IsRelevant(FileSystemInfo entry)
         {
-            // ignored file extension
-            if (entry is FileInfo file && this.IgnoreFileExtensions.Contains(file.Extension))
+            // ignored file extensions and any files starting with "."
+            if ((entry is FileInfo file) && (this.IgnoreFileExtensions.Contains(file.Extension) || file.Name.StartsWith(".")))
                 return false;
 
             // ignored entry name
