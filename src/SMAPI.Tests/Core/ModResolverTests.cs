@@ -145,7 +145,7 @@ namespace SMAPI.Tests.Core
         {
             // arrange
             Mock<IModMetadata> mock = this.GetMetadata("Mod A", Array.Empty<string>(), allowStatusChange: true);
-            this.SetupMetadataForValidation(mock, new ModDataRecordVersionedFields
+            this.SetupMetadataForValidation(mock, new ModDataRecordVersionedFields(this.GetModDataRecord())
             {
                 Status = ModStatus.AssumeBroken
             });
@@ -216,9 +216,9 @@ namespace SMAPI.Tests.Core
             File.WriteAllText(Path.Combine(modFolder, manifest.EntryDll!), "");
 
             // arrange
-            Mock<IModMetadata> mock = new Mock<IModMetadata>(MockBehavior.Strict);
+            Mock<IModMetadata> mock = new(MockBehavior.Strict);
             mock.Setup(p => p.Status).Returns(ModMetadataStatus.Found);
-            mock.Setup(p => p.DataRecord).Returns(() => null);
+            mock.Setup(p => p.DataRecord).Returns(this.GetModDataRecordVersionedFields());
             mock.Setup(p => p.Manifest).Returns(manifest);
             mock.Setup(p => p.DirectoryPath).Returns(modFolder);
 
@@ -265,7 +265,7 @@ namespace SMAPI.Tests.Core
         public void ProcessDependencies_Skips_Failed()
         {
             // arrange
-            Mock<IModMetadata> mock = new Mock<IModMetadata>(MockBehavior.Strict);
+            Mock<IModMetadata> mock = new(MockBehavior.Strict);
             mock.Setup(p => p.Status).Returns(ModMetadataStatus.Failed);
 
             // act
@@ -380,7 +380,7 @@ namespace SMAPI.Tests.Core
             Mock<IModMetadata> modA = this.GetMetadata("Mod A");
             Mock<IModMetadata> modB = this.GetMetadata("Mod B", dependencies: new[] { "Mod A" });
             Mock<IModMetadata> modC = this.GetMetadata("Mod C", dependencies: new[] { "Mod B" }, allowStatusChange: true);
-            Mock<IModMetadata> modD = new Mock<IModMetadata>(MockBehavior.Strict);
+            Mock<IModMetadata> modD = new(MockBehavior.Strict);
             modD.Setup(p => p.Manifest).Returns<IManifest>(null);
             modD.Setup(p => p.Status).Returns(ModMetadataStatus.Failed);
 
@@ -516,8 +516,8 @@ namespace SMAPI.Tests.Core
         /// <param name="allowStatusChange">Whether the code being tested is allowed to change the mod status.</param>
         private Mock<IModMetadata> GetMetadata(IManifest manifest, bool allowStatusChange = false)
         {
-            Mock<IModMetadata> mod = new Mock<IModMetadata>(MockBehavior.Strict);
-            mod.Setup(p => p.DataRecord).Returns(() => null);
+            Mock<IModMetadata> mod = new(MockBehavior.Strict);
+            mod.Setup(p => p.DataRecord).Returns(this.GetModDataRecordVersionedFields());
             mod.Setup(p => p.Status).Returns(ModMetadataStatus.Found);
             mod.Setup(p => p.DisplayName).Returns(manifest.UniqueID);
             mod.Setup(p => p.Manifest).Returns(manifest);
@@ -538,11 +538,22 @@ namespace SMAPI.Tests.Core
         private void SetupMetadataForValidation(Mock<IModMetadata> mod, ModDataRecordVersionedFields? modRecord = null)
         {
             mod.Setup(p => p.Status).Returns(ModMetadataStatus.Found);
-            mod.Setup(p => p.DataRecord).Returns(() => null);
             mod.Setup(p => p.Manifest).Returns(this.GetManifest());
             mod.Setup(p => p.DirectoryPath).Returns(Path.GetTempPath());
-            mod.Setup(p => p.DataRecord).Returns(modRecord);
+            mod.Setup(p => p.DataRecord).Returns(modRecord ?? this.GetModDataRecordVersionedFields());
             mod.Setup(p => p.GetUpdateKeys(It.IsAny<bool>())).Returns(Enumerable.Empty<UpdateKey>());
+        }
+
+        /// <summary>Generate a default mod data record.</summary>
+        private ModDataRecord GetModDataRecord()
+        {
+            return new("Default Display Name", new ModDataModel("Sample ID", null, ModWarning.None));
+        }
+
+        /// <summary>Generate a default mod data versioned fields instance.</summary>
+        private ModDataRecordVersionedFields GetModDataRecordVersionedFields()
+        {
+            return new ModDataRecordVersionedFields(this.GetModDataRecord());
         }
     }
 }

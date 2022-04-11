@@ -46,7 +46,7 @@ namespace StardewModdingAPI.Toolkit.Serialization.Models
 
         /// <summary>Any manifest fields which didn't match a valid field.</summary>
         [JsonExtensionData]
-        public IDictionary<string, object> ExtraFields { get; set; } = new Dictionary<string, object>();
+        public IDictionary<string, object> ExtraFields { get; } = new Dictionary<string, object>();
 
 
         /*********

@@ -1,5 +1,3 @@
-#nullable disable
-
 using System.Collections.Generic;
 
 namespace StardewModdingAPI.Toolkit.Framework.ModData
@@ -11,6 +9,6 @@ namespace StardewModdingAPI.Toolkit.Framework.ModData
         ** Accessors
         ********/
         /// <summary>Extra metadata about mods.</summary>
-        public IDictionary<string, ModDataModel> ModData { get; set; }
+        public IDictionary<string, ModDataModel> ModData { get; } = new Dictionary<string, ModDataModel>();
     }
 }
