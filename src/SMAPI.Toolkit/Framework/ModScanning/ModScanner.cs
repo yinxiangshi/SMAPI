@@ -56,7 +56,10 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
 
             // Windows shortcut files
             ".url",
-            ".lnk"
+            ".lnk",
+
+            // gitignore files
+            ".gitignore"
         };
 
         /// <summary>The extensions for packed content files.</summary>
