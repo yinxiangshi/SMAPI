@@ -727,7 +727,8 @@ namespace StardewModdingAPI.Framework
                     locale: null,
                     assetName: legacyName,
                     data: asset.Data,
-                    getNormalizedPath: this.MainContentManager.AssertAndNormalizeAssetName
+                    getNormalizedPath: this.MainContentManager.AssertAndNormalizeAssetName,
+                    reflection: this.Reflection
                 );
         }
 

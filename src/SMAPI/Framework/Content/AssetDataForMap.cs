@@ -4,17 +4,27 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Toolkit.Utilities;
 using StardewValley;
 using xTile;
+using xTile.Dimensions;
 using xTile.Layers;
 using xTile.Tiles;
+using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace StardewModdingAPI.Framework.Content
 {
     /// <summary>Encapsulates access and changes to image content being read from a data file.</summary>
     internal class AssetDataForMap : AssetData<Map>, IAssetDataForMap
     {
+        /*********
+        ** Fields
+        *********/
+        /// <summary>Simplifies access to private code.</summary>
+        private readonly Reflector Reflection;
+
+
         /*********
         ** Public methods
         *********/
@@ -24,8 +34,12 @@ namespace StardewModdingAPI.Framework.Content
         /// <param name="data">The content data being read.</param>
         /// <param name="getNormalizedPath">Normalizes an asset key to match the cache key.</param>
         /// <param name="onDataReplaced">A callback to invoke when the data is replaced (if any).</param>
-        public AssetDataForMap(string locale, IAssetName assetName, Map data, Func<string, string> getNormalizedPath, Action<Map> onDataReplaced)
-            : base(locale, assetName, data, getNormalizedPath, onDataReplaced) { }
+        /// <param name="reflection">Simplifies access to private code.</param>
+        public AssetDataForMap(string locale, IAssetName assetName, Map data, Func<string, string> getNormalizedPath, Action<Map> onDataReplaced, Reflector reflection)
+            : base(locale, assetName, data, getNormalizedPath, onDataReplaced)
+        {
+            this.Reflection = reflection;
+        }
 
         /// <inheritdoc />
         /// <remarks>Derived from <see cref="GameLocation.ApplyMapOverride(Map,string,Rectangle?,Rectangle?)"/> with a few changes:
@@ -135,6 +149,42 @@ namespace StardewModdingAPI.Framework.Content
                     }
                 }
             }
+        }
+
+        /// <inheritdoc />
+        public bool ExtendMap(Map map, int minWidth, int minHeight)
+        {
+            bool resized = false;
+
+            // resize layers
+            foreach (Layer layer in map.Layers)
+            {
+                // check if resize needed
+                if (layer.LayerWidth >= minWidth && layer.LayerHeight >= minHeight)
+                    continue;
+                resized = true;
+
+                // build new tile matrix
+                int width = Math.Max(minWidth, layer.LayerWidth);
+                int height = Math.Max(minHeight, layer.LayerHeight);
+                Tile[,] tiles = new Tile[width, height];
+                for (int x = 0; x < layer.LayerWidth; x++)
+                {
+                    for (int y = 0; y < layer.LayerHeight; y++)
+                        tiles[x, y] = layer.Tiles[x, y];
+                }
+
+                // update fields
+                this.Reflection.GetField<Tile[,]>(layer, "m_tiles").SetValue(tiles);
+                this.Reflection.GetField<TileArray>(layer, "m_tileArray").SetValue(new TileArray(layer, tiles));
+                this.Reflection.GetField<Size>(layer, "m_layerSize").SetValue(new Size(width, height));
+            }
+
+            // resize map
+            if (resized)
+                this.Reflection.GetMethod(map, "UpdateDisplaySize").Invoke();
+
+            return resized;
         }
 
 

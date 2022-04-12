@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Content;
 using StardewModdingAPI.Framework.Content;
 using StardewModdingAPI.Framework.ContentManagers;
 using StardewModdingAPI.Framework.Exceptions;
+using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Utilities;
 
 namespace StardewModdingAPI.Framework.ModHelpers
@@ -27,6 +28,9 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <summary>A case-insensitive lookup of relative paths within the <see cref="ContentManager.RootDirectory"/>.</summary>
         private readonly CaseInsensitivePathCache RelativePathCache;
 
+        /// <summary>Simplifies access to private code.</summary>
+        private readonly Reflector Reflection;
+
 
         /*********
         ** Public methods
@@ -38,7 +42,8 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <param name="modName">The friendly mod name for use in errors.</param>
         /// <param name="gameContentManager">The game content manager used for map tilesheets not provided by the mod.</param>
         /// <param name="relativePathCache">A case-insensitive lookup of relative paths within the <paramref name="relativePathCache"/>.</param>
-        public ModContentHelper(ContentCoordinator contentCore, string modFolderPath, string modID, string modName, IContentManager gameContentManager, CaseInsensitivePathCache relativePathCache)
+        /// <param name="reflection">Simplifies access to private code.</param>
+        public ModContentHelper(ContentCoordinator contentCore, string modFolderPath, string modID, string modName, IContentManager gameContentManager, CaseInsensitivePathCache relativePathCache, Reflector reflection)
             : base(modID)
         {
             string managedAssetPrefix = contentCore.GetManagedAssetPrefix(modID);
@@ -47,6 +52,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
             this.ModContentManager = contentCore.CreateModContentManager(managedAssetPrefix, modName, modFolderPath, gameContentManager);
             this.ModName = modName;
             this.RelativePathCache = relativePathCache;
+            this.Reflection = reflection;
         }
 
         /// <inheritdoc />
@@ -83,7 +89,13 @@ namespace StardewModdingAPI.Framework.ModHelpers
                 ? this.RelativePathCache.GetAssetName(relativePath)
                 : $"temp/{Guid.NewGuid():N}";
 
-            return new AssetDataForObject(this.ContentCore.GetLocale(), this.ContentCore.ParseAssetName(relativePath, allowLocales: false), data, key => this.ContentCore.ParseAssetName(key, allowLocales: false).Name);
+            return new AssetDataForObject(
+                locale: this.ContentCore.GetLocale(),
+                assetName: this.ContentCore.ParseAssetName(relativePath, allowLocales: false),
+                data: data,
+                getNormalizedPath: key => this.ContentCore.ParseAssetName(key, allowLocales: false).Name,
+                reflection: this.Reflection
+            );
         }
     }
 }

@@ -124,7 +124,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
                     IAssetInfo info = new AssetInfo(assetName.LocaleCode, assetName, typeof(T), this.AssertAndNormalizeAssetName);
                     IAssetData asset =
                         this.ApplyLoader<T>(info)
-                        ?? new AssetDataForObject(info, this.RawLoad<T>(assetName, useCache), this.AssertAndNormalizeAssetName);
+                        ?? new AssetDataForObject(info, this.RawLoad<T>(assetName, useCache), this.AssertAndNormalizeAssetName, this.Reflection);
                     asset = this.ApplyEditors<T>(info, asset);
                     return (T)asset.Data;
                 });
@@ -187,7 +187,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
 
             // return matched asset
             return this.TryFixAndValidateLoadedAsset(info, data, loader)
-                ? new AssetDataForObject(info, data, this.AssertAndNormalizeAssetName)
+                ? new AssetDataForObject(info, data, this.AssertAndNormalizeAssetName, this.Reflection)
                 : null;
         }
 
@@ -197,7 +197,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <param name="asset">The loaded asset.</param>
         private IAssetData ApplyEditors<T>(IAssetInfo info, IAssetData asset)
         {
-            IAssetData GetNewData(object data) => new AssetDataForObject(info, data, this.AssertAndNormalizeAssetName);
+            IAssetData GetNewData(object data) => new AssetDataForObject(info, data, this.AssertAndNormalizeAssetName, this.Reflection);
 
             // special case: if the asset was loaded with a more general type like 'object', call editors with the actual type instead.
             {

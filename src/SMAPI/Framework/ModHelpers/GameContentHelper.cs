@@ -5,6 +5,7 @@ using System.Linq;
 using StardewModdingAPI.Framework.Content;
 using StardewModdingAPI.Framework.ContentManagers;
 using StardewModdingAPI.Framework.Exceptions;
+using StardewModdingAPI.Framework.Reflection;
 using StardewValley;
 
 namespace StardewModdingAPI.Framework.ModHelpers
@@ -27,6 +28,9 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <summary>Encapsulates monitoring and logging.</summary>
         private readonly IMonitor Monitor;
 
+        /// <summary>Simplifies access to private code.</summary>
+        private readonly Reflector Reflection;
+
 
         /*********
         ** Accessors
@@ -46,7 +50,8 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <param name="modID">The unique ID of the relevant mod.</param>
         /// <param name="modName">The friendly mod name for use in errors.</param>
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        public GameContentHelper(ContentCoordinator contentCore, string modID, string modName, IMonitor monitor)
+        /// <param name="reflection">Simplifies access to private code.</param>
+        public GameContentHelper(ContentCoordinator contentCore, string modID, string modName, IMonitor monitor, Reflector reflection)
             : base(modID)
         {
             string managedAssetPrefix = contentCore.GetManagedAssetPrefix(modID);
@@ -55,6 +60,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
             this.GameContentManager = contentCore.CreateGameContentManager(managedAssetPrefix + ".content");
             this.ModName = modName;
             this.Monitor = monitor;
+            this.Reflection = reflection;
         }
 
         /// <inheritdoc />
@@ -119,7 +125,13 @@ namespace StardewModdingAPI.Framework.ModHelpers
 
             assetName ??= $"temp/{Guid.NewGuid():N}";
 
-            return new AssetDataForObject(this.CurrentLocale, this.ContentCore.ParseAssetName(assetName, allowLocales: true), data, key => this.ParseAssetName(key).Name);
+            return new AssetDataForObject(
+                locale: this.CurrentLocale,
+                assetName: this.ContentCore.ParseAssetName(assetName, allowLocales: true),
+                data: data,
+                getNormalizedPath: key => this.ParseAssetName(key).Name,
+                reflection: this.Reflection
+            );
         }
 
         /// <summary>Get the underlying game content manager.</summary>

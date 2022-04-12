@@ -1754,8 +1754,8 @@ namespace StardewModdingAPI.Framework
                 IManifest manifest = mod.Manifest;
                 IMonitor monitor = this.LogManager.GetMonitor(mod.DisplayName);
                 CaseInsensitivePathCache relativePathCache = this.ContentCore.GetCaseInsensitivePathCache(mod.DirectoryPath);
-                GameContentHelper gameContentHelper = new(this.ContentCore, manifest.UniqueID, mod.DisplayName, monitor);
-                IModContentHelper modContentHelper = new ModContentHelper(this.ContentCore, mod.DirectoryPath, manifest.UniqueID, mod.DisplayName, gameContentHelper.GetUnderlyingContentManager(), relativePathCache);
+                GameContentHelper gameContentHelper = new(this.ContentCore, manifest.UniqueID, mod.DisplayName, monitor, this.Reflection);
+                IModContentHelper modContentHelper = new ModContentHelper(this.ContentCore, mod.DirectoryPath, manifest.UniqueID, mod.DisplayName, gameContentHelper.GetUnderlyingContentManager(), relativePathCache, this.Reflection);
                 TranslationHelper translationHelper = new(manifest.UniqueID, contentCore.GetLocale(), contentCore.Language);
                 IContentPack contentPack = new ContentPack(mod.DirectoryPath, manifest, modContentHelper, translationHelper, jsonHelper, relativePathCache);
                 mod.SetMod(contentPack, monitor, translationHelper);
@@ -1838,8 +1838,8 @@ namespace StardewModdingAPI.Framework
 
                             CaseInsensitivePathCache relativePathCache = this.ContentCore.GetCaseInsensitivePathCache(packDirPath);
 
-                            GameContentHelper gameContentHelper = new(contentCore, packManifest.UniqueID, packManifest.Name, packMonitor);
-                            IModContentHelper packContentHelper = new ModContentHelper(contentCore, packDirPath, packManifest.UniqueID, packManifest.Name, gameContentHelper.GetUnderlyingContentManager(), relativePathCache);
+                            GameContentHelper gameContentHelper = new(contentCore, packManifest.UniqueID, packManifest.Name, packMonitor, this.Reflection);
+                            IModContentHelper packContentHelper = new ModContentHelper(contentCore, packDirPath, packManifest.UniqueID, packManifest.Name, gameContentHelper.GetUnderlyingContentManager(), relativePathCache, this.Reflection);
                             TranslationHelper packTranslationHelper = new(packManifest.UniqueID, contentCore.GetLocale(), contentCore.Language);
 
                             ContentPack contentPack = new(packDirPath, packManifest, packContentHelper, packTranslationHelper, this.Toolkit.JsonHelper, relativePathCache);
@@ -1852,10 +1852,10 @@ namespace StardewModdingAPI.Framework
                         ICommandHelper commandHelper = new CommandHelper(mod, this.CommandManager);
                         CaseInsensitivePathCache relativePathCache = this.ContentCore.GetCaseInsensitivePathCache(mod.DirectoryPath);
 #pragma warning disable CS0612 // deprecated code
-                        ContentHelper contentHelper = new(contentCore, mod.DirectoryPath, manifest.UniqueID, mod.DisplayName, monitor);
+                        ContentHelper contentHelper = new(contentCore, mod.DirectoryPath, manifest.UniqueID, mod.DisplayName, monitor, this.Reflection);
 #pragma warning restore CS0612
-                        GameContentHelper gameContentHelper = new(contentCore, manifest.UniqueID, mod.DisplayName, monitor);
-                        IModContentHelper modContentHelper = new ModContentHelper(contentCore, mod.DirectoryPath, manifest.UniqueID, mod.DisplayName, gameContentHelper.GetUnderlyingContentManager(), relativePathCache);
+                        GameContentHelper gameContentHelper = new(contentCore, manifest.UniqueID, mod.DisplayName, monitor, this.Reflection);
+                        IModContentHelper modContentHelper = new ModContentHelper(contentCore, mod.DirectoryPath, manifest.UniqueID, mod.DisplayName, gameContentHelper.GetUnderlyingContentManager(), relativePathCache, this.Reflection);
                         IContentPackHelper contentPackHelper = new ContentPackHelper(manifest.UniqueID, new Lazy<IContentPack[]>(GetContentPacks), CreateFakeContentPack);
                         IDataHelper dataHelper = new DataHelper(manifest.UniqueID, mod.DirectoryPath, jsonHelper);
                         IReflectionHelper reflectionHelper = new ReflectionHelper(manifest.UniqueID, mod.DisplayName, this.Reflection);

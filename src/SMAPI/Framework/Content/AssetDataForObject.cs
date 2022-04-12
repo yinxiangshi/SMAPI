@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
+using StardewModdingAPI.Framework.Reflection;
 using xTile;
 
 namespace StardewModdingAPI.Framework.Content
@@ -11,6 +12,13 @@ namespace StardewModdingAPI.Framework.Content
     internal class AssetDataForObject : AssetData<object>, IAssetData
     {
         /*********
+        ** Fields
+        *********/
+        /// <summary>Simplifies access to private code.</summary>
+        private readonly Reflector Reflection;
+
+
+        /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
@@ -18,15 +26,20 @@ namespace StardewModdingAPI.Framework.Content
         /// <param name="assetName">The asset name being read.</param>
         /// <param name="data">The content data being read.</param>
         /// <param name="getNormalizedPath">Normalizes an asset key to match the cache key.</param>
-        public AssetDataForObject(string locale, IAssetName assetName, object data, Func<string, string> getNormalizedPath)
-            : base(locale, assetName, data, getNormalizedPath, onDataReplaced: null) { }
+        /// <param name="reflection">Simplifies access to private code.</param>
+        public AssetDataForObject(string locale, IAssetName assetName, object data, Func<string, string> getNormalizedPath, Reflector reflection)
+            : base(locale, assetName, data, getNormalizedPath, onDataReplaced: null)
+        {
+            this.Reflection = reflection;
+        }
 
         /// <summary>Construct an instance.</summary>
         /// <param name="info">The asset metadata.</param>
         /// <param name="data">The content data being read.</param>
         /// <param name="getNormalizedPath">Normalizes an asset key to match the cache key.</param>
-        public AssetDataForObject(IAssetInfo info, object data, Func<string, string> getNormalizedPath)
-            : this(info.Locale, info.Name, data, getNormalizedPath) { }
+        /// <param name="reflection">Simplifies access to private code.</param>
+        public AssetDataForObject(IAssetInfo info, object data, Func<string, string> getNormalizedPath, Reflector reflection)
+            : this(info.Locale, info.Name, data, getNormalizedPath, reflection) { }
 
         /// <inheritdoc />
         public IAssetDataForDictionary<TKey, TValue> AsDictionary<TKey, TValue>()
@@ -43,7 +56,7 @@ namespace StardewModdingAPI.Framework.Content
         /// <inheritdoc />
         public IAssetDataForMap AsMap()
         {
-            return new AssetDataForMap(this.Locale, this.Name, this.GetData<Map>(), this.GetNormalizedPath, this.ReplaceWith);
+            return new AssetDataForMap(this.Locale, this.Name, this.GetData<Map>(), this.GetNormalizedPath, this.ReplaceWith, this.Reflection);
         }
 
         /// <inheritdoc />

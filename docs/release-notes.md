@@ -45,6 +45,7 @@ the C# mod that loads them is updated.
     _This adds support for many previously unsupported cases: proxied interfaces in return values or input arguments, proxied enums if their values match, generic methods, and more. Existing mod APIs should work fine as-is._
   * Mod files loaded through SMAPI APIs (including `helper.Content.Load`) are now case-insensitive, even on Linux.
 * Other improvements:
+  * Added `IAssetDataForImage.ExtendMap` to resize maps in asset editors.
   * Added [command-line arguments](technical/smapi.md#command-line-arguments) to toggle developer mode (thanks to Tondorian!).
   * Added `IContentPack.ModContent` property.
   * Added `Constants.ContentPath`.

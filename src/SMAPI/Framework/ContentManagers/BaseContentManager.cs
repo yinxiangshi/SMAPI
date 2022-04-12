@@ -32,6 +32,9 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <summary>Encapsulates monitoring and logging.</summary>
         protected readonly IMonitor Monitor;
 
+        /// <summary>Simplifies access to private code.</summary>
+        protected readonly Reflector Reflection;
+
         /// <summary>Whether to enable more aggressive memory optimizations.</summary>
         protected readonly bool AggressiveMemoryOptimizations;
 
@@ -90,6 +93,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             this.Coordinator = coordinator ?? throw new ArgumentNullException(nameof(coordinator));
             this.Cache = new ContentCache(this, reflection);
             this.Monitor = monitor ?? throw new ArgumentNullException(nameof(monitor));
+            this.Reflection = reflection;
             this.OnDisposing = onDisposing;
             this.IsNamespaced = isNamespaced;
             this.AggressiveMemoryOptimizations = aggressiveMemoryOptimizations;

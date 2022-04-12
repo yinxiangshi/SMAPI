@@ -10,6 +10,7 @@ using System.Linq;
 using StardewModdingAPI.Framework.Content;
 using StardewModdingAPI.Framework.ContentManagers;
 using StardewModdingAPI.Framework.Exceptions;
+using StardewModdingAPI.Framework.Reflection;
 using StardewValley;
 
 namespace StardewModdingAPI.Framework.ModHelpers
@@ -35,6 +36,9 @@ namespace StardewModdingAPI.Framework.ModHelpers
 
         /// <summary>Encapsulates monitoring and logging.</summary>
         private readonly IMonitor Monitor;
+
+        /// <summary>Simplifies access to private code.</summary>
+        private readonly Reflector Reflection;
 
 
         /*********
@@ -94,7 +98,8 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <param name="modID">The unique ID of the relevant mod.</param>
         /// <param name="modName">The friendly mod name for use in errors.</param>
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
-        public ContentHelper(ContentCoordinator contentCore, string modFolderPath, string modID, string modName, IMonitor monitor)
+        /// <param name="reflection">Simplifies access to private code.</param>
+        public ContentHelper(ContentCoordinator contentCore, string modFolderPath, string modID, string modName, IMonitor monitor, Reflector reflection)
             : base(modID)
         {
             string managedAssetPrefix = contentCore.GetManagedAssetPrefix(modID);
@@ -104,6 +109,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
             this.ModContentManager = contentCore.CreateModContentManager(managedAssetPrefix, modName, modFolderPath, this.GameContentManager);
             this.ModName = modName;
             this.Monitor = monitor;
+            this.Reflection = reflection;
         }
 
         /// <inheritdoc />
@@ -185,7 +191,13 @@ namespace StardewModdingAPI.Framework.ModHelpers
 
             assetName ??= $"temp/{Guid.NewGuid():N}";
 
-            return new AssetDataForObject(this.CurrentLocale, this.ContentCore.ParseAssetName(assetName, allowLocales: true/* no way to know if it's a game or mod asset here*/), data, this.NormalizeAssetName);
+            return new AssetDataForObject(
+                locale: this.CurrentLocale,
+                assetName: this.ContentCore.ParseAssetName(assetName, allowLocales: true/* no way to know if it's a game or mod asset here*/),
+                data: data,
+                getNormalizedPath: this.NormalizeAssetName,
+                reflection: this.Reflection
+            );
         }
 
 
