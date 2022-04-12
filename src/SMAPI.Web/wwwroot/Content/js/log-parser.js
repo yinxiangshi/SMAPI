@@ -97,120 +97,23 @@ smapi.logParser = function (state) {
         },
 
         /**
-         * Convert an array of boolean values into a bitmap.
-         * @param {Boolean[]} value An array of boolean values
-         * @returns {BigInt}
+         * Try parsing the value as an integer, in base 10. Return the number
+         * if it's valid, or return the default value otherwise.
+         * @param {String} value The value to parse.
+         * @param {Number} defaultValue The value to return if parsing fails.
+         * @param {Function} critera An optional criteria to check the number with.
          */
-        toBitmap(value) {
-            let result = BigInt(0);
-            if (!Array.isArray(value))
-                return value ? BigInt(1) : BigInt(0);
-
-            for (let i = 0; i < value.length; i++) {
-                if (value[i])
-                    result += BigInt(2) ** BigInt(value.length - i - 1);
+        tryNumber(value, defaultValue, critera = null) {
+            try {
+                value = parseInt(value, 10);
+            } catch {
+                return defaultValue;
             }
 
-            return result;
-        },
+            if (isNaN(value) || !isFinite(value) || (critera && !critera(value)))
+                return defaultValue;
 
-        /**
-         * Convert a bitmap into an array of boolean values.
-         * @param {BigInt} value The bitmap
-         * @param {Number} length The expected length of the result
-         * @returns {Boolean[]}
-         */
-        fromBitmap(value, length = -1) {
-            if (typeof value != "bigint")
-                value = "";
-            else
-                value = value.toString(2);
-
-            const result = [];
-            while (length > value.length) {
-                result.push(false);
-                length--;
-            }
-
-            for (let i = 0; i < value.length; i++) {
-                result.push(value[i] === "1" ? true : false);
-            }
-
-            return result;
-        },
-
-        /**
-         * Convert a base-64 string to a BigInt.
-         * @param {string} value
-         * @returns {BigInt}
-         */
-        b64ToBigInt(value) {
-            const bin = atob(value);
-            const hex = [];
-
-            for (let i = 0; i < bin.length; i++) {
-                let h = bin.charCodeAt(i).toString(16);
-                if (h.length % 2) h = `0${h}`;
-                hex.push(h);
-            }
-
-            return BigInt(`0x${hex.join('')}`);
-        },
-
-        /**
-         * Convert a BigInt to a base-64 string.
-         * @param {BigInt} value
-         * @returns {string}
-         */
-        bigIntTo64(value) {
-            let hex = value.toString(16);
-            if (hex.length % 2) hex = `0${hex}`;
-
-            const result = [];
-            for (let i = 0; i < hex.length; i += 2) {
-                const val = parseInt(hex.slice(i, i + 2), 16);
-                result.push(String.fromCharCode(val));
-            }
-
-            return btoa(result.join(''));
-        },
-
-        /**
-         * Make a base-64 string URL safe.
-         * @param {string} value
-         * @returns {string}
-         */
-        b64ToUrl(value) {
-            return value.replace(/\//g, '_').replace(/=/g, '-').replace(/\+/g, '.');
-        },
-
-        /**
-         * Convert a URL safe base-64 string back to normal.
-         * @param {string} value
-         * @returns {string}
-         */
-        urlTob64(value) {
-            return value.replace(/_/g, '/').replace(/-/g, '=').replace(/\./g, '+');
-        },
-
-        /**
-         * Convert an array of booleans to a BigInt bitmap, then convert that
-         * to a base-64 string, then make it URL safe.
-         * @param {Boolean[]} value
-         * @returns {string}
-         */
-        toUrlBitmap(value) {
-            return helpers.b64ToUrl(helpers.bigIntTo64(helpers.toBitmap(value)));
-        },
-
-        /**
-         * Convert a URL safe base-64 string to a normal base-64 string, convert
-         * that to a BigInt, and then parse a bitmap from the BigInt.
-         * @param {string} value
-         * @param {Number} length The expected length of the bitmap.
-         */
-        fromUrlBitmap(value, length = -1) {
-            return helpers.fromBitmap(helpers.b64ToBigInt(helpers.urlTob64(value)), length);
+            return value;
         },
 
         /**
@@ -433,12 +336,18 @@ smapi.logParser = function (state) {
                 "div",
                 { class: "stats" },
                 [
-                    "showing ",
-                    createElement("strong", helpers.formatNumber(props.start + 1)),
-                    " to ",
-                    createElement("strong", helpers.formatNumber(props.end)),
-                    " of ",
-                    createElement("strong", helpers.formatNumber(props.filtered)),
+                    createElement('abbr', {
+                        attrs: {
+                            title: "These numbers may be inaccurate when using filtering with sections collapsed."
+                        }
+                    }, [
+                        "showing ",
+                        createElement("strong", helpers.formatNumber(props.start + 1)),
+                        " to ",
+                        createElement("strong", helpers.formatNumber(props.end)),
+                        " of ",
+                        createElement("strong", helpers.formatNumber(props.filtered))
+                    ]),
                     " (total: ",
                     createElement("strong", helpers.formatNumber(props.total)),
                     ")"
@@ -788,64 +697,66 @@ smapi.logParser = function (state) {
             loadFromUrl: function () {
                 const params = new URL(location).searchParams;
                 if (params.has("PerPage")) {
-                    const perPage = parseInt(params.get("PerPage"));
-                    if (!isNaN(perPage) && isFinite(perPage) && perPage > 0)
-                        state.perPage = perPage;
+                    state.perPage = helpers.tryNumber(params.get("PerPage"), 1000, n => n > 0);
+                } else {
+                    state.perPage = 1000;
                 }
 
                 if (params.has("Page")) {
-                    const page = parseInt(params.get("Page"));
-                    if (!isNaN(page) && isFinite(page) && page > 0)
-                        this.page = page;
+                    this.page = helpers.tryNumber(params.get("Page"), 1, n => n > 0);
+                } else {
+                    this.page = 1;
                 }
 
-                let updateFilter = false;
-
-                if (params.has("Filter")) {
+                if (params.has("Filter"))
                     state.filterText = params.get("Filter");
-                    updateFilter = true;
-                }
+                else
+                    state.filterText = "";
 
                 if (params.has("FilterMode")) {
-                    const values = helpers.fromUrlBitmap(params.get("FilterMode"), 3);
-                    state.useRegex = values[0];
-                    state.useInsensitive = values[1];
-                    state.useWord = values[2];
-                    updateFilter = true;
+                    const values = params.get("FilterMode").split("~");
+                    state.useRegex = values.includes('Regex');
+                    state.useInsensitive = !values.includes('Sensitive');
+                    state.useWord = values.includes('Word');
+                } else {
+                    state.useRegex = false;
+                    state.useInsensitive = true;
+                    state.useWord = false;
                 }
 
                 if (params.has("Mods")) {
-                    const keys = Object.keys(this.showMods);
-                    const value = params.get("Mods");
-                    const values = value === "all" ? true : value === "none" ? false : helpers.fromUrlBitmap(value, keys.length);
+                    const value = params.get("Mods").split("~");
+                    for (const key of Object.keys(this.showMods))
+                        this.showMods[key] = value.includes(key);
 
-                    for (let i = 0; i < keys.length; i++) {
-                        this.showMods[keys[i]] = Array.isArray(values) ? values[i] : values;
-                    }
-
-                    updateModFilters();
+                } else {
+                    for (const key of Object.keys(this.showMods))
+                        this.showMods[key] = state.defaultMods[key];
                 }
 
                 if (params.has("Levels")) {
-                    const keys = Object.keys(this.showLevels);
-                    const values = helpers.fromUrlBitmap(params.get("Levels"), keys.length);
+                    const values = params.get("Levels").split("~");
+                    for (const key of Object.keys(this.showLevels))
+                        this.showLevels[key] = values.includes(key);
 
-                    for (let i = 0; i < keys.length; i++) {
-                        this.showLevels[keys[i]] = values[i];
-                    }
+                } else {
+                    const keys = Object.keys(this.showLevels);
+                    for (const key of Object.keys(this.showLevels))
+                        this.showLevels[key] = state.defaultLevels[key];
                 }
 
                 if (params.has("Sections")) {
-                    const keys = Object.keys(this.showSections);
-                    const values = helpers.fromUrlBitmap(params.get("Levels"), keys.length);
+                    const values = params.get("Sections").split("~");
+                    for (const key of Object.keys(this.showSections))
+                        this.showSections[key] = values.includes(key);
 
-                    for (let i = 0; i < keys.length; i++) {
-                        this.showSections[keys[i]] = values[i];
-                    }
+                } else {
+                    for (const key of Object.keys(this.showSections))
+                        this.showSections[key] = state.defaultSections[key];
                 }
 
-                if (updateFilter)
-                    this.updateFilterText();
+                updateModFilters();
+                this.updateFilterText();
             },
 
             // Whenever the page state changed, replace the current page URL. Using
@@ -858,23 +769,35 @@ smapi.logParser = function (state) {
                 url.searchParams.set("PerPage", state.perPage);
 
                 if (!helpers.shallowEquals(this.showMods, state.defaultMods))
-                    url.searchParams.set("Mods", stats.modsHidden == 0 ? "all" : stats.modsShown == 0 ? "none" : helpers.toUrlBitmap(Object.values(this.showMods)));
+                    url.searchParams.set("Mods", Object.entries(this.showMods).filter(x => x[1]).map(x => x[0]).join("~"));
                 else
                     url.searchParams.delete("Mods");
 
                 if (!helpers.shallowEquals(this.showLevels, state.defaultLevels))
-                    url.searchParams.set("Levels", helpers.toUrlBitmap(Object.values(this.showLevels)));
+                    url.searchParams.set("Levels", Object.entries(this.showLevels).filter(x => x[1]).map(x => x[0]).join("~"));
                 else
                     url.searchParams.delete("Levels");
 
                 if (!helpers.shallowEquals(this.showSections, state.defaultSections))
-                    url.searchParams.set("Sections", helpers.toUrlBitmap(Object.values(this.showSections)));
+                    url.searchParams.set("Sections", Object.entries(this.showSections).filter(x => x[1]).map(x => x[0]).join("~"));
                 else
                     url.searchParams.delete("Sections");
 
                 if (state.filterText && state.filterText.length) {
                     url.searchParams.set("Filter", state.filterText);
-                    url.searchParams.set("FilterMode", helpers.toUrlBitmap([state.useRegex, state.useInsensitive, state.useWord]));
+                    const modes = [];
+                    if (state.useRegex)
+                        modes.push("Regex");
+                    if (!state.useInsensitive)
+                        modes.push("Sensitive");
+                    if (state.useWord)
+                        modes.push("Word");
+
+                    if (modes.length)
+                        url.searchParams.set("FilterMode", modes.join("~"));
+                    else
+                        url.searchParams.delete("FilterMode");
+
                 } else {
                     url.searchParams.delete("Filter");
                     url.searchParams.delete("FilterMode");
