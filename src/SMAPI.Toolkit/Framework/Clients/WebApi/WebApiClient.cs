@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -72,7 +70,8 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
             client.Headers["Content-Type"] = "application/json";
             client.Headers["User-Agent"] = $"SMAPI/{this.Version}";
             string response = client.UploadString(fullUrl, data);
-            return JsonConvert.DeserializeObject<TResult>(response, this.JsonSettings);
+            return JsonConvert.DeserializeObject<TResult>(response, this.JsonSettings)
+                ?? throw new InvalidOperationException($"Could not parse the response from POST {url}.");
         }
     }
 }

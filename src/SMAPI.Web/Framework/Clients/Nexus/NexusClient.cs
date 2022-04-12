@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -61,7 +59,7 @@ namespace StardewModdingAPI.Web.Framework.Clients.Nexus
 
         /// <summary>Get update check info about a mod.</summary>
         /// <param name="id">The mod ID.</param>
-        public async Task<IModPage> GetModData(string id)
+        public async Task<IModPage?> GetModData(string id)
         {
             IModPage page = new GenericModPage(this.SiteKey, id);
 
@@ -72,7 +70,7 @@ namespace StardewModdingAPI.Web.Framework.Clients.Nexus
             // adult content are hidden for anonymous users, so fall back to the API in that case.
             // Note that the API has very restrictive rate limits which means we can't just use it
             // for all cases.
-            NexusMod mod = await this.GetModFromWebsiteAsync(parsedId);
+            NexusMod? mod = await this.GetModFromWebsiteAsync(parsedId);
             if (mod?.Status == NexusModStatus.AdultContentForbidden)
                 mod = await this.GetModFromApiAsync(parsedId);
 
@@ -81,16 +79,16 @@ namespace StardewModdingAPI.Web.Framework.Clients.Nexus
                 return page.SetError(RemoteModStatus.DoesNotExist, "Found no Nexus mod with this ID.");
 
             // return info
-            page.SetInfo(name: mod.Name, url: mod.Url, version: mod.Version, downloads: mod.Downloads);
+            page.SetInfo(name: mod.Name ?? parsedId.ToString(), url: mod.Url ?? this.GetModUrl(parsedId), version: mod.Version, downloads: mod.Downloads);
             if (mod.Status != NexusModStatus.Ok)
-                page.SetError(RemoteModStatus.TemporaryError, mod.Error);
+                page.SetError(RemoteModStatus.TemporaryError, mod.Error!);
             return page;
         }
 
         /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
         public void Dispose()
         {
-            this.WebClient?.Dispose();
+            this.WebClient.Dispose();
         }
 
 
@@ -100,7 +98,7 @@ namespace StardewModdingAPI.Web.Framework.Clients.Nexus
         /// <summary>Get metadata about a mod by scraping the Nexus website.</summary>
         /// <param name="id">The Nexus mod ID.</param>
         /// <returns>Returns the mod info if found, else <c>null</c>.</returns>
-        private async Task<NexusMod> GetModFromWebsiteAsync(uint id)
+        private async Task<NexusMod?> GetModFromWebsiteAsync(uint id)
         {
             // fetch HTML
             string html;
@@ -116,35 +114,38 @@ namespace StardewModdingAPI.Web.Framework.Clients.Nexus
             }
 
             // parse HTML
-            var doc = new HtmlDocument();
+            HtmlDocument doc = new();
             doc.LoadHtml(html);
 
             // handle Nexus error message
-            HtmlNode node = doc.DocumentNode.SelectSingleNode("//div[contains(@class, 'site-notice')][contains(@class, 'warning')]");
+            HtmlNode? node = doc.DocumentNode.SelectSingleNode("//div[contains(@class, 'site-notice')][contains(@class, 'warning')]");
             if (node != null)
             {
                 string[] errorParts = node.InnerText.Trim().Split(new[] { '\n' }, 2, System.StringSplitOptions.RemoveEmptyEntries);
                 string errorCode = errorParts[0];
-                string errorText = errorParts.Length > 1 ? errorParts[1] : null;
+                string? errorText = errorParts.Length > 1 ? errorParts[1] : null;
                 switch (errorCode.Trim().ToLower())
                 {
                     case "not found":
                         return null;
 
                     default:
-                        return new NexusMod { Error = $"Nexus error: {errorCode} ({errorText}).", Status = this.GetWebStatus(errorCode) };
+                        return new NexusMod(
+                            status: this.GetWebStatus(errorCode),
+                            error: $"Nexus error: {errorCode} ({errorText})."
+                        );
                 }
             }
 
             // extract mod info
             string url = this.GetModUrl(id);
-            string name = doc.DocumentNode.SelectSingleNode("//div[@id='pagetitle']//h1")?.InnerText.Trim();
-            string version = doc.DocumentNode.SelectSingleNode("//ul[contains(@class, 'stats')]//li[@class='stat-version']//div[@class='stat']")?.InnerText.Trim();
-            SemanticVersion.TryParse(version, out ISemanticVersion parsedVersion);
+            string? name = doc.DocumentNode.SelectSingleNode("//div[@id='pagetitle']//h1")?.InnerText.Trim();
+            string? version = doc.DocumentNode.SelectSingleNode("//ul[contains(@class, 'stats')]//li[@class='stat-version']//div[@class='stat']")?.InnerText.Trim();
+            SemanticVersion.TryParse(version, out ISemanticVersion? parsedVersion);
 
             // extract files
             var downloads = new List<IModDownload>();
-            foreach (var fileSection in doc.DocumentNode.SelectNodes("//div[contains(@class, 'files-tabs')]"))
+            foreach (HtmlNode fileSection in doc.DocumentNode.SelectNodes("//div[contains(@class, 'files-tabs')]"))
             {
                 string sectionName = fileSection.Descendants("h2").First().InnerText;
                 if (sectionName != "Main files" && sectionName != "Optional files")
@@ -154,7 +155,7 @@ namespace StardewModdingAPI.Web.Framework.Clients.Nexus
                 {
                     string fileName = container.GetDataAttribute("name").Value;
                     string fileVersion = container.GetDataAttribute("version").Value;
-                    string description = container.SelectSingleNode("following-sibling::*[1][self::dd]//div").InnerText?.Trim(); // get text of next <dd> tag; derived from https://stackoverflow.com/a/25535623/262123
+                    string? description = container.SelectSingleNode("following-sibling::*[1][self::dd]//div").InnerText?.Trim(); // get text of next <dd> tag; derived from https://stackoverflow.com/a/25535623/262123
 
                     downloads.Add(
                         new GenericModDownload(fileName, description, fileVersion)
@@ -163,13 +164,12 @@ namespace StardewModdingAPI.Web.Framework.Clients.Nexus
             }
 
             // yield info
-            return new NexusMod
-            {
-                Name = name,
-                Version = parsedVersion?.ToString() ?? version,
-                Url = url,
-                Downloads = downloads.ToArray()
-            };
+            return new NexusMod(
+                name: name ?? id.ToString(),
+                version: parsedVersion?.ToString() ?? version,
+                url: url,
+                downloads: downloads.ToArray()
+            );
         }
 
         /// <summary>Get metadata about a mod from the Nexus API.</summary>
@@ -182,22 +182,21 @@ namespace StardewModdingAPI.Web.Framework.Clients.Nexus
             ModFileList files = await this.ApiClient.ModFiles.GetModFiles("stardewvalley", (int)id, FileCategory.Main, FileCategory.Optional);
 
             // yield info
-            return new NexusMod
-            {
-                Name = mod.Name,
-                Version = SemanticVersion.TryParse(mod.Version, out ISemanticVersion version) ? version?.ToString() : mod.Version,
-                Url = this.GetModUrl(id),
-                Downloads = files.Files
+            return new NexusMod(
+                name: mod.Name,
+                version: SemanticVersion.TryParse(mod.Version, out ISemanticVersion? version) ? version.ToString() : mod.Version,
+                url: this.GetModUrl(id),
+                downloads: files.Files
                     .Select(file => (IModDownload)new GenericModDownload(file.Name, file.Description, file.FileVersion))
                     .ToArray()
-            };
+            );
         }
 
         /// <summary>Get the full mod page URL for a given ID.</summary>
         /// <param name="id">The mod ID.</param>
         private string GetModUrl(uint id)
         {
-            UriBuilder builder = new(this.WebClient.BaseClient.BaseAddress);
+            UriBuilder builder = new(this.WebClient.BaseClient.BaseAddress!);
             builder.Path += string.Format(this.WebModUrlFormat, id);
             return builder.Uri.ToString();
         }

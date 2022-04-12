@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,7 +21,7 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
         public string[] ID { get; set; } = Array.Empty<string>();
 
         /// <summary>The mod's display name.</summary>
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         /// <summary>The mod ID on Nexus.</summary>
         public int? NexusID { get; set; }
@@ -35,31 +33,31 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
         public int? CurseForgeID { get; set; }
 
         /// <summary>The mod key in the CurseForge mod repo (used in mod page URLs).</summary>
-        public string CurseForgeKey { get; set; }
+        public string? CurseForgeKey { get; set; }
 
         /// <summary>The mod ID in the ModDrop mod repo.</summary>
         public int? ModDropID { get; set; }
 
         /// <summary>The GitHub repository in the form 'owner/repo'.</summary>
-        public string GitHubRepo { get; set; }
+        public string? GitHubRepo { get; set; }
 
         /// <summary>The URL to a non-GitHub source repo.</summary>
-        public string CustomSourceUrl { get; set; }
+        public string? CustomSourceUrl { get; set; }
 
         /// <summary>The custom mod page URL (if applicable).</summary>
-        public string CustomUrl { get; set; }
+        public string? CustomUrl { get; set; }
 
         /// <summary>The main version.</summary>
-        public ModEntryVersionModel Main { get; set; }
+        public ModEntryVersionModel? Main { get; set; }
 
         /// <summary>The latest optional version, if newer than <see cref="Main"/>.</summary>
-        public ModEntryVersionModel Optional { get; set; }
+        public ModEntryVersionModel? Optional { get; set; }
 
         /// <summary>The latest unofficial version, if newer than <see cref="Main"/> and <see cref="Optional"/>.</summary>
-        public ModEntryVersionModel Unofficial { get; set; }
+        public ModEntryVersionModel? Unofficial { get; set; }
 
         /// <summary>The latest unofficial version for the current Stardew Valley or SMAPI beta, if any.</summary>
-        public ModEntryVersionModel UnofficialForBeta { get; set; }
+        public ModEntryVersionModel? UnofficialForBeta { get; set; }
 
         /****
         ** Stable compatibility
@@ -69,10 +67,10 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
         public WikiCompatibilityStatus? CompatibilityStatus { get; set; }
 
         /// <summary>The human-readable summary of the compatibility status or workaround, without HTML formatting.</summary>
-        public string CompatibilitySummary { get; set; }
+        public string? CompatibilitySummary { get; set; }
 
         /// <summary>The game or SMAPI version which broke this mod, if applicable.</summary>
-        public string BrokeIn { get; set; }
+        public string? BrokeIn { get; set; }
 
         /****
         ** Beta compatibility
@@ -82,22 +80,22 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
         public WikiCompatibilityStatus? BetaCompatibilityStatus { get; set; }
 
         /// <summary>The human-readable summary of the compatibility status or workaround for the Stardew Valley beta (if any), without HTML formatting.</summary>
-        public string BetaCompatibilitySummary { get; set; }
+        public string? BetaCompatibilitySummary { get; set; }
 
         /// <summary>The beta game or SMAPI version which broke this mod, if applicable.</summary>
-        public string BetaBrokeIn { get; set; }
+        public string? BetaBrokeIn { get; set; }
 
         /****
         ** Version mappings
         ****/
         /// <summary>A serialized change descriptor to apply to the local version during update checks (see <see cref="ChangeDescriptor"/>).</summary>
-        public string ChangeLocalVersions { get; set; }
+        public string? ChangeLocalVersions { get; set; }
 
         /// <summary>A serialized change descriptor to apply to the remote version during update checks (see <see cref="ChangeDescriptor"/>).</summary>
-        public string ChangeRemoteVersions { get; set; }
+        public string? ChangeRemoteVersions { get; set; }
 
         /// <summary>A serialized change descriptor to apply to the update keys during update checks (see <see cref="ChangeDescriptor"/>).</summary>
-        public string ChangeUpdateKeys { get; set; }
+        public string? ChangeUpdateKeys { get; set; }
 
 
         /*********
@@ -113,7 +111,7 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
         /// <param name="optional">The latest optional version, if newer than <paramref name="main"/>.</param>
         /// <param name="unofficial">The latest unofficial version, if newer than <paramref name="main"/> and <paramref name="optional"/>.</param>
         /// <param name="unofficialForBeta">The latest unofficial version for the current Stardew Valley or SMAPI beta, if any.</param>
-        public ModExtendedMetadataModel(WikiModEntry wiki, ModDataRecord db, ModEntryVersionModel main, ModEntryVersionModel optional, ModEntryVersionModel unofficial, ModEntryVersionModel unofficialForBeta)
+        public ModExtendedMetadataModel(WikiModEntry? wiki, ModDataRecord? db, ModEntryVersionModel? main, ModEntryVersionModel? optional, ModEntryVersionModel? unofficial, ModEntryVersionModel? unofficialForBeta)
         {
             // versions
             this.Main = main;

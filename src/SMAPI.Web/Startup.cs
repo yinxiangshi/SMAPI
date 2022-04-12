@@ -1,5 +1,3 @@
-#nullable disable
-
 using System.Collections.Generic;
 using System.Net;
 using Hangfire;
@@ -102,7 +100,7 @@ namespace StardewModdingAPI.Web
             // init API clients
             {
                 ApiClientsConfig api = this.Configuration.GetSection("ApiClients").Get<ApiClientsConfig>();
-                string version = this.GetType().Assembly.GetName().Version.ToString(3);
+                string version = this.GetType().Assembly.GetName().Version!.ToString(3);
                 string userAgent = string.Format(api.UserAgent, version);
 
                 services.AddSingleton<IChucklefishClient>(new ChucklefishClient(

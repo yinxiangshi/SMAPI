@@ -1,5 +1,3 @@
-#nullable disable
-
 using Hangfire.Dashboard;
 
 namespace StardewModdingAPI.Web.Framework

@@ -1,4 +1,4 @@
-#nullable disable
+using System.Diagnostics.CodeAnalysis;
 
 namespace StardewModdingAPI.Web.Framework.Compression
 {
@@ -14,6 +14,7 @@ namespace StardewModdingAPI.Web.Framework.Compression
 
         /// <summary>Decompress a string.</summary>
         /// <param name="rawText">The compressed text.</param>
-        string DecompressString(string rawText);
+        [return: NotNullIfNotNull("rawText")]
+        string? DecompressString(string? rawText);
     }
 }

@@ -1,5 +1,3 @@
-#nullable disable
-
 using System.Linq;
 using StardewModdingAPI.Toolkit.Utilities;
 
@@ -24,18 +22,12 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
         public ISemanticVersion GameVersion { get; set; }
 
         /// <summary>The OS on which the player plays.</summary>
-        public Platform? Platform { get; set; }
+        public Platform Platform { get; set; }
 
 
         /*********
         ** Public methods
         *********/
-        /// <summary>Construct an empty instance.</summary>
-        public ModSearchModel()
-        {
-            // needed for JSON deserializing
-        }
-
         /// <summary>Construct an instance.</summary>
         /// <param name="mods">The mods to search.</param>
         /// <param name="apiVersion">The SMAPI version installed by the player. If this is null, the API won't provide a recommended update.</param>

@@ -1,7 +1,6 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -78,7 +77,7 @@ namespace StardewModdingAPI.Web.Controllers
         /// <param name="model">The mod search criteria.</param>
         /// <param name="version">The requested API version.</param>
         [HttpPost]
-        public async Task<IEnumerable<ModEntryModel>> PostAsync([FromBody] ModSearchModel model, [FromRoute] string version)
+        public async Task<IEnumerable<ModEntryModel>> PostAsync([FromBody] ModSearchModel? model, [FromRoute] string version)
         {
             if (model?.Mods == null)
                 return Array.Empty<ModEntryModel>();
@@ -94,16 +93,16 @@ namespace StardewModdingAPI.Web.Controllers
                     continue;
 
                 // special case: if this is an update check for the official SMAPI repo, check the Nexus mod page for beta versions
-                if (mod.ID == config.SmapiInfo.ID && mod.UpdateKeys?.Any(key => key == config.SmapiInfo.DefaultUpdateKey) == true && mod.InstalledVersion?.IsPrerelease() == true)
-                    mod.UpdateKeys = mod.UpdateKeys.Concat(config.SmapiInfo.AddBetaUpdateKeys).ToArray();
+                if (mod.ID == config.SmapiInfo.ID && mod.UpdateKeys.Any(key => key == config.SmapiInfo.DefaultUpdateKey) && mod.InstalledVersion?.IsPrerelease() == true)
+                    mod.AddUpdateKeys(config.SmapiInfo.AddBetaUpdateKeys);
 
                 // fetch result
                 ModEntryModel result = await this.GetModData(mod, wikiData, model.IncludeExtendedMetadata, model.ApiVersion);
                 if (!model.IncludeExtendedMetadata && (model.ApiVersion == null || mod.InstalledVersion == null))
                 {
-                    var errors = new List<string>(result.Errors);
-                    errors.Add($"This API can't suggest an update because {nameof(model.ApiVersion)} or {nameof(mod.InstalledVersion)} are null, and you didn't specify {nameof(model.IncludeExtendedMetadata)} to get other info. See the SMAPI technical docs for usage.");
-                    result.Errors = errors.ToArray();
+                    result.Errors = result.Errors
+                        .Concat(new[] { $"This API can't suggest an update because {nameof(model.ApiVersion)} or {nameof(mod.InstalledVersion)} are null, and you didn't specify {nameof(model.IncludeExtendedMetadata)} to get other info. See the SMAPI technical docs for usage." })
+                        .ToArray();
                 }
 
                 mods[mod.ID] = result;
@@ -123,26 +122,26 @@ namespace StardewModdingAPI.Web.Controllers
         /// <param name="includeExtendedMetadata">Whether to include extended metadata for each mod.</param>
         /// <param name="apiVersion">The SMAPI version installed by the player.</param>
         /// <returns>Returns the mod data if found, else <c>null</c>.</returns>
-        private async Task<ModEntryModel> GetModData(ModSearchEntryModel search, WikiModEntry[] wikiData, bool includeExtendedMetadata, ISemanticVersion apiVersion)
+        private async Task<ModEntryModel> GetModData(ModSearchEntryModel search, WikiModEntry[] wikiData, bool includeExtendedMetadata, ISemanticVersion? apiVersion)
         {
             // cross-reference data
-            ModDataRecord record = this.ModDatabase.Get(search.ID);
-            WikiModEntry wikiEntry = wikiData.FirstOrDefault(entry => entry.ID.Contains(search.ID.Trim(), StringComparer.OrdinalIgnoreCase));
+            ModDataRecord? record = this.ModDatabase.Get(search.ID);
+            WikiModEntry? wikiEntry = wikiData.FirstOrDefault(entry => entry.ID.Contains(search.ID.Trim(), StringComparer.OrdinalIgnoreCase));
             UpdateKey[] updateKeys = this.GetUpdateKeys(search.UpdateKeys, record, wikiEntry).ToArray();
-            ModOverrideConfig overrides = this.Config.Value.ModOverrides.FirstOrDefault(p => p.ID.Equals(search.ID?.Trim(), StringComparison.OrdinalIgnoreCase));
+            ModOverrideConfig? overrides = this.Config.Value.ModOverrides.FirstOrDefault(p => p.ID.Equals(search.ID.Trim(), StringComparison.OrdinalIgnoreCase));
             bool allowNonStandardVersions = overrides?.AllowNonStandardVersions ?? false;
 
             // SMAPI versions with a '-beta' tag indicate major changes that may need beta mod versions.
             // This doesn't apply to normal prerelease versions which have an '-alpha' tag.
-            bool isSmapiBeta = apiVersion.IsPrerelease() && apiVersion.PrereleaseTag.StartsWith("beta");
+            bool isSmapiBeta = apiVersion != null && apiVersion.IsPrerelease() && apiVersion.PrereleaseTag.StartsWith("beta");
 
             // get latest versions
-            ModEntryModel result = new() { ID = search.ID };
+            ModEntryModel result = new(search.ID);
             IList<string> errors = new List<string>();
-            ModEntryVersionModel main = null;
-            ModEntryVersionModel optional = null;
-            ModEntryVersionModel unofficial = null;
-            ModEntryVersionModel unofficialForBeta = null;
+            ModEntryVersionModel? main = null;
+            ModEntryVersionModel? optional = null;
+            ModEntryVersionModel? unofficial = null;
+            ModEntryVersionModel? unofficialForBeta = null;
             foreach (UpdateKey updateKey in updateKeys)
             {
                 // validate update key
@@ -162,9 +161,9 @@ namespace StardewModdingAPI.Web.Controllers
 
                 // handle versions
                 if (this.IsNewer(data.Version, main?.Version))
-                    main = new ModEntryVersionModel(data.Version, data.Url);
+                    main = new ModEntryVersionModel(data.Version, data.Url!);
                 if (this.IsNewer(data.PreviewVersion, optional?.Version))
-                    optional = new ModEntryVersionModel(data.PreviewVersion, data.Url);
+                    optional = new ModEntryVersionModel(data.PreviewVersion, data.Url!);
             }
 
             // get unofficial version
@@ -172,7 +171,7 @@ namespace StardewModdingAPI.Web.Controllers
                 unofficial = new ModEntryVersionModel(wikiEntry.Compatibility.UnofficialVersion, $"{this.Url.PlainAction("Index", "Mods", absoluteUrl: true)}#{wikiEntry.Anchor}");
 
             // get unofficial version for beta
-            if (wikiEntry?.HasBetaInfo == true)
+            if (wikiEntry is { HasBetaInfo: true })
             {
                 if (wikiEntry.BetaCompatibility.Status == WikiCompatibilityStatus.Unofficial)
                 {
@@ -198,13 +197,13 @@ namespace StardewModdingAPI.Web.Controllers
             if (overrides?.SetUrl != null)
             {
                 if (main != null)
-                    main.Url = overrides.SetUrl;
+                    main = new(main.Version, overrides.SetUrl);
                 if (optional != null)
-                    optional.Url = overrides.SetUrl;
+                    optional = new(optional.Version, overrides.SetUrl);
             }
 
             // get recommended update (if any)
-            ISemanticVersion installedVersion = this.ModSites.GetMappedVersion(search.InstalledVersion?.ToString(), wikiEntry?.Overrides?.ChangeLocalVersions, allowNonStandard: allowNonStandardVersions);
+            ISemanticVersion? installedVersion = this.ModSites.GetMappedVersion(search.InstalledVersion?.ToString(), wikiEntry?.Overrides?.ChangeLocalVersions, allowNonStandard: allowNonStandardVersions);
             if (apiVersion != null && installedVersion != null)
             {
                 // get newer versions
@@ -219,7 +218,7 @@ namespace StardewModdingAPI.Web.Controllers
                     updates.Add(unofficialForBeta);
 
                 // get newest version
-                ModEntryVersionModel newest = null;
+                ModEntryVersionModel? newest = null;
                 foreach (ModEntryVersionModel update in updates)
                 {
                     if (newest == null || update.Version.IsNewerThan(newest.Version))
@@ -245,7 +244,7 @@ namespace StardewModdingAPI.Web.Controllers
         /// <param name="currentVersion">The current semantic version.</param>
         /// <param name="newVersion">The target semantic version.</param>
         /// <param name="useBetaChannel">Whether the user enabled the beta channel and should be offered prerelease updates.</param>
-        private bool IsRecommendedUpdate(ISemanticVersion currentVersion, ISemanticVersion newVersion, bool useBetaChannel)
+        private bool IsRecommendedUpdate(ISemanticVersion currentVersion, [NotNullWhen(true)] ISemanticVersion? newVersion, bool useBetaChannel)
         {
             return
                 newVersion != null
@@ -256,7 +255,7 @@ namespace StardewModdingAPI.Web.Controllers
         /// <summary>Get whether a <paramref name="current"/> version is newer than an <paramref name="other"/> version.</summary>
         /// <param name="current">The current version.</param>
         /// <param name="other">The other version.</param>
-        private bool IsNewer(ISemanticVersion current, ISemanticVersion other)
+        private bool IsNewer([NotNullWhen(true)] ISemanticVersion? current, ISemanticVersion? other)
         {
             return current != null && (other == null || other.IsOlderThan(current));
         }
@@ -265,17 +264,20 @@ namespace StardewModdingAPI.Web.Controllers
         /// <param name="updateKey">The namespaced update key.</param>
         /// <param name="allowNonStandardVersions">Whether to allow non-standard versions.</param>
         /// <param name="mapRemoteVersions">The changes to apply to remote versions for update checks.</param>
-        private async Task<ModInfoModel> GetInfoForUpdateKeyAsync(UpdateKey updateKey, bool allowNonStandardVersions, ChangeDescriptor mapRemoteVersions)
+        private async Task<ModInfoModel> GetInfoForUpdateKeyAsync(UpdateKey updateKey, bool allowNonStandardVersions, ChangeDescriptor? mapRemoteVersions)
         {
+            if (!updateKey.LooksValid)
+                return new ModInfoModel().SetError(RemoteModStatus.DoesNotExist, $"Invalid update key '{updateKey}'.");
+
             // get mod page
             IModPage page;
             {
                 bool isCached =
-                    this.ModCache.TryGetMod(updateKey.Site, updateKey.ID, out Cached<IModPage> cachedMod)
+                    this.ModCache.TryGetMod(updateKey.Site, updateKey.ID, out Cached<IModPage>? cachedMod)
                     && !this.ModCache.IsStale(cachedMod.LastUpdated, cachedMod.Data.Status == RemoteModStatus.TemporaryError ? this.Config.Value.ErrorCacheMinutes : this.Config.Value.SuccessCacheMinutes);
 
                 if (isCached)
-                    page = cachedMod.Data;
+                    page = cachedMod!.Data;
                 else
                 {
                     page = await this.ModSites.GetModPageAsync(updateKey);
@@ -291,7 +293,7 @@ namespace StardewModdingAPI.Web.Controllers
         /// <param name="specifiedKeys">The specified update keys.</param>
         /// <param name="record">The mod's entry in SMAPI's internal database.</param>
         /// <param name="entry">The mod's entry in the wiki list.</param>
-        private IEnumerable<UpdateKey> GetUpdateKeys(string[] specifiedKeys, ModDataRecord record, WikiModEntry entry)
+        private IEnumerable<UpdateKey> GetUpdateKeys(string[]? specifiedKeys, ModDataRecord? record, WikiModEntry? entry)
         {
             // get unique update keys
             List<UpdateKey> updateKeys = this.GetUnfilteredUpdateKeys(specifiedKeys, record, entry)
@@ -310,7 +312,7 @@ namespace StardewModdingAPI.Web.Controllers
             // if the list has both an update key (like "Nexus:2400") and subkey (like "Nexus:2400@subkey") for the same page, the subkey takes priority
             {
                 var removeKeys = new HashSet<UpdateKey>();
-                foreach (var key in updateKeys)
+                foreach (UpdateKey key in updateKeys)
                 {
                     if (key.Subkey != null)
                         removeKeys.Add(new UpdateKey(key.Site, key.ID, null));
@@ -326,7 +328,7 @@ namespace StardewModdingAPI.Web.Controllers
         /// <param name="specifiedKeys">The specified update keys.</param>
         /// <param name="record">The mod's entry in SMAPI's internal database.</param>
         /// <param name="entry">The mod's entry in the wiki list.</param>
-        private IEnumerable<string> GetUnfilteredUpdateKeys(string[] specifiedKeys, ModDataRecord record, WikiModEntry entry)
+        private IEnumerable<string> GetUnfilteredUpdateKeys(string[]? specifiedKeys, ModDataRecord? record, WikiModEntry? entry)
         {
             // specified update keys
             foreach (string key in specifiedKeys ?? Array.Empty<string>())
@@ -337,7 +339,7 @@ namespace StardewModdingAPI.Web.Controllers
 
             // default update key
             {
-                string defaultKey = record?.GetDefaultUpdateKey();
+                string? defaultKey = record?.GetDefaultUpdateKey();
                 if (!string.IsNullOrWhiteSpace(defaultKey))
                     yield return defaultKey;
             }

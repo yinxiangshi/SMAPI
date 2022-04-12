@@ -85,6 +85,9 @@ namespace StardewModdingAPI
         }
 
         /// <inheritdoc />
+#if NET5_0_OR_GREATER
+        [MemberNotNullWhen(true, nameof(SemanticVersion.PrereleaseTag))]
+#endif
         public bool IsPrerelease()
         {
             return this.Version.IsPrerelease();

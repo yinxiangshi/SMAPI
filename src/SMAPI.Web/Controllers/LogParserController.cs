@@ -69,7 +69,7 @@ namespace StardewModdingAPI.Web.Controllers
 
                 case LogViewFormat.RawDownload:
                     {
-                        string content = file.Error ?? file.Content;
+                        string content = file.Error ?? file.Content ?? string.Empty;
                         return this.File(Encoding.UTF8.GetBytes(content), "plain/text", $"SMAPI log ({id}).txt");
                     }
 
@@ -97,7 +97,7 @@ namespace StardewModdingAPI.Web.Controllers
                 return this.View("Index", this.GetModel(null, uploadError: uploadResult.UploadError));
 
             // redirect to view
-            return this.Redirect(this.Url.PlainAction("Index", "LogParser", new { id = uploadResult.ID }));
+            return this.Redirect(this.Url.PlainAction("Index", "LogParser", new { id = uploadResult.ID })!);
         }
 
 
@@ -109,7 +109,7 @@ namespace StardewModdingAPI.Web.Controllers
         /// <param name="expiry">When the uploaded file will no longer be available.</param>
         /// <param name="uploadWarning">A non-blocking warning while uploading the log.</param>
         /// <param name="uploadError">An error which occurred while uploading the log.</param>
-        private LogParserModel GetModel(string? pasteID, DateTime? expiry = null, string? uploadWarning = null, string? uploadError = null)
+        private LogParserModel GetModel(string? pasteID, DateTimeOffset? expiry = null, string? uploadWarning = null, string? uploadError = null)
         {
             Platform? platform = this.DetectClientPlatform();
 

@@ -1,5 +1,3 @@
-#nullable disable
-
 using System.Threading.Tasks;
 
 namespace StardewModdingAPI.Web.Framework.Storage

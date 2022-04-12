@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Html;
@@ -28,7 +26,7 @@ namespace StardewModdingAPI.Web.Framework
         /// <param name="values">An object that contains route values.</param>
         /// <param name="absoluteUrl">Get an absolute URL instead of a server-relative path/</param>
         /// <returns>The generated URL.</returns>
-        public static string PlainAction(this IUrlHelper helper, [AspMvcAction] string action, [AspMvcController] string controller, object values = null, bool absoluteUrl = false)
+        public static string? PlainAction(this IUrlHelper helper, [AspMvcAction] string action, [AspMvcController] string controller, object? values = null, bool absoluteUrl = false)
         {
             // get route values
             RouteValueDictionary valuesDict = new(values);
@@ -39,7 +37,7 @@ namespace StardewModdingAPI.Web.Framework
             }
 
             // get relative URL
-            string url = helper.Action(action, controller, valuesDict);
+            string? url = helper.Action(action, controller, valuesDict);
             if (url == null && action.EndsWith("Async"))
                 url = helper.Action(action[..^"Async".Length], controller, valuesDict);
 
@@ -59,7 +57,7 @@ namespace StardewModdingAPI.Web.Framework
         /// <param name="value">The value to serialize.</param>
         /// <returns>The serialized JSON.</returns>
         /// <remarks>This bypasses unnecessary validation (e.g. not allowing null values) in <see cref="IJsonHelper.Serialize"/>.</remarks>
-        public static IHtmlContent ForJson(this RazorPageBase page, object value)
+        public static IHtmlContent ForJson(this RazorPageBase page, object? value)
         {
             string json = JsonConvert.SerializeObject(value);
             return new HtmlString(json);

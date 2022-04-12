@@ -3,7 +3,7 @@ using System.Collections.Generic;
 namespace StardewModdingAPI.Toolkit
 {
     /// <summary>A comparer for semantic versions based on the <see cref="SemanticVersion.CompareTo(ISemanticVersion)"/> field.</summary>
-    public class SemanticVersionComparer : IComparer<ISemanticVersion>
+    public class SemanticVersionComparer : IComparer<ISemanticVersion?>
     {
         /*********
         ** Accessors

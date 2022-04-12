@@ -44,7 +44,7 @@ namespace StardewModdingAPI.Web.ViewModels
         public string? ParseError => this.ParsedLog?.Error;
 
         /// <summary>When the uploaded file will no longer be available.</summary>
-        public DateTime? Expiry { get; set; }
+        public DateTimeOffset? Expiry { get; set; }
 
         /// <summary>Whether parsed log data is available.</summary>
         [MemberNotNullWhen(true, nameof(LogParserModel.PasteID), nameof(LogParserModel.ParsedLog))]

@@ -1,7 +1,3 @@
-@{
-    #nullable disable
-}
-
 @using Humanizer
 @using Humanizer.Localisation
 @using StardewModdingAPI.Web.Framework
@@ -10,7 +6,7 @@
 @{
     ViewData["Title"] = "Mod compatibility";
 
-    TimeSpan staleAge = DateTimeOffset.UtcNow - Model.LastUpdated;
+    TimeSpan staleAge = DateTimeOffset.UtcNow - Model!.LastUpdated;
 
     bool hasBeta = Model.BetaVersion != null;
     string betaLabel = $"SDV {Model.BetaVersion} only";

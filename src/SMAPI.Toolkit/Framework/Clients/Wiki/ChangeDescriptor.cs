@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -49,7 +47,7 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
         /// <summary>Apply the change descriptors to a comma-delimited field.</summary>
         /// <param name="rawField">The raw field text.</param>
         /// <returns>Returns the modified field.</returns>
-        public string ApplyToCopy(string rawField)
+        public string? ApplyToCopy(string? rawField)
         {
             // get list
             List<string> values = !string.IsNullOrWhiteSpace(rawField)
@@ -75,12 +73,12 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
             {
                 for (int i = values.Count - 1; i >= 0; i--)
                 {
-                    string value = this.FormatValue(values[i]?.Trim() ?? string.Empty);
+                    string value = this.FormatValue(values[i].Trim());
 
                     if (this.Remove.Contains(value))
                         values.RemoveAt(i);
 
-                    else if (this.Replace.TryGetValue(value, out string newValue))
+                    else if (this.Replace.TryGetValue(value, out string? newValue))
                         values[i] = newValue;
                 }
             }
@@ -88,7 +86,7 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
             // add values
             if (this.Add.Any())
             {
-                HashSet<string> curValues = new HashSet<string>(values.Select(p => p?.Trim() ?? string.Empty), StringComparer.OrdinalIgnoreCase);
+                HashSet<string> curValues = new HashSet<string>(values.Select(p => p.Trim()), StringComparer.OrdinalIgnoreCase);
                 foreach (string add in this.Add)
                 {
                     if (!curValues.Contains(add))
@@ -121,7 +119,7 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
         /// <param name="descriptor">The raw change descriptor.</param>
         /// <param name="errors">The human-readable error message describing any invalid values that were ignored.</param>
         /// <param name="formatValue">Format a raw value into a normalized form if needed.</param>
-        public static ChangeDescriptor Parse(string descriptor, out string[] errors, Func<string, string> formatValue = null)
+        public static ChangeDescriptor Parse(string descriptor, out string[] errors, Func<string, string>? formatValue = null)
         {
             // init
             formatValue ??= p => p;

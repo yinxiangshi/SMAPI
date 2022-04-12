@@ -1,6 +1,5 @@
-#nullable disable
-
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
@@ -53,8 +52,12 @@ namespace StardewModdingAPI.Web.Framework.Compression
         /// <summary>Decompress a string.</summary>
         /// <param name="rawText">The compressed text.</param>
         /// <remarks>Derived from <a href="https://stackoverflow.com/a/17993002/262123"/>.</remarks>
-        public string DecompressString(string rawText)
+        [return: NotNullIfNotNull("rawText")]
+        public string? DecompressString(string? rawText)
         {
+            if (rawText is null)
+                return rawText;
+
             // get raw bytes
             byte[] zipBuffer;
             try

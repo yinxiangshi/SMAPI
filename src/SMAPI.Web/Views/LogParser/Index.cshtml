@@ -23,7 +23,7 @@
         .GetValues<LogSection>()
         .ToDictionary(section => (int)section, section => section.ToString());
 
-    string curPageUrl = this.Url.PlainAction("Index", "LogParser", new { id = Model.PasteID }, absoluteUrl: true);
+    string curPageUrl = this.Url.PlainAction("Index", "LogParser", new { id = Model.PasteID }, absoluteUrl: true)!;
 
     ISet<int> screenIds = new HashSet<int>(log?.Messages.Select(p => p.ScreenId) ?? Array.Empty<int>());
 }

@@ -1,5 +1,3 @@
-#nullable disable
-
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -42,7 +40,7 @@ namespace StardewModdingAPI.Web.Framework.Clients.CurseForge
 
         /// <summary>Get update check info about a mod.</summary>
         /// <param name="id">The mod ID.</param>
-        public async Task<IModPage> GetModData(string id)
+        public async Task<IModPage?> GetModData(string id)
         {
             IModPage page = new GenericModPage(this.SiteKey, id);
 
@@ -51,9 +49,9 @@ namespace StardewModdingAPI.Web.Framework.Clients.CurseForge
                 return page.SetError(RemoteModStatus.DoesNotExist, $"The value '{id}' isn't a valid CurseForge mod ID, must be an integer ID.");
 
             // get raw data
-            ModModel mod = await this.Client
+            ModModel? mod = await this.Client
                 .GetAsync($"addon/{parsedId}")
-                .As<ModModel>();
+                .As<ModModel?>();
             if (mod == null)
                 return page.SetError(RemoteModStatus.DoesNotExist, "Found no CurseForge mod with this ID.");
 
@@ -73,7 +71,7 @@ namespace StardewModdingAPI.Web.Framework.Clients.CurseForge
         /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
         public void Dispose()
         {
-            this.Client?.Dispose();
+            this.Client.Dispose();
         }
 
 
@@ -82,9 +80,9 @@ namespace StardewModdingAPI.Web.Framework.Clients.CurseForge
         *********/
         /// <summary>Get a raw version string for a mod file, if available.</summary>
         /// <param name="file">The file whose version to get.</param>
-        private string GetRawVersion(ModFileModel file)
+        private string? GetRawVersion(ModFileModel file)
         {
-            Match match = this.VersionInNamePattern.Match(file.DisplayName);
+            Match match = this.VersionInNamePattern.Match(file.DisplayName ?? "");
             if (!match.Success)
                 match = this.VersionInNamePattern.Match(file.FileName);
 

@@ -1,7 +1,6 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -36,12 +35,15 @@ namespace StardewModdingAPI.Web.Framework
         /// <param name="updateKey">The namespaced update key.</param>
         public async Task<IModPage> GetModPageAsync(UpdateKey updateKey)
         {
+            if (!updateKey.LooksValid)
+                return new GenericModPage(updateKey.Site, updateKey.ID!).SetError(RemoteModStatus.DoesNotExist, $"Invalid update key '{updateKey}'.");
+
             // get site
-            if (!this.ModSites.TryGetValue(updateKey.Site, out IModSiteClient client))
+            if (!this.ModSites.TryGetValue(updateKey.Site, out IModSiteClient? client))
                 return new GenericModPage(updateKey.Site, updateKey.ID).SetError(RemoteModStatus.DoesNotExist, $"There's no mod site with key '{updateKey.Site}'. Expected one of [{string.Join(", ", this.ModSites.Keys)}].");
 
             // fetch mod
-            IModPage mod;
+            IModPage? mod;
             try
             {
                 mod = await client.GetModData(updateKey.ID);
@@ -60,39 +62,42 @@ namespace StardewModdingAPI.Web.Framework
         /// <param name="subkey">The optional update subkey to match in available files. (If no file names or descriptions contain the subkey, it'll be ignored.)</param>
         /// <param name="mapRemoteVersions">The changes to apply to remote versions for update checks.</param>
         /// <param name="allowNonStandardVersions">Whether to allow non-standard versions.</param>
-        public ModInfoModel GetPageVersions(IModPage page, string subkey, bool allowNonStandardVersions, ChangeDescriptor mapRemoteVersions)
+        public ModInfoModel GetPageVersions(IModPage page, string? subkey, bool allowNonStandardVersions, ChangeDescriptor? mapRemoteVersions)
         {
             // get base model
-            ModInfoModel model = new ModInfoModel()
-                .SetBasicInfo(page.Name, page.Url)
-                .SetError(page.Status, page.Error);
-            if (page.Status != RemoteModStatus.Ok)
+            ModInfoModel model = new();
+            if (page.IsValid)
+                model.SetBasicInfo(page.Name, page.Url);
+            else
+            {
+                model.SetError(page.Status, page.Error);
                 return model;
+            }
 
             // fetch versions
-            bool hasVersions = this.TryGetLatestVersions(page, subkey, allowNonStandardVersions, mapRemoteVersions, out ISemanticVersion mainVersion, out ISemanticVersion previewVersion);
+            bool hasVersions = this.TryGetLatestVersions(page, subkey, allowNonStandardVersions, mapRemoteVersions, out ISemanticVersion? mainVersion, out ISemanticVersion? previewVersion);
             if (!hasVersions && subkey != null)
                 hasVersions = this.TryGetLatestVersions(page, null, allowNonStandardVersions, mapRemoteVersions, out mainVersion, out previewVersion);
             if (!hasVersions)
                 return model.SetError(RemoteModStatus.InvalidData, $"The {page.Site} mod with ID '{page.Id}' has no valid versions.");
 
             // return info
-            return model.SetVersions(mainVersion, previewVersion);
+            return model.SetVersions(mainVersion!, previewVersion);
         }
 
         /// <summary>Get a semantic local version for update checks.</summary>
         /// <param name="version">The version to parse.</param>
         /// <param name="map">Changes to apply to the raw version, if any.</param>
         /// <param name="allowNonStandard">Whether to allow non-standard versions.</param>
-        public ISemanticVersion GetMappedVersion(string version, ChangeDescriptor map, bool allowNonStandard)
+        public ISemanticVersion? GetMappedVersion(string? version, ChangeDescriptor? map, bool allowNonStandard)
         {
             // try mapped version
-            string rawNewVersion = this.GetRawMappedVersion(version, map, allowNonStandard);
-            if (SemanticVersion.TryParse(rawNewVersion, allowNonStandard, out ISemanticVersion parsedNew))
+            string? rawNewVersion = this.GetRawMappedVersion(version, map);
+            if (SemanticVersion.TryParse(rawNewVersion, allowNonStandard, out ISemanticVersion? parsedNew))
                 return parsedNew;
 
             // return original version
-            return SemanticVersion.TryParse(version, allowNonStandard, out ISemanticVersion parsedOld)
+            return SemanticVersion.TryParse(version, allowNonStandard, out ISemanticVersion? parsedOld)
                 ? parsedOld
                 : null;
         }
@@ -108,31 +113,31 @@ namespace StardewModdingAPI.Web.Framework
         /// <param name="mapRemoteVersions">The changes to apply to remote versions for update checks.</param>
         /// <param name="main">The main mod version.</param>
         /// <param name="preview">The latest prerelease version, if newer than <paramref name="main"/>.</param>
-        private bool TryGetLatestVersions(IModPage mod, string subkey, bool allowNonStandardVersions, ChangeDescriptor mapRemoteVersions, out ISemanticVersion main, out ISemanticVersion preview)
+        private bool TryGetLatestVersions(IModPage? mod, string? subkey, bool allowNonStandardVersions, ChangeDescriptor? mapRemoteVersions, [NotNullWhen(true)] out ISemanticVersion? main, out ISemanticVersion? preview)
         {
             main = null;
             preview = null;
 
             // parse all versions from the mod page
-            IEnumerable<(string name, string description, ISemanticVersion version)> GetAllVersions()
+            IEnumerable<(string? name, string? description, ISemanticVersion? version)> GetAllVersions()
             {
                 if (mod != null)
                 {
-                    ISemanticVersion ParseAndMapVersion(string raw)
+                    ISemanticVersion? ParseAndMapVersion(string? raw)
                     {
                         raw = this.NormalizeVersion(raw);
                         return this.GetMappedVersion(raw, mapRemoteVersions, allowNonStandardVersions);
                     }
 
                     // get mod version
-                    ISemanticVersion modVersion = ParseAndMapVersion(mod.Version);
+                    ISemanticVersion? modVersion = ParseAndMapVersion(mod.Version);
                     if (modVersion != null)
                         yield return (name: null, description: null, version: ParseAndMapVersion(mod.Version));
 
                     // get file versions
                     foreach (IModDownload download in mod.Downloads)
                     {
-                        ISemanticVersion cur = ParseAndMapVersion(download.Version);
+                        ISemanticVersion? cur = ParseAndMapVersion(download.Version);
                         if (cur != null)
                             yield return (download.Name, download.Description, cur);
                     }
@@ -143,15 +148,15 @@ namespace StardewModdingAPI.Web.Framework
                 .ToArray();
 
             // get main + preview versions
-            void TryGetVersions(out ISemanticVersion mainVersion, out ISemanticVersion previewVersion, Func<(string name, string description, ISemanticVersion version), bool> filter = null)
+            void TryGetVersions([NotNullWhen(true)] out ISemanticVersion? mainVersion, out ISemanticVersion? previewVersion, Func<(string? name, string? description, ISemanticVersion? version), bool>? filter = null)
             {
                 mainVersion = null;
                 previewVersion = null;
 
                 // get latest main + preview version
-                foreach (var entry in versions)
+                foreach ((string? name, string? description, ISemanticVersion? version) entry in versions)
                 {
-                    if (filter?.Invoke(entry) == false)
+                    if (entry.version is null || filter?.Invoke(entry) == false)
                         continue;
 
                     if (entry.version.IsPrerelease())
@@ -160,7 +165,7 @@ namespace StardewModdingAPI.Web.Framework
                         mainVersion ??= entry.version;
 
                     if (mainVersion != null)
-                        break; // any other values will be older
+                        break; // any others will be older since entries are sorted by version
                 }
 
                 // normalize values
@@ -183,8 +188,7 @@ namespace StardewModdingAPI.Web.Framework
         /// <summary>Get a semantic local version for update checks.</summary>
         /// <param name="version">The version to map.</param>
         /// <param name="map">Changes to apply to the raw version, if any.</param>
-        /// <param name="allowNonStandard">Whether to allow non-standard versions.</param>
-        private string GetRawMappedVersion(string version, ChangeDescriptor map, bool allowNonStandard)
+        private string? GetRawMappedVersion(string? version, ChangeDescriptor? map)
         {
             if (version == null || map?.HasChanges != true)
                 return version;
@@ -197,7 +201,7 @@ namespace StardewModdingAPI.Web.Framework
 
         /// <summary>Normalize a version string.</summary>
         /// <param name="version">The version to normalize.</param>
-        private string NormalizeVersion(string version)
+        private string? NormalizeVersion(string? version)
         {
             if (string.IsNullOrWhiteSpace(version))
                 return null;

@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Net;
 using System.Threading.Tasks;
@@ -44,7 +42,7 @@ namespace StardewModdingAPI.Web.Framework.Clients.Chucklefish
 
         /// <summary>Get update check info about a mod.</summary>
         /// <param name="id">The mod ID.</param>
-        public async Task<IModPage> GetModData(string id)
+        public async Task<IModPage?> GetModData(string id)
         {
             IModPage page = new GenericModPage(this.SiteKey, id);
 
@@ -53,7 +51,7 @@ namespace StardewModdingAPI.Web.Framework.Clients.Chucklefish
                 return page.SetError(RemoteModStatus.DoesNotExist, $"The value '{id}' isn't a valid Chucklefish mod ID, must be an integer ID.");
 
             // fetch HTML
-            string html;
+            string? html;
             try
             {
                 html = await this.Client
@@ -69,7 +67,7 @@ namespace StardewModdingAPI.Web.Framework.Clients.Chucklefish
 
             // extract mod info
             string url = this.GetModUrl(parsedId);
-            string version = doc.DocumentNode.SelectSingleNode("//h1/span")?.InnerText;
+            string? version = doc.DocumentNode.SelectSingleNode("//h1/span")?.InnerText;
             string name = doc.DocumentNode.SelectSingleNode("//h1").ChildNodes[0].InnerText.Trim();
             if (name.StartsWith("[SMAPI]"))
                 name = name.Substring("[SMAPI]".Length).TrimStart();
@@ -81,7 +79,7 @@ namespace StardewModdingAPI.Web.Framework.Clients.Chucklefish
         /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
         public void Dispose()
         {
-            this.Client?.Dispose();
+            this.Client.Dispose();
         }
 
 
@@ -92,7 +90,7 @@ namespace StardewModdingAPI.Web.Framework.Clients.Chucklefish
         /// <param name="id">The mod ID.</param>
         private string GetModUrl(uint id)
         {
-            UriBuilder builder = new(this.Client.BaseClient.BaseAddress);
+            UriBuilder builder = new(this.Client.BaseClient.BaseAddress!);
             builder.Path += string.Format(this.ModPageUrlFormat, id);
             return builder.Uri.ToString();
         }

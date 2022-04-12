@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace StardewModdingAPI
 {
@@ -28,6 +29,9 @@ namespace StardewModdingAPI
         ** Accessors
         *********/
         /// <summary>Whether this is a prerelease version.</summary>
+#if NET5_0_OR_GREATER
+        [MemberNotNullWhen(true, nameof(ISemanticVersion.PrereleaseTag))]
+#endif
         bool IsPrerelease();
 
         /// <summary>Get whether this version is older than the specified version.</summary>

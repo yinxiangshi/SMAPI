@@ -1,5 +1,4 @@
-#nullable disable
-
+using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc;
@@ -54,8 +53,8 @@ namespace StardewModdingAPI.Web.Controllers
         public ModListModel FetchData()
         {
             // fetch cached data
-            if (!this.Cache.TryGetWikiMetadata(out Cached<WikiMetadata> metadata))
-                return new ModListModel();
+            if (!this.Cache.TryGetWikiMetadata(out Cached<WikiMetadata>? metadata))
+                return new ModListModel(null, null, Array.Empty<ModModel>(), lastUpdated: DateTimeOffset.UtcNow, isStale: true);
 
             // build model
             return new ModListModel(

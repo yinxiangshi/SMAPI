@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Net;
 using Microsoft.AspNetCore.Http;
@@ -22,7 +20,7 @@ namespace StardewModdingAPI.Web.Framework.RedirectRules
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="except">Matches requests which should be ignored.</param>
-        public RedirectToHttpsRule(Func<HttpRequest, bool> except = null)
+        public RedirectToHttpsRule(Func<HttpRequest, bool>? except = null)
         {
             this.Except = except ?? (_ => false);
             this.StatusCode = HttpStatusCode.RedirectKeepVerb;
@@ -35,7 +33,7 @@ namespace StardewModdingAPI.Web.Framework.RedirectRules
         /// <summary>Get the new redirect URL.</summary>
         /// <param name="context">The rewrite context.</param>
         /// <returns>Returns the redirect URL, or <c>null</c> if the redirect doesn't apply.</returns>
-        protected override string GetNewUrl(RewriteContext context)
+        protected override string? GetNewUrl(RewriteContext context)
         {
             HttpRequest request = context.HttpContext.Request;
             if (request.IsHttps || this.Except(request))
