@@ -13,9 +13,6 @@ caption {
 #output {
     padding: 10px;
     overflow: auto;
-    z-index: 1;
-    background: #fff;
-    position: relative;
 }
 
 #output h2 {

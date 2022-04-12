@@ -95,16 +95,18 @@
 }
 
 @* quick navigation links *@
-@if (log != null)
-{
-    <aside id="quickNav">
-        <h4>Scroll To...</h4>
-        <ul>
-            <li><a href="#content">Top</a></li>
-            <li><a href="#filterHolder">Log Start</a></li>
-            <li><a href="#footer">Bottom</a></li>
-        </ul>
-    </aside>
+@section SidebarExtra {
+    @if (log != null)
+    {
+        <aside id="quickNav">
+            <h4>Scroll To...</h4>
+            <ul>
+                <li><a href="#content">Top</a></li>
+                <li><a href="#filterHolder">Log Start</a></li>
+                <li><a href="#footer">Bottom</a></li>
+            </ul>
+        </aside>
+    }
 }
 
 @* upload result banner *@

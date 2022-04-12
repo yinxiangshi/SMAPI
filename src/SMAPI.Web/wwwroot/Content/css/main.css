@@ -72,7 +72,6 @@ a {
     color: #666;
 }
 
-#quickNav h4,
 #sidebar h4 {
     margin: 1.5em 0 0.2em 0;
     width: 10em;
@@ -81,13 +80,11 @@ a {
     font-weight: normal;
 }
 
-#quickNav a,
 #sidebar a {
     color: #77B;
     border: 0;
 }
 
-#quickNav ul, #quickNav li,
 #sidebar ul, #sidebar li {
     margin: 0;
     padding: 0;
@@ -96,7 +93,6 @@ a {
     color: #888;
 }
 
-#quickNav li,
 #sidebar li {
     margin-left: 1em;
 }
@@ -105,10 +101,8 @@ a {
 
 #quickNav {
     position: fixed;
-    left: 8px;
     bottom: 3em;
     width: 12em;
-    color: #666;
 }
 
 @media (max-height: 400px) {
