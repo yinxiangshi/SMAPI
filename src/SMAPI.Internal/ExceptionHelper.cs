@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -14,7 +12,7 @@ namespace StardewModdingAPI.Internal
         *********/
         /// <summary>Get a string representation of an exception suitable for writing to the error log.</summary>
         /// <param name="exception">The error to summarize.</param>
-        public static string GetLogSummary(this Exception exception)
+        public static string GetLogSummary(this Exception? exception)
         {
             try
             {
@@ -27,7 +25,7 @@ namespace StardewModdingAPI.Internal
 
                     case ReflectionTypeLoadException ex:
                         string summary = ex.ToString();
-                        foreach (Exception childEx in ex.LoaderExceptions)
+                        foreach (Exception? childEx in ex.LoaderExceptions)
                             summary += $"\n\n{childEx?.GetLogSummary()}";
                         message = summary;
                         break;

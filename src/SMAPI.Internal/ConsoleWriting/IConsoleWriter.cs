@@ -1,5 +1,3 @@
-#nullable disable
-
 namespace StardewModdingAPI.Internal.ConsoleWriting
 {
     /// <summary>Writes text to the console.</summary>
