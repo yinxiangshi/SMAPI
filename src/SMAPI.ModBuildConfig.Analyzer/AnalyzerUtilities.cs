@@ -1,5 +1,3 @@
-#nullable disable
-
 using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -42,8 +40,8 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
 
             // invalid
             fromExpression = null;
-            fromType = default(TypeInfo);
-            toType = default(TypeInfo);
+            fromType = default;
+            toType = default;
             return false;
         }
 
@@ -76,7 +74,7 @@ namespace StardewModdingAPI.ModBuildConfig.Analyzer
 
             // invalid
             declaringType = null;
-            memberType = default(TypeInfo);
+            memberType = default;
             memberName = null;
             return false;
         }
