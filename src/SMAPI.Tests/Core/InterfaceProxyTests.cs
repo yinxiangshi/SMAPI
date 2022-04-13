@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -41,7 +39,7 @@ namespace SMAPI.Tests.Core
         public void CanProxy_EventField()
         {
             // arrange
-            var providerMod = new ProviderMod();
+            ProviderMod providerMod = new();
             object implementation = providerMod.GetModApi();
             int expectedValue = this.Random.Next();
 
@@ -61,7 +59,7 @@ namespace SMAPI.Tests.Core
         public void CanProxy_EventProperty()
         {
             // arrange
-            var providerMod = new ProviderMod();
+            ProviderMod providerMod = new();
             object implementation = providerMod.GetModApi();
             int expectedValue = this.Random.Next();
 
@@ -86,7 +84,7 @@ namespace SMAPI.Tests.Core
         public void CanProxy_Properties(string setVia)
         {
             // arrange
-            var providerMod = new ProviderMod();
+            ProviderMod providerMod = new();
             object implementation = providerMod.GetModApi();
             int expectedNumber = this.Random.Next();
             int expectedObject = this.Random.Next();
@@ -317,13 +315,13 @@ namespace SMAPI.Tests.Core
         /// <summary>Get a property value from an instance.</summary>
         /// <param name="parent">The instance whose property to read.</param>
         /// <param name="name">The property name.</param>
-        private object GetPropertyValue(object parent, string name)
+        private object? GetPropertyValue(object parent, string name)
         {
             if (parent is null)
                 throw new ArgumentNullException(nameof(parent));
 
             Type type = parent.GetType();
-            PropertyInfo property = type.GetProperty(name);
+            PropertyInfo? property = type.GetProperty(name);
             if (property is null)
                 throw new InvalidOperationException($"The '{type.FullName}' type has no public property named '{name}'.");
 

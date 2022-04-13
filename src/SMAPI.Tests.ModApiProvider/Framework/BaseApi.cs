@@ -1,5 +1,3 @@
-#nullable disable
-
 namespace SMAPI.Tests.ModApiProvider.Framework
 {
     /// <summary>The base class for <see cref="SimpleApi"/>.</summary>
@@ -9,6 +7,6 @@ namespace SMAPI.Tests.ModApiProvider.Framework
         ** Test interface
         *********/
         /// <summary>A property inherited from a base class.</summary>
-        public string InheritedProperty { get; set; }
+        public string? InheritedProperty { get; set; }
     }
 }

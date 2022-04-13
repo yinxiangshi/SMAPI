@@ -1,14 +1,14 @@
-#nullable disable
-
 // <generated />
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
-using Microsoft.CodeAnalysis.Text;
+// ReSharper disable All -- generated code
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Text;
 
 namespace SMAPI.ModBuildConfig.Analyzer.Tests.Framework
 {
@@ -61,7 +61,7 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests.Framework
             var diagnostics = new List<Diagnostic>();
             foreach (Project project in projects)
             {
-                CompilationWithAnalyzers compilationWithAnalyzers = project.GetCompilationAsync().Result.WithAnalyzers(ImmutableArray.Create(analyzer));
+                CompilationWithAnalyzers compilationWithAnalyzers = project.GetCompilationAsync().Result!.WithAnalyzers(ImmutableArray.Create(analyzer));
                 var diags = compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync().Result;
                 foreach (Diagnostic diag in diags)
                 {
@@ -74,7 +74,7 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests.Framework
                         for (int i = 0; i < documents.Length; i++)
                         {
                             Document document = documents[i];
-                            SyntaxTree tree = document.GetSyntaxTreeAsync().Result;
+                            SyntaxTree? tree = document.GetSyntaxTreeAsync().Result;
                             if (tree == diag.Location.SourceTree)
                             {
                                 diagnostics.Add(diag);
@@ -127,17 +127,6 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests.Framework
         }
 
         /// <summary>
-        /// Create a Document from a string through creating a project that contains it.
-        /// </summary>
-        /// <param name="source">Classes in the form of a string</param>
-        /// <param name="language">The language the source code is in</param>
-        /// <returns>A Document created from the source string</returns>
-        protected static Document CreateDocument(string source, string language = LanguageNames.CSharp)
-        {
-            return CreateProject(new[] { source }, language).Documents.First();
-        }
-
-        /// <summary>
         /// Create a project using the inputted strings as sources.
         /// </summary>
         /// <param name="sources">Classes in the form of strings</param>
@@ -167,7 +156,7 @@ namespace SMAPI.ModBuildConfig.Analyzer.Tests.Framework
                 solution = solution.AddDocument(documentId, newFileName, SourceText.From(source));
                 count++;
             }
-            return solution.GetProject(projectId);
+            return solution.GetProject(projectId)!;
         }
         #endregion
     }

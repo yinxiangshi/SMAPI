@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using FluentAssertions;
@@ -28,7 +26,7 @@ namespace SMAPI.Tests.Core
         [TestCase("Characters/Dialogue/Abigail.fr-FR", "Characters/Dialogue/Abigail", "fr-FR", LocalizedContentManager.LanguageCode.fr)]
         [TestCase("Characters/Dialogue\\Abigail.fr-FR", "Characters/Dialogue/Abigail.fr-FR", null, null)]
         [TestCase("Characters/Dialogue/Abigail.fr-FR", "Characters/Dialogue/Abigail", "fr-FR", LocalizedContentManager.LanguageCode.fr)]
-        public void Constructor_Valid(string name, string expectedBaseName, string expectedLocale, LocalizedContentManager.LanguageCode? expectedLanguageCode)
+        public void Constructor_Valid(string name, string expectedBaseName, string? expectedLocale, LocalizedContentManager.LanguageCode? expectedLanguageCode)
         {
             // arrange
             name = PathUtilities.NormalizeAssetName(name);
@@ -55,13 +53,13 @@ namespace SMAPI.Tests.Core
         [TestCase(" ")]
         [TestCase("\t")]
         [TestCase("  \t   ")]
-        public void Constructor_NullOrWhitespace(string name)
+        public void Constructor_NullOrWhitespace(string? name)
         {
             // act
-            ArgumentException exception = Assert.Throws<ArgumentException>(() => _ = AssetName.Parse(name, null));
+            ArgumentException exception = Assert.Throws<ArgumentException>(() => _ = AssetName.Parse(name!, null))!;
 
             // assert
-            exception!.ParamName.Should().Be("rawName");
+            exception.ParamName.Should().Be("rawName");
             exception.Message.Should().Be("The asset name can't be null or empty. (Parameter 'rawName')");
         }
 

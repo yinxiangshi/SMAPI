@@ -1,6 +1,5 @@
-#nullable disable
-
 // ReSharper disable CheckNamespace, InconsistentNaming -- matches Stardew Valley's code
+// ReSharper disable UnusedMember.Global -- used dynamically for unit tests
 using Netcode;
 
 namespace StardewValley

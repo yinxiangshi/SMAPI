@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using SMAPI.Tests.ModApiConsumer.Interfaces;
 

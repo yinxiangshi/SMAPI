@@ -1,4 +1,4 @@
-#nullable disable
+// ReSharper disable UnusedMember.Global -- used dynamically through proxies
 
 using System;
 using System.Collections.Generic;
@@ -16,7 +16,7 @@ namespace SMAPI.Tests.ModApiProvider.Framework
         ** Events
         ****/
         /// <summary>A simple event field.</summary>
-        public event EventHandler<int> OnEventRaised;
+        public event EventHandler<int>? OnEventRaised;
 
         /// <summary>A simple event property with custom add/remove logic.</summary>
         public event EventHandler<int> OnEventRaisedProperty
@@ -33,16 +33,16 @@ namespace SMAPI.Tests.ModApiProvider.Framework
         public int NumberProperty { get; set; }
 
         /// <summary>A simple object property.</summary>
-        public object ObjectProperty { get; set; }
+        public object? ObjectProperty { get; set; }
 
         /// <summary>A simple list property.</summary>
-        public List<string> ListProperty { get; set; }
+        public List<string>? ListProperty { get; set; }
 
         /// <summary>A simple list property with an interface.</summary>
-        public IList<string> ListPropertyWithInterface { get; set; }
+        public IList<string>? ListPropertyWithInterface { get; set; }
 
         /// <summary>A property with nested generics.</summary>
-        public IDictionary<string, IList<string>> GenericsProperty { get; set; }
+        public IDictionary<string, IList<string>>? GenericsProperty { get; set; }
 
         /// <summary>A property using an enum available to both mods.</summary>
         public BindingFlags EnumProperty { get; set; }

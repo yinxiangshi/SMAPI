@@ -1,7 +1,6 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using NUnit.Framework;
 using StardewModdingAPI;
@@ -18,7 +17,7 @@ namespace SMAPI.Tests.Core
         ** Data
         *********/
         /// <summary>Sample translation text for unit tests.</summary>
-        public static string[] Samples = { null, "", "  ", "boop", "  boop  " };
+        public static string?[] Samples = { null, "", "  ", "boop", "  boop  " };
 
 
         /*********
@@ -36,13 +35,13 @@ namespace SMAPI.Tests.Core
             // act
             ITranslationHelper helper = new TranslationHelper("ModID", "en", LocalizedContentManager.LanguageCode.en).SetTranslations(data);
             Translation translation = helper.Get("key");
-            Translation[] translationList = helper.GetTranslations()?.ToArray();
+            Translation[]? translationList = helper.GetTranslations()?.ToArray();
 
             // assert
             Assert.AreEqual("en", helper.Locale, "The locale doesn't match the input value.");
             Assert.AreEqual(LocalizedContentManager.LanguageCode.en, helper.LocaleEnum, "The locale enum doesn't match the input value.");
             Assert.IsNotNull(translationList, "The full list of translations is unexpectedly null.");
-            Assert.AreEqual(0, translationList.Length, "The full list of translations is unexpectedly not empty.");
+            Assert.AreEqual(0, translationList!.Length, "The full list of translations is unexpectedly not empty.");
 
             Assert.IsNotNull(translation, "The translation helper unexpectedly returned a null translation.");
             Assert.AreEqual(this.GetPlaceholderText("key"), translation.ToString(), "The translation returned an unexpected value.");
@@ -56,7 +55,7 @@ namespace SMAPI.Tests.Core
             var expected = this.GetExpectedTranslations();
 
             // act
-            var actual = new Dictionary<string, Translation[]>();
+            var actual = new Dictionary<string, Translation[]?>();
             TranslationHelper helper = new TranslationHelper("ModID", "en", LocalizedContentManager.LanguageCode.en).SetTranslations(data);
             foreach (string locale in expected.Keys)
             {
@@ -109,13 +108,13 @@ namespace SMAPI.Tests.Core
         [TestCase("  ", ExpectedResult = true)]
         [TestCase("boop", ExpectedResult = true)]
         [TestCase("  boop  ", ExpectedResult = true)]
-        public bool Translation_HasValue(string text)
+        public bool Translation_HasValue(string? text)
         {
             return new Translation("pt-BR", "key", text).HasValue();
         }
 
         [Test(Description = "Assert that the translation's ToString method returns the expected text for various inputs.")]
-        public void Translation_ToString([ValueSource(nameof(TranslationTests.Samples))] string text)
+        public void Translation_ToString([ValueSource(nameof(TranslationTests.Samples))] string? text)
         {
             // act
             Translation translation = new("pt-BR", "key", text);
@@ -128,7 +127,7 @@ namespace SMAPI.Tests.Core
         }
 
         [Test(Description = "Assert that the translation's implicit string conversion returns the expected text for various inputs.")]
-        public void Translation_ImplicitStringConversion([ValueSource(nameof(TranslationTests.Samples))] string text)
+        public void Translation_ImplicitStringConversion([ValueSource(nameof(TranslationTests.Samples))] string? text)
         {
             // act
             Translation translation = new("pt-BR", "key", text);
@@ -141,7 +140,7 @@ namespace SMAPI.Tests.Core
         }
 
         [Test(Description = "Assert that the translation returns the expected text given a use-placeholder setting.")]
-        public void Translation_UsePlaceholder([Values(true, false)] bool value, [ValueSource(nameof(TranslationTests.Samples))] string text)
+        public void Translation_UsePlaceholder([Values(true, false)] bool value, [ValueSource(nameof(TranslationTests.Samples))] string? text)
         {
             // act
             Translation translation = new Translation("pt-BR", "key", text).UsePlaceholder(value);
@@ -156,7 +155,7 @@ namespace SMAPI.Tests.Core
         }
 
         [Test(Description = "Assert that the translation returns the expected text after setting the default.")]
-        public void Translation_Default([ValueSource(nameof(TranslationTests.Samples))] string text, [ValueSource(nameof(TranslationTests.Samples))] string @default)
+        public void Translation_Default([ValueSource(nameof(TranslationTests.Samples))] string? text, [ValueSource(nameof(TranslationTests.Samples))] string? @default)
         {
             // act
             Translation translation = new Translation("pt-BR", "key", text).Default(@default);
@@ -192,7 +191,7 @@ namespace SMAPI.Tests.Core
                     break;
 
                 case "class":
-                    translation = translation.Tokens(new TokenModel { Start = start, Middle = middle, End = end });
+                    translation = translation.Tokens(new TokenModel(start, middle, end));
                     break;
 
                 case "IDictionary<string, object>":
@@ -331,16 +330,36 @@ namespace SMAPI.Tests.Core
         ** Test models
         *********/
         /// <summary>A model used to test token support.</summary>
+        [SuppressMessage("ReSharper", "NotAccessedField.Local", Justification = "Used dynamically via translation helper.")]
+        [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local", Justification = "Used dynamically via translation helper.")]
         private class TokenModel
         {
+            /*********
+            ** Accessors
+            *********/
             /// <summary>A sample token property.</summary>
-            public string Start { get; set; }
+            public string Start { get; }
 
             /// <summary>A sample token property.</summary>
-            public string Middle { get; set; }
+            public string Middle { get; }
 
             /// <summary>A sample token field.</summary>
             public string End;
+
+
+            /*********
+            ** public methods
+            *********/
+            /// <summary>Construct an instance.</summary>
+            /// <param name="start">A sample token property.</param>
+            /// <param name="middle">A sample token field.</param>
+            /// <param name="end">A sample token property.</param>
+            public TokenModel(string start, string middle, string end)
+            {
+                this.Start = start;
+                this.Middle = middle;
+                this.End = end;
+            }
         }
     }
 }

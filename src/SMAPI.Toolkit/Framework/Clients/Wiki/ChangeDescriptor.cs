@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
@@ -47,6 +48,9 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
         /// <summary>Apply the change descriptors to a comma-delimited field.</summary>
         /// <param name="rawField">The raw field text.</param>
         /// <returns>Returns the modified field.</returns>
+#if NET5_0_OR_GREATER
+        [return: NotNullIfNotNull("rawField")]
+#endif
         public string? ApplyToCopy(string? rawField)
         {
             // get list
@@ -119,7 +123,7 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
         /// <param name="descriptor">The raw change descriptor.</param>
         /// <param name="errors">The human-readable error message describing any invalid values that were ignored.</param>
         /// <param name="formatValue">Format a raw value into a normalized form if needed.</param>
-        public static ChangeDescriptor Parse(string descriptor, out string[] errors, Func<string, string>? formatValue = null)
+        public static ChangeDescriptor Parse(string? descriptor, out string[] errors, Func<string, string>? formatValue = null)
         {
             // init
             formatValue ??= p => p;

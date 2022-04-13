@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -258,7 +256,7 @@ namespace SMAPI.Tests.Utilities
                     {
                         SDate date = new(day, season, year);
                         int hash = date.GetHashCode();
-                        if (hashes.TryGetValue(hash, out SDate otherDate))
+                        if (hashes.TryGetValue(hash, out SDate? otherDate))
                             Assert.Fail($"Received identical hash code {hash} for dates {otherDate} and {date}.");
                         if (hash < lastHash)
                             Assert.Fail($"Received smaller hash code for date {date} ({hash}) relative to {hashes[lastHash]} ({lastHash}).");
@@ -298,7 +296,7 @@ namespace SMAPI.Tests.Utilities
         [TestCase(Dates.Now, Dates.NextDay, ExpectedResult = false)]
         [TestCase(Dates.Now, Dates.NextMonth, ExpectedResult = false)]
         [TestCase(Dates.Now, Dates.NextYear, ExpectedResult = false)]
-        public bool Operators_Equals(string now, string other)
+        public bool Operators_Equals(string? now, string other)
         {
             return this.GetDate(now) == this.GetDate(other);
         }
@@ -312,7 +310,7 @@ namespace SMAPI.Tests.Utilities
         [TestCase(Dates.Now, Dates.NextDay, ExpectedResult = true)]
         [TestCase(Dates.Now, Dates.NextMonth, ExpectedResult = true)]
         [TestCase(Dates.Now, Dates.NextYear, ExpectedResult = true)]
-        public bool Operators_NotEquals(string now, string other)
+        public bool Operators_NotEquals(string? now, string other)
         {
             return this.GetDate(now) != this.GetDate(other);
         }
@@ -326,7 +324,7 @@ namespace SMAPI.Tests.Utilities
         [TestCase(Dates.Now, Dates.NextDay, ExpectedResult = true)]
         [TestCase(Dates.Now, Dates.NextMonth, ExpectedResult = true)]
         [TestCase(Dates.Now, Dates.NextYear, ExpectedResult = true)]
-        public bool Operators_LessThan(string now, string other)
+        public bool Operators_LessThan(string? now, string other)
         {
             return this.GetDate(now) < this.GetDate(other);
         }
@@ -340,7 +338,7 @@ namespace SMAPI.Tests.Utilities
         [TestCase(Dates.Now, Dates.NextDay, ExpectedResult = true)]
         [TestCase(Dates.Now, Dates.NextMonth, ExpectedResult = true)]
         [TestCase(Dates.Now, Dates.NextYear, ExpectedResult = true)]
-        public bool Operators_LessThanOrEqual(string now, string other)
+        public bool Operators_LessThanOrEqual(string? now, string other)
         {
             return this.GetDate(now) <= this.GetDate(other);
         }
@@ -354,7 +352,7 @@ namespace SMAPI.Tests.Utilities
         [TestCase(Dates.Now, Dates.NextDay, ExpectedResult = false)]
         [TestCase(Dates.Now, Dates.NextMonth, ExpectedResult = false)]
         [TestCase(Dates.Now, Dates.NextYear, ExpectedResult = false)]
-        public bool Operators_MoreThan(string now, string other)
+        public bool Operators_MoreThan(string? now, string other)
         {
             return this.GetDate(now) > this.GetDate(other);
         }
@@ -368,7 +366,7 @@ namespace SMAPI.Tests.Utilities
         [TestCase(Dates.Now, Dates.NextDay, ExpectedResult = false)]
         [TestCase(Dates.Now, Dates.NextMonth, ExpectedResult = false)]
         [TestCase(Dates.Now, Dates.NextYear, ExpectedResult = false)]
-        public bool Operators_MoreThanOrEqual(string now, string other)
+        public bool Operators_MoreThanOrEqual(string? now, string other)
         {
             return this.GetDate(now) > this.GetDate(other);
         }
@@ -379,7 +377,8 @@ namespace SMAPI.Tests.Utilities
         *********/
         /// <summary>Convert a string date into a game date, to make unit tests easier to read.</summary>
         /// <param name="dateStr">The date string like "dd MMMM yy".</param>
-        private SDate GetDate(string dateStr)
+        [return: NotNullIfNotNull("dateStr")]
+        private SDate? GetDate(string? dateStr)
         {
             if (dateStr == null)
                 return null;

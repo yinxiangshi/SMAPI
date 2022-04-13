@@ -507,7 +507,7 @@ namespace SMAPI.Tests.Core
         /// <param name="allowStatusChange">Whether the code being tested is allowed to change the mod status.</param>
         private Mock<IModMetadata> GetMetadata(string uniqueID, string[] dependencies, bool allowStatusChange = false)
         {
-            IManifest manifest = this.GetManifest(id: uniqueID, version: "1.0", dependencies: dependencies?.Select(dependencyID => (IManifestDependency)new ManifestDependency(dependencyID, null as ISemanticVersion)).ToArray());
+            IManifest manifest = this.GetManifest(id: uniqueID, version: "1.0", dependencies: dependencies.Select(dependencyID => (IManifestDependency)new ManifestDependency(dependencyID, null as ISemanticVersion)).ToArray());
             return this.GetMetadata(manifest, allowStatusChange);
         }
 
