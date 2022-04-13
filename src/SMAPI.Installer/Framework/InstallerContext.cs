@@ -1,5 +1,3 @@
-#nullable disable
-
 using System.IO;
 using StardewModdingAPI.Toolkit;
 using StardewModdingAPI.Toolkit.Framework.GameScanning;
@@ -46,7 +44,7 @@ namespace StardewModdingAPI.Installer.Framework
         /// <summary>Get the installer's version number.</summary>
         public ISemanticVersion GetInstallerVersion()
         {
-            var raw = this.GetType().Assembly.GetName().Version;
+            var raw = this.GetType().Assembly.GetName().Version!;
             return new SemanticVersion(raw);
         }
 

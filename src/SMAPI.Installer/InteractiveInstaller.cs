@@ -1,8 +1,7 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -37,6 +36,7 @@ namespace StardewModdingApi.Installer
         /// <summary>Get the absolute file or folder paths to remove when uninstalling SMAPI.</summary>
         /// <param name="installDir">The folder for Stardew Valley and SMAPI.</param>
         /// <param name="modsDir">The folder for SMAPI mods.</param>
+        [SuppressMessage("ReSharper", "StringLiteralTypo", Justification = "These are valid file names.")]
         private IEnumerable<string> GetUninstallPaths(DirectoryInfo installDir, DirectoryInfo modsDir)
         {
             string GetInstallPath(string path) => Path.Combine(installDir.FullName, path);
@@ -166,7 +166,7 @@ namespace StardewModdingApi.Installer
             }
 
             // get game path from CLI
-            string gamePathArg = null;
+            string? gamePathArg = null;
             {
                 int pathIndex = Array.LastIndexOf(args, "--game-path") + 1;
                 if (pathIndex >= 1 && args.Length >= pathIndex)
@@ -191,8 +191,8 @@ namespace StardewModdingApi.Installer
                 ** show theme selector
                 ****/
                 // get theme writers
-                var lightBackgroundWriter = new ColorfulConsoleWriter(context.Platform, ColorfulConsoleWriter.GetDefaultColorSchemeConfig(MonitorColorScheme.LightBackground));
-                var darkBackgroundWriter = new ColorfulConsoleWriter(context.Platform, ColorfulConsoleWriter.GetDefaultColorSchemeConfig(MonitorColorScheme.DarkBackground));
+                ColorfulConsoleWriter lightBackgroundWriter = new(context.Platform, ColorfulConsoleWriter.GetDefaultColorSchemeConfig(MonitorColorScheme.LightBackground));
+                ColorfulConsoleWriter darkBackgroundWriter = new(context.Platform, ColorfulConsoleWriter.GetDefaultColorSchemeConfig(MonitorColorScheme.DarkBackground));
 
                 // print question
                 this.PrintPlain("Which text looks more readable?");
@@ -239,7 +239,7 @@ namespace StardewModdingApi.Installer
                 ** collect details
                 ****/
                 // get game path
-                DirectoryInfo installDir = this.InteractivelyGetInstallPath(toolkit, context, gamePathArg);
+                DirectoryInfo? installDir = this.InteractivelyGetInstallPath(toolkit, context, gamePathArg);
                 if (installDir == null)
                 {
                     this.PrintError("Failed finding your game path.");
@@ -451,7 +451,7 @@ namespace StardewModdingApi.Installer
                             }
 
                             // find target folder
-                            ModFolder targetMod = targetMods.FirstOrDefault(p => p.Manifest?.UniqueID?.Equals(sourceMod.Manifest.UniqueID, StringComparison.OrdinalIgnoreCase) == true);
+                            ModFolder? targetMod = targetMods.FirstOrDefault(p => p.Manifest?.UniqueID?.Equals(sourceMod.Manifest.UniqueID, StringComparison.OrdinalIgnoreCase) == true);
                             DirectoryInfo defaultTargetFolder = new(Path.Combine(paths.ModsPath, sourceMod.Directory.Name));
                             DirectoryInfo targetFolder = targetMod?.Directory ?? defaultTargetFolder;
                             this.PrintDebug(targetFolder.FullName == defaultTargetFolder.FullName
@@ -534,27 +534,45 @@ namespace StardewModdingApi.Installer
 
         /// <summary>Print a message without formatting.</summary>
         /// <param name="text">The text to print.</param>
-        private void PrintPlain(string text) => Console.WriteLine(text);
+        private void PrintPlain(string text)
+        {
+            Console.WriteLine(text);
+        }
 
         /// <summary>Print a debug message.</summary>
         /// <param name="text">The text to print.</param>
-        private void PrintDebug(string text) => this.ConsoleWriter.WriteLine(text, ConsoleLogLevel.Debug);
+        private void PrintDebug(string text)
+        {
+            this.ConsoleWriter.WriteLine(text, ConsoleLogLevel.Debug);
+        }
 
         /// <summary>Print a debug message.</summary>
         /// <param name="text">The text to print.</param>
-        private void PrintInfo(string text) => this.ConsoleWriter.WriteLine(text, ConsoleLogLevel.Info);
+        private void PrintInfo(string text)
+        {
+            this.ConsoleWriter.WriteLine(text, ConsoleLogLevel.Info);
+        }
 
         /// <summary>Print a warning message.</summary>
         /// <param name="text">The text to print.</param>
-        private void PrintWarning(string text) => this.ConsoleWriter.WriteLine(text, ConsoleLogLevel.Warn);
+        private void PrintWarning(string text)
+        {
+            this.ConsoleWriter.WriteLine(text, ConsoleLogLevel.Warn);
+        }
 
         /// <summary>Print a warning message.</summary>
         /// <param name="text">The text to print.</param>
-        private void PrintError(string text) => this.ConsoleWriter.WriteLine(text, ConsoleLogLevel.Error);
+        private void PrintError(string text)
+        {
+            this.ConsoleWriter.WriteLine(text, ConsoleLogLevel.Error);
+        }
 
         /// <summary>Print a success message.</summary>
         /// <param name="text">The text to print.</param>
-        private void PrintSuccess(string text) => this.ConsoleWriter.WriteLine(text, ConsoleLogLevel.Success);
+        private void PrintSuccess(string text)
+        {
+            this.ConsoleWriter.WriteLine(text, ConsoleLogLevel.Success);
+        }
 
         /// <summary>Interactively delete a file or folder path, and block until deletion completes.</summary>
         /// <param name="path">The file or folder path.</param>
@@ -580,7 +598,7 @@ namespace StardewModdingApi.Installer
         /// <param name="source">The file or folder to copy.</param>
         /// <param name="targetFolder">The folder to copy into.</param>
         /// <param name="filter">A filter which matches directories and files to copy, or <c>null</c> to match all.</param>
-        private void RecursiveCopy(FileSystemInfo source, DirectoryInfo targetFolder, Func<FileSystemInfo, bool> filter = null)
+        private void RecursiveCopy(FileSystemInfo source, DirectoryInfo targetFolder, Func<FileSystemInfo, bool>? filter = null)
         {
             if (filter != null && !filter(source))
                 return;
@@ -596,7 +614,7 @@ namespace StardewModdingApi.Installer
 
                 case DirectoryInfo sourceDir:
                     DirectoryInfo targetSubfolder = new(Path.Combine(targetFolder.FullName, sourceDir.Name));
-                    foreach (var entry in sourceDir.EnumerateFileSystemInfos())
+                    foreach (FileSystemInfo entry in sourceDir.EnumerateFileSystemInfos())
                         this.RecursiveCopy(entry, targetSubfolder, filter);
                     break;
 
@@ -610,7 +628,7 @@ namespace StardewModdingApi.Installer
         /// <param name="message">The message to print.</param>
         /// <param name="options">The allowed options (not case sensitive).</param>
         /// <param name="indent">The indentation to prefix to output.</param>
-        private string InteractivelyChoose(string message, string[] options, string indent = "", Action<string> print = null)
+        private string InteractivelyChoose(string message, string[] options, string indent = "", Action<string>? print = null)
         {
             print ??= this.PrintInfo;
 
@@ -618,8 +636,8 @@ namespace StardewModdingApi.Installer
             {
                 print(indent + message);
                 Console.Write(indent);
-                string input = Console.ReadLine()?.Trim().ToLowerInvariant();
-                if (!options.Contains(input))
+                string? input = Console.ReadLine()?.Trim().ToLowerInvariant();
+                if (input == null || !options.Contains(input))
                 {
                     print($"{indent}That's not a valid option.");
                     continue;
@@ -632,7 +650,7 @@ namespace StardewModdingApi.Installer
         /// <param name="toolkit">The mod toolkit.</param>
         /// <param name="context">The installer context.</param>
         /// <param name="specifiedPath">The path specified as a command-line argument (if any), which should override automatic path detection.</param>
-        private DirectoryInfo InteractivelyGetInstallPath(ModToolkit toolkit, InstallerContext context, string specifiedPath)
+        private DirectoryInfo? InteractivelyGetInstallPath(ModToolkit toolkit, InstallerContext context, string? specifiedPath)
         {
             // use specified path
             if (specifiedPath != null)
@@ -699,7 +717,7 @@ namespace StardewModdingApi.Installer
                 // get path from user
                 Console.WriteLine();
                 this.PrintInfo($"Type the file path to the game directory (the one containing '{Constants.GameDllName}'), then press enter.");
-                string path = Console.ReadLine()?.Trim();
+                string? path = Console.ReadLine()?.Trim();
                 if (string.IsNullOrWhiteSpace(path))
                 {
                     this.PrintWarning("You must specify a directory path to continue.");
@@ -712,13 +730,13 @@ namespace StardewModdingApi.Installer
                     : path.Replace("\\ ", " "); // in Linux/macOS, spaces in paths may be escaped if copied from the command line
                 if (path.StartsWith("~/"))
                 {
-                    string home = Environment.GetEnvironmentVariable("HOME") ?? Environment.GetEnvironmentVariable("USERPROFILE");
+                    string home = Environment.GetEnvironmentVariable("HOME") ?? Environment.GetEnvironmentVariable("USERPROFILE")!;
                     path = Path.Combine(home, path.Substring(2));
                 }
 
                 // get directory
                 if (File.Exists(path))
-                    path = Path.GetDirectoryName(path);
+                    path = Path.GetDirectoryName(path)!;
                 DirectoryInfo directory = new(path);
 
                 // validate path
@@ -765,7 +783,7 @@ namespace StardewModdingApi.Installer
 
             // game folder which contains the installer, if any
             {
-                DirectoryInfo curPath = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory;
+                DirectoryInfo? curPath = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory;
                 while (curPath?.Parent != null) // must be in a folder (not at the root)
                 {
                     if (context.LooksLikeGameFolder(curPath))
@@ -787,7 +805,7 @@ namespace StardewModdingApi.Installer
             }
         }
 
-        /// <summary>Interactively move mods out of the appdata directory.</summary>
+        /// <summary>Interactively move mods out of the app data directory.</summary>
         /// <param name="properModsDir">The directory which should contain all mods.</param>
         /// <param name="packagedModsDir">The installer directory containing packaged mods.</param>
         private void InteractivelyRemoveAppDataMods(DirectoryInfo properModsDir, DirectoryInfo packagedModsDir)
@@ -847,7 +865,7 @@ namespace StardewModdingApi.Installer
         /// <summary>Move a filesystem entry to a new parent directory.</summary>
         /// <param name="entry">The filesystem entry to move.</param>
         /// <param name="newPath">The destination path.</param>
-        /// <remarks>We can't use <see cref="FileInfo.MoveTo"/> or <see cref="DirectoryInfo.MoveTo"/>, because those don't work across partitions.</remarks>
+        /// <remarks>We can't use <see cref="FileInfo.MoveTo(string)"/> or <see cref="DirectoryInfo.MoveTo"/>, because those don't work across partitions.</remarks>
         private void Move(FileSystemInfo entry, string newPath)
         {
             // file
@@ -874,15 +892,12 @@ namespace StardewModdingApi.Installer
         /// <param name="entry">The file or folder info.</param>
         private bool ShouldCopy(FileSystemInfo entry)
         {
-            switch (entry.Name)
+            return entry.Name switch
             {
-                case "mcs":
-                    return false; // ignore macOS symlink
-                case "Mods":
-                    return false; // Mods folder handled separately
-                default:
-                    return true;
-            }
+                "mcs" => false, // ignore macOS symlink
+                "Mods" => false, // Mods folder handled separately
+                _ => true
+            };
         }
     }
 }
