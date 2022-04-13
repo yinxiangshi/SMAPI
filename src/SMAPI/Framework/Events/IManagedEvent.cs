@@ -1,5 +1,3 @@
-#nullable disable
-
 namespace StardewModdingAPI.Framework.Events
 {
     /// <summary>Metadata for an event raised by SMAPI.</summary>

@@ -1,5 +1,3 @@
-#nullable disable
-
 using System.IO;
 using Mono.Cecil;
 using Mono.Cecil.Cil;

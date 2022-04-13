@@ -1,5 +1,3 @@
-#nullable disable
-
 using System.Reflection;
 using System.Reflection.Emit;
 using Nanoray.Pintail;

@@ -1,5 +1,3 @@
-#nullable disable
-
 namespace StardewModdingAPI.Framework
 {
     /// <summary>Provides singleton instances of a given type.</summary>

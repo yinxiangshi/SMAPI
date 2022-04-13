@@ -1,5 +1,3 @@
-#nullable disable
-
 using StardewValley;
 
 namespace StardewModdingAPI.Events

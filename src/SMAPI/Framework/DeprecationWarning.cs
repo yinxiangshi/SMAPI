@@ -1,5 +1,3 @@
-#nullable disable
-
 namespace StardewModdingAPI.Framework
 {
     /// <summary>A deprecation warning for a mod.</summary>

@@ -1,5 +1,3 @@
-#nullable disable
-
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework.Input;
@@ -29,7 +27,7 @@ namespace StardewModdingAPI.Framework.Input
             this.State = state;
 
             this.PressedButtons.Clear();
-            foreach (var button in state.GetPressedKeys())
+            foreach (Keys button in state.GetPressedKeys())
                 this.PressedButtons.Add(button);
         }
 

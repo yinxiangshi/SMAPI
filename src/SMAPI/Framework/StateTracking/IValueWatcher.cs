@@ -1,5 +1,3 @@
-#nullable disable
-
 namespace StardewModdingAPI.Framework.StateTracking
 {
     /// <summary>A watcher which tracks changes to a value.</summary>

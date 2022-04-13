@@ -1,5 +1,3 @@
-#nullable disable
-
 namespace StardewModdingAPI.Framework
 {
     /// <summary>A generic tuple which links something to a mod.</summary>

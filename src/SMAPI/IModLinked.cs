@@ -1,5 +1,3 @@
-#nullable disable
-
 namespace StardewModdingAPI
 {
     /// <summary>An instance linked to a mod.</summary>

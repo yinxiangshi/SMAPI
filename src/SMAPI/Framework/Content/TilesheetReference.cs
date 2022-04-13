@@ -1,5 +1,3 @@
-#nullable disable
-
 using xTile.Dimensions;
 
 namespace StardewModdingAPI.Framework.Content

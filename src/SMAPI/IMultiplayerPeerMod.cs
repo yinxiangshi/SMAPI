@@ -1,5 +1,3 @@
-#nullable disable
-
 namespace StardewModdingAPI
 {
     /// <summary>Metadata about a mod installed by a connected player.</summary>

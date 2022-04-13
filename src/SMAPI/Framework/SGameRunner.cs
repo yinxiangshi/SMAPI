@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -150,7 +148,7 @@ namespace StardewModdingAPI.Framework
         /// <summary>Update metadata when a split screen is added or removed.</summary>
         private void UpdateForSplitScreenChanges()
         {
-            HashSet<int> oldScreenIds = new HashSet<int>(Context.ActiveScreenIds);
+            HashSet<int> oldScreenIds = new(Context.ActiveScreenIds);
 
             // track active screens
             Context.ActiveScreenIds.Clear();

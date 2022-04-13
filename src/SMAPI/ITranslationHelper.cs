@@ -1,5 +1,3 @@
-#nullable disable
-
 using System.Collections.Generic;
 using StardewValley;
 
@@ -11,7 +9,7 @@ namespace StardewModdingAPI
         /*********
         ** Accessors
         *********/
-        /// <summary>The current locale.</summary>
+        /// <summary>The current locale code like <c>fr-FR</c>, or an empty string for English.</summary>
         string Locale { get; }
 
         /// <summary>The game's current language code.</summary>
