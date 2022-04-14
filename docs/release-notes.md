@@ -4,6 +4,7 @@
 ## Upcoming release
 ### For players
 * Changes:
+  * When scanning for mod folders, dot-prefixed files are now ignored (thanks to Nuztalgia!).
   * On Linux, SMAPI now fixes many issues with case-sensitive mod paths automatically.
   * On Linux/macOS, added `--use-current-shell` [command-line argument](technical/smapi.md#command-line-arguments) to avoid opening a separate terminal window.
   * Dropped update checks for the unofficial 64-bit patcher (obsolete since SMAPI 3.12.6).
