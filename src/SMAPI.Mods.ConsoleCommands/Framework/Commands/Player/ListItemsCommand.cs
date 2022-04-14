@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -63,15 +61,14 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
         private IEnumerable<SearchableItem> GetItems(string[] searchWords)
         {
             // normalize search term
-            searchWords = searchWords?.Where(word => !string.IsNullOrWhiteSpace(word)).ToArray();
-            if (searchWords?.Any() == false)
-                searchWords = null;
+            searchWords = searchWords.Where(word => !string.IsNullOrWhiteSpace(word)).ToArray();
+            bool getAll = !searchWords.Any();
 
             // find matches
             return (
                 from item in this.Items.GetAll()
                 let term = $"{item.ID}|{item.Type}|{item.Name}|{item.DisplayName}"
-                where searchWords == null || searchWords.All(word => term.IndexOf(word, StringComparison.CurrentCultureIgnoreCase) != -1)
+                where getAll || searchWords.All(word => term.IndexOf(word, StringComparison.CurrentCultureIgnoreCase) != -1)
                 select item
             );
         }

@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -25,7 +23,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
         public override void Handle(IMonitor monitor, string command, ArgumentParser args)
         {
             // get fix ID
-            if (!args.TryGet(0, "fix_id", out string rawFixId, required: false))
+            if (!args.TryGet(0, "fix_id", out string? rawFixId, required: false))
             {
                 monitor.Log("Invalid usage. Type 'help apply_save_fix' for details.", LogLevel.Error);
                 return;

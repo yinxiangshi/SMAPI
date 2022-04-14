@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Diagnostics.CodeAnalysis;
 using HarmonyLib;
@@ -19,10 +17,10 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         ** Fields
         *********/
         /// <summary>Writes messages to the console and log file on behalf of the game.</summary>
-        private static IMonitor MonitorForGame;
+        private static IMonitor MonitorForGame = null!;
 
         /// <summary>Simplifies access to private code.</summary>
-        private static IReflectionHelper Reflection;
+        private static IReflectionHelper Reflection = null!;
 
 
         /*********
@@ -56,12 +54,12 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         /// <param name="speaker">The NPC for which the dialogue is being parsed.</param>
         /// <param name="__exception">The exception thrown by the wrapped method, if any.</param>
         /// <returns>Returns the exception to throw, if any.</returns>
-        private static Exception Finalize_Constructor(Dialogue __instance, string masterDialogue, NPC speaker, Exception __exception)
+        private static Exception? Finalize_Constructor(Dialogue __instance, string masterDialogue, NPC? speaker, Exception? __exception)
         {
             if (__exception != null)
             {
                 // log message
-                string name = !string.IsNullOrWhiteSpace(speaker?.Name) ? speaker.Name : null;
+                string? name = !string.IsNullOrWhiteSpace(speaker?.Name) ? speaker.Name : null;
                 DialoguePatcher.MonitorForGame.Log($"Failed parsing dialogue string{(name != null ? $" for {name}" : "")}:\n{masterDialogue}\n{__exception.GetLogSummary()}", LogLevel.Error);
 
                 // set default dialogue

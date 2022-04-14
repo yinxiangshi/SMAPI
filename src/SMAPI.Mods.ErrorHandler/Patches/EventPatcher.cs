@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Diagnostics.CodeAnalysis;
 using HarmonyLib;
@@ -18,7 +16,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         ** Fields
         *********/
         /// <summary>Writes messages to the console and log file on behalf of the game.</summary>
-        private static IMonitor MonitorForGame;
+        private static IMonitor MonitorForGame = null!;
 
 
         /*********

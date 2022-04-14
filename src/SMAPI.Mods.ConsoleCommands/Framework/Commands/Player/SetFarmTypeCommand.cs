@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -37,7 +35,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
             }
 
             // parse arguments
-            if (!args.TryGet(0, "farm type", out string farmType))
+            if (!args.TryGet(0, "farm type", out string? farmType))
                 return;
             bool isVanillaId = int.TryParse(farmType, out int vanillaId) && vanillaId is (>= 0 and < Farm.layout_max);
 
@@ -112,7 +110,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
                 return;
             }
 
-            if (!this.GetCustomFarmTypes().TryGetValue(id, out ModFarmType customFarmType))
+            if (!this.GetCustomFarmTypes().TryGetValue(id, out ModFarmType? customFarmType))
             {
                 monitor.Log($"Invalid farm type '{id}'. Enter `help set_farm_type` for more info.", LogLevel.Error);
                 return;
@@ -125,7 +123,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
         /// <summary>Change the farm type.</summary>
         /// <param name="type">The farm type ID.</param>
         /// <param name="customFarmData">The custom farm type data, if applicable.</param>
-        private void SetFarmType(int type, ModFarmType customFarmData)
+        private void SetFarmType(int type, ModFarmType? customFarmData)
         {
             // set flags
             Game1.whichFarm = type;
@@ -138,7 +136,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
             farm.updateWarps();
 
             // clear spouse area cache to avoid errors
-            FieldInfo cacheField = farm.GetType().GetField("_baseSpouseAreaTiles", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+            FieldInfo? cacheField = farm.GetType().GetField("_baseSpouseAreaTiles", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
             if (cacheField == null)
                 throw new InvalidOperationException("Failed to access '_baseSpouseAreaTiles' field to clear spouse area cache.");
             if (cacheField.GetValue(farm) is not IDictionary cache)
@@ -166,7 +164,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
         /// <param name="type">The farm type.</param>
         private string GetVanillaName(int type)
         {
-            string translationKey = type switch
+            string? translationKey = type switch
             {
                 Farm.default_layout => "Character_FarmStandard",
                 Farm.riverlands_layout => "Character_FarmFishing",
@@ -199,7 +197,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
         ****/
         /// <summary>Get the display name for a custom farm type.</summary>
         /// <param name="farmType">The custom farm type.</param>
-        private string GetCustomName(ModFarmType farmType)
+        private string? GetCustomName(ModFarmType? farmType)
         {
             if (string.IsNullOrWhiteSpace(farmType?.TooltipStringPath))
                 return farmType?.ID;

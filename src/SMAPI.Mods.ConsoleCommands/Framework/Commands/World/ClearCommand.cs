@@ -1,8 +1,7 @@
-#nullable disable
-
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Microsoft.Xna.Framework;
 using StardewValley;
 using StardewValley.Locations;
 using StardewValley.Objects;
@@ -53,13 +52,13 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
             }
 
             // parse arguments
-            if (!args.TryGet(0, "location", out string locationName, required: true))
+            if (!args.TryGet(0, "location", out string? locationName, required: true))
                 return;
-            if (!args.TryGet(1, "object type", out string type, required: true, oneOf: this.ValidTypes))
+            if (!args.TryGet(1, "object type", out string? type, required: true, oneOf: this.ValidTypes))
                 return;
 
             // get target location
-            GameLocation location = Game1.locations.FirstOrDefault(p => p.Name != null && p.Name.Equals(locationName, StringComparison.OrdinalIgnoreCase));
+            GameLocation? location = Game1.locations.FirstOrDefault(p => p.Name != null && p.Name.Equals(locationName, StringComparison.OrdinalIgnoreCase));
             if (location == null && locationName == "current")
                 location = Game1.currentLocation;
             if (location == null)
@@ -168,11 +167,11 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
         {
             int removed = 0;
 
-            foreach (var pair in location.Objects.Pairs.ToArray())
+            foreach ((Vector2 tile, SObject? obj) in location.Objects.Pairs.ToArray())
             {
-                if (shouldRemove(pair.Value))
+                if (shouldRemove(obj))
                 {
-                    location.Objects.Remove(pair.Key);
+                    location.Objects.Remove(tile);
                     removed++;
                 }
             }
@@ -188,11 +187,11 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
         {
             int removed = 0;
 
-            foreach (var pair in location.terrainFeatures.Pairs.ToArray())
+            foreach ((Vector2 tile, TerrainFeature? feature) in location.terrainFeatures.Pairs.ToArray())
             {
-                if (shouldRemove(pair.Value))
+                if (shouldRemove(feature))
                 {
-                    location.terrainFeatures.Remove(pair.Key);
+                    location.terrainFeatures.Remove(tile);
                     removed++;
                 }
             }
@@ -228,7 +227,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
         {
             int removed = 0;
 
-            foreach (var clump in location.resourceClumps.Where(shouldRemove).ToArray())
+            foreach (ResourceClump clump in location.resourceClumps.Where(shouldRemove).ToArray())
             {
                 location.resourceClumps.Remove(clump);
                 removed++;

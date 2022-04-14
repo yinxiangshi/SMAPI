@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -24,10 +22,10 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         ** Fields
         *********/
         /// <summary>Writes messages to the console and log file.</summary>
-        private static IMonitor Monitor;
+        private static IMonitor Monitor = null!;
 
         /// <summary>A callback invoked when custom content is removed from the save data to avoid a crash.</summary>
-        private static Action OnContentRemoved;
+        private static Action OnContentRemoved = null!;
 
 
         /*********
@@ -76,7 +74,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         /// <summary>The method to call after <see cref="SaveGame.LoadFarmType"/> throws an exception.</summary>
         /// <param name="__exception">The exception thrown by the wrapped method, if any.</param>
         /// <returns>Returns the exception to throw, if any.</returns>
-        private static Exception Finalize_LoadFarmType(Exception __exception)
+        private static Exception? Finalize_LoadFarmType(Exception? __exception)
         {
             // missing custom farm type
             if (__exception?.Message.Contains("not a valid farm type") == true && !int.TryParse(SaveGame.loaded.whichFarm, out _))
@@ -110,7 +108,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         /// <summary>Remove content which no longer exists in the game data.</summary>
         /// <param name="location">The current game location.</param>
         /// <param name="npcs">The NPC data.</param>
-        private static bool RemoveBrokenContent(GameLocation location, IDictionary<string, string> npcs)
+        private static bool RemoveBrokenContent(GameLocation? location, IDictionary<string, string> npcs)
         {
             bool removedAny = false;
             if (location == null)

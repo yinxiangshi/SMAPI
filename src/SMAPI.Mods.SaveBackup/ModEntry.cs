@@ -1,7 +1,6 @@
-#nullable disable
-
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -82,7 +81,7 @@ namespace StardewModdingAPI.Mods.SaveBackup
                 }
 
                 // compress backup if possible
-                if (!this.TryCompress(fallbackDir.FullName, targetFile, out Exception compressError))
+                if (!this.TryCompress(fallbackDir.FullName, targetFile, out Exception? compressError))
                 {
                     this.Monitor.Log(Constants.TargetPlatform != GamePlatform.Android
                         ? $"Backed up to {fallbackDir.FullName}." // expected to fail on Android
@@ -142,7 +141,7 @@ namespace StardewModdingAPI.Mods.SaveBackup
         /// <param name="destination">The destination file to create.</param>
         /// <param name="error">The error which occurred trying to compress, if applicable. This is <see cref="NotSupportedException"/> if compression isn't supported on this platform.</param>
         /// <returns>Returns whether compression succeeded.</returns>
-        private bool TryCompress(string sourcePath, FileInfo destination, out Exception error)
+        private bool TryCompress(string sourcePath, FileInfo destination, [NotNullWhen(false)] out Exception? error)
         {
             try
             {
@@ -210,7 +209,7 @@ namespace StardewModdingAPI.Mods.SaveBackup
         /// <param name="filter">A filter which matches the files or directories to copy, or <c>null</c> to copy everything.</param>
         /// <remarks>Derived from the SMAPI installer code.</remarks>
         /// <returns>Returns whether any files were copied.</returns>
-        private bool RecursiveCopy(FileSystemInfo source, DirectoryInfo targetFolder, Func<FileSystemInfo, bool> filter, bool copyRoot = true)
+        private bool RecursiveCopy(FileSystemInfo source, DirectoryInfo targetFolder, Func<FileSystemInfo, bool>? filter, bool copyRoot = true)
         {
             if (!source.Exists || filter?.Invoke(source) == false)
                 return false;
@@ -244,7 +243,7 @@ namespace StardewModdingAPI.Mods.SaveBackup
         private bool MatchSaveFolders(DirectoryInfo savesFolder, FileSystemInfo entry)
         {
             // only need to filter top-level entries
-            string parentPath = (entry as FileInfo)?.DirectoryName ?? (entry as DirectoryInfo)?.Parent?.FullName;
+            string? parentPath = (entry as FileInfo)?.DirectoryName ?? (entry as DirectoryInfo)?.Parent?.FullName;
             if (parentPath != savesFolder.FullName)
                 return true;
 

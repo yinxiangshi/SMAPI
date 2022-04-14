@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -59,7 +57,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         /// <param name="__result">The patched method's return value.</param>
         /// <param name="__exception">The exception thrown by the wrapped method, if any.</param>
         /// <returns>Returns the exception to throw, if any.</returns>
-        private static Exception Finalize_Object_loadDisplayName(ref string __result, Exception __exception)
+        private static Exception? Finalize_Object_loadDisplayName(ref string __result, Exception? __exception)
         {
             if (__exception is KeyNotFoundException)
             {

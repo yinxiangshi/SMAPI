@@ -1,5 +1,3 @@
-#nullable disable
-
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using StardewModdingAPI.Utilities;
@@ -39,7 +37,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
             }
 
             // parse arguments
-            if (!args.TryGet(0, "season", out string season, oneOf: this.ValidSeasons))
+            if (!args.TryGet(0, "season", out string? season, oneOf: this.ValidSeasons))
                 return;
 
             // handle

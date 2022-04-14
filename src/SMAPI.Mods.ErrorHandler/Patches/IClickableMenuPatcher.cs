@@ -1,5 +1,3 @@
-#nullable disable
-
 using System.Diagnostics.CodeAnalysis;
 using HarmonyLib;
 using StardewModdingAPI.Internal.Patching;

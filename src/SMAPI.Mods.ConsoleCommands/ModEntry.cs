@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,13 +13,13 @@ namespace StardewModdingAPI.Mods.ConsoleCommands
         ** Fields
         *********/
         /// <summary>The commands to handle.</summary>
-        private IConsoleCommand[] Commands;
+        private IConsoleCommand[] Commands = null!;
 
         /// <summary>The commands which may need to handle update ticks.</summary>
-        private IConsoleCommand[] UpdateHandlers;
+        private IConsoleCommand[] UpdateHandlers = null!;
 
         /// <summary>The commands which may need to handle input.</summary>
-        private IConsoleCommand[] InputHandlers;
+        private IConsoleCommand[] InputHandlers = null!;
 
 
         /*********
@@ -52,7 +50,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands
         /// <summary>The method invoked when a button is pressed.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event arguments.</param>
-        private void OnButtonPressed(object sender, ButtonPressedEventArgs e)
+        private void OnButtonPressed(object? sender, ButtonPressedEventArgs e)
         {
             foreach (IConsoleCommand command in this.InputHandlers)
                 command.OnButtonPressed(this.Monitor, e.Button);
@@ -61,7 +59,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands
         /// <summary>The method invoked when the game updates its state.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event arguments.</param>
-        private void OnUpdateTicked(object sender, EventArgs e)
+        private void OnUpdateTicked(object? sender, EventArgs e)
         {
             foreach (IConsoleCommand command in this.UpdateHandlers)
                 command.OnUpdated(this.Monitor);
@@ -83,7 +81,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands
             return (
                 from type in this.GetType().Assembly.GetTypes()
                 where !type.IsAbstract && typeof(IConsoleCommand).IsAssignableFrom(type)
-                select (IConsoleCommand)Activator.CreateInstance(type)
+                select (IConsoleCommand)Activator.CreateInstance(type)!
             );
         }
     }

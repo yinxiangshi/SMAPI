@@ -1,5 +1,3 @@
-#nullable disable
-
 using System.Diagnostics.CodeAnalysis;
 using StardewValley;
 
@@ -23,7 +21,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
         public override void Handle(IMonitor monitor, string command, ArgumentParser args)
         {
             // parse arguments
-            if (!args.TryGet(0, "target", out string target, oneOf: new[] { "hair", "shirt", "acc", "skin", "shoe", "swim", "gender" }))
+            if (!args.TryGet(0, "target", out string? target, oneOf: new[] { "hair", "shirt", "acc", "skin", "shoe", "swim", "gender" }))
                 return;
             if (!args.TryGetInt(1, "style ID", out int styleID))
                 return;

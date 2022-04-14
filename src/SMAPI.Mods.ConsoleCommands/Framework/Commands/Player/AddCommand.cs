@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Linq;
 using StardewModdingAPI.Mods.ConsoleCommands.Framework.ItemData;
@@ -42,7 +40,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
             }
 
             // read arguments
-            if (!args.TryGet(0, "item type", out string type, oneOf: this.ValidTypes))
+            if (!args.TryGet(0, "item type", out string? type, oneOf: this.ValidTypes))
                 return;
             if (!args.TryGetInt(2, "count", out int count, min: 1, required: false))
                 count = 1;
@@ -50,7 +48,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
                 quality = Object.lowQuality;
 
             // find matching item
-            SearchableItem match = Enum.TryParse(type, true, out ItemType itemType)
+            SearchableItem? match = Enum.TryParse(type, true, out ItemType itemType)
                 ? this.FindItemByID(monitor, args, itemType)
                 : this.FindItemByName(monitor, args);
             if (match == null)
@@ -78,14 +76,14 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
         /// <param name="monitor">Writes messages to the console and log file.</param>
         /// <param name="args">The command arguments.</param>
         /// <param name="type">The item type.</param>
-        private SearchableItem FindItemByID(IMonitor monitor, ArgumentParser args, ItemType type)
+        private SearchableItem? FindItemByID(IMonitor monitor, ArgumentParser args, ItemType type)
         {
             // read arguments
             if (!args.TryGetInt(1, "item ID", out int id, min: 0))
                 return null;
 
             // find matching item
-            SearchableItem item = this.Items.GetAll().FirstOrDefault(p => p.Type == type && p.ID == id);
+            SearchableItem? item = this.Items.GetAll().FirstOrDefault(p => p.Type == type && p.ID == id);
             if (item == null)
                 monitor.Log($"There's no {type} item with ID {id}.", LogLevel.Error);
             return item;
@@ -94,10 +92,10 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
         /// <summary>Get a matching item by its name.</summary>
         /// <param name="monitor">Writes messages to the console and log file.</param>
         /// <param name="args">The command arguments.</param>
-        private SearchableItem FindItemByName(IMonitor monitor, ArgumentParser args)
+        private SearchableItem? FindItemByName(IMonitor monitor, ArgumentParser args)
         {
             // read arguments
-            if (!args.TryGet(1, "item name", out string name))
+            if (!args.TryGet(1, "item name", out string? name))
                 return null;
 
             // find matching items

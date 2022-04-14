@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Diagnostics.CodeAnalysis;
 using HarmonyLib;
@@ -30,9 +28,9 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         /*********
         ** Private methods
         *********/
-        /// <summary>The method to call after <see cref="SpriteBatch.CheckValid"/>.</summary>
+        /// <summary>The method to call after <see cref="SpriteBatch.CheckValid(Texture2D)"/>.</summary>
         /// <param name="texture">The texture to validate.</param>
-        private static void After_CheckValid(Texture2D texture)
+        private static void After_CheckValid(Texture2D? texture)
         {
             if (texture?.IsDisposed == true)
                 throw new ObjectDisposedException("Cannot draw this texture because it's disposed.");

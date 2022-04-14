@@ -1,5 +1,3 @@
-#nullable disable
-
 namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands
 {
     /// <summary>A console command to register.</summary>
