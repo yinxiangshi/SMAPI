@@ -93,18 +93,18 @@ namespace StardewModdingAPI.Framework.Logging
         /// <param name="getScreenIdForLog">Get the screen ID that should be logged to distinguish between players in split-screen mode, if any.</param>
         public LogManager(string logPath, ColorSchemeConfig colorConfig, bool writeToConsole, bool isVerbose, bool isDeveloperMode, Func<int?> getScreenIdForLog)
         {
-            // init fields
+            // init log file
             this.LogFile = new LogFileManager(logPath);
-            this.Monitor = this.GetMonitor("SMAPI");
-            this.MonitorForGame = this.GetMonitor("game");
 
-            // init construction logic
+            // init monitor
             this.GetMonitorImpl = name => new Monitor(name, LogManager.IgnoreChar, this.LogFile, colorConfig, isVerbose, getScreenIdForLog)
             {
                 WriteToConsole = writeToConsole,
                 ShowTraceInConsole = isDeveloperMode,
                 ShowFullStampInConsole = isDeveloperMode
             };
+            this.Monitor = this.GetMonitor("SMAPI");
+            this.MonitorForGame = this.GetMonitor("game");
 
             // redirect direct console output
             this.ConsoleInterceptor = new InterceptingTextWriter(

@@ -153,7 +153,7 @@ namespace StardewModdingAPI.Framework.Reflection
             {
                 for (Type? curType = type; curType != null; curType = curType.BaseType)
                 {
-                    FieldInfo? fieldInfo = type.GetField(name, bindingFlags);
+                    FieldInfo? fieldInfo = curType.GetField(name, bindingFlags);
                     if (fieldInfo != null)
                     {
                         type = curType;
@@ -182,7 +182,7 @@ namespace StardewModdingAPI.Framework.Reflection
             {
                 for (Type? curType = type; curType != null; curType = curType.BaseType)
                 {
-                    PropertyInfo? propertyInfo = type.GetProperty(name, bindingFlags);
+                    PropertyInfo? propertyInfo = curType.GetProperty(name, bindingFlags);
                     if (propertyInfo != null)
                     {
                         type = curType;
@@ -210,7 +210,7 @@ namespace StardewModdingAPI.Framework.Reflection
             {
                 for (Type? curType = type; curType != null; curType = curType.BaseType)
                 {
-                    MethodInfo? methodInfo = type.GetMethod(name, bindingFlags);
+                    MethodInfo? methodInfo = curType.GetMethod(name, bindingFlags);
                     if (methodInfo != null)
                     {
                         type = curType;
