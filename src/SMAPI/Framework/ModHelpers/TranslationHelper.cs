@@ -69,7 +69,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
             return this;
         }
 
-        /// <summary>Set the current locale and precache translations.</summary>
+        /// <summary>Set the current locale and pre-cache translations.</summary>
         /// <param name="locale">The current locale.</param>
         /// <param name="localeEnum">The game's current language code.</param>
         internal void SetLocale(string locale, LocalizedContentManager.LanguageCode localeEnum)

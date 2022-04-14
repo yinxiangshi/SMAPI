@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
@@ -13,6 +14,7 @@ using Microsoft.Win32;
 namespace StardewModdingAPI.Toolkit.Framework.GameScanning
 {
     /// <summary>Finds installed game folders.</summary>
+    [SuppressMessage("ReSharper", "StringLiteralTypo", Justification = "These are valid game install paths.")]
     public class GameScanner
     {
         /*********
