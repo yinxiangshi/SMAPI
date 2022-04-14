@@ -1,7 +1,6 @@
 #nullable disable
 
 using System;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.Caching;
 
@@ -128,41 +127,6 @@ namespace StardewModdingAPI.Framework.Reflection
             return method;
         }
 
-        /****
-        ** Methods by signature
-        ****/
-        /// <summary>Get a instance method.</summary>
-        /// <param name="obj">The object which has the method.</param>
-        /// <param name="name">The field name.</param>
-        /// <param name="argumentTypes">The argument types of the method signature to find.</param>
-        /// <param name="required">Whether to throw an exception if the field is not found.</param>
-        public IReflectedMethod GetMethod(object obj, string name, Type[] argumentTypes, bool required = true)
-        {
-            // validate parent
-            if (obj == null)
-                throw new ArgumentNullException(nameof(obj), "Can't get a instance method from a null object.");
-
-            // get method from hierarchy
-            ReflectedMethod method = this.GetMethodFromHierarchy(obj.GetType(), obj, name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public, argumentTypes);
-            if (required && method == null)
-                throw new InvalidOperationException($"The {obj.GetType().FullName} object doesn't have a '{name}' instance method with that signature.");
-            return method;
-        }
-
-        /// <summary>Get a static method.</summary>
-        /// <param name="type">The type which has the method.</param>
-        /// <param name="name">The field name.</param>
-        /// <param name="argumentTypes">The argument types of the method signature to find.</param>
-        /// <param name="required">Whether to throw an exception if the field is not found.</param>
-        public IReflectedMethod GetMethod(Type type, string name, Type[] argumentTypes, bool required = true)
-        {
-            // get field from hierarchy
-            ReflectedMethod method = this.GetMethodFromHierarchy(type, null, name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static, argumentTypes);
-            if (required && method == null)
-                throw new InvalidOperationException($"The {type.FullName} object doesn't have a '{name}' static method with that signature.");
-            return method;
-        }
-
 
         /*********
         ** Private methods
@@ -229,27 +193,6 @@ namespace StardewModdingAPI.Framework.Reflection
 
             return method != null
                 ? new ReflectedMethod(type, obj, method, isStatic: bindingFlags.HasFlag(BindingFlags.Static))
-                : null;
-        }
-
-        /// <summary>Get a method from the type hierarchy.</summary>
-        /// <param name="type">The type which has the method.</param>
-        /// <param name="obj">The object which has the method.</param>
-        /// <param name="name">The method name.</param>
-        /// <param name="bindingFlags">The reflection binding which flags which indicates what type of method to find.</param>
-        /// <param name="argumentTypes">The argument types of the method signature to find.</param>
-        private ReflectedMethod GetMethodFromHierarchy(Type type, object obj, string name, BindingFlags bindingFlags, Type[] argumentTypes)
-        {
-            bool isStatic = bindingFlags.HasFlag(BindingFlags.Static);
-            MethodInfo method = this.GetCached($"method::{isStatic}::{type.FullName}::{name}({string.Join(",", argumentTypes.Select(p => p.FullName))})", () =>
-            {
-                MethodInfo methodInfo = null;
-                for (; type != null && methodInfo == null; type = type.BaseType)
-                    methodInfo = type.GetMethod(name, bindingFlags, null, argumentTypes, null);
-                return methodInfo;
-            });
-            return method != null
-                ? new ReflectedMethod(type, obj, method, isStatic)
                 : null;
         }
 

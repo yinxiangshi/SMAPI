@@ -2,7 +2,6 @@ using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Events;
@@ -63,9 +62,6 @@ namespace StardewModdingAPI.Framework
         *********/
         /// <summary>Manages input visible to the game.</summary>
         public SInputState Input => (SInputState)Game1.input;
-
-        /// <summary>The game background task which initializes a new day.</summary>
-        public Task NewDayTask => Game1._newDayTask;
 
         /// <summary>Monitors the entire game state for changes.</summary>
         public WatcherCore Watchers { get; private set; } = null!; // initialized on first update tick

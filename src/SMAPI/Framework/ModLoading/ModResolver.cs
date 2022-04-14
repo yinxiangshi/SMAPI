@@ -394,22 +394,6 @@ namespace StardewModdingAPI.Framework.ModLoading
             }
         }
 
-        /// <summary>Get all mod folders in a root folder, passing through empty folders as needed.</summary>
-        /// <param name="rootPath">The root folder path to search.</param>
-        private IEnumerable<DirectoryInfo> GetModFolders(string rootPath)
-        {
-            foreach (string modRootPath in Directory.GetDirectories(rootPath))
-            {
-                DirectoryInfo directory = new(modRootPath);
-
-                // if a folder only contains another folder, check the inner folder instead
-                while (!directory.GetFiles().Any() && directory.GetDirectories().Length == 1)
-                    directory = directory.GetDirectories().First();
-
-                yield return directory;
-            }
-        }
-
         /// <summary>Get the dependencies declared in a manifest.</summary>
         /// <param name="manifest">The mod manifest.</param>
         /// <param name="loadedMods">The loaded mods.</param>

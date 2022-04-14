@@ -36,11 +36,10 @@ namespace StardewModdingAPI.Framework
         /// <param name="name">The command name, which the user must type to trigger it.</param>
         /// <param name="documentation">The human-readable documentation shown when the player runs the built-in 'help' command.</param>
         /// <param name="callback">The method to invoke when the command is triggered. This method is passed the command name and arguments submitted by the user.</param>
-        /// <param name="allowNullCallback">Whether to allow a null <paramref name="callback"/> argument; this should only used for backwards compatibility.</param>
         /// <exception cref="ArgumentNullException">The <paramref name="name"/> or <paramref name="callback"/> is null or empty.</exception>
         /// <exception cref="FormatException">The <paramref name="name"/> is not a valid format.</exception>
         /// <exception cref="ArgumentException">There's already a command with that name.</exception>
-        public CommandManager Add(IModMetadata mod, string name, string documentation, Action<string, string[]> callback, bool allowNullCallback = false)
+        public CommandManager Add(IModMetadata mod, string name, string documentation, Action<string, string[]> callback)
         {
             name = this.GetNormalizedName(name);
 
@@ -49,7 +48,7 @@ namespace StardewModdingAPI.Framework
                 throw new ArgumentNullException(nameof(name), "Can't register a command with no name.");
             if (name.Any(char.IsWhiteSpace))
                 throw new FormatException($"Can't register the '{name}' command because the name can't contain whitespace.");
-            if (callback == null && !allowNullCallback)
+            if (callback == null)
                 throw new ArgumentNullException(nameof(callback), $"Can't register the '{name}' command because without a callback.");
 
             // ensure uniqueness
