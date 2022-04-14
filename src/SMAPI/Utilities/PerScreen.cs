@@ -40,27 +40,12 @@ namespace StardewModdingAPI.Utilities
         /// <summary>Construct an instance.</summary>
         /// <remarks><strong>Limitation with nullable reference types:</strong> when the underlying type <typeparamref name="T"/> is nullable, this sets the default value to null regardless of whether you marked the type parameter nullable. To avoid that, set the default value with the 'createNewState' argument instead.</remarks>
         public PerScreen()
-            : this(null!) { }
+            : this(null, nullExpected: true) { }
 
         /// <summary>Construct an instance.</summary>
         /// <param name="createNewState">Create the initial state for a screen.</param>
         public PerScreen(Func<T> createNewState)
-        {
-            // ReSharper disable once ConditionIsAlwaysTrueOrFalse -- required for backwards compatibility
-            if (createNewState is null)
-            {
-                SCore.DeprecationManager.Warn(
-                    SCore.DeprecationManager.GetSourceNameFromStack(),
-                    $"calling the {nameof(PerScreen<T>)} constructor with null",
-                    "3.14.0",
-                    DeprecationLevel.Notice
-                );
-
-                createNewState = (() => default!);
-            }
-
-            this.CreateNewState = createNewState;
-        }
+            : this(createNewState, nullExpected: false) { }
 
         /// <summary>Get all active values by screen ID. This doesn't initialize the value for a screen ID if it's not created yet.</summary>
         public IEnumerable<KeyValuePair<int, T>> GetActiveValues()
@@ -98,6 +83,30 @@ namespace StardewModdingAPI.Utilities
         /*********
         ** Private methods
         *********/
+        /// <summary>Construct an instance.</summary>
+        /// <param name="createNewState">Create the initial state for a screen.</param>
+        /// <param name="nullExpected">Whether a null <paramref name="createNewState"/> value is expected.</param>
+        /// <remarks>This constructor only exists to maintain backwards compatibility. In SMAPI 4.0.0, the overload that passes <c>nullExpected: false</c> should throw an exception instead.</remarks>
+        private PerScreen(Func<T>? createNewState, bool nullExpected)
+        {
+            if (createNewState is null)
+            {
+                createNewState = (() => default!);
+
+                if (!nullExpected)
+                {
+                    SCore.DeprecationManager.Warn(
+                        SCore.DeprecationManager.GetSourceNameFromStack(),
+                        $"calling the {nameof(PerScreen<T>)} constructor with null",
+                        "3.14.0",
+                        DeprecationLevel.Notice
+                    );
+                }
+            }
+
+            this.CreateNewState = createNewState;
+        }
+
         /// <summary>Remove screens which are no longer active.</summary>
         private void RemoveDeadScreens()
         {
