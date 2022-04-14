@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Contracts;
 using System.Linq;
-using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Toolkit.Utilities;
-using StardewValley;
 
 namespace StardewModdingAPI.Framework.Content
 {
@@ -41,12 +39,10 @@ namespace StardewModdingAPI.Framework.Content
         ** Constructor
         ****/
         /// <summary>Construct an instance.</summary>
-        /// <param name="contentManager">The underlying content manager whose cache to manage.</param>
-        /// <param name="reflection">Simplifies access to private game code.</param>
-        public ContentCache(LocalizedContentManager contentManager, Reflector reflection)
+        /// <param name="loadedAssets">The asset cache for the underlying content manager.</param>
+        public ContentCache(Dictionary<string, object> loadedAssets)
         {
-            this.Cache = reflection.GetField<Dictionary<string, object>>(contentManager, "loadedAssets").GetValue()
-                ?? throw new InvalidOperationException("Can't initialize content cache: required field 'loadedAssets' is missing.");
+            this.Cache = loadedAssets;
         }
 
         /****

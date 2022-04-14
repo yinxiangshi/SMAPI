@@ -89,7 +89,8 @@ namespace StardewModdingAPI.Framework.ContentManagers
             // init
             this.Name = name;
             this.Coordinator = coordinator ?? throw new ArgumentNullException(nameof(coordinator));
-            this.Cache = new ContentCache(this, reflection);
+            // ReSharper disable once VirtualMemberCallInConstructor -- LoadedAssets isn't overridden by SMAPI or Stardew Valley
+            this.Cache = new ContentCache(this.LoadedAssets);
             this.Monitor = monitor ?? throw new ArgumentNullException(nameof(monitor));
             this.Reflection = reflection;
             this.OnDisposing = onDisposing;
