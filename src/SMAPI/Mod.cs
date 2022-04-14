@@ -49,6 +49,7 @@ namespace StardewModdingAPI
         /// <summary>Destruct the instance.</summary>
         ~Mod()
         {
+            (this.Helper as IDisposable)?.Dispose(); // deliberately do this outside overridable dispose method so mods don't accidentally suppress it
             this.Dispose(false);
         }
     }
