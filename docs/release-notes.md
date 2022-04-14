@@ -40,10 +40,12 @@ the C# mod that loads them is updated.
 * Major changes:
   * Added [content events](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Events#Content), which will replace `IAssetEditor` and `IAssetLoader` in SMAPI 4.0.0.  
     _These include new features not supported by the old API like load conflict resolution, edit priority, and content pack labels. They also support new cases like easily detecting when an asset has changed, and avoid data corruption issues in some edge cases._
+  * Added [nullable reference type annotations](https://stardewvalleywiki.com/Modding:Migrate_to_SMAPI_4.0#Nullable_reference_type_annotations) for all APIs.
   * Added `helper.GameContent` and `helper.ModContent`, which will replace `helper.Content` in SMAPI 4.0.0.
   * Overhauled [mod-provided API](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Integrations#Mod-provided_APIs) proxying (thanks to Shockah!).  
     _This adds support for many previously unsupported cases: proxied interfaces in return values or input arguments, proxied enums if their values match, generic methods, and more. Existing mod APIs should work fine as-is._
   * Mod files loaded through SMAPI APIs (including `helper.Content.Load`) are now case-insensitive, even on Linux.
+  * Enabled deprecation notices for all deprecated APIs. These will only be shown in `TRACE` logs for at least a month after SMAPI 3.14.0 releases.
 * Other improvements:
   * Added `IAssetDataForImage.ExtendMap` to resize maps in asset editors.
   * Added [command-line arguments](technical/smapi.md#command-line-arguments) to toggle developer mode (thanks to Tondorian!).
@@ -58,6 +60,7 @@ the C# mod that loads them is updated.
   * Fixed the `SDate` constructor being case-sensitive.
   * Fixed support for using locale codes from custom languages in asset names (e.g. `Data/Achievements.eo-EU`).
   * Fixed issue where suppressing `[Left|Right]Thumbstick[Down|Left]` keys would suppress the opposite direction instead.
+  * Fixed null handling in various edge cases.
 
 ## 3.13.4
 Released 16 January 2022 for Stardew Valley 1.5.6 or later.
