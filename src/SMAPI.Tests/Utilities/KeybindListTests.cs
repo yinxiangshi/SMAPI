@@ -21,12 +21,12 @@ namespace SMAPI.Tests.Utilities
         public void TryParse_SimpleValue(SButton button)
         {
             // act
-            bool success = KeybindList.TryParse($"{button}", out KeybindList parsed, out string[] errors);
+            bool success = KeybindList.TryParse($"{button}", out KeybindList? parsed, out string[] errors);
 
             // assert
             Assert.IsTrue(success, "Parsing unexpectedly failed.");
             Assert.IsNotNull(parsed, "The parsed result should not be null.");
-            Assert.AreEqual(parsed.ToString(), $"{button}");
+            Assert.AreEqual(parsed!.ToString(), $"{button}");
             Assert.IsNotNull(errors, message: "The errors should never be null.");
             Assert.IsEmpty(errors, message: "The input bindings incorrectly reported errors.");
         }
@@ -47,14 +47,14 @@ namespace SMAPI.Tests.Utilities
         public string TryParse_MultiValues(string? input)
         {
             // act
-            bool success = KeybindList.TryParse(input, out KeybindList parsed, out string[] errors);
+            bool success = KeybindList.TryParse(input, out KeybindList? parsed, out string[] errors);
 
             // assert
             Assert.IsTrue(success, "Parsing unexpectedly failed.");
             Assert.IsNotNull(parsed, "The parsed result should not be null.");
             Assert.IsNotNull(errors, message: "The errors should never be null.");
             Assert.IsEmpty(errors, message: "The input bindings incorrectly reported errors.");
-            return parsed.ToString();
+            return parsed!.ToString();
         }
 
         /// <summary>Assert invalid values are rejected.</summary>
@@ -67,7 +67,7 @@ namespace SMAPI.Tests.Utilities
         public void TryParse_InvalidValues(string input, string expectedError)
         {
             // act
-            bool success = KeybindList.TryParse(input, out KeybindList parsed, out string[] errors);
+            bool success = KeybindList.TryParse(input, out KeybindList? parsed, out string[] errors);
 
             // assert
             Assert.IsFalse(success, "Parsing unexpectedly succeeded.");

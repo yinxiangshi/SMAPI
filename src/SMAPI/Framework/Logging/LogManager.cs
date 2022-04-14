@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -95,6 +93,11 @@ namespace StardewModdingAPI.Framework.Logging
         /// <param name="getScreenIdForLog">Get the screen ID that should be logged to distinguish between players in split-screen mode, if any.</param>
         public LogManager(string logPath, ColorSchemeConfig colorConfig, bool writeToConsole, bool isVerbose, bool isDeveloperMode, Func<int?> getScreenIdForLog)
         {
+            // init fields
+            this.LogFile = new LogFileManager(logPath);
+            this.Monitor = this.GetMonitor("SMAPI");
+            this.MonitorForGame = this.GetMonitor("game");
+
             // init construction logic
             this.GetMonitorImpl = name => new Monitor(name, LogManager.IgnoreChar, this.LogFile, colorConfig, isVerbose, getScreenIdForLog)
             {
@@ -103,15 +106,13 @@ namespace StardewModdingAPI.Framework.Logging
                 ShowFullStampInConsole = isDeveloperMode
             };
 
-            // init fields
-            this.LogFile = new LogFileManager(logPath);
-            this.Monitor = this.GetMonitor("SMAPI");
-            this.MonitorForGame = this.GetMonitor("game");
-
             // redirect direct console output
-            this.ConsoleInterceptor = new InterceptingTextWriter(Console.Out);
-            if (writeToConsole)
-                this.ConsoleInterceptor.OnMessageIntercepted += message => this.HandleConsoleMessage(this.MonitorForGame, message);
+            this.ConsoleInterceptor = new InterceptingTextWriter(
+                output: Console.Out,
+                onMessageIntercepted: writeToConsole
+                    ? message => this.HandleConsoleMessage(this.MonitorForGame, message)
+                    : _ => { }
+            );
             Console.SetOut(this.ConsoleInterceptor);
 
             // enable Unicode handling on Windows
@@ -156,7 +157,7 @@ namespace StardewModdingAPI.Framework.Logging
                 while (true)
                 {
                     // get input
-                    string input = Console.ReadLine();
+                    string? input = Console.ReadLine();
                     if (string.IsNullOrWhiteSpace(input))
                         continue;
 
@@ -222,7 +223,7 @@ namespace StardewModdingAPI.Framework.Logging
             if (File.Exists(Constants.UpdateMarker))
             {
                 string[] rawUpdateFound = File.ReadAllText(Constants.UpdateMarker).Split(new[] { '|' }, 2);
-                if (SemanticVersion.TryParse(rawUpdateFound[0], out ISemanticVersion updateFound))
+                if (SemanticVersion.TryParse(rawUpdateFound[0], out ISemanticVersion? updateFound))
                 {
                     if (Constants.ApiVersion.IsPrerelease() && updateFound.IsNewerThan(Constants.ApiVersion))
                     {
@@ -264,7 +265,7 @@ namespace StardewModdingAPI.Framework.Logging
         /// <summary>Log the initial header with general SMAPI and system details.</summary>
         /// <param name="modsPath">The path from which mods will be loaded.</param>
         /// <param name="customSettings">The custom SMAPI settings.</param>
-        public void LogIntro(string modsPath, IDictionary<string, object> customSettings)
+        public void LogIntro(string modsPath, IDictionary<string, object?> customSettings)
         {
             // log platform
             this.Monitor.Log($"SMAPI {Constants.ApiVersion} with Stardew Valley {Constants.GameVersion} (build {Constants.GetBuildVersionLabel()}) on {EnvironmentUtility.GetFriendlyPlatformName(Constants.Platform)}", LogLevel.Info);
@@ -326,7 +327,7 @@ namespace StardewModdingAPI.Framework.Logging
             // log loaded content packs
             if (loadedContentPacks.Any())
             {
-                string GetModDisplayName(string id) => loadedMods.FirstOrDefault(p => p.HasID(id))?.DisplayName;
+                string? GetModDisplayName(string id) => loadedMods.FirstOrDefault(p => p.HasID(id))?.DisplayName;
 
                 this.Monitor.Log($"Loaded {loadedContentPacks.Length} content packs:", LogLevel.Info);
                 foreach (IModMetadata metadata in loadedContentPacks.OrderBy(p => p.DisplayName))
@@ -335,7 +336,7 @@ namespace StardewModdingAPI.Framework.Logging
                     this.Monitor.Log(
                         $"   {metadata.DisplayName} {manifest.Version}"
                         + (!string.IsNullOrWhiteSpace(manifest.Author) ? $" by {manifest.Author}" : "")
-                        + $" | for {GetModDisplayName(metadata.Manifest.ContentPackFor.UniqueID)}"
+                        + $" | for {GetModDisplayName(metadata.Manifest.ContentPackFor!.UniqueID)}"
                         + (!string.IsNullOrWhiteSpace(manifest.Description) ? $" | {manifest.Description}" : ""),
                         LogLevel.Info
                     );
@@ -398,6 +399,7 @@ namespace StardewModdingAPI.Framework.Logging
         /// <param name="mods">The loaded mods.</param>
         /// <param name="skippedMods">The mods which could not be loaded.</param>
         /// <param name="logParanoidWarnings">Whether to log issues for mods which directly use potentially sensitive .NET APIs like file or shell access.</param>
+        [SuppressMessage("ReSharper", "ConstantConditionalAccessQualifier", Justification = "Manifests aren't guaranteed non-null at this point in the loading process.")]
         private void LogModWarnings(IEnumerable<IModMetadata> mods, IModMetadata[] skippedMods, bool logParanoidWarnings)
         {
             // get mods with warnings
@@ -431,7 +433,7 @@ namespace StardewModdingAPI.Framework.Logging
                             // duplicate mod: log first one only, don't show redundant version
                             if (mod.FailReason == ModFailReason.Duplicate && mod.HasManifest())
                             {
-                                if (loggedDuplicateIds.Add(mod.Manifest.UniqueID))
+                                if (loggedDuplicateIds.Add(mod.Manifest!.UniqueID))
                                     continue; // already logged
 
                                 message = $"      - {mod.DisplayName} because {mod.Error}";
@@ -610,7 +612,7 @@ namespace StardewModdingAPI.Framework.Logging
         /// <param name="heading">A brief heading label for the group.</param>
         /// <param name="blurb">A detailed explanation of the warning, split into lines.</param>
         /// <param name="modLabel">Formats the mod label, or <c>null</c> to use the <see cref="IModMetadata.DisplayName"/>.</param>
-        private void LogModWarningGroup(IModMetadata[] mods, Func<IModMetadata, bool> match, LogLevel level, string heading, string[] blurb, Func<IModMetadata, string> modLabel = null)
+        private void LogModWarningGroup(IModMetadata[] mods, Func<IModMetadata, bool> match, LogLevel level, string heading, string[] blurb, Func<IModMetadata, string>? modLabel = null)
         {
             // get matching mods
             string[] modLabels = mods

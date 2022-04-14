@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,14 +36,14 @@ namespace StardewModdingAPI.Framework
         }
 
         /// <summary>Get the source name for a mod from its unique ID.</summary>
-        public string GetSourceNameFromStack()
+        public string? GetSourceNameFromStack()
         {
             return this.ModRegistry.GetFromStack()?.DisplayName;
         }
 
         /// <summary>Get the source name for a mod from its unique ID.</summary>
         /// <param name="modId">The mod's unique ID.</param>
-        public string GetSourceName(string modId)
+        public string? GetSourceName(string modId)
         {
             return this.ModRegistry.Get(modId)?.DisplayName;
         }
@@ -55,10 +53,12 @@ namespace StardewModdingAPI.Framework
         /// <param name="nounPhrase">A noun phrase describing what is deprecated.</param>
         /// <param name="version">The SMAPI version which deprecated it.</param>
         /// <param name="severity">How deprecated the code is.</param>
-        public void Warn(string source, string nounPhrase, string version, DeprecationLevel severity)
+        public void Warn(string? source, string nounPhrase, string version, DeprecationLevel severity)
         {
+            source ??= this.GetSourceNameFromStack() ?? "<unknown>";
+
             // ignore if already warned
-            if (!this.MarkWarned(source ?? this.GetSourceNameFromStack() ?? "<unknown>", nounPhrase, version))
+            if (!this.MarkWarned(source, nounPhrase, version))
                 return;
 
             // queue warning
@@ -99,17 +99,12 @@ namespace StardewModdingAPI.Framework
                 }
 
                 // log message
-                if (warning.ModName != null)
-                    this.Monitor.Log(message, level);
+                if (level == LogLevel.Trace)
+                    this.Monitor.Log($"{message}\n{warning.StackTrace}", level);
                 else
                 {
-                    if (level == LogLevel.Trace)
-                        this.Monitor.Log($"{message}\n{warning.StackTrace}", level);
-                    else
-                    {
-                        this.Monitor.Log(message, level);
-                        this.Monitor.Log(warning.StackTrace, LogLevel.Debug);
-                    }
+                    this.Monitor.Log(message, level);
+                    this.Monitor.Log(warning.StackTrace, LogLevel.Debug);
                 }
             }
 

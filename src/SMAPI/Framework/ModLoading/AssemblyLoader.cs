@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -96,7 +94,12 @@ namespace StardewModdingAPI.Framework.ModLoading
             // get referenced local assemblies
             AssemblyParseResult[] assemblies;
             {
-                HashSet<string> visitedAssemblyNames = new HashSet<string>(AppDomain.CurrentDomain.GetAssemblies().Select(p => p.GetName().Name)); // don't try loading assemblies that are already loaded
+                HashSet<string> visitedAssemblyNames = new HashSet<string>( // don't try loading assemblies that are already loaded
+                    from assembly in AppDomain.CurrentDomain.GetAssemblies()
+                    let name = assembly.GetName().Name
+                    where name != null
+                    select name
+                );
                 assemblies = this.GetReferencedLocalAssemblies(new FileInfo(assemblyPath), visitedAssemblyNames, this.AssemblyDefinitionResolver).ToArray();
             }
 
@@ -113,11 +116,11 @@ namespace StardewModdingAPI.Framework.ModLoading
 
             // rewrite & load assemblies in leaf-to-root order
             bool oneAssembly = assemblies.Length == 1;
-            Assembly lastAssembly = null;
+            Assembly? lastAssembly = null;
             HashSet<string> loggedMessages = new HashSet<string>();
             foreach (AssemblyParseResult assembly in assemblies)
             {
-                if (assembly.Status == AssemblyLoadStatus.AlreadyLoaded)
+                if (!assembly.HasDefinition)
                     continue;
 
                 // rewrite assembly
@@ -165,7 +168,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                 throw new IncompatibleInstructionException();
 
             // last assembly loaded is the root
-            return lastAssembly;
+            return lastAssembly!;
         }
 
         /// <summary>Get whether an assembly is loaded.</summary>
@@ -174,7 +177,8 @@ namespace StardewModdingAPI.Framework.ModLoading
         {
             try
             {
-                return this.AssemblyDefinitionResolver.Resolve(reference) != null;
+                _ = this.AssemblyDefinitionResolver.Resolve(reference);
+                return true;
             }
             catch (AssemblyResolutionException)
             {
@@ -190,7 +194,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// assemblies (especially with Mono). Since this is meant to be called on <see cref="AppDomain.AssemblyResolve"/>,
         /// the implicit assumption is that loading the exact assembly failed.
         /// </remarks>
-        public static Assembly ResolveAssembly(string name)
+        public static Assembly? ResolveAssembly(string name)
         {
             string shortName = name.Split(new[] { ',' }, 2).First(); // get simple name (without version and culture)
             return AppDomain.CurrentDomain
@@ -212,7 +216,8 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <summary>Track an object for disposal as part of the assembly loader.</summary>
         /// <typeparam name="T">The instance type.</typeparam>
         /// <param name="instance">The disposable instance.</param>
-        private T TrackForDisposal<T>(T instance) where T : IDisposable
+        private T TrackForDisposal<T>(T instance)
+            where T : IDisposable
         {
             this.Disposables.Add(instance);
             return instance;
@@ -321,9 +326,9 @@ namespace StardewModdingAPI.Framework.ModLoading
                     // rewrite types using custom attributes
                     foreach (TypeDefinition type in module.GetTypes())
                     {
-                        foreach (var attr in type.CustomAttributes)
+                        foreach (CustomAttribute attr in type.CustomAttributes)
                         {
-                            foreach (var conField in attr.ConstructorArguments)
+                            foreach (CustomAttributeArgument conField in attr.ConstructorArguments)
                             {
                                 if (conField.Value is TypeReference typeRef)
                                     this.ChangeTypeScope(typeRef);
@@ -382,7 +387,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         {
             // get message template
             // ($phrase is replaced with the noun phrase or messages)
-            string template = null;
+            string? template = null;
             switch (result)
             {
                 case InstructionHandleResult.Rewritten:
@@ -441,20 +446,20 @@ namespace StardewModdingAPI.Framework.ModLoading
             // format messages
             string phrase = handler.Phrases.Any()
                 ? string.Join(", ", handler.Phrases)
-                : handler.DefaultPhrase ?? handler.GetType().Name;
+                : handler.DefaultPhrase;
             this.Monitor.LogOnce(loggedMessages, template.Replace("$phrase", phrase));
         }
 
         /// <summary>Get the correct reference to use for compatibility with the current platform.</summary>
         /// <param name="type">The type reference to rewrite.</param>
-        private void ChangeTypeScope(TypeReference type)
+        private void ChangeTypeScope(TypeReference? type)
         {
             // check skip conditions
             if (type == null || type.FullName.StartsWith("System."))
                 return;
 
             // get assembly
-            if (!this.TypeAssemblies.TryGetValue(type.FullName, out Assembly assembly))
+            if (!this.TypeAssemblies.TryGetValue(type.FullName, out Assembly? assembly))
                 return;
 
             // replace scope

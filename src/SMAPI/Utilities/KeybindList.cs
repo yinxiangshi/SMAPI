@@ -50,7 +50,7 @@ namespace StardewModdingAPI.Utilities
         /// <param name="input">The keybind string. See remarks on <see cref="ToString"/> for format details.</param>
         /// <param name="parsed">The parsed keybind list, if valid.</param>
         /// <param name="errors">The errors that occurred while parsing the input, if any.</param>
-        public static bool TryParse(string input, [NotNullWhen(true)] out KeybindList? parsed, out string[] errors)
+        public static bool TryParse(string? input, [NotNullWhen(true)] out KeybindList? parsed, out string[] errors)
         {
             // empty input
             if (string.IsNullOrWhiteSpace(input))

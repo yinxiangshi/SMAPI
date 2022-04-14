@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 
 namespace StardewModdingAPI.Framework.ModHelpers
@@ -24,7 +22,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <param name="mod">The mod using this instance.</param>
         /// <param name="commandManager">Manages console commands.</param>
         public CommandHelper(IModMetadata mod, CommandManager commandManager)
-            : base(mod?.Manifest?.UniqueID ?? "SMAPI")
+            : base(mod.Manifest.UniqueID)
         {
             this.Mod = mod;
             this.CommandManager = commandManager;

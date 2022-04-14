@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,6 +41,9 @@ namespace StardewModdingAPI.Framework
         /// <param name="level">The log severity level.</param>
         public static void LogAsMod(this IModMetadata metadata, string message, LogLevel level = LogLevel.Trace)
         {
+            if (metadata.Monitor is null)
+                throw new InvalidOperationException($"Can't log as mod {metadata.DisplayName}: mod is broken or a content pack. Logged message:\n[{level}] {message}");
+
             metadata.Monitor.Log(message, level);
         }
 
@@ -52,7 +53,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="level">The log severity level.</param>
         public static void LogAsModOnce(this IModMetadata metadata, string message, LogLevel level = LogLevel.Trace)
         {
-            metadata.Monitor.LogOnce(message, level);
+            metadata.Monitor?.LogOnce(message, level);
         }
 
         /****
@@ -159,7 +160,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="reflection">The reflection helper with which to access private fields.</param>
         public static bool IsOpen(this SpriteBatch spriteBatch, Reflector reflection)
         {
-            return reflection.GetField<bool>(spriteBatch, "_beginCalled").GetValue();
+            return reflection.GetField<bool>(spriteBatch, "_beginCalled")!.GetValue();
         }
     }
 }

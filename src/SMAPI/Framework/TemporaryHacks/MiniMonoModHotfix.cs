@@ -1,5 +1,3 @@
-#nullable disable
-
 // This temporary utility fixes an esoteric issue in XNA Framework where deserialization depends on
 // the order of fields returned by Type.GetFields, but that order changes after Harmony/MonoMod use
 // reflection to access the fields due to an issue in .NET Framework.
@@ -7,15 +5,15 @@
 //
 // This will be removed when Harmony/MonoMod are updated to incorporate the fix.
 //
-// Special thanks to 0x0ade for submitting this worokaround! Copy/pasted and adapted from MonoMod.
+// Special thanks to 0x0ade for submitting this workaround! Copy/pasted and adapted from MonoMod.
 
 using System;
-using System.Reflection;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
+using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using HarmonyLib;
-using System.Reflection.Emit;
 
 // ReSharper disable once CheckNamespace -- Temporary hotfix submitted by the MonoMod author.
 namespace MonoMod.Utils
@@ -26,33 +24,33 @@ namespace MonoMod.Utils
     {
         // .NET Framework can break member ordering if using Module.Resolve* on certain members.
 
-        private static object[] _NoArgs = Array.Empty<object>();
-        private static object[] _CacheGetterArgs = { /* MemberListType.All */ 0, /* name apparently always null? */ null };
+        private static readonly object[] _NoArgs = Array.Empty<object>();
+        private static readonly object?[] _CacheGetterArgs = { /* MemberListType.All */ 0, /* name apparently always null? */ null };
 
-        private static Type t_RuntimeModule =
+        private static readonly Type? t_RuntimeModule =
             typeof(Module).Assembly
             .GetType("System.Reflection.RuntimeModule");
 
-        private static PropertyInfo p_RuntimeModule_RuntimeType =
+        private static readonly PropertyInfo? p_RuntimeModule_RuntimeType =
             typeof(Module).Assembly
             .GetType("System.Reflection.RuntimeModule")
             ?.GetProperty("RuntimeType", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
 
-        private static Type t_RuntimeType =
+        private static readonly Type? t_RuntimeType =
             typeof(Type).Assembly
             .GetType("System.RuntimeType");
 
-        private static PropertyInfo p_RuntimeType_Cache =
+        private static readonly PropertyInfo? p_RuntimeType_Cache =
             typeof(Type).Assembly
             .GetType("System.RuntimeType")
             ?.GetProperty("Cache", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
 
-        private static MethodInfo m_RuntimeTypeCache_GetFieldList =
+        private static readonly MethodInfo? m_RuntimeTypeCache_GetFieldList =
             typeof(Type).Assembly
             .GetType("System.RuntimeType+RuntimeTypeCache")
             ?.GetMethod("GetFieldList", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
 
-        private static MethodInfo m_RuntimeTypeCache_GetPropertyList =
+        private static readonly MethodInfo? m_RuntimeTypeCache_GetPropertyList =
             typeof(Type).Assembly
             .GetType("System.RuntimeType+RuntimeTypeCache")
             ?.GetMethod("GetPropertyList", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
@@ -65,37 +63,37 @@ namespace MonoMod.Utils
 
             harmony.Patch(
                 original: typeof(Harmony).Assembly
-                    .GetType("HarmonyLib.MethodBodyReader")
+                    .GetType("HarmonyLib.MethodBodyReader", throwOnError: true)!
                     .GetMethod("ReadOperand", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance),
                 transpiler: new HarmonyMethod(typeof(MiniMonoModHotfix), nameof(ResolveTokenFix))
             );
 
             harmony.Patch(
                 original: typeof(MonoMod.Utils.ReflectionHelper).Assembly
-                    .GetType("MonoMod.Utils.DynamicMethodDefinition+<>c__DisplayClass3_0")
+                    .GetType("MonoMod.Utils.DynamicMethodDefinition+<>c__DisplayClass3_0", throwOnError: true)!
                     .GetMethod("<_CopyMethodToDefinition>g__ResolveTokenAs|1", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance),
                 transpiler: new HarmonyMethod(typeof(MiniMonoModHotfix), nameof(ResolveTokenFix))
             );
 
         }
 
-        private static IEnumerable<CodeInstruction> ResolveTokenFix(IEnumerable<CodeInstruction> instrs)
+        private static IEnumerable<CodeInstruction> ResolveTokenFix(IEnumerable<CodeInstruction> instructions)
         {
-            MethodInfo getdecl = typeof(MiniMonoModHotfix).GetMethod(nameof(GetRealDeclaringType));
-            MethodInfo fixup = typeof(MiniMonoModHotfix).GetMethod(nameof(FixReflectionCache));
+            MethodInfo getRealDeclaringType = typeof(MiniMonoModHotfix).GetMethod(nameof(MiniMonoModHotfix.GetRealDeclaringType)) ?? throw new InvalidOperationException($"Can't get required method {nameof(MiniMonoModHotfix)}.{nameof(GetRealDeclaringType)}");
+            MethodInfo fixReflectionCache = typeof(MiniMonoModHotfix).GetMethod(nameof(MiniMonoModHotfix.FixReflectionCache)) ?? throw new InvalidOperationException($"Can't get required method {nameof(MiniMonoModHotfix)}.{nameof(FixReflectionCache)}");
 
-            foreach (CodeInstruction instr in instrs)
+            foreach (CodeInstruction instruction in instructions)
             {
-                yield return instr;
+                yield return instruction;
 
-                if (instr.operand is MethodInfo called)
+                if (instruction.operand is MethodInfo called)
                 {
                     switch (called.Name)
                     {
                         case "ResolveType":
                             // type.FixReflectionCache();
                             yield return new CodeInstruction(OpCodes.Dup);
-                            yield return new CodeInstruction(OpCodes.Call, fixup);
+                            yield return new CodeInstruction(OpCodes.Call, fixReflectionCache);
                             break;
 
                         case "ResolveMember":
@@ -103,15 +101,15 @@ namespace MonoMod.Utils
                         case "ResolveField":
                             // member.GetRealDeclaringType().FixReflectionCache();
                             yield return new CodeInstruction(OpCodes.Dup);
-                            yield return new CodeInstruction(OpCodes.Call, getdecl);
-                            yield return new CodeInstruction(OpCodes.Call, fixup);
+                            yield return new CodeInstruction(OpCodes.Call, getRealDeclaringType);
+                            yield return new CodeInstruction(OpCodes.Call, fixReflectionCache);
                             break;
                     }
                 }
             }
         }
 
-        public static Type GetModuleType(this Module module)
+        public static Type? GetModuleType(this Module? module)
         {
             // Sadly we can't blindly resolve type 0x02000001 as the runtime throws ArgumentException.
 
@@ -120,22 +118,21 @@ namespace MonoMod.Utils
 
             // .NET
             if (p_RuntimeModule_RuntimeType != null)
-                return (Type)p_RuntimeModule_RuntimeType.GetValue(module, _NoArgs);
+                return (Type?)p_RuntimeModule_RuntimeType.GetValue(module, _NoArgs);
 
             // The hotfix doesn't apply to Mono anyway, thus that's not copied over.
 
             return null;
         }
 
-        public static Type GetRealDeclaringType(this MemberInfo member)
-            => member.DeclaringType ?? member.Module.GetModuleType();
-
-        public static void FixReflectionCache(this Type type)
+        public static Type? GetRealDeclaringType(this MemberInfo member)
         {
-            if (t_RuntimeType == null ||
-                p_RuntimeType_Cache == null ||
-                m_RuntimeTypeCache_GetFieldList == null ||
-                m_RuntimeTypeCache_GetPropertyList == null)
+            return member.DeclaringType ?? member.Module.GetModuleType();
+        }
+
+        public static void FixReflectionCache(this Type? type)
+        {
+            if (t_RuntimeType == null || p_RuntimeType_Cache == null || m_RuntimeTypeCache_GetFieldList == null || m_RuntimeTypeCache_GetPropertyList == null)
                 return;
 
             for (; type != null; type = type.DeclaringType)
@@ -145,21 +142,17 @@ namespace MonoMod.Utils
                 if (!t_RuntimeType.IsInstanceOfType(type))
                     continue;
 
-                CacheFixEntry entry = _CacheFixed.GetValue(type, rt => {
-                    CacheFixEntry entryNew = new();
-                    object cache;
-                    Array properties, fields;
-
+                CacheFixEntry entry = _CacheFixed.GetValue(type, rt =>
+                {
                     // All RuntimeTypes MUST have a cache, the getter is non-virtual, it creates on demand and asserts non-null.
-                    entryNew.Cache = cache = p_RuntimeType_Cache.GetValue(rt, _NoArgs);
-                    entryNew.Properties = properties = _GetArray(cache, m_RuntimeTypeCache_GetPropertyList);
-                    entryNew.Fields = fields = _GetArray(cache, m_RuntimeTypeCache_GetFieldList);
+                    object cache = MiniMonoModHotfix.p_RuntimeType_Cache.GetValue(rt, MiniMonoModHotfix._NoArgs)!;
+                    Array properties = MiniMonoModHotfix._GetArray(cache, MiniMonoModHotfix.m_RuntimeTypeCache_GetPropertyList);
+                    Array fields = MiniMonoModHotfix._GetArray(cache, MiniMonoModHotfix.m_RuntimeTypeCache_GetFieldList);
 
                     _FixReflectionCacheOrder<PropertyInfo>(properties);
                     _FixReflectionCacheOrder<FieldInfo>(fields);
 
-                    entryNew.NeedsVerify = false;
-                    return entryNew;
+                    return new CacheFixEntry(cache, properties, fields, needsVerify: false);
                 });
 
                 if (entry.NeedsVerify && !_Verify(entry, type))
@@ -177,44 +170,43 @@ namespace MonoMod.Utils
 
         private static bool _Verify(CacheFixEntry entry, Type type)
         {
-            object cache;
-            Array properties, fields;
-
             // The cache can sometimes be invalidated.
             // TODO: Figure out if only the arrays get replaced or if the entire cache object gets replaced!
-            if (entry.Cache != (cache = p_RuntimeType_Cache.GetValue(type, _NoArgs)))
+            object cache = p_RuntimeType_Cache!.GetValue(type, _NoArgs)!;
+            if (entry.Cache != cache)
             {
                 entry.Cache = cache;
-                entry.Properties = _GetArray(cache, m_RuntimeTypeCache_GetPropertyList);
-                entry.Fields = _GetArray(cache, m_RuntimeTypeCache_GetFieldList);
+                entry.Properties = _GetArray(cache, m_RuntimeTypeCache_GetPropertyList!);
+                entry.Fields = _GetArray(cache, m_RuntimeTypeCache_GetFieldList!);
                 return false;
 
             }
-            else if (entry.Properties != (properties = _GetArray(cache, m_RuntimeTypeCache_GetPropertyList)))
+
+            Array properties = _GetArray(cache, m_RuntimeTypeCache_GetPropertyList!);
+            if (entry.Properties != properties)
             {
                 entry.Properties = properties;
-                entry.Fields = _GetArray(cache, m_RuntimeTypeCache_GetFieldList);
+                entry.Fields = _GetArray(cache, m_RuntimeTypeCache_GetFieldList!);
                 return false;
-
             }
-            else if (entry.Fields != (fields = _GetArray(cache, m_RuntimeTypeCache_GetFieldList)))
+
+            Array fields = _GetArray(cache, m_RuntimeTypeCache_GetFieldList!);
+            if (entry.Fields != fields)
             {
                 entry.Fields = fields;
                 return false;
 
             }
-            else
-            {
-                // Cache should still be the same, no re-fix necessary.
-                return true;
-            }
+
+            // Cache should still be the same, no re-fix necessary.
+            return true;
         }
 
         private static Array _GetArray(object cache, MethodInfo getter)
         {
             // Get and discard once, otherwise we might not be getting the actual backing array.
             getter.Invoke(cache, _CacheGetterArgs);
-            return (Array)getter.Invoke(cache, _CacheGetterArgs);
+            return (Array)getter.Invoke(cache, _CacheGetterArgs)!;
         }
 
         private static void _FixReflectionCacheOrder<T>(Array orig) where T : MemberInfo
@@ -222,7 +214,7 @@ namespace MonoMod.Utils
             // Sort using a short-lived list.
             List<T> list = new List<T>(orig.Length);
             for (int i = 0; i < orig.Length; i++)
-                list.Add((T)orig.GetValue(i));
+                list.Add((T)orig.GetValue(i)!);
 
             list.Sort((a, b) => a.MetadataToken - b.MetadataToken);
 
@@ -232,10 +224,18 @@ namespace MonoMod.Utils
 
         private class CacheFixEntry
         {
-            public object Cache;
+            public object? Cache;
             public Array Properties;
             public Array Fields;
             public bool NeedsVerify;
+
+            public CacheFixEntry(object? cache, Array properties, Array fields, bool needsVerify)
+            {
+                this.Cache = cache;
+                this.Properties = properties;
+                this.Fields = fields;
+                this.NeedsVerify = needsVerify;
+            }
         }
     }
 }

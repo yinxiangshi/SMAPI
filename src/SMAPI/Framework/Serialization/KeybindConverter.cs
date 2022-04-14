@@ -53,13 +53,13 @@ namespace StardewModdingAPI.Framework.Serialization
 
                         if (objectType == typeof(Keybind))
                         {
-                            return Keybind.TryParse(str, out Keybind parsed, out string[] errors)
+                            return Keybind.TryParse(str, out Keybind? parsed, out string[] errors)
                                 ? parsed
                                 : throw new SParseException($"Can't parse {nameof(Keybind)} from invalid value '{str}' (path: {path}).\n{string.Join("\n", errors)}");
                         }
                         else
                         {
-                            return KeybindList.TryParse(str, out KeybindList parsed, out string[] errors)
+                            return KeybindList.TryParse(str, out KeybindList? parsed, out string[] errors)
                                 ? parsed
                                 : throw new SParseException($"Can't parse {nameof(KeybindList)} from invalid value '{str}' (path: {path}).\n{string.Join("\n", errors)}");
                         }

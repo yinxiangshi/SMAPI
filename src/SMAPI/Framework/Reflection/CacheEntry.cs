@@ -1,5 +1,4 @@
-#nullable disable
-
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace StardewModdingAPI.Framework.Reflection
@@ -11,21 +10,20 @@ namespace StardewModdingAPI.Framework.Reflection
         ** Accessors
         *********/
         /// <summary>Whether the lookup found a valid match.</summary>
-        public bool IsValid { get; }
+        [MemberNotNullWhen(true, nameof(CacheEntry.MemberInfo))]
+        public bool IsValid => this.MemberInfo != null;
 
         /// <summary>The reflection data for this member (or <c>null</c> if invalid).</summary>
-        public MemberInfo MemberInfo { get; }
+        public MemberInfo? MemberInfo { get; }
 
 
         /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="isValid">Whether the lookup found a valid match.</param>
         /// <param name="memberInfo">The reflection data for this member (or <c>null</c> if invalid).</param>
-        public CacheEntry(bool isValid, MemberInfo memberInfo)
+        public CacheEntry(MemberInfo? memberInfo)
         {
-            this.IsValid = isValid;
             this.MemberInfo = memberInfo;
         }
     }

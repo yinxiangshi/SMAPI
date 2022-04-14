@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using StardewModdingAPI.Toolkit.Utilities;
 using StardewValley;
@@ -26,7 +24,7 @@ namespace StardewModdingAPI.Framework.Content
         public string BaseName { get; }
 
         /// <inheritdoc />
-        public string LocaleCode { get; }
+        public string? LocaleCode { get; }
 
         /// <inheritdoc />
         public LocalizedContentManager.LanguageCode? LanguageCode { get; }
@@ -39,7 +37,7 @@ namespace StardewModdingAPI.Framework.Content
         /// <param name="baseName">The base asset name without the locale code.</param>
         /// <param name="localeCode">The locale code specified in the <see cref="Name"/>, if it's a valid code recognized by the game content.</param>
         /// <param name="languageCode">The language code matching the <see cref="LocaleCode"/>, if applicable.</param>
-        public AssetName(string baseName, string localeCode, LocalizedContentManager.LanguageCode? languageCode)
+        public AssetName(string baseName, string? localeCode, LocalizedContentManager.LanguageCode? languageCode)
         {
             // validate
             if (string.IsNullOrWhiteSpace(baseName))
@@ -69,7 +67,7 @@ namespace StardewModdingAPI.Framework.Content
                 throw new ArgumentException("The asset name can't be null or empty.", nameof(rawName));
 
             string baseName = rawName;
-            string localeCode = null;
+            string? localeCode = null;
             LocalizedContentManager.LanguageCode? languageCode = null;
 
             int lastPeriodIndex = rawName.LastIndexOf('.');
@@ -90,7 +88,7 @@ namespace StardewModdingAPI.Framework.Content
         }
 
         /// <inheritdoc />
-        public bool IsEquivalentTo(string assetName, bool useBaseName = false)
+        public bool IsEquivalentTo(string? assetName, bool useBaseName = false)
         {
             // empty asset key is never equivalent
             if (string.IsNullOrWhiteSpace(assetName))
@@ -103,7 +101,7 @@ namespace StardewModdingAPI.Framework.Content
         }
 
         /// <inheritdoc />
-        public bool IsEquivalentTo(IAssetName assetName, bool useBaseName = false)
+        public bool IsEquivalentTo(IAssetName? assetName, bool useBaseName = false)
         {
             if (useBaseName)
                 return this.BaseName.Equals(assetName?.BaseName, StringComparison.OrdinalIgnoreCase);
@@ -115,7 +113,7 @@ namespace StardewModdingAPI.Framework.Content
         }
 
         /// <inheritdoc />
-        public bool StartsWith(string prefix, bool allowPartialWord = true, bool allowSubfolder = true)
+        public bool StartsWith(string? prefix, bool allowPartialWord = true, bool allowSubfolder = true)
         {
             // asset keys never start with null
             if (prefix is null)
@@ -157,8 +155,11 @@ namespace StardewModdingAPI.Framework.Content
 
 
         /// <inheritdoc />
-        public bool IsDirectlyUnderPath(string assetFolder)
+        public bool IsDirectlyUnderPath(string? assetFolder)
         {
+            if (assetFolder is null)
+                return false;
+
             return this.StartsWith(assetFolder + "/", allowPartialWord: false, allowSubfolder: false);
         }
 
@@ -171,7 +172,7 @@ namespace StardewModdingAPI.Framework.Content
         }
 
         /// <inheritdoc />
-        public bool Equals(IAssetName other)
+        public bool Equals(IAssetName? other)
         {
             return other switch
             {

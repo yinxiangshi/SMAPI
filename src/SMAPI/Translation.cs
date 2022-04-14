@@ -96,7 +96,7 @@ namespace StardewModdingAPI
             {
                 string key = match.Groups[1].Value.Trim();
                 return tokenLookup.TryGetValue(key, out string? value)
-                    ? value
+                    ? (value ?? "")
                     : match.Value;
             });
             return new Translation(this.Locale, this.Key, text);

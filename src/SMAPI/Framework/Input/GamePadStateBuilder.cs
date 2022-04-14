@@ -1,6 +1,5 @@
-#nullable disable
-
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
@@ -23,7 +22,7 @@ namespace StardewModdingAPI.Framework.Input
         private GamePadState? State;
 
         /// <summary>The current button states.</summary>
-        private readonly IDictionary<SButton, ButtonState> ButtonStates;
+        private readonly IDictionary<SButton, ButtonState>? ButtonStates;
 
         /// <summary>The left trigger value.</summary>
         private float LeftTrigger;
@@ -42,6 +41,7 @@ namespace StardewModdingAPI.Framework.Input
         ** Accessors
         *********/
         /// <summary>Whether the gamepad is currently connected.</summary>
+        [MemberNotNullWhen(true, nameof(GamePadStateBuilder.ButtonStates))]
         public bool IsConnected { get; }
 
 
@@ -213,6 +213,9 @@ namespace StardewModdingAPI.Framework.Input
         /// <summary>Get the pressed gamepad buttons.</summary>
         private IEnumerable<Buttons> GetPressedGamePadButtons()
         {
+            if (!this.IsConnected)
+                yield break;
+
             foreach (var pair in this.ButtonStates)
             {
                 if (pair.Value == ButtonState.Pressed && pair.Key.TryGetController(out Buttons button))

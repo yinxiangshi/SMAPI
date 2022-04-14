@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,7 +33,7 @@ namespace StardewModdingAPI.Framework.Content
         /// <param name="getNormalizedPath">Normalizes an asset key to match the cache key.</param>
         /// <param name="onDataReplaced">A callback to invoke when the data is replaced (if any).</param>
         /// <param name="reflection">Simplifies access to private code.</param>
-        public AssetDataForMap(string locale, IAssetName assetName, Map data, Func<string, string> getNormalizedPath, Action<Map> onDataReplaced, Reflector reflection)
+        public AssetDataForMap(string? locale, IAssetName assetName, Map data, Func<string, string> getNormalizedPath, Action<Map> onDataReplaced, Reflector reflection)
             : base(locale, assetName, data, getNormalizedPath, onDataReplaced)
         {
             this.Reflection = reflection;
@@ -126,8 +124,7 @@ namespace StardewModdingAPI.Framework.Content
                     foreach (Layer sourceLayer in source.Layers)
                     {
                         // get layer
-                        Layer targetLayer = sourceToTargetLayers[sourceLayer];
-                        if (targetLayer == null)
+                        if (!sourceToTargetLayers.TryGetValue(sourceLayer, out Layer? targetLayer))
                         {
                             target.AddLayer(targetLayer = new Layer(sourceLayer.Id, target, target.Layers[0].LayerSize, Layer.m_tileSize));
                             sourceToTargetLayers[sourceLayer] = target.GetLayer(sourceLayer.Id);
@@ -137,11 +134,13 @@ namespace StardewModdingAPI.Framework.Content
                         targetLayer.Properties.CopyFrom(sourceLayer.Properties);
 
                         // create new tile
-                        Tile sourceTile = sourceLayer.Tiles[sourcePos.X, sourcePos.Y];
-                        Tile newTile = sourceTile != null
-                            ? this.CreateTile(sourceTile, targetLayer, tilesheetMap[sourceTile.TileSheet])
-                            : null;
-                        newTile?.Properties.CopyFrom(sourceTile.Properties);
+                        Tile? sourceTile = sourceLayer.Tiles[sourcePos.X, sourcePos.Y];
+                        Tile? newTile = null;
+                        if (sourceTile != null)
+                        {
+                            newTile = this.CreateTile(sourceTile, targetLayer, tilesheetMap[sourceTile.TileSheet]);
+                            newTile?.Properties.CopyFrom(sourceTile.Properties);
+                        }
 
                         // replace tile
                         if (newTile != null || replaceByLayer || replaceAll)
@@ -195,7 +194,7 @@ namespace StardewModdingAPI.Framework.Content
         /// <param name="sourceTile">The source tile to copy.</param>
         /// <param name="targetLayer">The target layer.</param>
         /// <param name="targetSheet">The target tilesheet.</param>
-        private Tile CreateTile(Tile sourceTile, Layer targetLayer, TileSheet targetSheet)
+        private Tile? CreateTile(Tile sourceTile, Layer targetLayer, TileSheet targetSheet)
         {
             switch (sourceTile)
             {
@@ -220,7 +219,7 @@ namespace StardewModdingAPI.Framework.Content
         }
         /// <summary>Normalize a map tilesheet path for comparison. This value should *not* be used as the actual tilesheet path.</summary>
         /// <param name="path">The path to normalize.</param>
-        private string NormalizeTilesheetPathForComparison(string path)
+        private string NormalizeTilesheetPathForComparison(string? path)
         {
             if (string.IsNullOrWhiteSpace(path))
                 return string.Empty;

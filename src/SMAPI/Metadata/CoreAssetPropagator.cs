@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -712,7 +710,7 @@ namespace StardewModdingAPI.Metadata
             bool isPaintMask = assetName.BaseName.EndsWith(paintMaskSuffix, StringComparison.OrdinalIgnoreCase);
 
             // get building type
-            string type = Path.GetFileName(assetName.BaseName)!;
+            string type = Path.GetFileName(assetName.BaseName);
             if (isPaintMask)
                 type = type.Substring(0, type.Length - paintMaskSuffix.Length);
 
@@ -749,7 +747,7 @@ namespace StardewModdingAPI.Metadata
 
             if (!ignoreWorld)
             {
-                foreach (var location in this.GetLocations())
+                foreach (GameLocation location in this.GetLocations())
                 {
                     foreach (MapSeat seat in location.mapSeats.Where(p => p != null))
                     {
@@ -783,7 +781,7 @@ namespace StardewModdingAPI.Metadata
 
             // update sprites
             Texture2D texture = content.Load<Texture2D>(assetName.BaseName);
-            foreach (var entry in critters)
+            foreach (Critter entry in critters)
                 entry.sprite.spriteTexture = texture;
 
             return critters.Length;
@@ -799,16 +797,16 @@ namespace StardewModdingAPI.Metadata
 
             foreach (GameLocation location in this.GetLocations())
             {
-                IEnumerable<InteriorDoor> doors = location.interiorDoors?.Doors;
+                IEnumerable<InteriorDoor?>? doors = location.interiorDoors?.Doors;
                 if (doors == null)
                     continue;
 
-                foreach (InteriorDoor door in doors)
+                foreach (InteriorDoor? door in doors)
                 {
                     if (door?.Sprite == null)
                         continue;
 
-                    string curKey = this.Reflection.GetField<string>(door.Sprite, "textureName").GetValue();
+                    string? curKey = this.Reflection.GetField<string>(door.Sprite, "textureName").GetValue();
                     if (this.IsSameBaseName(assetName, curKey))
                         door.Sprite.texture = texture.Value;
                 }
@@ -933,7 +931,7 @@ namespace StardewModdingAPI.Metadata
             // warping onto the wrong tile (or even off-screen) if a patch changes the farmhouse
             // map on location change.
             if (playerPos.HasValue)
-                Game1.player.Position = playerPos.Value;
+                Game1.player!.Position = playerPos.Value;
         }
 
         /// <summary>Reload the disposition data for matching NPCs.</summary>
@@ -1003,7 +1001,11 @@ namespace StardewModdingAPI.Metadata
                 {
                     GameLocation adventureGuild = Game1.getLocationFromName("AdventureGuild");
                     if (adventureGuild != null)
-                        characters.Add(new { Npc = this.Reflection.GetField<NPC>(adventureGuild, "Gil").GetValue(), AssetName = gilKey });
+                    {
+                        NPC? gil = this.Reflection.GetField<NPC>(adventureGuild, "Gil").GetValue();
+                        if (gil != null)
+                            characters.Add(new { Npc = gil, AssetName = gilKey });
+                    }
                 }
             }
 
@@ -1029,7 +1031,7 @@ namespace StardewModdingAPI.Metadata
 
             foreach (Farmer player in players)
             {
-                this.Reflection.GetField<Dictionary<string, Dictionary<int, List<int>>>>(typeof(FarmerRenderer), "_recolorOffsets").GetValue().Remove(player.getTexture());
+                this.Reflection.GetField<Dictionary<string, Dictionary<int, List<int>>>>(typeof(FarmerRenderer), "_recolorOffsets").GetValue()?.Remove(player.getTexture());
                 player.FarmerRenderer.MarkSpriteDirty();
             }
 
@@ -1048,11 +1050,12 @@ namespace StardewModdingAPI.Metadata
             {
                 // get suspension bridges field
                 var field = this.Reflection.GetField<IEnumerable<SuspensionBridge>>(location, nameof(IslandNorth.suspensionBridges), required: false);
+                // ReSharper disable once ConditionIsAlwaysTrueOrFalse -- field is nullable when required: false
                 if (field == null || !typeof(IEnumerable<SuspensionBridge>).IsAssignableFrom(field.FieldInfo.FieldType))
                     continue;
 
                 // update textures
-                foreach (SuspensionBridge bridge in field.GetValue())
+                foreach (SuspensionBridge bridge in field.GetValue()!)
                     this.Reflection.GetField<Texture2D>(bridge, "_texture").SetValue(texture.Value);
             }
 
@@ -1158,7 +1161,7 @@ namespace StardewModdingAPI.Metadata
             Game1.samBandName = content.LoadString("Strings/StringsFromCSFiles:Game1.cs.2156");
             Game1.elliottBookName = content.LoadString("Strings/StringsFromCSFiles:Game1.cs.2157");
 
-            string[] dayNames = this.Reflection.GetField<string[]>(typeof(Game1), "_shortDayDisplayName").GetValue();
+            string[] dayNames = this.Reflection.GetField<string[]>(typeof(Game1), "_shortDayDisplayName").GetValue()!;
             dayNames[0] = content.LoadString("Strings/StringsFromCSFiles:Game1.cs.3042");
             dayNames[1] = content.LoadString("Strings/StringsFromCSFiles:Game1.cs.3043");
             dayNames[2] = content.LoadString("Strings/StringsFromCSFiles:Game1.cs.3044");
@@ -1227,7 +1230,7 @@ namespace StardewModdingAPI.Metadata
                 {
                     foreach (Building building in buildableLocation.buildings)
                     {
-                        GameLocation indoors = building.indoors.Value;
+                        GameLocation? indoors = building.indoors.Value;
                         if (indoors != null)
                             yield return new LocationInfo(indoors, building);
                     }
@@ -1238,19 +1241,19 @@ namespace StardewModdingAPI.Metadata
         /// <summary>Get whether two asset names are equivalent if you ignore the locale code.</summary>
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
-        private bool IsSameBaseName(IAssetName left, string right)
+        private bool IsSameBaseName(IAssetName? left, string? right)
         {
             if (left is null || right is null)
                 return false;
 
-            IAssetName parsedB = this.ParseAssetNameOrNull(right);
+            IAssetName? parsedB = this.ParseAssetNameOrNull(right);
             return this.IsSameBaseName(left, parsedB);
         }
 
         /// <summary>Get whether two asset names are equivalent if you ignore the locale code.</summary>
         /// <param name="left">The first value to compare.</param>
         /// <param name="right">The second value to compare.</param>
-        private bool IsSameBaseName(IAssetName left, IAssetName right)
+        private bool IsSameBaseName(IAssetName? left, IAssetName? right)
         {
             if (left is null || right is null)
                 return false;
@@ -1260,7 +1263,7 @@ namespace StardewModdingAPI.Metadata
 
         /// <summary>Normalize an asset key to match the cache key and assert that it's valid, but don't raise an error for null or empty values.</summary>
         /// <param name="path">The asset key to normalize.</param>
-        private IAssetName ParseAssetNameOrNull(string path)
+        private IAssetName? ParseAssetNameOrNull(string? path)
         {
             if (string.IsNullOrWhiteSpace(path))
                 return null;
@@ -1270,7 +1273,7 @@ namespace StardewModdingAPI.Metadata
 
         /// <summary>Get the segments in a path (e.g. 'a/b' is 'a' and 'b').</summary>
         /// <param name="path">The path to check.</param>
-        private string[] GetSegments(string path)
+        private string[] GetSegments(string? path)
         {
             return path != null
                 ? PathUtilities.GetSegments(path)
@@ -1280,7 +1283,7 @@ namespace StardewModdingAPI.Metadata
         /// <summary>Load a texture, and dispose the old one if <see cref="AggressiveMemoryOptimizations"/> is enabled and it's different from the new instance.</summary>
         /// <param name="oldTexture">The previous texture to dispose.</param>
         /// <param name="key">The asset key to load.</param>
-        private Texture2D LoadAndDisposeIfNeeded(Texture2D oldTexture, string key)
+        private Texture2D LoadAndDisposeIfNeeded(Texture2D? oldTexture, string key)
         {
             // if aggressive memory optimizations are enabled, load the asset from the disposable
             // content manager and dispose the old instance if needed.
@@ -1322,7 +1325,7 @@ namespace StardewModdingAPI.Metadata
             public GameLocation Location { get; }
 
             /// <summary>The building which contains the location, if any.</summary>
-            public Building ParentBuilding { get; }
+            public Building? ParentBuilding { get; }
 
 
             /*********
@@ -1331,7 +1334,7 @@ namespace StardewModdingAPI.Metadata
             /// <summary>Construct an instance.</summary>
             /// <param name="location">The location instance.</param>
             /// <param name="parentBuilding">The building which contains the location, if any.</param>
-            public LocationInfo(GameLocation location, Building parentBuilding)
+            public LocationInfo(GameLocation location, Building? parentBuilding)
             {
                 this.Location = location;
                 this.ParentBuilding = parentBuilding;

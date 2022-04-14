@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -99,11 +97,13 @@ namespace StardewModdingAPI.Framework.ContentManagers
             this.AggressiveMemoryOptimizations = aggressiveMemoryOptimizations;
 
             // get asset data
-            this.BaseDisposableReferences = reflection.GetField<List<IDisposable>>(this, "disposableAssets").GetValue();
+            this.BaseDisposableReferences = reflection.GetField<List<IDisposable>>(this, "disposableAssets").GetValue()
+                ?? throw new InvalidOperationException("Can't initialize content manager: the required 'disposableAssets' field wasn't found.");
         }
 
         /// <inheritdoc />
         public virtual bool DoesAssetExist<T>(IAssetName assetName)
+            where T : notnull
         {
             return this.Cache.ContainsKey(assetName.Name);
         }
@@ -131,6 +131,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
 
         /// <inheritdoc />
         public T LoadLocalized<T>(IAssetName assetName, LanguageCode language, bool useCache)
+            where T : notnull
         {
             // ignore locale in English (or if disabled)
             if (!this.TryLocalizeKeys || language == LocalizedContentManager.LanguageCode.en)
@@ -172,11 +173,12 @@ namespace StardewModdingAPI.Framework.ContentManagers
         }
 
         /// <inheritdoc />
-        public abstract T LoadExact<T>(IAssetName assetName, bool useCache);
+        public abstract T LoadExact<T>(IAssetName assetName, bool useCache)
+            where T : notnull;
 
         /// <inheritdoc />
         [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local", Justification = "Parameter is only used for assertion checks by design.")]
-        public string AssertAndNormalizeAssetName(string assetName)
+        public string AssertAndNormalizeAssetName(string? assetName)
         {
             // NOTE: the game checks for ContentLoadException to handle invalid keys, so avoid
             // throwing other types like ArgumentException here.
@@ -253,7 +255,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             // dispose uncached assets
             foreach (WeakReference<IDisposable> reference in this.Disposables)
             {
-                if (reference.TryGetTarget(out IDisposable disposable))
+                if (reference.TryGetTarget(out IDisposable? disposable))
                 {
                     try
                     {
@@ -285,7 +287,8 @@ namespace StardewModdingAPI.Framework.ContentManagers
         *********/
         /// <summary>Apply initial normalization to a raw asset name before it's parsed.</summary>
         /// <param name="assetName">The asset name to normalize.</param>
-        private string PrenormalizeRawAssetName(string assetName)
+        [return: NotNullIfNotNull("assetName")]
+        private string? PrenormalizeRawAssetName(string? assetName)
         {
             // trim
             assetName = assetName?.Trim();
@@ -301,7 +304,8 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <summary>Normalize path separators in a file path. For asset keys, see <see cref="AssertAndNormalizeAssetName"/> instead.</summary>
         /// <param name="path">The file path to normalize.</param>
         [Pure]
-        protected string NormalizePathSeparators(string path)
+        [return: NotNullIfNotNull("path")]
+        protected string? NormalizePathSeparators(string? path)
         {
             return this.Cache.NormalizePathSeparators(path);
         }
@@ -323,6 +327,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <param name="value">The asset value.</param>
         /// <param name="useCache">Whether to save the asset to the asset cache.</param>
         protected virtual void TrackAsset<T>(IAssetName assetName, T value, bool useCache)
+            where T : notnull
         {
             // track asset key
             if (value is Texture2D texture)

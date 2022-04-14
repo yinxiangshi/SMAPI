@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -33,13 +31,19 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         /// <param name="toFieldName">The new field name to reference.</param>
         public FieldReplaceRewriter AddField(Type fromType, string fromFieldName, Type toType, string toFieldName)
         {
+            // validate parameters
+            if (fromType == null)
+                throw new InvalidOperationException("Can't replace a field on a null source type.");
+            if (toType == null)
+                throw new InvalidOperationException("Can't replace a field on a null target type.");
+
             // get full type name
-            string fromTypeName = fromType?.FullName;
+            string? fromTypeName = fromType.FullName;
             if (fromTypeName == null)
                 throw new InvalidOperationException($"Can't replace field for invalid type reference {toType}.");
 
             // get target field
-            FieldInfo toField = toType.GetField(toFieldName);
+            FieldInfo? toField = toType.GetField(toFieldName);
             if (toField == null)
                 throw new InvalidOperationException($"The {toType.FullName} class doesn't have a {toFieldName} field.");
 
@@ -54,15 +58,15 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         /// <inheritdoc />
         public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction)
         {
-            FieldReference fieldRef = RewriteHelper.AsFieldReference(instruction);
-            string declaringType = fieldRef?.DeclaringType?.FullName;
+            FieldReference? fieldRef = RewriteHelper.AsFieldReference(instruction);
+            string? declaringType = fieldRef?.DeclaringType?.FullName;
 
             // get mapped field
-            if (declaringType == null || !this.FieldMaps.TryGetValue(declaringType, out var fieldMap) || !fieldMap.TryGetValue(fieldRef.Name, out FieldInfo toField))
+            if (declaringType == null || !this.FieldMaps.TryGetValue(declaringType, out var fieldMap) || !fieldMap.TryGetValue(fieldRef!.Name, out FieldInfo? toField))
                 return false;
 
             // replace with new field
-            this.Phrases.Add($"{fieldRef.DeclaringType.Name}.{fieldRef.Name} field");
+            this.Phrases.Add($"{fieldRef.DeclaringType!.Name}.{fieldRef.Name} field");
             instruction.Operand = module.ImportReference(toField);
             return this.MarkRewritten();
         }

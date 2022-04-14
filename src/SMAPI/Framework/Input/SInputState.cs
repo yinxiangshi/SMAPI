@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +15,7 @@ namespace StardewModdingAPI.Framework.Input
         ** Accessors
         *********/
         /// <summary>The cursor position on the screen adjusted for the zoom level.</summary>
-        private CursorPosition CursorPositionImpl;
+        private CursorPosition CursorPositionImpl = new(Vector2.Zero, Vector2.Zero, Vector2.Zero, Vector2.Zero);
 
         /// <summary>The player's last known tile position.</summary>
         private Vector2? LastPlayerTile;
@@ -106,7 +104,7 @@ namespace StardewModdingAPI.Framework.Input
                 this.KeyboardState = keyboard.GetState();
                 this.MouseState = mouse.GetState();
                 this.ButtonStates = activeButtons;
-                if (cursorAbsolutePos != this.CursorPositionImpl?.AbsolutePixels || playerTilePos != this.LastPlayerTile)
+                if (cursorAbsolutePos != this.CursorPositionImpl.AbsolutePixels || playerTilePos != this.LastPlayerTile)
                 {
                     this.LastPlayerTile = playerTilePos;
                     this.CursorPositionImpl = this.GetCursorPosition(this.MouseState, cursorAbsolutePos, zoomMultiplier);

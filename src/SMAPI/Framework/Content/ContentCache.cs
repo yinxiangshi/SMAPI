@@ -1,7 +1,6 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using StardewModdingAPI.Framework.Reflection;
@@ -46,7 +45,8 @@ namespace StardewModdingAPI.Framework.Content
         /// <param name="reflection">Simplifies access to private game code.</param>
         public ContentCache(LocalizedContentManager contentManager, Reflector reflection)
         {
-            this.Cache = reflection.GetField<Dictionary<string, object>>(contentManager, "loadedAssets").GetValue();
+            this.Cache = reflection.GetField<Dictionary<string, object>>(contentManager, "loadedAssets").GetValue()
+                ?? throw new InvalidOperationException("Can't initialize content cache: required field 'loadedAssets' is missing.");
         }
 
         /****
@@ -66,7 +66,8 @@ namespace StardewModdingAPI.Framework.Content
         /// <summary>Normalize path separators in an asset name.</summary>
         /// <param name="path">The file path to normalize.</param>
         [Pure]
-        public string NormalizePathSeparators(string path)
+        [return: NotNullIfNotNull("path")]
+        public string? NormalizePathSeparators(string? path)
         {
             return PathUtilities.NormalizeAssetName(path);
         }
@@ -93,7 +94,7 @@ namespace StardewModdingAPI.Framework.Content
         public bool Remove(string key, bool dispose)
         {
             // get entry
-            if (!this.Cache.TryGetValue(key, out object value))
+            if (!this.Cache.TryGetValue(key, out object? value))
                 return false;
 
             // dispose & remove entry

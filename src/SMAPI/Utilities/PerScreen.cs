@@ -1,8 +1,7 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using StardewModdingAPI.Framework;
 
 namespace StardewModdingAPI.Utilities
 {
@@ -39,14 +38,28 @@ namespace StardewModdingAPI.Utilities
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
+        /// <remarks><strong>Limitation with nullable reference types:</strong> when the underlying type <typeparamref name="T"/> is nullable, this sets the default value to null regardless of whether you marked the type parameter nullable. To avoid that, set the default value with the 'createNewState' argument instead.</remarks>
         public PerScreen()
-            : this(null) { }
+            : this(null!) { }
 
         /// <summary>Construct an instance.</summary>
         /// <param name="createNewState">Create the initial state for a screen.</param>
         public PerScreen(Func<T> createNewState)
         {
-            this.CreateNewState = createNewState ?? (() => default);
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse -- required for backwards compatibility
+            if (createNewState is null)
+            {
+                SCore.DeprecationManager.Warn(
+                    SCore.DeprecationManager.GetSourceNameFromStack(),
+                    $"calling the {nameof(PerScreen<T>)} constructor with null",
+                    "3.14.0",
+                    DeprecationLevel.Notice
+                );
+
+                createNewState = (() => default!);
+            }
+
+            this.CreateNewState = createNewState;
         }
 
         /// <summary>Get all active values by screen ID. This doesn't initialize the value for a screen ID if it's not created yet.</summary>
@@ -61,7 +74,7 @@ namespace StardewModdingAPI.Utilities
         public T GetValueForScreen(int screenId)
         {
             this.RemoveDeadScreens();
-            return this.States.TryGetValue(screenId, out T state)
+            return this.States.TryGetValue(screenId, out T? state)
                 ? state
                 : this.States[screenId] = this.CreateNewState();
         }

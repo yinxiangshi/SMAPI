@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,17 +45,18 @@ namespace StardewModdingAPI.Framework.StateTracking.Snapshots
         public PlayerSnapshot(Farmer player)
         {
             this.Player = player;
+            this.Inventory = this.EmptyItemListDiff;
         }
 
         /// <summary>Update the tracked values.</summary>
         /// <param name="watcher">The player watcher to snapshot.</param>
         public void Update(PlayerTracker watcher)
         {
-            this.Location.Update(watcher.LocationWatcher);
-            foreach (var pair in this.Skills)
-                pair.Value.Update(watcher.SkillWatchers[pair.Key]);
+            this.Location.Update(watcher.LocationWatcher!);
+            foreach ((SkillType skill, var value) in this.Skills)
+                value.Update(watcher.SkillWatchers[skill]);
 
-            this.Inventory = watcher.TryGetInventoryChanges(out SnapshotItemListDiff itemChanges)
+            this.Inventory = watcher.TryGetInventoryChanges(out SnapshotItemListDiff? itemChanges)
                 ? itemChanges
                 : this.EmptyItemListDiff;
         }

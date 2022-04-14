@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Globalization;
 using System.IO;
@@ -92,7 +90,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
 
             // resolve managed asset key
             {
-                if (this.Coordinator.TryParseManagedAssetKey(assetName.Name, out string contentManagerID, out IAssetName relativePath))
+                if (this.Coordinator.TryParseManagedAssetKey(assetName.Name, out string? contentManagerID, out IAssetName? relativePath))
                 {
                     if (contentManagerID != this.Name)
                         throw this.GetLoadError(assetName, "can't load a different mod's managed asset key through this mod content manager.");
@@ -173,7 +171,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <param name="file">The file to load.</param>
         private T LoadDataFile<T>(IAssetName assetName, FileInfo file)
         {
-            if (!this.JsonHelper.ReadJsonFileIfExists(file.FullName, out T asset))
+            if (!this.JsonHelper.ReadJsonFileIfExists(file.FullName, out T? asset))
                 throw this.GetLoadError(assetName, "the JSON file is invalid."); // should never happen since we check for file existence before calling this method
 
             return asset;
@@ -249,7 +247,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <param name="assetName">The asset name that failed to load.</param>
         /// <param name="reasonPhrase">The reason the file couldn't be loaded.</param>
         /// <param name="exception">The underlying exception, if applicable.</param>
-        private SContentLoadException GetLoadError(IAssetName assetName, string reasonPhrase, Exception exception = null)
+        private SContentLoadException GetLoadError(IAssetName assetName, string reasonPhrase, Exception? exception = null)
         {
             return new($"Failed loading asset '{assetName}' from {this.Name}: {reasonPhrase}", exception);
         }
@@ -338,13 +336,16 @@ namespace StardewModdingAPI.Framework.ContentManagers
                 // load best match
                 try
                 {
-                    if (!this.TryGetTilesheetAssetName(relativeMapFolder, imageSource, out IAssetName assetName, out string error))
+                    if (!this.TryGetTilesheetAssetName(relativeMapFolder, imageSource, out IAssetName? assetName, out string? error))
                         throw new SContentLoadException($"{errorPrefix} {error}");
 
-                    if (!assetName.IsEquivalentTo(tilesheet.ImageSource))
-                        this.Monitor.VerboseLog($"   Mapped tilesheet '{tilesheet.ImageSource}' to '{assetName}'.");
+                    if (assetName is not null)
+                    {
+                        if (!assetName.IsEquivalentTo(tilesheet.ImageSource))
+                            this.Monitor.VerboseLog($"   Mapped tilesheet '{tilesheet.ImageSource}' to '{assetName}'.");
 
-                    tilesheet.ImageSource = assetName.Name;
+                        tilesheet.ImageSource = assetName.Name;
+                    }
                 }
                 catch (Exception ex) when (ex is not SContentLoadException)
                 {
@@ -360,7 +361,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <param name="error">A message indicating why the file couldn't be loaded.</param>
         /// <returns>Returns whether the asset name was found.</returns>
         /// <remarks>See remarks on <see cref="FixTilesheetPaths"/>.</remarks>
-        private bool TryGetTilesheetAssetName(string modRelativeMapFolder, string relativePath, out IAssetName assetName, out string error)
+        private bool TryGetTilesheetAssetName(string modRelativeMapFolder, string relativePath, out IAssetName? assetName, out string? error)
         {
             assetName = null;
             error = null;
