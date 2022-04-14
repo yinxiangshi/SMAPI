@@ -414,6 +414,7 @@ when you compile it.
 ## Release notes
 ## Upcoming release
 * Added detection for Xbox app game folders.
+* Fixed "_conflicts between different versions of Microsoft.Win32.Registry_" warnings in recent SMAPI versions.
 * Internal refactoring.
 
 ## 4.0.0
