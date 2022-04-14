@@ -50,7 +50,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         }
 
         /// <inheritdoc />
-        public Translation Get(string key, object tokens)
+        public Translation Get(string key, object? tokens)
         {
             return this.Translator.Get(key, tokens);
         }
