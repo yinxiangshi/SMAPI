@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using Microsoft.Xna.Framework.Content;
 
@@ -14,7 +12,7 @@ namespace StardewModdingAPI.Framework.Exceptions
         /// <summary>Construct an instance.</summary>
         /// <param name="message">The error message.</param>
         /// <param name="ex">The underlying exception, if any.</param>
-        public SContentLoadException(string message, Exception ex = null)
+        public SContentLoadException(string message, Exception? ex = null)
             : base(message, ex) { }
     }
 }

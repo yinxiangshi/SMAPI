@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Diagnostics.CodeAnalysis;
 using HarmonyLib;
@@ -22,10 +20,10 @@ namespace StardewModdingAPI.Patches
         ** Fields
         *********/
         /// <summary>Simplifies access to private code.</summary>
-        private static Reflector Reflection;
+        private static Reflector Reflection = null!; // initialized in constructor
 
         /// <summary>A callback to invoke when the load stage changes.</summary>
-        private static Action<LoadStage> OnStageChanged;
+        private static Action<LoadStage> OnStageChanged = null!; // initialized in constructor
 
         /// <summary>Whether the game is running running the code in <see cref="Game1.loadForNewGame"/>.</summary>
         private static bool IsInLoadForNewGame;

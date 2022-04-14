@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -22,7 +20,7 @@ namespace StardewModdingAPI
         private static readonly string DllSearchPath = EarlyConstants.InternalFilesPath;
 
         /// <summary>The assembly paths in the search folders indexed by assembly name.</summary>
-        private static Dictionary<string, string> AssemblyPathsByName;
+        private static Dictionary<string, string>? AssemblyPathsByName;
 
 
         /*********
@@ -61,7 +59,7 @@ namespace StardewModdingAPI
         /// <summary>Method called when assembly resolution fails, which may return a manually resolved assembly.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event arguments.</param>
-        private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs e)
+        private static Assembly? CurrentDomain_AssemblyResolve(object? sender, ResolveEventArgs e)
         {
             // cache assembly paths by name
             if (Program.AssemblyPathsByName == null)
@@ -74,7 +72,7 @@ namespace StardewModdingAPI
                     {
                         try
                         {
-                            string curName = AssemblyName.GetAssemblyName(dllPath).Name;
+                            string? curName = AssemblyName.GetAssemblyName(dllPath).Name;
                             if (curName != null)
                                 Program.AssemblyPathsByName[curName] = dllPath;
                         }
@@ -89,8 +87,8 @@ namespace StardewModdingAPI
             // resolve
             try
             {
-                string searchName = new AssemblyName(e.Name).Name;
-                return searchName != null && Program.AssemblyPathsByName.TryGetValue(searchName, out string assemblyPath)
+                string? searchName = new AssemblyName(e.Name).Name;
+                return searchName != null && Program.AssemblyPathsByName.TryGetValue(searchName, out string? assemblyPath)
                     ? Assembly.LoadFrom(assemblyPath)
                     : null;
             }
@@ -129,7 +127,7 @@ namespace StardewModdingAPI
             // min version
             if (Constants.GameVersion.IsOlderThan(Constants.MinimumGameVersion))
             {
-                ISemanticVersion suggestedApiVersion = Constants.GetCompatibleApiVersion(Constants.GameVersion);
+                ISemanticVersion? suggestedApiVersion = Constants.GetCompatibleApiVersion(Constants.GameVersion);
                 Program.PrintErrorAndExit(suggestedApiVersion != null
                     ? $"Oops! You're running Stardew Valley {Constants.GameVersion}, but the oldest supported version is {Constants.MinimumGameVersion}. You can install SMAPI {suggestedApiVersion} instead to fix this error, or update your game to the latest version."
                     : $"Oops! You're running Stardew Valley {Constants.GameVersion}, but the oldest supported version is {Constants.MinimumGameVersion}. Please update your game before using SMAPI."
@@ -152,7 +150,7 @@ namespace StardewModdingAPI
             foreach (var type in new[] { typeof(IManifest), typeof(Manifest) })
             {
                 AssemblyName assemblyName = type.Assembly.GetName();
-                ISemanticVersion assemblyVersion = new SemanticVersion(assemblyName.Version);
+                ISemanticVersion assemblyVersion = new SemanticVersion(assemblyName.Version!);
                 if (!assemblyVersion.Equals(smapiVersion))
                     Program.PrintErrorAndExit($"Oops! The 'smapi-internal/{assemblyName.Name}.dll' file is version {assemblyVersion} instead of the required {Constants.ApiVersion}. SMAPI doesn't seem to be installed correctly.");
             }
@@ -184,7 +182,7 @@ namespace StardewModdingAPI
             bool? developerMode = null;
             string modsPath;
             {
-                string rawModsPath = null;
+                string? rawModsPath = null;
 
                 // get mods path from command line args
                 int pathIndex = Array.LastIndexOf(args, "--mods-path") + 1;
@@ -202,7 +200,7 @@ namespace StardewModdingAPI
                     rawModsPath = Environment.GetEnvironmentVariable("SMAPI_MODS_PATH");
                 if (developerMode is null)
                 {
-                    string rawDeveloperMode = Environment.GetEnvironmentVariable("SMAPI_DEVELOPER_MODE");
+                    string? rawDeveloperMode = Environment.GetEnvironmentVariable("SMAPI_DEVELOPER_MODE");
                     if (rawDeveloperMode != null)
                         developerMode = bool.Parse(rawDeveloperMode);
                 }
@@ -221,7 +219,7 @@ namespace StardewModdingAPI
         /// <summary>Write an error directly to the console and exit.</summary>
         /// <param name="message">The error message to display.</param>
         /// <param name="technicalMessage">An additional message to log with technical details.</param>
-        private static void PrintErrorAndExit(string message, string technicalMessage = null)
+        private static void PrintErrorAndExit(string message, string? technicalMessage = null)
         {
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine(message);

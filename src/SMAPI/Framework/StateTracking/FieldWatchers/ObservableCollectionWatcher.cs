@@ -1,5 +1,3 @@
-#nullable disable
-
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -81,7 +79,7 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
         /// <summary>A callback invoked when an entry is added or removed from the collection.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event arguments.</param>
-        private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        private void OnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
             if (e.Action == NotifyCollectionChangedAction.Reset)
             {
@@ -90,8 +88,8 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
             }
             else
             {
-                TValue[] added = e.NewItems?.Cast<TValue>().ToArray();
-                TValue[] removed = e.OldItems?.Cast<TValue>().ToArray();
+                TValue[]? added = e.NewItems?.Cast<TValue>().ToArray();
+                TValue[]? removed = e.OldItems?.Cast<TValue>().ToArray();
 
                 if (removed != null)
                 {

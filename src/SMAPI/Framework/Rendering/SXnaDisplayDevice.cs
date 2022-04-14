@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -91,7 +89,7 @@ namespace StardewModdingAPI.Framework.Rendering
         /// <param name="tile">The tile to draw.</param>
         /// <param name="location">The tile position to draw.</param>
         /// <param name="layerDepth">The layer depth at which to draw.</param>
-        public virtual void DrawTile(Tile tile, Location location, float layerDepth)
+        public virtual void DrawTile(Tile? tile, Location location, float layerDepth)
         {
             if (tile == null)
                 return;

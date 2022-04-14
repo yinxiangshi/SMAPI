@@ -1,5 +1,3 @@
-#nullable disable
-
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -27,10 +25,10 @@ namespace StardewModdingAPI.Framework.StateTracking
         private readonly ICollectionWatcher<GameLocation> VolcanoLocationListWatcher;
 
         /// <summary>A lookup of the tracked locations.</summary>
-        private IDictionary<GameLocation, LocationTracker> LocationDict { get; } = new Dictionary<GameLocation, LocationTracker>(new ObjectReferenceComparer<GameLocation>());
+        private Dictionary<GameLocation, LocationTracker> LocationDict { get; } = new(new ObjectReferenceComparer<GameLocation>());
 
         /// <summary>A lookup of registered buildings and their indoor location.</summary>
-        private readonly IDictionary<Building, GameLocation> BuildingIndoors = new Dictionary<Building, GameLocation>(new ObjectReferenceComparer<Building>());
+        private readonly Dictionary<Building, GameLocation?> BuildingIndoors = new(new ObjectReferenceComparer<Building>());
 
 
         /*********
@@ -101,10 +99,9 @@ namespace StardewModdingAPI.Framework.StateTracking
             }
 
             // detect building interiors changed (e.g. construction completed)
-            foreach (KeyValuePair<Building, GameLocation> pair in this.BuildingIndoors.Where(p => !object.Equals(p.Key.indoors.Value, p.Value)))
+            foreach ((Building building, GameLocation? oldIndoors) in this.BuildingIndoors.Where(p => !object.Equals(p.Key.indoors.Value, p.Value)))
             {
-                GameLocation oldIndoors = pair.Value;
-                GameLocation newIndoors = pair.Key.indoors.Value;
+                GameLocation? newIndoors = building.indoors.Value;
 
                 if (oldIndoors != null)
                     this.Added.Add(oldIndoors);
@@ -189,19 +186,19 @@ namespace StardewModdingAPI.Framework.StateTracking
         ****/
         /// <summary>Add the given building.</summary>
         /// <param name="building">The building to add.</param>
-        public void Add(Building building)
+        public void Add(Building? building)
         {
             if (building == null)
                 return;
 
-            GameLocation indoors = building.indoors.Value;
+            GameLocation? indoors = building.indoors.Value;
             this.BuildingIndoors[building] = indoors;
             this.Add(indoors);
         }
 
         /// <summary>Add the given location.</summary>
         /// <param name="location">The location to add.</param>
-        public void Add(GameLocation location)
+        public void Add(GameLocation? location)
         {
             if (location == null)
                 return;
@@ -220,7 +217,7 @@ namespace StardewModdingAPI.Framework.StateTracking
 
         /// <summary>Remove the given building.</summary>
         /// <param name="building">The building to remove.</param>
-        public void Remove(Building building)
+        public void Remove(Building? building)
         {
             if (building == null)
                 return;
@@ -231,12 +228,12 @@ namespace StardewModdingAPI.Framework.StateTracking
 
         /// <summary>Remove the given location.</summary>
         /// <param name="location">The location to remove.</param>
-        public void Remove(GameLocation location)
+        public void Remove(GameLocation? location)
         {
             if (location == null)
                 return;
 
-            if (this.LocationDict.TryGetValue(location, out LocationTracker watcher))
+            if (this.LocationDict.TryGetValue(location, out LocationTracker? watcher))
             {
                 // track change
                 this.Removed.Add(location);

@@ -1,5 +1,3 @@
-#nullable disable
-
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Events;
@@ -70,8 +68,8 @@ namespace StardewModdingAPI.Metadata
             ** detect code which may impact game stability
             ****/
             yield return new TypeFinder("System.Runtime.CompilerServices.CallSite", InstructionHandleResult.DetectedDynamic);
-            yield return new FieldFinder(typeof(SaveGame).FullName, new[] { nameof(SaveGame.serializer), nameof(SaveGame.farmerSerializer), nameof(SaveGame.locationSerializer) }, InstructionHandleResult.DetectedSaveSerializer);
-            yield return new EventFinder(typeof(ISpecializedEvents).FullName, new[] { nameof(ISpecializedEvents.UnvalidatedUpdateTicked), nameof(ISpecializedEvents.UnvalidatedUpdateTicking) }, InstructionHandleResult.DetectedUnvalidatedUpdateTick);
+            yield return new FieldFinder(typeof(SaveGame).FullName!, new[] { nameof(SaveGame.serializer), nameof(SaveGame.farmerSerializer), nameof(SaveGame.locationSerializer) }, InstructionHandleResult.DetectedSaveSerializer);
+            yield return new EventFinder(typeof(ISpecializedEvents).FullName!, new[] { nameof(ISpecializedEvents.UnvalidatedUpdateTicked), nameof(ISpecializedEvents.UnvalidatedUpdateTicking) }, InstructionHandleResult.DetectedUnvalidatedUpdateTick);
 
             /****
             ** detect paranoid issues
@@ -79,23 +77,23 @@ namespace StardewModdingAPI.Metadata
             if (paranoidMode)
             {
                 // filesystem access
-                yield return new TypeFinder(typeof(System.Console).FullName, InstructionHandleResult.DetectedConsoleAccess);
+                yield return new TypeFinder(typeof(System.Console).FullName!, InstructionHandleResult.DetectedConsoleAccess);
                 yield return new TypeFinder(
                     new[]
                     {
-                        typeof(System.IO.File).FullName,
-                        typeof(System.IO.FileStream).FullName,
-                        typeof(System.IO.FileInfo).FullName,
-                        typeof(System.IO.Directory).FullName,
-                        typeof(System.IO.DirectoryInfo).FullName,
-                        typeof(System.IO.DriveInfo).FullName,
-                        typeof(System.IO.FileSystemWatcher).FullName
+                        typeof(System.IO.File).FullName!,
+                        typeof(System.IO.FileStream).FullName!,
+                        typeof(System.IO.FileInfo).FullName!,
+                        typeof(System.IO.Directory).FullName!,
+                        typeof(System.IO.DirectoryInfo).FullName!,
+                        typeof(System.IO.DriveInfo).FullName!,
+                        typeof(System.IO.FileSystemWatcher).FullName!
                     },
                     InstructionHandleResult.DetectedFilesystemAccess
                 );
 
                 // shell access
-                yield return new TypeFinder(typeof(System.Diagnostics.Process).FullName, InstructionHandleResult.DetectedShellAccess);
+                yield return new TypeFinder(typeof(System.Diagnostics.Process).FullName!, InstructionHandleResult.DetectedShellAccess);
             }
         }
     }

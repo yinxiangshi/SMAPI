@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using Microsoft.Xna.Framework.Content;
 using StardewModdingAPI.Framework.Content;
@@ -57,6 +55,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
 
         /// <inheritdoc />
         public T Load<T>(string relativePath)
+            where T : notnull
         {
             relativePath = this.RelativePathCache.GetAssetName(relativePath);
 
@@ -80,7 +79,8 @@ namespace StardewModdingAPI.Framework.ModHelpers
         }
 
         /// <inheritdoc />
-        public IAssetData GetPatchHelper<T>(T data, string relativePath = null)
+        public IAssetData GetPatchHelper<T>(T data, string? relativePath = null)
+            where T : notnull
         {
             if (data == null)
                 throw new ArgumentNullException(nameof(data), "Can't get a patch helper for a null value.");

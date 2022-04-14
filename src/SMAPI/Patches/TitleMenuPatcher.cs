@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Diagnostics.CodeAnalysis;
 using HarmonyLib;
@@ -19,7 +17,7 @@ namespace StardewModdingAPI.Patches
         ** Fields
         *********/
         /// <summary>A callback to invoke when the load stage changes.</summary>
-        private static Action<LoadStage> OnStageChanged;
+        private static Action<LoadStage> OnStageChanged = null!; // initialized in constructor
 
 
         /*********

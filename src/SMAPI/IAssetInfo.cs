@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 
 namespace StardewModdingAPI
@@ -11,7 +9,7 @@ namespace StardewModdingAPI
         ** Accessors
         *********/
         /// <summary>The content's locale code, if the content is localized.</summary>
-        string Locale { get; }
+        string? Locale { get; }
 
         /// <summary>The asset name being read.</summary>
         /// <remarks>NOTE: when reading this field from an <see cref="IAssetLoader"/> or <see cref="IAssetEditor"/> implementation, it's always equivalent to <see cref="NameWithoutLocale"/> for backwards compatibility.</remarks>

@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 
 namespace StardewModdingAPI.Framework.Content
@@ -7,12 +5,13 @@ namespace StardewModdingAPI.Framework.Content
     /// <summary>Base implementation for a content helper which encapsulates access and changes to content being read from a data file.</summary>
     /// <typeparam name="TValue">The interface value type.</typeparam>
     internal class AssetData<TValue> : AssetInfo, IAssetData<TValue>
+        where TValue : notnull
     {
         /*********
         ** Fields
         *********/
         /// <summary>A callback to invoke when the data is replaced (if any).</summary>
-        private readonly Action<TValue> OnDataReplaced;
+        private readonly Action<TValue>? OnDataReplaced;
 
 
         /*********
@@ -31,7 +30,7 @@ namespace StardewModdingAPI.Framework.Content
         /// <param name="data">The content data being read.</param>
         /// <param name="getNormalizedPath">Normalizes an asset key to match the cache key.</param>
         /// <param name="onDataReplaced">A callback to invoke when the data is replaced (if any).</param>
-        public AssetData(string locale, IAssetName assetName, TValue data, Func<string, string> getNormalizedPath, Action<TValue> onDataReplaced)
+        public AssetData(string? locale, IAssetName assetName, TValue data, Func<string, string> getNormalizedPath, Action<TValue>? onDataReplaced)
             : base(locale, assetName, data.GetType(), getNormalizedPath)
         {
             this.Data = data;

@@ -1,5 +1,3 @@
-#nullable disable
-
 using System.Collections.Generic;
 using StardewModdingAPI.Framework.Reflection;
 
@@ -47,7 +45,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         }
 
         /// <inheritdoc />
-        public IModInfo Get(string uniqueID)
+        public IModInfo? Get(string uniqueID)
         {
             return this.Registry.Get(uniqueID);
         }
@@ -59,7 +57,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         }
 
         /// <inheritdoc />
-        public object GetApi(string uniqueID)
+        public object? GetApi(string uniqueID)
         {
             // validate ready
             if (!this.Registry.AreAllModsInitialized)
@@ -69,17 +67,18 @@ namespace StardewModdingAPI.Framework.ModHelpers
             }
 
             // get raw API
-            IModMetadata mod = this.Registry.Get(uniqueID);
+            IModMetadata? mod = this.Registry.Get(uniqueID);
             if (mod?.Api != null && this.AccessedModApis.Add(mod.Manifest.UniqueID))
                 this.Monitor.Log($"Accessed mod-provided API for {mod.DisplayName}.");
             return mod?.Api;
         }
 
         /// <inheritdoc />
-        public TInterface GetApi<TInterface>(string uniqueID) where TInterface : class
+        public TInterface? GetApi<TInterface>(string uniqueID)
+            where TInterface : class
         {
             // get raw API
-            object api = this.GetApi(uniqueID);
+            object? api = this.GetApi(uniqueID);
             if (api == null)
                 return null;
 

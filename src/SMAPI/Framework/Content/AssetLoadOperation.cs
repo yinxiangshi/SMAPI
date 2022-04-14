@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using StardewModdingAPI.Events;
 
@@ -15,7 +13,7 @@ namespace StardewModdingAPI.Framework.Content
         public IModMetadata Mod { get; }
 
         /// <summary>The content pack on whose behalf the asset is being loaded, if any.</summary>
-        public IModMetadata OnBehalfOf { get; }
+        public IModMetadata? OnBehalfOf { get; }
 
         /// <summary>If there are multiple loads that apply to the same asset, the priority with which this one should be applied.</summary>
         public AssetLoadPriority Priority { get; }
@@ -32,7 +30,7 @@ namespace StardewModdingAPI.Framework.Content
         /// <param name="priority">If there are multiple loads that apply to the same asset, the priority with which this one should be applied.</param>
         /// <param name="onBehalfOf">The content pack on whose behalf the asset is being loaded, if any.</param>
         /// <param name="getData">Load the initial value for an asset.</param>
-        public AssetLoadOperation(IModMetadata mod, AssetLoadPriority priority, IModMetadata onBehalfOf, Func<IAssetInfo, object> getData)
+        public AssetLoadOperation(IModMetadata mod, AssetLoadPriority priority, IModMetadata? onBehalfOf, Func<IAssetInfo, object> getData)
         {
             this.Mod = mod;
             this.Priority = priority;

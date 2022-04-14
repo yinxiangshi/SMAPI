@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
@@ -27,7 +25,7 @@ namespace StardewModdingAPI.Framework.Content
         /// <param name="data">The content data being read.</param>
         /// <param name="getNormalizedPath">Normalizes an asset key to match the cache key.</param>
         /// <param name="reflection">Simplifies access to private code.</param>
-        public AssetDataForObject(string locale, IAssetName assetName, object data, Func<string, string> getNormalizedPath, Reflector reflection)
+        public AssetDataForObject(string? locale, IAssetName assetName, object data, Func<string, string> getNormalizedPath, Reflector reflection)
             : base(locale, assetName, data, getNormalizedPath, onDataReplaced: null)
         {
             this.Reflection = reflection;

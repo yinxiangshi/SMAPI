@@ -134,9 +134,9 @@ namespace SMAPI.Tests.Core
 
             // assert
             if (translation.HasValue())
-                Assert.AreEqual(text, (string)translation, "The translation returned an unexpected value given a valid input.");
+                Assert.AreEqual(text, (string?)translation, "The translation returned an unexpected value given a valid input.");
             else
-                Assert.AreEqual(this.GetPlaceholderText("key"), (string)translation, "The translation returned an unexpected value given a null or empty input.");
+                Assert.AreEqual(this.GetPlaceholderText("key"), (string?)translation, "The translation returned an unexpected value given a null or empty input.");
         }
 
         [Test(Description = "Assert that the translation returns the expected text given a use-placeholder setting.")]

@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -71,7 +69,7 @@ namespace StardewModdingAPI.Framework
         private readonly ReaderWriterLockSlim ContentManagerLock = new();
 
         /// <summary>A cache of ordered tilesheet IDs used by vanilla maps.</summary>
-        private readonly Dictionary<string, TilesheetReference[]> VanillaTilesheets = new(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, TilesheetReference[]?> VanillaTilesheets = new(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>An unmodified content manager which doesn't intercept assets, used to compare asset data.</summary>
         private readonly LocalizedContentManager VanillaContentManager;
@@ -230,7 +228,7 @@ namespace StardewModdingAPI.Framework
         public void OnAdditionalLanguagesInitialized()
         {
             // update locale cache for custom languages, and load it now (since languages added later won't work)
-            var customLanguages = this.MainContentManager.Load<List<ModLanguage>>("Data/AdditionalLanguages");
+            var customLanguages = this.MainContentManager.Load<List<ModLanguage?>>("Data/AdditionalLanguages");
             this.LocaleCodes = new Lazy<Dictionary<string, LocalizedContentManager.LanguageCode>>(() => this.GetLocaleCodes(customLanguages));
             _ = this.LocaleCodes.Value;
         }
@@ -303,7 +301,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="contentManagerID">The unique name for the content manager which should load this asset.</param>
         /// <param name="relativePath">The asset name within the mod folder.</param>
         /// <returns>Returns whether the asset was parsed successfully.</returns>
-        public bool TryParseManagedAssetKey(string key, out string contentManagerID, out IAssetName relativePath)
+        public bool TryParseManagedAssetKey(string key, [NotNullWhen(true)] out string? contentManagerID, [NotNullWhen(true)] out IAssetName? relativePath)
         {
             contentManagerID = null;
             relativePath = null;
@@ -333,9 +331,10 @@ namespace StardewModdingAPI.Framework
         /// <param name="contentManagerID">The unique name for the content manager which should load this asset.</param>
         /// <param name="assetName">The asset name within the mod folder.</param>
         public bool DoesManagedAssetExist<T>(string contentManagerID, IAssetName assetName)
+            where T : notnull
         {
             // get content manager
-            IContentManager contentManager = this.ContentManagerLock.InReadLock(() =>
+            IContentManager? contentManager = this.ContentManagerLock.InReadLock(() =>
                 this.ContentManagers.FirstOrDefault(p => p.IsNamespaced && p.Name == contentManagerID)
             );
             if (contentManager == null)
@@ -350,9 +349,10 @@ namespace StardewModdingAPI.Framework
         /// <param name="contentManagerID">The unique name for the content manager which should load this asset.</param>
         /// <param name="relativePath">The asset name within the mod folder.</param>
         public T LoadManagedAsset<T>(string contentManagerID, IAssetName relativePath)
+            where T : notnull
         {
             // get content manager
-            IContentManager contentManager = this.ContentManagerLock.InReadLock(() =>
+            IContentManager? contentManager = this.ContentManagerLock.InReadLock(() =>
                 this.ContentManagers.FirstOrDefault(p => p.IsNamespaced && p.Name == contentManagerID)
             );
             if (contentManager == null)
@@ -461,6 +461,7 @@ namespace StardewModdingAPI.Framework
         /// <typeparam name="T">The asset type.</typeparam>
         /// <param name="info">The asset info to load or edit.</param>
         public IEnumerable<AssetOperationGroup> GetAssetOperations<T>(IAssetInfo info)
+            where T : notnull
         {
             return this.AssetOperationsByKey.GetOrSet(
                 info.Name,
@@ -491,7 +492,7 @@ namespace StardewModdingAPI.Framework
         {
             rootPath = PathUtilities.NormalizePath(rootPath);
 
-            if (!this.CaseInsensitivePathCaches.TryGetValue(rootPath, out CaseInsensitivePathCache cache))
+            if (!this.CaseInsensitivePathCaches.TryGetValue(rootPath, out CaseInsensitivePathCache? cache))
                 this.CaseInsensitivePathCaches[rootPath] = cache = new CaseInsensitivePathCache(rootPath);
 
             return cache;
@@ -501,9 +502,9 @@ namespace StardewModdingAPI.Framework
         /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
         public TilesheetReference[] GetVanillaTilesheetIds(string assetName)
         {
-            if (!this.VanillaTilesheets.TryGetValue(assetName, out TilesheetReference[] tilesheets))
+            if (!this.VanillaTilesheets.TryGetValue(assetName, out TilesheetReference[]? tilesheets))
             {
-                tilesheets = this.TryLoadVanillaAsset(assetName, out Map map)
+                tilesheets = this.TryLoadVanillaAsset(assetName, out Map? map)
                     ? map.TileSheets.Select((sheet, index) => new TilesheetReference(index, sheet.Id, sheet.ImageSource, sheet.SheetSize, sheet.TileSize)).ToArray()
                     : null;
 
@@ -516,7 +517,7 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>Get the locale code which corresponds to a language enum (e.g. <c>fr-FR</c> given <see cref="LocalizedContentManager.LanguageCode.fr"/>).</summary>
         /// <param name="language">The language enum to search.</param>
-        public string GetLocaleCode(LocalizedContentManager.LanguageCode language)
+        public string? GetLocaleCode(LocalizedContentManager.LanguageCode language)
         {
             if (language == LocalizedContentManager.LanguageCode.mod && LocalizedContentManager.CurrentModLanguage == null)
                 return null;
@@ -535,7 +536,7 @@ namespace StardewModdingAPI.Framework
             foreach (IContentManager contentManager in this.ContentManagers)
                 contentManager.Dispose();
             this.ContentManagers.Clear();
-            this.MainContentManager = null;
+            this.MainContentManager = null!; // instance no longer usable
 
             this.ContentManagerLock.Dispose();
         }
@@ -560,7 +561,8 @@ namespace StardewModdingAPI.Framework
         /// <typeparam name="T">The type of asset to load.</typeparam>
         /// <param name="assetName">The asset path relative to the loader root directory, not including the <c>.xnb</c> extension.</param>
         /// <param name="asset">The loaded asset data.</param>
-        private bool TryLoadVanillaAsset<T>(string assetName, out T asset)
+        private bool TryLoadVanillaAsset<T>(string assetName, [NotNullWhen(true)] out T? asset)
+            where T : notnull
         {
             try
             {
@@ -576,12 +578,12 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>Get the language enums (like <see cref="LocalizedContentManager.LanguageCode.ja"/>) indexed by locale code (like <c>ja-JP</c>).</summary>
         /// <param name="customLanguages">The custom languages to add to the lookup.</param>
-        private Dictionary<string, LocalizedContentManager.LanguageCode> GetLocaleCodes(IEnumerable<ModLanguage> customLanguages)
+        private Dictionary<string, LocalizedContentManager.LanguageCode> GetLocaleCodes(IEnumerable<ModLanguage?> customLanguages)
         {
             var map = new Dictionary<string, LocalizedContentManager.LanguageCode>(StringComparer.OrdinalIgnoreCase);
 
             // custom languages
-            foreach (ModLanguage language in customLanguages)
+            foreach (ModLanguage? language in customLanguages)
             {
                 if (!string.IsNullOrWhiteSpace(language?.LanguageCode))
                     map[language.LanguageCode] = LocalizedContentManager.LanguageCode.mod;
@@ -590,7 +592,7 @@ namespace StardewModdingAPI.Framework
             // vanilla languages (override custom language if they conflict)
             foreach (LocalizedContentManager.LanguageCode code in Enum.GetValues(typeof(LocalizedContentManager.LanguageCode)))
             {
-                string locale = this.GetLocaleCode(code);
+                string? locale = this.GetLocaleCode(code);
                 if (locale != null)
                     map[locale] = code;
             }
@@ -602,6 +604,7 @@ namespace StardewModdingAPI.Framework
         /// <typeparam name="T">The asset type.</typeparam>
         /// <param name="info">The asset info to load or edit.</param>
         private IEnumerable<AssetOperationGroup> GetAssetOperationsWithoutCache<T>(IAssetInfo info)
+            where T : notnull
         {
             IAssetInfo legacyInfo = this.GetLegacyAssetInfo(info);
 

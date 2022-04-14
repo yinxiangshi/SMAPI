@@ -1,5 +1,3 @@
-#nullable disable
-
 using Microsoft.Xna.Framework;
 using StardewValley;
 using StardewValley.Menus;
@@ -16,7 +14,7 @@ namespace StardewModdingAPI.Framework.StateTracking.Snapshots
         public SnapshotDiff<Point> WindowSize { get; } = new();
 
         /// <summary>Tracks changes to the current player.</summary>
-        public PlayerSnapshot CurrentPlayer { get; private set; }
+        public PlayerSnapshot? CurrentPlayer { get; private set; }
 
         /// <summary>Tracks changes to the time of day (in 24-hour military format).</summary>
         public SnapshotDiff<int> Time { get; } = new();
@@ -56,7 +54,7 @@ namespace StardewModdingAPI.Framework.StateTracking.Snapshots
             // update snapshots
             this.WindowSize.Update(watchers.WindowSizeWatcher);
             this.Locale.Update(watchers.LocaleWatcher);
-            this.CurrentPlayer?.Update(watchers.CurrentPlayerTracker);
+            this.CurrentPlayer?.Update(watchers.CurrentPlayerTracker!);
             this.Time.Update(watchers.TimeWatcher);
             this.SaveID.Update(watchers.SaveIdWatcher);
             this.Locations.Update(watchers.LocationsWatcher);

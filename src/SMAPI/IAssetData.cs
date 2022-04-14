@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 
 namespace StardewModdingAPI
@@ -7,6 +5,7 @@ namespace StardewModdingAPI
     /// <summary>Generic metadata and methods for a content asset being loaded.</summary>
     /// <typeparam name="TValue">The expected data type.</typeparam>
     public interface IAssetData<TValue> : IAssetInfo
+        where TValue : notnull
     {
         /*********
         ** Accessors

@@ -1,7 +1,6 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -70,7 +69,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
                 return true;
 
             // managed asset
-            if (this.Coordinator.TryParseManagedAssetKey(assetName.Name, out string contentManagerID, out IAssetName relativePath))
+            if (this.Coordinator.TryParseManagedAssetKey(assetName.Name, out string? contentManagerID, out IAssetName? relativePath))
                 return this.Coordinator.DoesManagedAssetExist<T>(contentManagerID, relativePath);
 
             // custom asset from a loader
@@ -78,7 +77,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             IAssetInfo info = new AssetInfo(locale, assetName, typeof(T), this.AssertAndNormalizeAssetName);
             AssetLoadOperation[] loaders = this.GetLoaders<object>(info).ToArray();
 
-            if (!this.AssertMaxOneRequiredLoader(info, loaders, out string error))
+            if (!this.AssertMaxOneRequiredLoader(info, loaders, out string? error))
             {
                 this.Monitor.Log(error, LogLevel.Warn);
                 return false;
@@ -102,7 +101,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
                 return this.RawLoad<T>(assetName, useCache: true);
 
             // get managed asset
-            if (this.Coordinator.TryParseManagedAssetKey(assetName.Name, out string contentManagerID, out IAssetName relativePath))
+            if (this.Coordinator.TryParseManagedAssetKey(assetName.Name, out string? contentManagerID, out IAssetName? relativePath))
             {
                 T managedAsset = this.Coordinator.LoadManagedAsset<T>(contentManagerID, relativePath);
                 this.TrackAsset(assetName, managedAsset, useCache);
@@ -151,14 +150,15 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <summary>Load the initial asset from the registered loaders.</summary>
         /// <param name="info">The basic asset metadata.</param>
         /// <returns>Returns the loaded asset metadata, or <c>null</c> if no loader matched.</returns>
-        private IAssetData ApplyLoader<T>(IAssetInfo info)
+        private IAssetData? ApplyLoader<T>(IAssetInfo info)
+            where T : notnull
         {
             // find matching loader
-            AssetLoadOperation loader;
+            AssetLoadOperation? loader;
             {
                 AssetLoadOperation[] loaders = this.GetLoaders<T>(info).OrderByDescending(p => p.Priority).ToArray();
 
-                if (!this.AssertMaxOneRequiredLoader(info, loaders, out string error))
+                if (!this.AssertMaxOneRequiredLoader(info, loaders, out string? error))
                 {
                     this.Monitor.Log(error, LogLevel.Warn);
                     return null;
@@ -196,20 +196,21 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <param name="info">The basic asset metadata.</param>
         /// <param name="asset">The loaded asset.</param>
         private IAssetData ApplyEditors<T>(IAssetInfo info, IAssetData asset)
+            where T : notnull
         {
             IAssetData GetNewData(object data) => new AssetDataForObject(info, data, this.AssertAndNormalizeAssetName, this.Reflection);
 
             // special case: if the asset was loaded with a more general type like 'object', call editors with the actual type instead.
             {
                 Type actualType = asset.Data.GetType();
-                Type actualOpenType = actualType.IsGenericType ? actualType.GetGenericTypeDefinition() : null;
+                Type? actualOpenType = actualType.IsGenericType ? actualType.GetGenericTypeDefinition() : null;
 
                 if (typeof(T) != actualType && (actualOpenType == typeof(Dictionary<,>) || actualOpenType == typeof(List<>) || actualType == typeof(Texture2D) || actualType == typeof(Map)))
                 {
                     return (IAssetData)this.GetType()
                         .GetMethod(nameof(this.ApplyEditors), BindingFlags.NonPublic | BindingFlags.Instance)!
                         .MakeGenericMethod(actualType)
-                        .Invoke(this, new object[] { info, asset });
+                        .Invoke(this, new object[] { info, asset })!;
                 }
             }
 
@@ -232,6 +233,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
                 }
 
                 // validate edit
+                // ReSharper disable once ConditionIsAlwaysTrueOrFalse -- it's only guaranteed non-null after this method
                 if (asset.Data == null)
                 {
                     mod.LogAsMod($"Mod incorrectly set asset '{info.Name}'{this.GetOnBehalfOfLabel(editor.OnBehalfOf)} to a null value; ignoring override.", LogLevel.Warn);
@@ -252,6 +254,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <typeparam name="T">The asset type.</typeparam>
         /// <param name="info">The basic asset metadata.</param>
         private IEnumerable<AssetLoadOperation> GetLoaders<T>(IAssetInfo info)
+            where T : notnull
         {
             return this.Coordinator
                 .GetAssetOperations<T>(info)
@@ -262,6 +265,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <typeparam name="T">The asset type.</typeparam>
         /// <param name="info">The basic asset metadata.</param>
         private IEnumerable<AssetEditOperation> GetEditors<T>(IAssetInfo info)
+            where T : notnull
         {
             return this.Coordinator
                 .GetAssetOperations<T>(info)
@@ -273,7 +277,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <param name="loaders">The asset loaders to apply.</param>
         /// <param name="error">The error message to show to the user, if the method returns false.</param>
         /// <returns>Returns true if only one loader will apply, else false.</returns>
-        private bool AssertMaxOneRequiredLoader(IAssetInfo info, AssetLoadOperation[] loaders, out string error)
+        private bool AssertMaxOneRequiredLoader(IAssetInfo info, AssetLoadOperation[] loaders, [NotNullWhen(false)] out string? error)
         {
             AssetLoadOperation[] required = loaders.Where(p => p.Priority == AssetLoadPriority.Exclusive).ToArray();
             if (required.Length <= 1)
@@ -299,7 +303,8 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <param name="onBehalfOf">The content pack on whose behalf the action is being performed.</param>
         /// <param name="parenthetical">whether to format the label as a parenthetical shown after the mod name like <c> (for the 'X' content pack)</c>, instead of a standalone label like <c>the 'X' content pack</c>.</param>
         /// <returns>Returns the on-behalf-of label if applicable, else <c>null</c>.</returns>
-        private string GetOnBehalfOfLabel(IModMetadata onBehalfOf, bool parenthetical = true)
+        [return: NotNullIfNotNull("onBehalfOf")]
+        private string? GetOnBehalfOfLabel(IModMetadata? onBehalfOf, bool parenthetical = true)
         {
             if (onBehalfOf == null)
                 return null;
@@ -315,7 +320,8 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <param name="data">The loaded asset data.</param>
         /// <param name="loader">The loader which loaded the asset.</param>
         /// <returns>Returns whether the asset passed validation checks (after any fixes were applied).</returns>
-        private bool TryFixAndValidateLoadedAsset<T>(IAssetInfo info, T data, AssetLoadOperation loader)
+        private bool TryFixAndValidateLoadedAsset<T>(IAssetInfo info, [NotNullWhen(true)] T? data, AssetLoadOperation loader)
+            where T : notnull
         {
             IModMetadata mod = loader.Mod;
 
@@ -335,7 +341,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
                     // add missing tilesheet
                     if (loadedMap.GetTileSheet(vanillaSheet.Id) == null)
                     {
-                        mod.Monitor.LogOnce("SMAPI fixed maps loaded by this mod to prevent errors. See the log file for details.", LogLevel.Warn);
+                        mod.Monitor!.LogOnce("SMAPI fixed maps loaded by this mod to prevent errors. See the log file for details.", LogLevel.Warn);
                         this.Monitor.Log($"Fixed broken map replacement: {mod.DisplayName} loaded '{info.Name}' without a required tilesheet (id: {vanillaSheet.Id}, source: {vanillaSheet.ImageSource}).");
 
                         loadedMap.AddTileSheet(new TileSheet(vanillaSheet.Id, loadedMap, vanillaSheet.ImageSource, vanillaSheet.SheetSize, vanillaSheet.TileSize));

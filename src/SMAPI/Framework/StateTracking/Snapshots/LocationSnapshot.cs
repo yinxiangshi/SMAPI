@@ -1,5 +1,3 @@
-#nullable disable
-
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using StardewValley;
@@ -70,7 +68,7 @@ namespace StardewModdingAPI.Framework.StateTracking.Snapshots
             this.ChestItems.Clear();
             foreach (ChestTracker tracker in watcher.ChestWatchers.Values)
             {
-                if (tracker.TryGetInventoryChanges(out SnapshotItemListDiff changes))
+                if (tracker.TryGetInventoryChanges(out SnapshotItemListDiff? changes))
                     this.ChestItems[tracker.Chest] = changes;
             }
         }

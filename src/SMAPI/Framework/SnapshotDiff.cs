@@ -1,5 +1,3 @@
-#nullable disable
-
 using StardewModdingAPI.Framework.StateTracking;
 
 namespace StardewModdingAPI.Framework
@@ -15,10 +13,10 @@ namespace StardewModdingAPI.Framework
         public bool IsChanged { get; private set; }
 
         /// <summary>The previous value.</summary>
-        public T Old { get; private set; }
+        public T? Old { get; private set; }
 
         /// <summary>The current value.</summary>
-        public T New { get; private set; }
+        public T? New { get; private set; }
 
 
         /*********

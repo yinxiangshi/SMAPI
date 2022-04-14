@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 
@@ -17,7 +15,7 @@ namespace StardewModdingAPI.Framework.Content
         /// <param name="data">The content data being read.</param>
         /// <param name="getNormalizedPath">Normalizes an asset key to match the cache key.</param>
         /// <param name="onDataReplaced">A callback to invoke when the data is replaced (if any).</param>
-        public AssetDataForDictionary(string locale, IAssetName assetName, IDictionary<TKey, TValue> data, Func<string, string> getNormalizedPath, Action<IDictionary<TKey, TValue>> onDataReplaced)
+        public AssetDataForDictionary(string? locale, IAssetName assetName, IDictionary<TKey, TValue> data, Func<string, string> getNormalizedPath, Action<IDictionary<TKey, TValue>> onDataReplaced)
             : base(locale, assetName, data, getNormalizedPath, onDataReplaced) { }
     }
 }

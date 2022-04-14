@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -18,7 +16,8 @@ namespace StardewModdingAPI
         /// <param name="relativePath">The local path to a content file relative to the mod folder.</param>
         /// <exception cref="ArgumentException">The <paramref name="relativePath"/> is empty or contains invalid characters.</exception>
         /// <exception cref="ContentLoadException">The content asset couldn't be loaded (e.g. because it doesn't exist).</exception>
-        T Load<T>(string relativePath);
+        T Load<T>(string relativePath)
+            where T : notnull;
 
         /// <summary>Get the internal asset name which allows loading a mod file through any of the game's content managers. This can be used when passing asset names directly to the game (e.g. for map tilesheets), but should be avoided if you can use <see cref="Load{T}"/> instead. This does not validate whether the asset exists.</summary>
         /// <param name="relativePath">The local path to a content file relative to the mod folder.</param>
@@ -29,6 +28,7 @@ namespace StardewModdingAPI
         /// <typeparam name="T">The data type.</typeparam>
         /// <param name="data">The asset data.</param>
         /// <param name="relativePath">The local path to the content file being edited relative to the mod folder. This is only used for tracking purposes and has no effect on the patch helper.</param>
-        IAssetData GetPatchHelper<T>(T data, string relativePath = null);
+        IAssetData GetPatchHelper<T>(T data, string? relativePath = null)
+            where T : notnull;
     }
 }

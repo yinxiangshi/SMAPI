@@ -1,7 +1,6 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using StardewModdingAPI.Framework;
 
@@ -44,7 +43,7 @@ namespace StardewModdingAPI.Utilities
         /// <param name="input">The keybind string. See remarks on <see cref="ToString"/> for format details.</param>
         /// <param name="parsed">The parsed keybind, if valid.</param>
         /// <param name="errors">The parse errors, if any.</param>
-        public static bool TryParse(string input, out Keybind parsed, out string[] errors)
+        public static bool TryParse(string input, [NotNullWhen(true)] out Keybind? parsed, out string[] errors)
         {
             // empty input
             if (string.IsNullOrWhiteSpace(input))

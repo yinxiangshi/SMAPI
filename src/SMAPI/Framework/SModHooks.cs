@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Threading.Tasks;
 using StardewValley;
@@ -35,7 +33,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="action">The vanilla <see cref="Game1.newDayAfterFade"/> logic.</param>
         public override void OnGame1_NewDayAfterFade(Action action)
         {
-            this.BeforeNewDayAfterFade?.Invoke();
+            this.BeforeNewDayAfterFade();
             action();
         }
 

@@ -1,7 +1,6 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using StardewModdingAPI.Framework.StateTracking.Comparers;
 using StardewModdingAPI.Framework.StateTracking.FieldWatchers;
@@ -86,7 +85,7 @@ namespace StardewModdingAPI.Framework.StateTracking
         /// <summary>Get the inventory changes since the last update, if anything changed.</summary>
         /// <param name="changes">The inventory changes, or <c>null</c> if nothing changed.</param>
         /// <returns>Returns whether anything changed.</returns>
-        public bool TryGetInventoryChanges(out SnapshotItemListDiff changes)
+        public bool TryGetInventoryChanges([NotNullWhen(true)] out SnapshotItemListDiff? changes)
         {
             return SnapshotItemListDiff.TryGetChanges(added: this.Added, removed: this.Removed, stackSizes: this.StackSizes, out changes);
         }

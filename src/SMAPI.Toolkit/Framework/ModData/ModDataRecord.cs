@@ -80,7 +80,7 @@ namespace StardewModdingAPI.Toolkit.Framework.ModData
 
         /// <summary>Get a parsed representation of the <see cref="ModDataRecord.Fields"/> which match a given manifest.</summary>
         /// <param name="manifest">The manifest to match.</param>
-        public ModDataRecordVersionedFields GetVersionedFields(IManifest manifest)
+        public ModDataRecordVersionedFields GetVersionedFields(IManifest? manifest)
         {
             ModDataRecordVersionedFields parsed = new(this);
             foreach (ModDataField field in this.Fields.Where(field => field.IsMatch(manifest)))

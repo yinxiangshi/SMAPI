@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using Mono.Cecil;
@@ -20,7 +18,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
         private readonly InstructionHandleResult Result;
 
         /// <summary>Get whether a matched type should be ignored.</summary>
-        private readonly Func<TypeReference, bool> ShouldIgnore;
+        private readonly Func<TypeReference, bool>? ShouldIgnore;
 
 
         /*********
@@ -30,7 +28,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
         /// <param name="fullTypeNames">The full type names to match.</param>
         /// <param name="result">The result to return for matching instructions.</param>
         /// <param name="shouldIgnore">Get whether a matched type should be ignored.</param>
-        public TypeFinder(string[] fullTypeNames, InstructionHandleResult result, Func<TypeReference, bool> shouldIgnore = null)
+        public TypeFinder(string[] fullTypeNames, InstructionHandleResult result, Func<TypeReference, bool>? shouldIgnore = null)
             : base(defaultPhrase: $"{string.Join(", ", fullTypeNames)} type{(fullTypeNames.Length != 1 ? "s" : "")}") // default phrase should never be used
         {
             this.FullTypeNames = new HashSet<string>(fullTypeNames);
@@ -42,7 +40,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
         /// <param name="fullTypeName">The full type name to match.</param>
         /// <param name="result">The result to return for matching instructions.</param>
         /// <param name="shouldIgnore">Get whether a matched type should be ignored.</param>
-        public TypeFinder(string fullTypeName, InstructionHandleResult result, Func<TypeReference, bool> shouldIgnore = null)
+        public TypeFinder(string fullTypeName, InstructionHandleResult result, Func<TypeReference, bool>? shouldIgnore = null)
             : this(new[] { fullTypeName }, result, shouldIgnore) { }
 
         /// <inheritdoc />

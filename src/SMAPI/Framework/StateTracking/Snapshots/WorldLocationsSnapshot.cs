@@ -1,5 +1,3 @@
-#nullable disable
-
 using System.Collections.Generic;
 using System.Linq;
 using StardewModdingAPI.Framework.StateTracking.Comparers;
@@ -44,7 +42,7 @@ namespace StardewModdingAPI.Framework.StateTracking.Snapshots
             // update locations
             foreach (LocationTracker locationWatcher in watcher.Locations)
             {
-                if (!this.LocationsDict.TryGetValue(locationWatcher.Location, out LocationSnapshot snapshot))
+                if (!this.LocationsDict.TryGetValue(locationWatcher.Location, out LocationSnapshot? snapshot))
                     this.LocationsDict[locationWatcher.Location] = snapshot = new LocationSnapshot(locationWatcher.Location);
 
                 snapshot.Update(locationWatcher);

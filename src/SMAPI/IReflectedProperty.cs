@@ -1,5 +1,3 @@
-#nullable disable
-
 using System.Reflection;
 
 namespace StardewModdingAPI
@@ -19,10 +17,10 @@ namespace StardewModdingAPI
         ** Public methods
         *********/
         /// <summary>Get the property value.</summary>
-        TValue GetValue();
+        TValue? GetValue();
 
         /// <summary>Set the property value.</summary>
         //// <param name="value">The value to set.</param>
-        void SetValue(TValue value);
+        void SetValue(TValue? value);
     }
 }

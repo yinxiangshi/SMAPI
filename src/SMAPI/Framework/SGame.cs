@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
@@ -48,10 +46,10 @@ namespace StardewModdingAPI.Framework
         private readonly Action<string> ExitGameImmediately;
 
         /// <summary>The initial override for <see cref="Input"/>. This value is null after initialization.</summary>
-        private SInputState InitialInput;
+        private SInputState? InitialInput;
 
         /// <summary>The initial override for <see cref="Multiplayer"/>. This value is null after initialization.</summary>
-        private SMultiplayer InitialMultiplayer;
+        private SMultiplayer? InitialMultiplayer;
 
         /// <summary>Raised when the instance is updating its state (roughly 60 times per second).</summary>
         private readonly Action<SGame, GameTime, Action> OnUpdating;
@@ -70,7 +68,7 @@ namespace StardewModdingAPI.Framework
         public Task NewDayTask => Game1._newDayTask;
 
         /// <summary>Monitors the entire game state for changes.</summary>
-        public WatcherCore Watchers { get; private set; }
+        public WatcherCore Watchers { get; private set; } = null!; // initialized on first update tick
 
         /// <summary>A snapshot of the current <see cref="Watchers"/> state.</summary>
         public WatcherSnapshot WatcherSnapshot { get; } = new();
@@ -94,7 +92,7 @@ namespace StardewModdingAPI.Framework
         /// <summary>Construct a content manager to read game content files.</summary>
         /// <remarks>This must be static because the game accesses it before the <see cref="SGame"/> constructor is called.</remarks>
         [NonInstancedStatic]
-        public static Func<IServiceProvider, string, LocalizedContentManager> CreateContentManagerImpl;
+        public static Func<IServiceProvider, string, LocalizedContentManager>? CreateContentManagerImpl;
 
 
         /*********
@@ -138,11 +136,10 @@ namespace StardewModdingAPI.Framework
         /// <remarks>This is intended for use by <see cref="Keybind"/> and shouldn't be used directly in most cases.</remarks>
         internal static SButtonState GetInputState(SButton button)
         {
-            SInputState input = Game1.input as SInputState;
-            if (input == null)
+            if (Game1.input is not SInputState inputHandler)
                 throw new InvalidOperationException("SMAPI's input state is not in a ready state yet.");
 
-            return input.GetState(button);
+            return inputHandler.GetState(button);
         }
 
         /// <inheritdoc />
@@ -172,13 +169,11 @@ namespace StardewModdingAPI.Framework
         {
             base.Initialize();
 
-            // The game resets public static fields after the class is constructed (see
-            // GameRunner.SetInstanceDefaults), so SMAPI needs to re-override them here.
+            // The game resets public static fields after the class is constructed (see GameRunner.SetInstanceDefaults), so SMAPI needs to re-override them here.
             Game1.input = this.InitialInput;
             Game1.multiplayer = this.InitialMultiplayer;
 
-            // The Initial* fields should no longer be used after this point, since mods may
-            // further override them after initialization.
+            // The Initial* fields should no longer be used after this point, since mods may further override them after initialization.
             this.InitialInput = null;
             this.InitialMultiplayer = null;
         }
@@ -251,6 +246,7 @@ namespace StardewModdingAPI.Framework
             Context.IsInDrawLoop = false;
         }
 
+#nullable disable
         /// <summary>Replicate the game's draw logic with some changes for SMAPI.</summary>
         /// <param name="gameTime">A snapshot of the game timing state.</param>
         /// <param name="target_screen">The render target, if any.</param>
@@ -258,6 +254,7 @@ namespace StardewModdingAPI.Framework
         [SuppressMessage("ReSharper", "CompareOfFloatsByEqualityOperator", Justification = "copied from game code as-is")]
         [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "copied from game code as-is")]
         [SuppressMessage("ReSharper", "LocalVariableHidesMember", Justification = "copied from game code as-is")]
+        [SuppressMessage("ReSharper", "MergeIntoPattern", Justification = "copied from game code as-is")]
         [SuppressMessage("ReSharper", "PossibleLossOfFraction", Justification = "copied from game code as-is")]
         [SuppressMessage("ReSharper", "RedundantArgumentDefaultValue", Justification = "copied from game code as-is")]
         [SuppressMessage("ReSharper", "RedundantBaseQualifier", Justification = "copied from game code as-is")]
@@ -265,8 +262,9 @@ namespace StardewModdingAPI.Framework
         [SuppressMessage("ReSharper", "RedundantExplicitNullableCreation", Justification = "copied from game code as-is")]
         [SuppressMessage("ReSharper", "RedundantTypeArgumentsOfMethod", Justification = "copied from game code as-is")]
         [SuppressMessage("ReSharper", "IdentifierTypo", Justification = "copied from game code as-is")]
-        [SuppressMessage("SMAPI.CommonErrors", "AvoidNetField", Justification = "copied from game code as-is")]
+        [SuppressMessage("ReSharper", "MergeIntoPattern", Justification = "copied from game code as-is")]
         [SuppressMessage("SMAPI.CommonErrors", "AvoidImplicitNetFieldCast", Justification = "copied from game code as-is")]
+        [SuppressMessage("SMAPI.CommonErrors", "AvoidNetField", Justification = "copied from game code as-is")]
         private void DrawImpl(GameTime gameTime, RenderTarget2D target_screen)
         {
             var events = this.Events;
@@ -952,5 +950,6 @@ namespace StardewModdingAPI.Framework
             this.drawOverlays(Game1.spriteBatch);
             Game1.PopUIMode();
         }
+#nullable enable
     }
 }

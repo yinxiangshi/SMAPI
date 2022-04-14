@@ -1,6 +1,5 @@
-#nullable disable
-
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace StardewModdingAPI
 {
@@ -20,6 +19,7 @@ namespace StardewModdingAPI
         bool IsSplitScreen { get; }
 
         /// <summary>Whether the player has SMAPI installed.</summary>
+        [MemberNotNullWhen(true, nameof(IMultiplayerPeer.Platform), nameof(IMultiplayerPeer.GameVersion), nameof(IMultiplayerPeer.ApiVersion), nameof(IMultiplayerPeer.Mods))]
         bool HasSmapi { get; }
 
         /// <summary>The player's screen ID, if applicable.</summary>
@@ -30,10 +30,10 @@ namespace StardewModdingAPI
         GamePlatform? Platform { get; }
 
         /// <summary>The installed version of Stardew Valley, if <see cref="HasSmapi"/> is true.</summary>
-        ISemanticVersion GameVersion { get; }
+        ISemanticVersion? GameVersion { get; }
 
         /// <summary>The installed version of SMAPI, if <see cref="HasSmapi"/> is true.</summary>
-        ISemanticVersion ApiVersion { get; }
+        ISemanticVersion? ApiVersion { get; }
 
         /// <summary>The installed mods, if <see cref="HasSmapi"/> is true.</summary>
         IEnumerable<IMultiplayerPeerMod> Mods { get; }
@@ -45,6 +45,6 @@ namespace StardewModdingAPI
         /// <summary>Get metadata for a mod installed by the player.</summary>
         /// <param name="id">The unique mod ID.</param>
         /// <returns>Returns the mod info, or <c>null</c> if the player doesn't have that mod.</returns>
-        IMultiplayerPeerMod GetMod(string id);
+        IMultiplayerPeerMod? GetMod(string? id);
     }
 }

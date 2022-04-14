@@ -1,6 +1,5 @@
-#nullable disable
-
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Newtonsoft.Json;
 using StardewModdingAPI.Framework;
@@ -24,7 +23,7 @@ namespace StardewModdingAPI.Utilities
         private readonly int DaysInSeason = 28;
 
         /// <summary>The core SMAPI translations.</summary>
-        internal static Translator Translations;
+        internal static Translator? Translations;
 
 
         /*********
@@ -94,7 +93,8 @@ namespace StardewModdingAPI.Utilities
 
         /// <summary>Get a date from a game date instance.</summary>
         /// <param name="date">The world date.</param>
-        public static SDate From(WorldDate date)
+        [return: NotNullIfNotNull("date")]
+        public static SDate? From(WorldDate? date)
         {
             if (date == null)
                 return null;
@@ -170,14 +170,14 @@ namespace StardewModdingAPI.Utilities
         ****/
         /// <summary>Get whether this instance is equal to another.</summary>
         /// <param name="other">The other value to compare.</param>
-        public bool Equals(SDate other)
+        public bool Equals(SDate? other)
         {
             return this == other;
         }
 
         /// <summary>Get whether this instance is equal to another.</summary>
         /// <param name="obj">The other value to compare.</param>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return obj is SDate other && this == other;
         }
@@ -195,7 +195,7 @@ namespace StardewModdingAPI.Utilities
         /// <param name="date">The base date to compare.</param>
         /// <param name="other">The other date to compare.</param>
         /// <returns>The equality of the dates</returns>
-        public static bool operator ==(SDate date, SDate other)
+        public static bool operator ==(SDate? date, SDate? other)
         {
             return date?.DaysSinceStart == other?.DaysSinceStart;
         }
@@ -203,7 +203,7 @@ namespace StardewModdingAPI.Utilities
         /// <summary>Get whether one date is not equal to another.</summary>
         /// <param name="date">The base date to compare.</param>
         /// <param name="other">The other date to compare.</param>
-        public static bool operator !=(SDate date, SDate other)
+        public static bool operator !=(SDate? date, SDate? other)
         {
             return date?.DaysSinceStart != other?.DaysSinceStart;
         }
@@ -211,7 +211,7 @@ namespace StardewModdingAPI.Utilities
         /// <summary>Get whether one date is more than another.</summary>
         /// <param name="date">The base date to compare.</param>
         /// <param name="other">The other date to compare.</param>
-        public static bool operator >(SDate date, SDate other)
+        public static bool operator >(SDate? date, SDate? other)
         {
             return date?.DaysSinceStart > other?.DaysSinceStart;
         }
@@ -219,7 +219,7 @@ namespace StardewModdingAPI.Utilities
         /// <summary>Get whether one date is more than or equal to another.</summary>
         /// <param name="date">The base date to compare.</param>
         /// <param name="other">The other date to compare.</param>
-        public static bool operator >=(SDate date, SDate other)
+        public static bool operator >=(SDate? date, SDate? other)
         {
             return date?.DaysSinceStart >= other?.DaysSinceStart;
         }
@@ -227,7 +227,7 @@ namespace StardewModdingAPI.Utilities
         /// <summary>Get whether one date is less than or equal to another.</summary>
         /// <param name="date">The base date to compare.</param>
         /// <param name="other">The other date to compare.</param>
-        public static bool operator <=(SDate date, SDate other)
+        public static bool operator <=(SDate? date, SDate? other)
         {
             return date?.DaysSinceStart <= other?.DaysSinceStart;
         }
@@ -235,7 +235,7 @@ namespace StardewModdingAPI.Utilities
         /// <summary>Get whether one date is less than another.</summary>
         /// <param name="date">The base date to compare.</param>
         /// <param name="other">The other date to compare.</param>
-        public static bool operator <(SDate date, SDate other)
+        public static bool operator <(SDate? date, SDate? other)
         {
             return date?.DaysSinceStart < other?.DaysSinceStart;
         }
@@ -250,9 +250,10 @@ namespace StardewModdingAPI.Utilities
         /// <param name="year">The year.</param>
         /// <param name="allowDayZero">Whether to allow 0 spring Y1 as a valid date.</param>
         /// <exception cref="ArgumentException">One of the arguments has an invalid value (like day 35).</exception>
+        [SuppressMessage("ReSharper", "ConstantConditionalAccessQualifier", Justification = "The nullability is validated in this constructor.")]
         private SDate(int day, string season, int year, bool allowDayZero)
         {
-            season = season?.Trim().ToLowerInvariant();
+            season = season?.Trim().ToLowerInvariant()!; // null-checked below
 
             // validate
             if (season == null)
@@ -288,25 +289,17 @@ namespace StardewModdingAPI.Utilities
         /// <param name="day">The day of month.</param>
         private DayOfWeek GetDayOfWeek(int day)
         {
-            switch (day % 7)
+            return (day % 7) switch
             {
-                case 0:
-                    return DayOfWeek.Sunday;
-                case 1:
-                    return DayOfWeek.Monday;
-                case 2:
-                    return DayOfWeek.Tuesday;
-                case 3:
-                    return DayOfWeek.Wednesday;
-                case 4:
-                    return DayOfWeek.Thursday;
-                case 5:
-                    return DayOfWeek.Friday;
-                case 6:
-                    return DayOfWeek.Saturday;
-                default:
-                    return 0;
-            }
+                0 => DayOfWeek.Sunday,
+                1 => DayOfWeek.Monday,
+                2 => DayOfWeek.Tuesday,
+                3 => DayOfWeek.Wednesday,
+                4 => DayOfWeek.Thursday,
+                5 => DayOfWeek.Friday,
+                6 => DayOfWeek.Saturday,
+                _ => 0
+            };
         }
 
         /// <summary>Get the number of days since the game began (starting at 1 for the first day of spring in Y1).</summary>

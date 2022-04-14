@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Linq;
 using StardewModdingAPI.Framework.Content;
@@ -71,6 +69,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
 
         /// <inheritdoc />
         public T Load<T>(string key)
+            where T : notnull
         {
             IAssetName assetName = this.ContentCore.ParseAssetName(key, allowLocales: true);
             return this.Load<T>(assetName);
@@ -78,6 +77,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
 
         /// <inheritdoc />
         public T Load<T>(IAssetName assetName)
+            where T : notnull
         {
             try
             {
@@ -105,6 +105,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
 
         /// <inheritdoc />
         public bool InvalidateCache<T>()
+            where T : notnull
         {
             this.Monitor.Log($"Requested cache invalidation for all assets of type {typeof(T)}. This is an expensive operation and should be avoided if possible.");
             return this.ContentCore.InvalidateCache((_, _, type) => typeof(T).IsAssignableFrom(type)).Any();
@@ -118,7 +119,8 @@ namespace StardewModdingAPI.Framework.ModHelpers
         }
 
         /// <inheritdoc />
-        public IAssetData GetPatchHelper<T>(T data, string assetName = null)
+        public IAssetData GetPatchHelper<T>(T data, string? assetName = null)
+            where T : notnull
         {
             if (data == null)
                 throw new ArgumentNullException(nameof(data), "Can't get a patch helper for a null value.");

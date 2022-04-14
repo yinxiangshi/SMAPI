@@ -1,7 +1,6 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using StardewModdingAPI.Framework.ModHelpers;
@@ -44,7 +43,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         public IManifest Manifest { get; }
 
         /// <inheritdoc />
-        public ModDataRecordVersionedFields DataRecord { get; }
+        public ModDataRecordVersionedFields? DataRecord { get; }
 
         /// <inheritdoc />
         public ModMetadataStatus Status { get; private set; }
@@ -56,33 +55,35 @@ namespace StardewModdingAPI.Framework.ModLoading
         public ModWarning Warnings => this.ActualWarnings & ~(this.DataRecord?.DataRecord.SuppressWarnings ?? ModWarning.None);
 
         /// <inheritdoc />
-        public string Error { get; private set; }
+        public string? Error { get; private set; }
 
         /// <inheritdoc />
-        public string ErrorDetails { get; private set; }
+        public string? ErrorDetails { get; private set; }
 
         /// <inheritdoc />
         public bool IsIgnored { get; }
 
         /// <inheritdoc />
-        public IMod Mod { get; private set; }
+        public IMod? Mod { get; private set; }
 
         /// <inheritdoc />
-        public IContentPack ContentPack { get; private set; }
+        public IContentPack? ContentPack { get; private set; }
 
         /// <inheritdoc />
-        public TranslationHelper Translations { get; private set; }
+        public TranslationHelper? Translations { get; private set; }
 
         /// <inheritdoc />
-        public IMonitor Monitor { get; private set; }
+        public IMonitor? Monitor { get; private set; }
 
         /// <inheritdoc />
-        public object Api { get; private set; }
+        public object? Api { get; private set; }
 
         /// <inheritdoc />
-        public ModEntryModel UpdateCheckData { get; private set; }
+        public ModEntryModel? UpdateCheckData { get; private set; }
 
         /// <inheritdoc />
+        [MemberNotNullWhen(true, nameof(ModMetadata.ContentPack))]
+        [SuppressMessage("ReSharper", "ConstantConditionalAccessQualifier", Justification = "The manifest may be null for broken mods while loading.")]
         public bool IsContentPack => this.Manifest?.ContentPackFor != null;
 
         /// <summary>The fake content packs created by this mod, if any.</summary>
@@ -99,13 +100,13 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <param name="manifest">The mod manifest.</param>
         /// <param name="dataRecord">Metadata about the mod from SMAPI's internal data (if any).</param>
         /// <param name="isIgnored">Whether the mod folder should be ignored. This should be <c>true</c> if it was found within a folder whose name starts with a dot.</param>
-        public ModMetadata(string displayName, string directoryPath, string rootPath, IManifest manifest, ModDataRecordVersionedFields dataRecord, bool isIgnored)
+        public ModMetadata(string displayName, string directoryPath, string rootPath, IManifest? manifest, ModDataRecordVersionedFields? dataRecord, bool isIgnored)
         {
             this.DisplayName = displayName;
             this.DirectoryPath = directoryPath;
             this.RootPath = rootPath;
             this.RelativeDirectoryPath = PathUtilities.GetRelativePath(this.RootPath, this.DirectoryPath);
-            this.Manifest = manifest;
+            this.Manifest = manifest!; // manifest may be null in low-level SMAPI code, but won't be null once it's received by mods via IModInfo
             this.DataRecord = dataRecord;
             this.IsIgnored = isIgnored;
 
@@ -121,7 +122,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         }
 
         /// <inheritdoc />
-        public IModMetadata SetStatus(ModMetadataStatus status, ModFailReason reason, string error, string errorDetails = null)
+        public IModMetadata SetStatus(ModMetadataStatus status, ModFailReason reason, string? error, string? errorDetails = null)
         {
             this.Status = status;
             this.FailReason = reason;
@@ -162,7 +163,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         }
 
         /// <inheritdoc />
-        public IModMetadata SetApi(object api)
+        public IModMetadata SetApi(object? api)
         {
             this.Api = api;
             return this;
@@ -176,6 +177,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         }
 
         /// <inheritdoc />
+        [MemberNotNullWhen(true, nameof(IModInfo.Manifest))]
         public bool HasManifest()
         {
             return this.Manifest != null;
@@ -190,7 +192,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         }
 
         /// <inheritdoc />
-        public bool HasID(string id)
+        public bool HasID(string? id)
         {
             return
                 this.HasID()
@@ -245,7 +247,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <inheritdoc />
         public string GetRelativePathWithRoot()
         {
-            string rootFolderName = Path.GetFileName(this.RootPath) ?? "";
+            string rootFolderName = Path.GetFileName(this.RootPath);
             return Path.Combine(rootFolderName, this.RelativeDirectoryPath);
         }
 
@@ -254,7 +256,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         {
             foreach (var reference in this.FakeContentPacks.ToArray())
             {
-                if (!reference.TryGetTarget(out ContentPack pack))
+                if (!reference.TryGetTarget(out ContentPack? pack))
                 {
                     this.FakeContentPacks.Remove(reference);
                     continue;

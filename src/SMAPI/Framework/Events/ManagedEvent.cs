@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,7 +21,7 @@ namespace StardewModdingAPI.Framework.Events
         private readonly List<ManagedEventHandler<TEventArgs>> Handlers = new();
 
         /// <summary>A cached snapshot of <see cref="Handlers"/>, or <c>null</c> to rebuild it next raise.</summary>
-        private ManagedEventHandler<TEventArgs>[] CachedHandlers = Array.Empty<ManagedEventHandler<TEventArgs>>();
+        private ManagedEventHandler<TEventArgs>[]? CachedHandlers = Array.Empty<ManagedEventHandler<TEventArgs>>();
 
         /// <summary>The total number of event handlers registered for this events, regardless of whether they're still registered.</summary>
         private int RegistrationIndex;
@@ -100,7 +98,7 @@ namespace StardewModdingAPI.Framework.Events
         /// <summary>Raise the event and notify all handlers.</summary>
         /// <param name="args">The event arguments to pass.</param>
         /// <param name="match">A lambda which returns true if the event should be raised for the given mod.</param>
-        public void Raise(TEventArgs args, Func<IModMetadata, bool> match = null)
+        public void Raise(TEventArgs args, Func<IModMetadata, bool>? match = null)
         {
             this.Raise((_, invoke) => invoke(args), match);
         }
@@ -108,7 +106,7 @@ namespace StardewModdingAPI.Framework.Events
         /// <summary>Raise the event and notify all handlers.</summary>
         /// <param name="invoke">Invoke an event handler. This receives the mod which registered the handler, and should invoke the callback with the event arguments to pass it.</param>
         /// <param name="match">A lambda which returns true if the event should be raised for the given mod.</param>
-        public void Raise(Action<IModMetadata, Action<TEventArgs>> invoke, Func<IModMetadata, bool> match = null)
+        public void Raise(Action<IModMetadata, Action<TEventArgs>> invoke, Func<IModMetadata, bool>? match = null)
         {
             // skip if no handlers
             if (this.Handlers.Count == 0)

@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
@@ -19,7 +17,7 @@ namespace StardewModdingAPI.Events
         private readonly IModMetadata Mod;
 
         /// <summary>Get the mod metadata for a content pack, if it's a valid content pack for the mod.</summary>
-        private readonly Func<IModMetadata, string, string, IModMetadata> GetOnBehalfOf;
+        private readonly Func<IModMetadata, string?, string, IModMetadata?> GetOnBehalfOf;
 
 
         /*********
@@ -51,7 +49,7 @@ namespace StardewModdingAPI.Events
         /// <param name="dataType">The requested data type.</param>
         /// <param name="nameWithoutLocale">The <paramref name="name"/> with any locale codes stripped.</param>
         /// <param name="getOnBehalfOf">Get the mod metadata for a content pack, if it's a valid content pack for the mod.</param>
-        internal AssetRequestedEventArgs(IModMetadata mod, IAssetName name, IAssetName nameWithoutLocale, Type dataType, Func<IModMetadata, string, string, IModMetadata> getOnBehalfOf)
+        internal AssetRequestedEventArgs(IModMetadata mod, IAssetName name, IAssetName nameWithoutLocale, Type dataType, Func<IModMetadata, string?, string, IModMetadata?> getOnBehalfOf)
         {
             this.Mod = mod;
             this.Name = name;
@@ -71,7 +69,7 @@ namespace StardewModdingAPI.Events
         ///   <item>Each asset can logically only have one initial instance. If multiple loads apply at the same time, SMAPI will use the <paramref name="priority"/> parameter to decide what happens. If you're making changes to the existing asset instead of replacing it, you should use <see cref="Edit"/> instead to avoid those limitations and improve mod compatibility.</item>
         /// </list>
         /// </remarks>
-        public void LoadFrom(Func<object> load, AssetLoadPriority priority, string onBehalfOf = null)
+        public void LoadFrom(Func<object> load, AssetLoadPriority priority, string? onBehalfOf = null)
         {
             this.LoadOperations.Add(
                 new AssetLoadOperation(
@@ -95,13 +93,15 @@ namespace StardewModdingAPI.Events
         /// </list>
         /// </remarks>
         public void LoadFromModFile<TAsset>(string relativePath, AssetLoadPriority priority)
+            where TAsset : notnull
         {
             this.LoadOperations.Add(
                 new AssetLoadOperation(
                     mod: this.Mod,
                     priority: priority,
                     onBehalfOf: null,
-                    _ => this.Mod.Mod.Helper.ModContent.Load<TAsset>(relativePath))
+                    _ => this.Mod.Mod!.Helper.ModContent.Load<TAsset>(relativePath)
+                )
             );
         }
 
@@ -116,7 +116,7 @@ namespace StardewModdingAPI.Events
         ///   <item>You can apply any number of edits to the asset. Each edit will be applied on top of the previous one (i.e. it'll see the merged asset from all previous edits as its input).</item>
         /// </list>
         /// </remarks>
-        public void Edit(Action<IAssetData> apply, AssetEditPriority priority = AssetEditPriority.Default, string onBehalfOf = null)
+        public void Edit(Action<IAssetData> apply, AssetEditPriority priority = AssetEditPriority.Default, string? onBehalfOf = null)
         {
             this.EditOperations.Add(
                 new AssetEditOperation(

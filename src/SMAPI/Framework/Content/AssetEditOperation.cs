@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using StardewModdingAPI.Events;
 
@@ -18,7 +16,7 @@ namespace StardewModdingAPI.Framework.Content
         public AssetEditPriority Priority { get; }
 
         /// <summary>The content pack on whose behalf the edit is being applied, if any.</summary>
-        public IModMetadata OnBehalfOf { get; }
+        public IModMetadata? OnBehalfOf { get; }
 
         /// <summary>Apply the edit to an asset.</summary>
         public Action<IAssetData> ApplyEdit { get; }
@@ -32,7 +30,7 @@ namespace StardewModdingAPI.Framework.Content
         /// <param name="priority">If there are multiple edits that apply to the same asset, the priority with which this one should be applied.</param>
         /// <param name="onBehalfOf">The content pack on whose behalf the edit is being applied, if any.</param>
         /// <param name="applyEdit">Apply the edit to an asset.</param>
-        public AssetEditOperation(IModMetadata mod, AssetEditPriority priority, IModMetadata onBehalfOf, Action<IAssetData> applyEdit)
+        public AssetEditOperation(IModMetadata mod, AssetEditPriority priority, IModMetadata? onBehalfOf, Action<IAssetData> applyEdit)
         {
             this.Mod = mod;
             this.Priority = priority;

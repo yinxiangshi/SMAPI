@@ -1,7 +1,6 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using StardewValley;
 
@@ -23,7 +22,7 @@ namespace StardewModdingAPI.Framework
         /*********
         ** Accessors
         *********/
-        /// <summary>The current locale.</summary>
+        /// <summary>The current locale code like <c>fr-FR</c>, or an empty string for English.</summary>
         public string Locale { get; private set; }
 
         /// <summary>The game's current language code.</summary>
@@ -39,9 +38,10 @@ namespace StardewModdingAPI.Framework
             this.SetLocale(string.Empty, LocalizedContentManager.LanguageCode.en);
         }
 
-        /// <summary>Set the current locale and precache translations.</summary>
+        /// <summary>Set the current locale and pre-cache translations.</summary>
         /// <param name="locale">The current locale.</param>
         /// <param name="localeEnum">The game's current language code.</param>
+        [MemberNotNull(nameof(Translator.ForLocale), nameof(Translator.Locale))]
         public void SetLocale(string locale, LocalizedContentManager.LanguageCode localeEnum)
         {
             this.Locale = locale.ToLower().Trim();
@@ -50,7 +50,7 @@ namespace StardewModdingAPI.Framework
             this.ForLocale = new Dictionary<string, Translation>(StringComparer.OrdinalIgnoreCase);
             foreach (string key in this.GetAllKeysRaw())
             {
-                string text = this.GetRaw(key, locale, withFallback: true);
+                string? text = this.GetRaw(key, locale, withFallback: true);
                 this.ForLocale.Add(key, new Translation(this.Locale, key, text));
             }
         }
@@ -65,7 +65,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="key">The translation key.</param>
         public Translation Get(string key)
         {
-            this.ForLocale.TryGetValue(key, out Translation translation);
+            this.ForLocale.TryGetValue(key, out Translation? translation);
             return translation ?? new Translation(this.Locale, key, null);
         }
 
@@ -87,7 +87,7 @@ namespace StardewModdingAPI.Framework
             foreach (var localeSet in this.All)
             {
                 string locale = localeSet.Key;
-                string text = this.GetRaw(key, locale, withFallback);
+                string? text = this.GetRaw(key, locale, withFallback);
 
                 if (text != null)
                     translations[locale] = new Translation(locale, key, text);
@@ -128,13 +128,13 @@ namespace StardewModdingAPI.Framework
         /// <param name="key">The translation key.</param>
         /// <param name="locale">The locale to get.</param>
         /// <param name="withFallback">Whether to add duplicate translations for locale fallback. For example, if a translation is defined in <c>default.json</c> but not <c>fr.json</c>, setting this to true will add a <c>fr</c> entry which duplicates the default text.</param>
-        private string GetRaw(string key, string locale, bool withFallback)
+        private string? GetRaw(string key, string locale, bool withFallback)
         {
             foreach (string next in this.GetRelevantLocales(locale))
             {
-                string translation = null;
+                string? translation = null;
                 bool hasTranslation =
-                    this.All.TryGetValue(next, out IDictionary<string, string> translations)
+                    this.All.TryGetValue(next, out IDictionary<string, string>? translations)
                     && translations.TryGetValue(key, out translation);
 
                 if (hasTranslation)

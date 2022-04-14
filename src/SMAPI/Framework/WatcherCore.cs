@@ -1,5 +1,3 @@
-#nullable disable
-
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Microsoft.Xna.Framework;
@@ -29,7 +27,7 @@ namespace StardewModdingAPI.Framework
         public readonly IValueWatcher<Point> WindowSizeWatcher;
 
         /// <summary>Tracks changes to the current player.</summary>
-        public PlayerTracker CurrentPlayerTracker;
+        public PlayerTracker? CurrentPlayerTracker;
 
         /// <summary>Tracks changes to the time of day (in 24-hour military format).</summary>
         public readonly IValueWatcher<int> TimeWatcher;

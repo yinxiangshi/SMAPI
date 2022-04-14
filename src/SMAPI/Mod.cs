@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 
 namespace StardewModdingAPI
@@ -11,13 +9,13 @@ namespace StardewModdingAPI
         ** Accessors
         *********/
         /// <inheritdoc />
-        public IModHelper Helper { get; internal set; }
+        public IModHelper Helper { get; internal set; } = null!;
 
         /// <inheritdoc />
-        public IMonitor Monitor { get; internal set; }
+        public IMonitor Monitor { get; internal set; } = null!;
 
         /// <inheritdoc />
-        public IManifest ModManifest { get; internal set; }
+        public IManifest ModManifest { get; internal set; } = null!;
 
 
         /*********
@@ -27,7 +25,7 @@ namespace StardewModdingAPI
         public abstract void Entry(IModHelper helper);
 
         /// <inheritdoc />
-        public virtual object GetApi()
+        public virtual object? GetApi()
         {
             return null;
         }
@@ -35,7 +33,7 @@ namespace StardewModdingAPI
         /// <summary>Release or reset unmanaged resources.</summary>
         public void Dispose()
         {
-            (this.Helper as IDisposable)?.Dispose(); // deliberate do this outside overridable dispose method so mods don't accidentally suppress it
+            (this.Helper as IDisposable)?.Dispose(); // deliberately do this outside overridable dispose method so mods don't accidentally suppress it
             this.Dispose(true);
             GC.SuppressFinalize(this);
         }

@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
@@ -19,7 +17,7 @@ namespace StardewModdingAPI.Framework.Content
         ** Accessors
         *********/
         /// <inheritdoc />
-        public string Locale { get; }
+        public string? Locale { get; }
 
         /// <inheritdoc />
         public IAssetName Name { get; }
@@ -28,7 +26,7 @@ namespace StardewModdingAPI.Framework.Content
         public IAssetName NameWithoutLocale { get; }
 
         /// <inheritdoc />
-        [Obsolete($"Use {nameof(Name)} or {nameof(NameWithoutLocale)} instead. This property will be removed in SMAPI 4.0.0.")]
+        [Obsolete($"Use {nameof(AssetInfo.Name)} or {nameof(AssetInfo.NameWithoutLocale)} instead. This property will be removed in SMAPI 4.0.0.")]
         public string AssetName
         {
             get
@@ -56,7 +54,7 @@ namespace StardewModdingAPI.Framework.Content
         /// <param name="assetName">The asset name being read.</param>
         /// <param name="type">The content type being read.</param>
         /// <param name="getNormalizedPath">Normalizes an asset key to match the cache key.</param>
-        public AssetInfo(string locale, IAssetName assetName, Type type, Func<string, string> getNormalizedPath)
+        public AssetInfo(string? locale, IAssetName assetName, Type type, Func<string, string> getNormalizedPath)
         {
             this.Locale = locale;
             this.Name = assetName;
@@ -66,7 +64,7 @@ namespace StardewModdingAPI.Framework.Content
         }
 
         /// <inheritdoc />
-        [Obsolete($"Use {nameof(Name)}.{nameof(IAssetName.IsEquivalentTo)} or {nameof(NameWithoutLocale)}.{nameof(IAssetName.IsEquivalentTo)} instead. This method will be removed in SMAPI 4.0.0.")]
+        [Obsolete($"Use {nameof(Name)}.{nameof(IAssetName.IsEquivalentTo)} or {nameof(AssetInfo.NameWithoutLocale)}.{nameof(IAssetName.IsEquivalentTo)} instead. This method will be removed in SMAPI 4.0.0.")]
         public bool AssetNameEquals(string path)
         {
             SCore.DeprecationManager.Warn(
@@ -106,7 +104,7 @@ namespace StardewModdingAPI.Framework.Content
                 return "string";
 
             // default
-            return type.FullName;
+            return type.FullName!;
         }
     }
 }

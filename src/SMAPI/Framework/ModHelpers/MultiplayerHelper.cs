@@ -1,5 +1,3 @@
-#nullable disable
-
 using System.Collections.Generic;
 using StardewModdingAPI.Framework.Networking;
 using StardewValley;
@@ -41,9 +39,9 @@ namespace StardewModdingAPI.Framework.ModHelpers
         }
 
         /// <inheritdoc />
-        public IMultiplayerPeer GetConnectedPlayer(long id)
+        public IMultiplayerPeer? GetConnectedPlayer(long id)
         {
-            return this.Multiplayer.Peers.TryGetValue(id, out MultiplayerPeer peer)
+            return this.Multiplayer.Peers.TryGetValue(id, out MultiplayerPeer? peer)
                 ? peer
                 : null;
         }
@@ -55,7 +53,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         }
 
         /// <inheritdoc />
-        public void SendMessage<TMessage>(TMessage message, string messageType, string[] modIDs = null, long[] playerIDs = null)
+        public void SendMessage<TMessage>(TMessage message, string messageType, string[]? modIDs = null, long[]? playerIDs = null)
         {
             this.Multiplayer.BroadcastModMessage(
                 message: message,

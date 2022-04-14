@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -42,7 +40,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="modAssembly">The mod assembly.</param>
         public void TrackAssemblies(IModMetadata metadata, Assembly modAssembly)
         {
-            this.ModNamesByAssembly[modAssembly.FullName] = metadata;
+            this.ModNamesByAssembly[modAssembly.FullName!] = metadata;
         }
 
         /// <summary>Get metadata for all loaded mods.</summary>
@@ -62,7 +60,7 @@ namespace StardewModdingAPI.Framework
         /// <summary>Get metadata for a loaded mod.</summary>
         /// <param name="uniqueID">The mod's unique ID.</param>
         /// <returns>Returns the matching mod's metadata, or <c>null</c> if not found.</returns>
-        public IModMetadata Get(string uniqueID)
+        public IModMetadata? Get(string uniqueID)
         {
             // normalize search ID
             if (string.IsNullOrWhiteSpace(uniqueID))
@@ -76,14 +74,14 @@ namespace StardewModdingAPI.Framework
         /// <summary>Get the mod metadata from one of its assemblies.</summary>
         /// <param name="type">The type to check.</param>
         /// <returns>Returns the mod name, or <c>null</c> if the type isn't part of a known mod.</returns>
-        public IModMetadata GetFrom(Type type)
+        public IModMetadata? GetFrom(Type? type)
         {
             // null
             if (type == null)
                 return null;
 
             // known type
-            string assemblyName = type.Assembly.FullName;
+            string assemblyName = type.Assembly.FullName!;
             if (this.ModNamesByAssembly.ContainsKey(assemblyName))
                 return this.ModNamesByAssembly[assemblyName];
 
@@ -93,7 +91,7 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>Get the friendly name for the closest assembly registered as a source of deprecation warnings.</summary>
         /// <returns>Returns the source name, or <c>null</c> if no registered assemblies were found.</returns>
-        public IModMetadata GetFromStack()
+        public IModMetadata? GetFromStack()
         {
             // get stack frames
             StackTrace stack = new();
@@ -102,8 +100,8 @@ namespace StardewModdingAPI.Framework
             // search stack for a source assembly
             foreach (StackFrame frame in frames)
             {
-                MethodBase method = frame.GetMethod();
-                IModMetadata mod = this.GetFrom(method.ReflectedType);
+                MethodBase? method = frame.GetMethod();
+                IModMetadata? mod = this.GetFrom(method?.ReflectedType);
                 if (mod != null)
                     return mod;
             }

@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.IO;
 using StardewModdingAPI.Framework.ModHelpers;
@@ -69,12 +67,12 @@ namespace StardewModdingAPI.Framework
         }
 
         /// <inheritdoc />
-        public TModel ReadJsonFile<TModel>(string path) where TModel : class
+        public TModel? ReadJsonFile<TModel>(string path) where TModel : class
         {
             path = PathUtilities.NormalizePath(path);
 
             FileInfo file = this.GetFile(path);
-            return file.Exists && this.JsonHelper.ReadJsonFileIfExists(file.FullName, out TModel model)
+            return file.Exists && this.JsonHelper.ReadJsonFileIfExists(file.FullName, out TModel? model)
                 ? model
                 : null;
         }
@@ -93,6 +91,7 @@ namespace StardewModdingAPI.Framework
         /// <inheritdoc />
         [Obsolete]
         public T LoadAsset<T>(string key)
+            where T : notnull
         {
             return this.ModContent.Load<T>(key);
         }
@@ -101,7 +100,7 @@ namespace StardewModdingAPI.Framework
         [Obsolete]
         public string GetActualAssetKey(string key)
         {
-            return this.ModContent.GetInternalAssetName(key)?.Name;
+            return this.ModContent.GetInternalAssetName(key).Name;
         }
 
 

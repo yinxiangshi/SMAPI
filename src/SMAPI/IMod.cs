@@ -1,5 +1,3 @@
-#nullable disable
-
 namespace StardewModdingAPI
 {
     /// <summary>The implementation for a Stardew Valley mod.</summary>
@@ -26,6 +24,6 @@ namespace StardewModdingAPI
         void Entry(IModHelper helper);
 
         /// <summary>Get an API that other mods can access. This is always called after <see cref="Entry"/>.</summary>
-        object GetApi();
+        object? GetApi();
     }
 }

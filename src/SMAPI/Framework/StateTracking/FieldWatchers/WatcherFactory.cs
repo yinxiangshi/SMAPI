@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -20,7 +18,8 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
         /// <summary>Get a watcher which compares values using their <see cref="object.Equals(object)"/> method. This method should only be used when <see cref="ForEquatable{T}"/> won't work, since this doesn't validate whether they're comparable.</summary>
         /// <typeparam name="T">The value type.</typeparam>
         /// <param name="getValue">Get the current value.</param>
-        public static IValueWatcher<T> ForGenericEquality<T>(Func<T> getValue) where T : struct
+        public static IValueWatcher<T> ForGenericEquality<T>(Func<T> getValue)
+            where T : struct
         {
             return new ComparableWatcher<T>(getValue, new GenericEqualsComparer<T>());
         }
@@ -28,7 +27,8 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
         /// <summary>Get a watcher for an <see cref="IEquatable{T}"/> value.</summary>
         /// <typeparam name="T">The value type.</typeparam>
         /// <param name="getValue">Get the current value.</param>
-        public static IValueWatcher<T> ForEquatable<T>(Func<T> getValue) where T : IEquatable<T>
+        public static IValueWatcher<T> ForEquatable<T>(Func<T> getValue)
+            where T : IEquatable<T>
         {
             return new ComparableWatcher<T>(getValue, new EquatableComparer<T>());
         }
@@ -79,7 +79,8 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
         /// <summary>Get a watcher for a net collection.</summary>
         /// <typeparam name="T">The value type.</typeparam>
         /// <param name="collection">The net collection.</param>
-        public static ICollectionWatcher<T> ForNetCollection<T>(NetCollection<T> collection) where T : class, INetObject<INetSerializable>
+        public static ICollectionWatcher<T> ForNetCollection<T>(NetCollection<T> collection)
+            where T : class, INetObject<INetSerializable>
         {
             return new NetCollectionWatcher<T>(collection);
         }
@@ -87,7 +88,8 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
         /// <summary>Get a watcher for a net list.</summary>
         /// <typeparam name="T">The value type.</typeparam>
         /// <param name="collection">The net list.</param>
-        public static ICollectionWatcher<T> ForNetList<T>(NetList<T, NetRef<T>> collection) where T : class, INetObject<INetSerializable>
+        public static ICollectionWatcher<T> ForNetList<T>(NetList<T, NetRef<T>> collection)
+            where T : class, INetObject<INetSerializable>
         {
             return new NetListWatcher<T>(collection);
         }
@@ -100,6 +102,7 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
         /// <typeparam name="TSelf">The net field instance type.</typeparam>
         /// <param name="field">The net field.</param>
         public static NetDictionaryWatcher<TKey, TValue, TField, TSerialDict, TSelf> ForNetDictionary<TKey, TValue, TField, TSerialDict, TSelf>(NetDictionary<TKey, TValue, TField, TSerialDict, TSelf> field)
+            where TKey : notnull
             where TField : class, INetObject<INetSerializable>, new()
             where TSerialDict : IDictionary<TKey, TValue>, new()
             where TSelf : NetDictionary<TKey, TValue, TField, TSerialDict, TSelf>

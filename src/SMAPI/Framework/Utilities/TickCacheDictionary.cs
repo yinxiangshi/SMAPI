@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 
@@ -9,6 +7,7 @@ namespace StardewModdingAPI.Framework.Utilities
     /// <typeparam name="TKey">The dictionary key type.</typeparam>
     /// <typeparam name="TValue">The dictionary value type.</typeparam>
     internal class TickCacheDictionary<TKey, TValue>
+        where TKey : notnull
     {
         /*********
         ** Fields
@@ -36,7 +35,7 @@ namespace StardewModdingAPI.Framework.Utilities
             }
 
             // fetch value
-            if (!this.Cache.TryGetValue(cacheKey, out TValue cached))
+            if (!this.Cache.TryGetValue(cacheKey, out TValue? cached))
                 this.Cache[cacheKey] = cached = get();
             return cached;
         }

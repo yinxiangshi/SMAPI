@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -33,7 +31,7 @@ namespace StardewModdingAPI
         ** Accessors
         *********/
         /// <summary>The path to the game folder.</summary>
-        public static string GamePath { get; } = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        public static string GamePath { get; } = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
 
         /// <summary>The absolute path to the folder containing SMAPI's internal files.</summary>
         public static readonly string InternalFilesPath = Path.Combine(EarlyConstants.GamePath, "smapi-internal");
@@ -69,8 +67,8 @@ namespace StardewModdingAPI
         /// <summary>The minimum supported version of Stardew Valley.</summary>
         public static ISemanticVersion MinimumGameVersion { get; } = new GameVersion("1.5.6");
 
-        /// <summary>The maximum supported version of Stardew Valley.</summary>
-        public static ISemanticVersion MaximumGameVersion { get; } = null;
+        /// <summary>The maximum supported version of Stardew Valley, if any.</summary>
+        public static ISemanticVersion? MaximumGameVersion { get; } = null;
 
         /// <summary>The target game platform.</summary>
         public static GamePlatform TargetPlatform { get; } = EarlyConstants.Platform;
@@ -111,10 +109,10 @@ namespace StardewModdingAPI
         public static string SavesPath { get; } = Path.Combine(Constants.DataPath, "Saves");
 
         /// <summary>The name of the current save folder (if save info is available, regardless of whether the save file exists yet).</summary>
-        public static string SaveFolderName => Constants.GetSaveFolderName();
+        public static string? SaveFolderName => Constants.GetSaveFolderName();
 
         /// <summary>The absolute path to the current save folder (if save info is available and the save file exists).</summary>
-        public static string CurrentSavePath => Constants.GetSaveFolderPathIfExists();
+        public static string? CurrentSavePath => Constants.GetSaveFolderPathIfExists();
 
         /****
         ** Internal
@@ -164,7 +162,7 @@ namespace StardewModdingAPI
         internal static string DefaultModsPath { get; } = Path.Combine(Constants.GamePath, "Mods");
 
         /// <summary>The actual full path to search for mods.</summary>
-        internal static string ModsPath { get; set; }
+        internal static string ModsPath { get; set; } = null!; // initialized early during SMAPI startup
 
         /// <summary>The game's current semantic version.</summary>
         internal static ISemanticVersion GameVersion { get; } = new GameVersion(Game1.version);
@@ -179,7 +177,7 @@ namespace StardewModdingAPI
         /// <summary>Get the SMAPI version to recommend for an older game version, if any.</summary>
         /// <param name="version">The game version to search.</param>
         /// <returns>Returns the compatible SMAPI version, or <c>null</c> if none was found.</returns>
-        internal static ISemanticVersion GetCompatibleApiVersion(ISemanticVersion version)
+        internal static ISemanticVersion? GetCompatibleApiVersion(ISemanticVersion version)
         {
             // This covers all officially supported public game updates. It might seem like version
             // ranges would be better, but the given SMAPI versions may not be compatible with
@@ -337,22 +335,22 @@ namespace StardewModdingAPI
         }
 
         /// <summary>Get the name of the save folder, if any.</summary>
-        private static string GetSaveFolderName()
+        private static string? GetSaveFolderName()
         {
             return Constants.GetSaveFolder()?.Name;
         }
 
         /// <summary>Get the absolute path to the current save folder, if any.</summary>
-        private static string GetSaveFolderPathIfExists()
+        private static string? GetSaveFolderPathIfExists()
         {
-            DirectoryInfo saveFolder = Constants.GetSaveFolder();
+            DirectoryInfo? saveFolder = Constants.GetSaveFolder();
             return saveFolder?.Exists == true
                 ? saveFolder.FullName
                 : null;
         }
 
         /// <summary>Get the current save folder, if any.</summary>
-        private static DirectoryInfo GetSaveFolder()
+        private static DirectoryInfo? GetSaveFolder()
         {
             // save not available
             if (Context.LoadStage == LoadStage.None)
@@ -365,7 +363,7 @@ namespace StardewModdingAPI
                 : Game1.uniqueIDForThisGame;
 
             // get best match (accounting for rare case where folder name isn't sanitized)
-            DirectoryInfo folder = null;
+            DirectoryInfo? folder = null;
             foreach (string saveName in new[] { rawSaveName, new string(rawSaveName.Where(char.IsLetterOrDigit).ToArray()) })
             {
                 try

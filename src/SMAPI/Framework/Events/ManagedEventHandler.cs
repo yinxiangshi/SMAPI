@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using StardewModdingAPI.Events;
 
@@ -42,7 +40,7 @@ namespace StardewModdingAPI.Framework.Events
         }
 
         /// <inheritdoc />
-        public int CompareTo(object obj)
+        public int CompareTo(object? obj)
         {
             if (obj is not ManagedEventHandler<TEventArgs> other)
                 throw new ArgumentException("Can't compare to an unrelated object type.");

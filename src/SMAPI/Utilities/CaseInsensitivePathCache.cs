@@ -1,5 +1,3 @@
-#nullable disable
-
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -81,7 +79,7 @@ namespace StardewModdingAPI.Utilities
                 return relativePath;
 
             // already cached
-            if (this.RelativePathCache.Value.TryGetValue(relativePath, out string resolved))
+            if (this.RelativePathCache.Value.TryGetValue(relativePath, out string? resolved))
                 return resolved;
 
             // file exists but isn't cached for some reason
