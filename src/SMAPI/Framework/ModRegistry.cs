@@ -59,7 +59,7 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>Get metadata for a loaded mod.</summary>
         /// <param name="uniqueID">The mod's unique ID.</param>
-        /// <returns>Returns the matching mod's metadata, or <c>null</c> if not found.</returns>
+        /// <returns>Returns the mod's metadata, or <c>null</c> if not found.</returns>
         public IModMetadata? Get(string uniqueID)
         {
             // normalize search ID
@@ -73,7 +73,7 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>Get the mod metadata from one of its assemblies.</summary>
         /// <param name="type">The type to check.</param>
-        /// <returns>Returns the mod name, or <c>null</c> if the type isn't part of a known mod.</returns>
+        /// <returns>Returns the mod's metadata, or <c>null</c> if the type isn't part of a known mod.</returns>
         public IModMetadata? GetFrom(Type? type)
         {
             // null
@@ -89,8 +89,17 @@ namespace StardewModdingAPI.Framework
             return null;
         }
 
-        /// <summary>Get the friendly name for the closest assembly registered as a source of deprecation warnings.</summary>
-        /// <returns>Returns the source name, or <c>null</c> if no registered assemblies were found.</returns>
+        /// <summary>Get the mod metadata from a stack frame, if any.</summary>
+        /// <param name="frame">The stack frame to check.</param>
+        /// <returns>Returns the mod's metadata, or <c>null</c> if the frame isn't part of a known mod.</returns>
+        public IModMetadata? GetFrom(StackFrame frame)
+        {
+            MethodBase? method = frame.GetMethod();
+            return this.GetFrom(method?.ReflectedType);
+        }
+
+        /// <summary>Get the mod metadata from the closest assembly registered as a source of deprecation warnings.</summary>
+        /// <returns>Returns the mod's metadata, or <c>null</c> if no registered assemblies were found.</returns>
         public IModMetadata? GetFromStack()
         {
             // get stack frames
@@ -100,8 +109,7 @@ namespace StardewModdingAPI.Framework
             // search stack for a source assembly
             foreach (StackFrame frame in frames)
             {
-                MethodBase? method = frame.GetMethod();
-                IModMetadata? mod = this.GetFrom(method?.ReflectedType);
+                IModMetadata? mod = this.GetFrom(frame);
                 if (mod != null)
                     return mod;
             }

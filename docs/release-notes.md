@@ -57,6 +57,7 @@ the C# mod that loads them is updated.
   * Added `helper.Content.ParseAssetName` to get an `IAssetName` for an arbitrary asset key.
   * If an asset is loaded multiple times in the same tick, `IAssetLoader.CanLoad` and `IAssetEditor.CanEdit` are now cached unless invalidated by `helper.Content.InvalidateCache`.
   * The `ISemanticVersion` comparison methods (`CompareTo`, `IsBetween`, `IsNewerThan`, and `IsOlderThan`) now allow null values. A null version is always considered older than any non-null version per [best practices](https://docs.microsoft.com/en-us/dotnet/api/system.icomparable-1.compareto#remarks).
+  * Deprecation notices now show a shorter stack trace in most cases, so it's clearer where the deprecated code is in the mod.
 * Fixes:
   * Fixed the `SDate` constructor being case-sensitive.
   * Fixed support for using locale codes from custom languages in asset names (e.g. `Data/Achievements.eo-EU`).

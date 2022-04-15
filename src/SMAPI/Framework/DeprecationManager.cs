@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 
 namespace StardewModdingAPI.Framework
 {
@@ -62,7 +63,8 @@ namespace StardewModdingAPI.Framework
                 return;
 
             // queue warning
-            this.QueuedWarnings.Add(new DeprecationWarning(source, nounPhrase, version, severity, new StackTrace(skipFrames: 1)));
+            var stack = new StackTrace(skipFrames: 1); // skip this method
+            this.QueuedWarnings.Add(new DeprecationWarning(source, nounPhrase, version, severity, stack));
         }
 
         /// <summary>A placeholder method used to track deprecated code for which a separate warning will be shown.</summary>
@@ -100,11 +102,11 @@ namespace StardewModdingAPI.Framework
 
                 // log message
                 if (level == LogLevel.Trace)
-                    this.Monitor.Log($"{message}\n{warning.StackTrace}", level);
+                    this.Monitor.Log($"{message}\n{this.GetSimplifiedStackTrace(warning.StackTrace, warning.Mod)}", level);
                 else
                 {
                     this.Monitor.Log(message, level);
-                    this.Monitor.Log(warning.StackTrace.ToString(), LogLevel.Debug);
+                    this.Monitor.Log(this.GetSimplifiedStackTrace(warning.StackTrace, warning.Mod), LogLevel.Debug);
                 }
             }
 
@@ -127,6 +129,43 @@ namespace StardewModdingAPI.Framework
                 return false;
             this.LoggedDeprecations.Add(key);
             return true;
+        }
+
+        /// <summary>Get the simplest stack trace which shows where in the mod the deprecated code was called from.</summary>
+        /// <param name="stack">The stack trace.</param>
+        /// <param name="mod">The mod for which to show a stack trace.</param>
+        private string GetSimplifiedStackTrace(StackTrace stack, IModMetadata? mod)
+        {
+            // unknown mod, show entire stack trace
+            if (mod == null)
+                return stack.ToString();
+
+            // get frame info
+            var frames = stack
+                .GetFrames()
+                .Select(frame => (Frame: frame, Mod: this.ModRegistry.GetFrom(frame)))
+                .ToArray();
+            var modIds = new HashSet<string>(
+                from frame in frames
+                let id = frame.Mod?.Manifest.UniqueID
+                where id != null
+                select id
+            );
+
+            // can't filter to the target mod
+            if (modIds.Count != 1 || !modIds.Contains(mod.Manifest.UniqueID))
+                return stack.ToString();
+
+            // get stack frames for the target mod, plus one for context
+            var framesStartingAtMod = frames.SkipWhile(p => p.Mod == null).ToArray();
+            var displayFrames = framesStartingAtMod.TakeWhile(p => p.Mod != null).ToArray();
+            displayFrames = displayFrames.Concat(framesStartingAtMod.Skip(displayFrames.Length).Take(1)).ToArray();
+
+            // build stack trace
+            StringBuilder str = new();
+            foreach (var frame in displayFrames)
+                str.Append(new StackTrace(frame.Frame));
+            return str.ToString().TrimEnd();
         }
     }
 }
