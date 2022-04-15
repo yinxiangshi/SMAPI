@@ -1,10 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
 using NUnit.Framework;
 using StardewModdingAPI;
+using StardewModdingAPI.Framework;
 using StardewModdingAPI.Framework.ModHelpers;
+using StardewModdingAPI.Framework.ModLoading;
+using StardewModdingAPI.Toolkit.Serialization.Models;
 using StardewValley;
 
 namespace SMAPI.Tests.Core
@@ -33,7 +37,7 @@ namespace SMAPI.Tests.Core
             var data = new Dictionary<string, IDictionary<string, string>>();
 
             // act
-            ITranslationHelper helper = new TranslationHelper("ModID", "en", LocalizedContentManager.LanguageCode.en).SetTranslations(data);
+            ITranslationHelper helper = new TranslationHelper(this.CreateModMetadata(), "en", LocalizedContentManager.LanguageCode.en).SetTranslations(data);
             Translation translation = helper.Get("key");
             Translation[]? translationList = helper.GetTranslations()?.ToArray();
 
@@ -56,7 +60,7 @@ namespace SMAPI.Tests.Core
 
             // act
             var actual = new Dictionary<string, Translation[]?>();
-            TranslationHelper helper = new TranslationHelper("ModID", "en", LocalizedContentManager.LanguageCode.en).SetTranslations(data);
+            TranslationHelper helper = new TranslationHelper(this.CreateModMetadata(), "en", LocalizedContentManager.LanguageCode.en).SetTranslations(data);
             foreach (string locale in expected.Keys)
             {
                 this.AssertSetLocale(helper, locale, LocalizedContentManager.LanguageCode.en);
@@ -80,7 +84,7 @@ namespace SMAPI.Tests.Core
 
             // act
             var actual = new Dictionary<string, Translation[]>();
-            TranslationHelper helper = new TranslationHelper("ModID", "en", LocalizedContentManager.LanguageCode.en).SetTranslations(data);
+            TranslationHelper helper = new TranslationHelper(this.CreateModMetadata(), "en", LocalizedContentManager.LanguageCode.en).SetTranslations(data);
             foreach (string locale in expected.Keys)
             {
                 this.AssertSetLocale(helper, locale, LocalizedContentManager.LanguageCode.en);
@@ -323,6 +327,28 @@ namespace SMAPI.Tests.Core
         private string GetPlaceholderText(string key)
         {
             return string.Format(Translation.PlaceholderText, key);
+        }
+
+        /// <summary>Create a fake mod manifest.</summary>
+        private IModMetadata CreateModMetadata()
+        {
+            string id = $"smapi.unit-tests.fake-mod-{Guid.NewGuid():N}";
+
+            string tempPath = Path.Combine(Path.GetTempPath(), id);
+            return new ModMetadata(
+                displayName: "Mod Display Name",
+                directoryPath: tempPath,
+                rootPath: tempPath,
+                manifest: new Manifest(
+                    uniqueID: id,
+                    name: "Mod Name",
+                    author: "Mod Author",
+                    description: "Mod Description",
+                    version: new SemanticVersion(1, 0, 0)
+                ),
+                dataRecord: null,
+                isIgnored: false
+            );
         }
 
 

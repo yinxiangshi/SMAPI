@@ -93,14 +93,14 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <summary>Construct an instance.</summary>
         /// <param name="contentCore">SMAPI's core content logic.</param>
         /// <param name="modFolderPath">The absolute path to the mod folder.</param>
-        /// <param name="modID">The unique ID of the relevant mod.</param>
+        /// <param name="mod">The mod using this instance.</param>
         /// <param name="modName">The friendly mod name for use in errors.</param>
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
         /// <param name="reflection">Simplifies access to private code.</param>
-        public ContentHelper(ContentCoordinator contentCore, string modFolderPath, string modID, string modName, IMonitor monitor, Reflector reflection)
-            : base(modID)
+        public ContentHelper(ContentCoordinator contentCore, string modFolderPath, IModMetadata mod, string modName, IMonitor monitor, Reflector reflection)
+            : base(mod)
         {
-            string managedAssetPrefix = contentCore.GetManagedAssetPrefix(modID);
+            string managedAssetPrefix = contentCore.GetManagedAssetPrefix(mod.Manifest.UniqueID);
 
             this.ContentCore = contentCore;
             this.GameContentManager = contentCore.CreateGameContentManager(managedAssetPrefix + ".content");

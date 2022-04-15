@@ -22,11 +22,11 @@ namespace StardewModdingAPI.Framework.ModHelpers
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="modID">The unique ID of the relevant mod.</param>
+        /// <param name="mod">The mod using this instance.</param>
         /// <param name="modName">The mod name for error messages.</param>
         /// <param name="reflector">The underlying reflection helper.</param>
-        public ReflectionHelper(string modID, string modName, Reflector reflector)
-            : base(modID)
+        public ReflectionHelper(IModMetadata mod, string modName, Reflector reflector)
+            : base(mod)
         {
             this.ModName = modName;
             this.Reflector = reflector;

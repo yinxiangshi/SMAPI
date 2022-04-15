@@ -8,9 +8,6 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /*********
         ** Fields
         *********/
-        /// <summary>The mod using this instance.</summary>
-        private readonly IModMetadata Mod;
-
         /// <summary>Manages console commands.</summary>
         private readonly CommandManager CommandManager;
 
@@ -22,9 +19,8 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <param name="mod">The mod using this instance.</param>
         /// <param name="commandManager">Manages console commands.</param>
         public CommandHelper(IModMetadata mod, CommandManager commandManager)
-            : base(mod.Manifest.UniqueID)
+            : base(mod)
         {
-            this.Mod = mod;
             this.CommandManager = commandManager;
         }
 

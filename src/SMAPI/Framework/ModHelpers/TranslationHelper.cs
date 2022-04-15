@@ -27,11 +27,11 @@ namespace StardewModdingAPI.Framework.ModHelpers
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="modID">The unique ID of the relevant mod.</param>
+        /// <param name="mod">The mod using this instance.</param>
         /// <param name="locale">The initial locale.</param>
         /// <param name="languageCode">The game's current language code.</param>
-        public TranslationHelper(string modID, string locale, LocalizedContentManager.LanguageCode languageCode)
-            : base(modID)
+        public TranslationHelper(IModMetadata mod, string locale, LocalizedContentManager.LanguageCode languageCode)
+            : base(mod)
         {
             this.Translator = new Translator();
             this.Translator.SetLocale(locale, languageCode);

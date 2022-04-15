@@ -18,10 +18,10 @@ namespace StardewModdingAPI.Framework.ModHelpers
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="modID">The unique ID of the relevant mod.</param>
+        /// <param name="mod">The mod using this instance.</param>
         /// <param name="multiplayer">SMAPI's core multiplayer utility.</param>
-        public MultiplayerHelper(string modID, SMultiplayer multiplayer)
-            : base(modID)
+        public MultiplayerHelper(IModMetadata mod, SMultiplayer multiplayer)
+            : base(mod)
         {
             this.Multiplayer = multiplayer;
         }

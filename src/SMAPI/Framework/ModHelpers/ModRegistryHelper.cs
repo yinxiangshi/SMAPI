@@ -26,12 +26,12 @@ namespace StardewModdingAPI.Framework.ModHelpers
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="modID">The unique ID of the relevant mod.</param>
+        /// <param name="mod">The mod using this instance.</param>
         /// <param name="registry">The underlying mod registry.</param>
         /// <param name="proxyFactory">Generates proxy classes to access mod APIs through an arbitrary interface.</param>
         /// <param name="monitor">Encapsulates monitoring and logging for the mod.</param>
-        public ModRegistryHelper(string modID, ModRegistry registry, InterfaceProxyFactory proxyFactory, IMonitor monitor)
-            : base(modID)
+        public ModRegistryHelper(IModMetadata mod, ModRegistry registry, InterfaceProxyFactory proxyFactory, IMonitor monitor)
+            : base(mod)
         {
             this.Registry = registry;
             this.ProxyFactory = proxyFactory;

@@ -77,7 +77,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="modID">The mod's unique ID.</param>
+        /// <param name="mod">The mod using this instance.</param>
         /// <param name="modDirectory">The full path to the mod's folder.</param>
         /// <param name="currentInputState">Manages the game's input state for the current player instance. That may not be the main player in split-screen mode.</param>
         /// <param name="events">Manages access to events raised by SMAPI.</param>
@@ -94,13 +94,13 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <exception cref="ArgumentNullException">An argument is null or empty.</exception>
         /// <exception cref="InvalidOperationException">The <paramref name="modDirectory"/> path does not exist on disk.</exception>
         public ModHelper(
-            string modID, string modDirectory, Func<SInputState> currentInputState, IModEvents events,
+            IModMetadata mod, string modDirectory, Func<SInputState> currentInputState, IModEvents events,
 #pragma warning disable CS0612 // deprecated code
             ContentHelper contentHelper,
 #pragma warning restore CS0612
             IGameContentHelper gameContentHelper, IModContentHelper modContentHelper, IContentPackHelper contentPackHelper, ICommandHelper commandHelper, IDataHelper dataHelper, IModRegistry modRegistry, IReflectionHelper reflectionHelper, IMultiplayerHelper multiplayer, ITranslationHelper translationHelper
         )
-            : base(modID)
+            : base(mod)
         {
             // validate directory
             if (string.IsNullOrWhiteSpace(modDirectory))
@@ -117,7 +117,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
             this.ModContent = modContentHelper ?? throw new ArgumentNullException(nameof(modContentHelper));
             this.ContentPacks = contentPackHelper ?? throw new ArgumentNullException(nameof(contentPackHelper));
             this.Data = dataHelper ?? throw new ArgumentNullException(nameof(dataHelper));
-            this.Input = new InputHelper(modID, currentInputState);
+            this.Input = new InputHelper(mod, currentInputState);
             this.ModRegistry = modRegistry ?? throw new ArgumentNullException(nameof(modRegistry));
             this.ConsoleCommands = commandHelper ?? throw new ArgumentNullException(nameof(commandHelper));
             this.Reflection = reflectionHelper ?? throw new ArgumentNullException(nameof(reflectionHelper));

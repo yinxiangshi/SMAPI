@@ -26,11 +26,11 @@ namespace StardewModdingAPI.Framework.ModHelpers
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="modID">The unique ID of the relevant mod.</param>
+        /// <param name="mod">The mod using this instance.</param>
         /// <param name="modFolderPath">The absolute path to the mod folder.</param>
         /// <param name="jsonHelper">The absolute path to the mod folder.</param>
-        public DataHelper(string modID, string modFolderPath, JsonHelper jsonHelper)
-            : base(modID)
+        public DataHelper(IModMetadata mod, string modFolderPath, JsonHelper jsonHelper)
+            : base(mod)
         {
             this.ModFolderPath = modFolderPath;
             this.JsonHelper = jsonHelper;
