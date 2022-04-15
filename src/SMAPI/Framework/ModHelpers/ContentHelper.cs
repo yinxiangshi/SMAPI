@@ -29,9 +29,6 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <summary>A content manager for this mod which manages files from the mod's folder.</summary>
         private readonly ModContentManager ModContentManager;
 
-        /// <summary>The friendly mod name for use in errors.</summary>
-        private readonly string ModName;
-
         /// <summary>Encapsulates monitoring and logging.</summary>
         private readonly IMonitor Monitor;
 
@@ -60,7 +57,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
             get
             {
                 SCore.DeprecationManager.Warn(
-                    source: this.ModName,
+                    source: this.Mod,
                     nounPhrase: $"{nameof(IContentHelper)}.{nameof(IContentHelper.AssetLoaders)}",
                     version: "3.14.0",
                     severity: DeprecationLevel.Notice
@@ -76,7 +73,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
             get
             {
                 SCore.DeprecationManager.Warn(
-                    source: this.ModName,
+                    source: this.Mod,
                     nounPhrase: $"{nameof(IContentHelper)}.{nameof(IContentHelper.AssetEditors)}",
                     version: "3.14.0",
                     severity: DeprecationLevel.Notice
@@ -94,18 +91,16 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <param name="contentCore">SMAPI's core content logic.</param>
         /// <param name="modFolderPath">The absolute path to the mod folder.</param>
         /// <param name="mod">The mod using this instance.</param>
-        /// <param name="modName">The friendly mod name for use in errors.</param>
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
         /// <param name="reflection">Simplifies access to private code.</param>
-        public ContentHelper(ContentCoordinator contentCore, string modFolderPath, IModMetadata mod, string modName, IMonitor monitor, Reflector reflection)
+        public ContentHelper(ContentCoordinator contentCore, string modFolderPath, IModMetadata mod, IMonitor monitor, Reflector reflection)
             : base(mod)
         {
             string managedAssetPrefix = contentCore.GetManagedAssetPrefix(mod.Manifest.UniqueID);
 
             this.ContentCore = contentCore;
             this.GameContentManager = contentCore.CreateGameContentManager(managedAssetPrefix + ".content");
-            this.ModContentManager = contentCore.CreateModContentManager(managedAssetPrefix, modName, modFolderPath, this.GameContentManager);
-            this.ModName = modName;
+            this.ModContentManager = contentCore.CreateModContentManager(managedAssetPrefix, this.Mod.DisplayName, modFolderPath, this.GameContentManager);
             this.Monitor = monitor;
             this.Reflection = reflection;
         }
@@ -128,12 +123,12 @@ namespace StardewModdingAPI.Framework.ModHelpers
                         return this.ModContentManager.LoadExact<T>(assetName, useCache: false);
 
                     default:
-                        throw new SContentLoadException($"{this.ModName} failed loading content asset '{key}' from {source}: unknown content source '{source}'.");
+                        throw new SContentLoadException($"{this.Mod.DisplayName} failed loading content asset '{key}' from {source}: unknown content source '{source}'.");
                 }
             }
             catch (Exception ex) when (ex is not SContentLoadException)
             {
-                throw new SContentLoadException($"{this.ModName} failed loading content asset '{key}' from {source}.", ex);
+                throw new SContentLoadException($"{this.Mod.DisplayName} failed loading content asset '{key}' from {source}.", ex);
             }
         }
 

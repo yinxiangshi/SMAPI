@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace StardewModdingAPI.Framework
@@ -35,34 +36,33 @@ namespace StardewModdingAPI.Framework
             this.ModRegistry = modRegistry;
         }
 
-        /// <summary>Get the source name for a mod from its unique ID.</summary>
-        public string? GetSourceNameFromStack()
+        /// <summary>Get a mod for the closest assembly registered as a source of deprecation warnings.</summary>
+        /// <returns>Returns the source name, or <c>null</c> if no registered assemblies were found.</returns>
+        public IModMetadata? GetModFromStack()
         {
-            return this.ModRegistry.GetFromStack()?.DisplayName;
+            return this.ModRegistry.GetFromStack();
         }
 
-        /// <summary>Get the source name for a mod from its unique ID.</summary>
+        /// <summary>Get a mod from its unique ID.</summary>
         /// <param name="modId">The mod's unique ID.</param>
-        public string? GetSourceName(string modId)
+        public IModMetadata? GetMod(string modId)
         {
-            return this.ModRegistry.Get(modId)?.DisplayName;
+            return this.ModRegistry.Get(modId);
         }
 
         /// <summary>Log a deprecation warning.</summary>
-        /// <param name="source">The friendly mod name which used the deprecated code.</param>
+        /// <param name="source">The mod which used the deprecated code, if known.</param>
         /// <param name="nounPhrase">A noun phrase describing what is deprecated.</param>
         /// <param name="version">The SMAPI version which deprecated it.</param>
         /// <param name="severity">How deprecated the code is.</param>
-        public void Warn(string? source, string nounPhrase, string version, DeprecationLevel severity)
+        public void Warn(IModMetadata? source, string nounPhrase, string version, DeprecationLevel severity)
         {
-            source ??= this.GetSourceNameFromStack() ?? "<unknown>";
-
             // ignore if already warned
             if (!this.MarkWarned(source, nounPhrase, version))
                 return;
 
             // queue warning
-            this.QueuedWarnings.Add(new DeprecationWarning(source, nounPhrase, version, severity, Environment.StackTrace));
+            this.QueuedWarnings.Add(new DeprecationWarning(source, nounPhrase, version, severity, new StackTrace(skipFrames: 1)));
         }
 
         /// <summary>A placeholder method used to track deprecated code for which a separate warning will be shown.</summary>
@@ -104,7 +104,7 @@ namespace StardewModdingAPI.Framework
                 else
                 {
                     this.Monitor.Log(message, level);
-                    this.Monitor.Log(warning.StackTrace, LogLevel.Debug);
+                    this.Monitor.Log(warning.StackTrace.ToString(), LogLevel.Debug);
                 }
             }
 
@@ -116,16 +116,13 @@ namespace StardewModdingAPI.Framework
         ** Private methods
         *********/
         /// <summary>Mark a deprecation warning as already logged.</summary>
-        /// <param name="source">The friendly name of the assembly which used the deprecated code.</param>
+        /// <param name="source">The mod which used the deprecated code.</param>
         /// <param name="nounPhrase">A noun phrase describing what is deprecated (e.g. "the Extensions.AsInt32 method").</param>
         /// <param name="version">The SMAPI version which deprecated it.</param>
         /// <returns>Returns whether the deprecation was successfully marked as warned. Returns <c>false</c> if it was already marked.</returns>
-        private bool MarkWarned(string source, string nounPhrase, string version)
+        private bool MarkWarned(IModMetadata? source, string nounPhrase, string version)
         {
-            if (string.IsNullOrWhiteSpace(source))
-                throw new InvalidOperationException("The deprecation source cannot be empty.");
-
-            string key = $"{source}::{nounPhrase}::{version}";
+            string key = $"{source?.DisplayName ?? "<unknown>"}::{nounPhrase}::{version}";
             if (this.LoggedDeprecations.Contains(key))
                 return false;
             this.LoggedDeprecations.Add(key);

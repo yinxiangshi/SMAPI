@@ -32,7 +32,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
             get
             {
                 SCore.DeprecationManager.Warn(
-                    source: SCore.DeprecationManager.GetSourceName(this.ModID),
+                    source: SCore.DeprecationManager.GetMod(this.ModID),
                     nounPhrase: $"{nameof(IModHelper)}.{nameof(IModHelper.Content)}",
                     version: "3.14.0",
                     severity: DeprecationLevel.Notice

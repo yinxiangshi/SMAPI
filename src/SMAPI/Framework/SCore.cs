@@ -1598,7 +1598,7 @@ namespace StardewModdingAPI.Framework
                     if (metadata.Mod is IAssetEditor editor)
                     {
                         SCore.DeprecationManager.Warn(
-                            source: metadata.DisplayName,
+                            source: metadata,
                             nounPhrase: $"{nameof(IAssetEditor)}",
                             version: "3.14.0",
                             severity: DeprecationLevel.Notice
@@ -1610,7 +1610,7 @@ namespace StardewModdingAPI.Framework
                     if (metadata.Mod is IAssetLoader loader)
                     {
                         SCore.DeprecationManager.Warn(
-                            source: metadata.DisplayName,
+                            source: metadata,
                             nounPhrase: $"{nameof(IAssetLoader)}",
                             version: "3.14.0",
                             severity: DeprecationLevel.Notice
@@ -1846,7 +1846,7 @@ namespace StardewModdingAPI.Framework
                         ICommandHelper commandHelper = new CommandHelper(mod, this.CommandManager);
                         CaseInsensitivePathCache relativePathCache = this.ContentCore.GetCaseInsensitivePathCache(mod.DirectoryPath);
 #pragma warning disable CS0612 // deprecated code
-                        ContentHelper contentHelper = new(contentCore, mod.DirectoryPath, mod, mod.DisplayName, monitor, this.Reflection);
+                        ContentHelper contentHelper = new(contentCore, mod.DirectoryPath, mod, monitor, this.Reflection);
 #pragma warning restore CS0612
                         GameContentHelper gameContentHelper = new(contentCore, mod, mod.DisplayName, monitor, this.Reflection);
                         IModContentHelper modContentHelper = new ModContentHelper(contentCore, mod.DirectoryPath, mod, mod.DisplayName, gameContentHelper.GetUnderlyingContentManager(), relativePathCache, this.Reflection);

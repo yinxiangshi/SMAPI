@@ -36,7 +36,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         public bool Trigger(string name, string[] arguments)
         {
             SCore.DeprecationManager.Warn(
-                source: SCore.DeprecationManager.GetSourceName(this.ModID),
+                source: SCore.DeprecationManager.GetMod(this.ModID),
                 nounPhrase: $"{nameof(IModHelper)}.{nameof(IModHelper.ConsoleCommands)}.{nameof(ICommandHelper.Trigger)}",
                 version: "3.8.1",
                 severity: DeprecationLevel.Notice
