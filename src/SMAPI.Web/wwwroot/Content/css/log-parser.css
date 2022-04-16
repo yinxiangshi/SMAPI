@@ -187,6 +187,11 @@ table caption {
     margin-top: 0.5em;
 }
 
+#filters .filter-error {
+    color: #880000;
+}
+
+#filters .filter-error,
 #filters .stats {
     margin-top: 0.5em;
     font-size: 0.75em;
@@ -210,7 +215,7 @@ table caption {
 
 @media (max-width: 1019px) {
     #filters:not(.sticky) {
-        width: calc(100vw - 3em);
+        width: calc(100vw - 5em);
     }
 
     #filters {
