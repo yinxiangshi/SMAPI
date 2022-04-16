@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using StardewModdingAPI.Toolkit.Serialization;
 using StardewModdingAPI.Toolkit.Serialization.Models;
+using StardewModdingAPI.Toolkit.Utilities;
 
 namespace StardewModdingAPI.Toolkit.Framework.ModScanning
 {
@@ -251,8 +252,19 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
         {
             while (true)
             {
-                // check for manifest in current folder
-                FileInfo file = new(Path.Combine(folder.FullName, "manifest.json"));
+                // check for conventional manifest in current folder
+                const string defaultName = "manifest.json";
+                FileInfo file = new(Path.Combine(folder.FullName, defaultName));
+                if (file.Exists)
+                    return file;
+
+                // check for manifest with incorrect capitalization
+                {
+                    CaseInsensitivePathLookup pathLookup = new(folder.FullName, SearchOption.TopDirectoryOnly); // don't use GetCachedFor, since we only need it temporarily
+                    string realName = pathLookup.GetFilePath(defaultName);
+                    if (realName != defaultName)
+                        file = new(Path.Combine(folder.FullName, realName));
+                }
                 if (file.Exists)
                     return file;
 

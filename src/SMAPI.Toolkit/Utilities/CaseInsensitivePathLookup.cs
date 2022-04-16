@@ -25,10 +25,11 @@ namespace StardewModdingAPI.Toolkit.Utilities
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="rootPath">The root directory path for relative paths.</param>
-        public CaseInsensitivePathLookup(string rootPath)
+        /// <param name="searchOption">Which directories to scan from the root.</param>
+        public CaseInsensitivePathLookup(string rootPath, SearchOption searchOption = SearchOption.AllDirectories)
         {
             this.RootPath = rootPath;
-            this.RelativePathCache = new(this.GetRelativePathCache);
+            this.RelativePathCache = new(() => this.GetRelativePathCache(searchOption));
         }
 
         /// <summary>Get the exact capitalization for a given relative file path.</summary>
@@ -108,11 +109,12 @@ namespace StardewModdingAPI.Toolkit.Utilities
         }
 
         /// <summary>Get a case-insensitive lookup of file paths (see <see cref="RelativePathCache"/>).</summary>
-        private Dictionary<string, string> GetRelativePathCache()
+        /// <param name="searchOption">Which directories to scan from the root.</param>
+        private Dictionary<string, string> GetRelativePathCache(SearchOption searchOption)
         {
             Dictionary<string, string> cache = new(StringComparer.OrdinalIgnoreCase);
 
-            foreach (string path in Directory.EnumerateFiles(this.RootPath, "*", SearchOption.AllDirectories))
+            foreach (string path in Directory.EnumerateFiles(this.RootPath, "*", searchOption))
             {
                 string relativePath = path.Substring(this.RootPath.Length + 1);
 
