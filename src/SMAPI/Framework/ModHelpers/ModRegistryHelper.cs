@@ -19,7 +19,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         private readonly HashSet<string> AccessedModApis = new();
 
         /// <summary>Generates proxy classes to access mod APIs through an arbitrary interface.</summary>
-        private readonly InterfaceProxyFactory ProxyFactory;
+        private readonly IInterfaceProxyFactory ProxyFactory;
 
 
         /*********
@@ -30,7 +30,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <param name="registry">The underlying mod registry.</param>
         /// <param name="proxyFactory">Generates proxy classes to access mod APIs through an arbitrary interface.</param>
         /// <param name="monitor">Encapsulates monitoring and logging for the mod.</param>
-        public ModRegistryHelper(IModMetadata mod, ModRegistry registry, InterfaceProxyFactory proxyFactory, IMonitor monitor)
+        public ModRegistryHelper(IModMetadata mod, ModRegistry registry, IInterfaceProxyFactory proxyFactory, IMonitor monitor)
             : base(mod)
         {
             this.Registry = registry;

@@ -29,6 +29,12 @@ namespace SMAPI.Tests.Core
         /// <summary>The random number generator with which to create sample values.</summary>
         private readonly Random Random = new();
 
+        /// <summary>Sample user inputs for season names.</summary>
+        private static readonly IInterfaceProxyFactory[] ProxyFactories = {
+            new InterfaceProxyFactory(),
+            new OriginalInterfaceProxyFactory()
+        };
+
 
         /*********
         ** Unit tests
@@ -37,8 +43,9 @@ namespace SMAPI.Tests.Core
         ** Events
         ****/
         /// <summary>Assert that an event field can be proxied correctly.</summary>
+        /// <param name="proxyFactory">The proxy factory to test.</param>
         [Test]
-        public void CanProxy_EventField()
+        public void CanProxy_EventField([ValueSource(nameof(InterfaceProxyTests.ProxyFactories))] IInterfaceProxyFactory proxyFactory)
         {
             // arrange
             ProviderMod providerMod = new();
@@ -46,7 +53,7 @@ namespace SMAPI.Tests.Core
             int expectedValue = this.Random.Next();
 
             // act
-            ISimpleApi proxy = this.GetProxy(implementation);
+            ISimpleApi proxy = this.GetProxy(proxyFactory, implementation);
             new ApiConsumer().UseEventField(proxy, out Func<(int timesCalled, int lastValue)> getValues);
             providerMod.RaiseEvent(expectedValue);
             (int timesCalled, int lastValue) = getValues();
@@ -57,8 +64,9 @@ namespace SMAPI.Tests.Core
         }
 
         /// <summary>Assert that an event property can be proxied correctly.</summary>
+        /// <param name="proxyFactory">The proxy factory to test.</param>
         [Test]
-        public void CanProxy_EventProperty()
+        public void CanProxy_EventProperty([ValueSource(nameof(InterfaceProxyTests.ProxyFactories))] IInterfaceProxyFactory proxyFactory)
         {
             // arrange
             ProviderMod providerMod = new();
@@ -66,7 +74,7 @@ namespace SMAPI.Tests.Core
             int expectedValue = this.Random.Next();
 
             // act
-            ISimpleApi proxy = this.GetProxy(implementation);
+            ISimpleApi proxy = this.GetProxy(proxyFactory, implementation);
             new ApiConsumer().UseEventProperty(proxy, out Func<(int timesCalled, int lastValue)> getValues);
             providerMod.RaiseEvent(expectedValue);
             (int timesCalled, int lastValue) = getValues();
@@ -80,10 +88,10 @@ namespace SMAPI.Tests.Core
         ** Properties
         ****/
         /// <summary>Assert that properties can be proxied correctly.</summary>
+        /// <param name="proxyFactory">The proxy factory to test.</param>
         /// <param name="setVia">Whether to set the properties through the <c>provider mod</c> or <c>proxy interface</c>.</param>
-        [TestCase("set via provider mod")]
-        [TestCase("set via proxy interface")]
-        public void CanProxy_Properties(string setVia)
+        [Test]
+        public void CanProxy_Properties([ValueSource(nameof(InterfaceProxyTests.ProxyFactories))] IInterfaceProxyFactory proxyFactory, [Values("set via provider mod", "set via proxy interface")] string setVia)
         {
             // arrange
             ProviderMod providerMod = new();
@@ -98,7 +106,7 @@ namespace SMAPI.Tests.Core
             BindingFlags expectedEnum = BindingFlags.Instance | BindingFlags.Public;
 
             // act
-            ISimpleApi proxy = this.GetProxy(implementation);
+            ISimpleApi proxy = this.GetProxy(proxyFactory, implementation);
             switch (setVia)
             {
                 case "set via provider mod":
@@ -198,27 +206,29 @@ namespace SMAPI.Tests.Core
         }
 
         /// <summary>Assert that a simple method with no return value can be proxied correctly.</summary>
+        /// <param name="proxyFactory">The proxy factory to test.</param>
         [Test]
-        public void CanProxy_SimpleMethod_Void()
+        public void CanProxy_SimpleMethod_Void([ValueSource(nameof(InterfaceProxyTests.ProxyFactories))] IInterfaceProxyFactory proxyFactory)
         {
             // arrange
             object implementation = new ProviderMod().GetModApi();
 
             // act
-            ISimpleApi proxy = this.GetProxy(implementation);
+            ISimpleApi proxy = this.GetProxy(proxyFactory, implementation);
             proxy.GetNothing();
         }
 
         /// <summary>Assert that a simple int method can be proxied correctly.</summary>
+        /// <param name="proxyFactory">The proxy factory to test.</param>
         [Test]
-        public void CanProxy_SimpleMethod_Int()
+        public void CanProxy_SimpleMethod_Int([ValueSource(nameof(InterfaceProxyTests.ProxyFactories))] IInterfaceProxyFactory proxyFactory)
         {
             // arrange
             object implementation = new ProviderMod().GetModApi();
             int expectedValue = this.Random.Next();
 
             // act
-            ISimpleApi proxy = this.GetProxy(implementation);
+            ISimpleApi proxy = this.GetProxy(proxyFactory, implementation);
             int actualValue = proxy.GetInt(expectedValue);
 
             // assert
@@ -226,15 +236,16 @@ namespace SMAPI.Tests.Core
         }
 
         /// <summary>Assert that a simple object method can be proxied correctly.</summary>
+        /// <param name="proxyFactory">The proxy factory to test.</param>
         [Test]
-        public void CanProxy_SimpleMethod_Object()
+        public void CanProxy_SimpleMethod_Object([ValueSource(nameof(InterfaceProxyTests.ProxyFactories))] IInterfaceProxyFactory proxyFactory)
         {
             // arrange
             object implementation = new ProviderMod().GetModApi();
             object expectedValue = new();
 
             // act
-            ISimpleApi proxy = this.GetProxy(implementation);
+            ISimpleApi proxy = this.GetProxy(proxyFactory, implementation);
             object actualValue = proxy.GetObject(expectedValue);
 
             // assert
@@ -242,15 +253,16 @@ namespace SMAPI.Tests.Core
         }
 
         /// <summary>Assert that a simple list method can be proxied correctly.</summary>
+        /// <param name="proxyFactory">The proxy factory to test.</param>
         [Test]
-        public void CanProxy_SimpleMethod_List()
+        public void CanProxy_SimpleMethod_List([ValueSource(nameof(InterfaceProxyTests.ProxyFactories))] IInterfaceProxyFactory proxyFactory)
         {
             // arrange
             object implementation = new ProviderMod().GetModApi();
             string expectedValue = this.GetRandomString();
 
             // act
-            ISimpleApi proxy = this.GetProxy(implementation);
+            ISimpleApi proxy = this.GetProxy(proxyFactory, implementation);
             IList<string> actualValue = proxy.GetList(expectedValue);
 
             // assert
@@ -258,15 +270,16 @@ namespace SMAPI.Tests.Core
         }
 
         /// <summary>Assert that a simple list with interface method can be proxied correctly.</summary>
+        /// <param name="proxyFactory">The proxy factory to test.</param>
         [Test]
-        public void CanProxy_SimpleMethod_ListWithInterface()
+        public void CanProxy_SimpleMethod_ListWithInterface([ValueSource(nameof(InterfaceProxyTests.ProxyFactories))] IInterfaceProxyFactory proxyFactory)
         {
             // arrange
             object implementation = new ProviderMod().GetModApi();
             string expectedValue = this.GetRandomString();
 
             // act
-            ISimpleApi proxy = this.GetProxy(implementation);
+            ISimpleApi proxy = this.GetProxy(proxyFactory, implementation);
             IList<string> actualValue = proxy.GetListWithInterface(expectedValue);
 
             // assert
@@ -274,8 +287,9 @@ namespace SMAPI.Tests.Core
         }
 
         /// <summary>Assert that a simple method which returns generic types can be proxied correctly.</summary>
+        /// <param name="proxyFactory">The proxy factory to test.</param>
         [Test]
-        public void CanProxy_SimpleMethod_GenericTypes()
+        public void CanProxy_SimpleMethod_GenericTypes([ValueSource(nameof(InterfaceProxyTests.ProxyFactories))] IInterfaceProxyFactory proxyFactory)
         {
             // arrange
             object implementation = new ProviderMod().GetModApi();
@@ -283,7 +297,7 @@ namespace SMAPI.Tests.Core
             string expectedValue = this.GetRandomString();
 
             // act
-            ISimpleApi proxy = this.GetProxy(implementation);
+            ISimpleApi proxy = this.GetProxy(proxyFactory, implementation);
             IDictionary<string, IList<string>> actualValue = proxy.GetGenerics(expectedKey, expectedValue);
 
             // assert
@@ -294,16 +308,17 @@ namespace SMAPI.Tests.Core
         }
 
         /// <summary>Assert that a simple lambda method can be proxied correctly.</summary>
+        /// <param name="proxyFactory">The proxy factory to test.</param>
         [Test]
         [SuppressMessage("ReSharper", "ConvertToLocalFunction")]
-        public void CanProxy_SimpleMethod_Lambda()
+        public void CanProxy_SimpleMethod_Lambda([ValueSource(nameof(InterfaceProxyTests.ProxyFactories))] IInterfaceProxyFactory proxyFactory)
         {
             // arrange
             object implementation = new ProviderMod().GetModApi();
             Func<string, string> expectedValue = _ => "test";
 
             // act
-            ISimpleApi proxy = this.GetProxy(implementation);
+            ISimpleApi proxy = this.GetProxy(proxyFactory, implementation);
             object actualValue = proxy.GetObject(expectedValue);
 
             // assert
@@ -311,16 +326,17 @@ namespace SMAPI.Tests.Core
         }
 
         /// <summary>Assert that a method with out parameters can be proxied correctly.</summary>
+        /// <param name="proxyFactory">The proxy factory to test.</param>
         [Test]
         [SuppressMessage("ReSharper", "ConvertToLocalFunction")]
-        public void CanProxy_Method_OutParameters()
+        public void CanProxy_Method_OutParameters([ValueSource(nameof(InterfaceProxyTests.ProxyFactories))] IInterfaceProxyFactory proxyFactory)
         {
             // arrange
             object implementation = new ProviderMod().GetModApi();
             const int expectedNumber = 42;
 
             // act
-            ISimpleApi proxy = this.GetProxy(implementation);
+            ISimpleApi proxy = this.GetProxy(proxyFactory, implementation);
             bool result = proxy.TryGetOutParameter(
                 inputNumber: expectedNumber,
 
@@ -374,10 +390,10 @@ namespace SMAPI.Tests.Core
         }
 
         /// <summary>Get a proxy API instance.</summary>
+        /// <param name="proxyFactory">The proxy factory to use.</param>
         /// <param name="implementation">The underlying API instance.</param>
-        private ISimpleApi GetProxy(object implementation)
+        private ISimpleApi GetProxy(IInterfaceProxyFactory proxyFactory, object implementation)
         {
-            var proxyFactory = new InterfaceProxyFactory();
             return proxyFactory.CreateProxy<ISimpleApi>(implementation, this.FromModId, this.ToModId);
         }
     }
