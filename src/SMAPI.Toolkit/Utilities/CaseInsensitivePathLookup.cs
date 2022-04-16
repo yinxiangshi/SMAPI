@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace StardewModdingAPI.Utilities
+namespace StardewModdingAPI.Toolkit.Utilities
 {
     /// <summary>Provides an API for case-insensitive relative path lookups within a root directory.</summary>
-    internal class CaseInsensitivePathCache
+    internal class CaseInsensitivePathLookup
     {
         /*********
         ** Fields
@@ -17,7 +17,7 @@ namespace StardewModdingAPI.Utilities
         private readonly Lazy<Dictionary<string, string>> RelativePathCache;
 
         /// <summary>The case-insensitive path caches by root path.</summary>
-        private static readonly Dictionary<string, CaseInsensitivePathCache> CachesByRootPath = new(StringComparer.OrdinalIgnoreCase);
+        private static readonly Dictionary<string, CaseInsensitivePathLookup> CachedRoots = new(StringComparer.OrdinalIgnoreCase);
 
 
         /*********
@@ -25,7 +25,7 @@ namespace StardewModdingAPI.Utilities
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="rootPath">The root directory path for relative paths.</param>
-        public CaseInsensitivePathCache(string rootPath)
+        public CaseInsensitivePathLookup(string rootPath)
         {
             this.RootPath = rootPath;
             this.RelativePathCache = new(this.GetRelativePathCache);
@@ -70,12 +70,12 @@ namespace StardewModdingAPI.Utilities
 
         /// <summary>Get a cached dictionary of relative paths within a root path, for case-insensitive file lookups.</summary>
         /// <param name="rootPath">The root path to scan.</param>
-        public static CaseInsensitivePathCache GetFor(string rootPath)
+        public static CaseInsensitivePathLookup GetCachedFor(string rootPath)
         {
             rootPath = PathUtilities.NormalizePath(rootPath);
 
-            if (!CaseInsensitivePathCache.CachesByRootPath.TryGetValue(rootPath, out CaseInsensitivePathCache? cache))
-                CaseInsensitivePathCache.CachesByRootPath[rootPath] = cache = new CaseInsensitivePathCache(rootPath);
+            if (!CaseInsensitivePathLookup.CachedRoots.TryGetValue(rootPath, out CaseInsensitivePathLookup? cache))
+                CaseInsensitivePathLookup.CachedRoots[rootPath] = cache = new CaseInsensitivePathLookup(rootPath);
 
             return cache;
         }

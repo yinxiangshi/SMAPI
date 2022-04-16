@@ -4,7 +4,7 @@ using StardewModdingAPI.Framework.Content;
 using StardewModdingAPI.Framework.ContentManagers;
 using StardewModdingAPI.Framework.Exceptions;
 using StardewModdingAPI.Framework.Reflection;
-using StardewModdingAPI.Utilities;
+using StardewModdingAPI.Toolkit.Utilities;
 
 namespace StardewModdingAPI.Framework.ModHelpers
 {
@@ -24,7 +24,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         private readonly string ModName;
 
         /// <summary>A case-insensitive lookup of relative paths within the <see cref="ContentManager.RootDirectory"/>.</summary>
-        private readonly CaseInsensitivePathCache RelativePathCache;
+        private readonly CaseInsensitivePathLookup RelativePathCache;
 
         /// <summary>Simplifies access to private code.</summary>
         private readonly Reflector Reflection;
@@ -41,7 +41,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <param name="gameContentManager">The game content manager used for map tilesheets not provided by the mod.</param>
         /// <param name="relativePathCache">A case-insensitive lookup of relative paths within the <paramref name="relativePathCache"/>.</param>
         /// <param name="reflection">Simplifies access to private code.</param>
-        public ModContentHelper(ContentCoordinator contentCore, string modFolderPath, IModMetadata mod, string modName, IContentManager gameContentManager, CaseInsensitivePathCache relativePathCache, Reflector reflection)
+        public ModContentHelper(ContentCoordinator contentCore, string modFolderPath, IModMetadata mod, string modName, IContentManager gameContentManager, CaseInsensitivePathLookup relativePathCache, Reflector reflection)
             : base(mod)
         {
             string managedAssetPrefix = contentCore.GetManagedAssetPrefix(mod.Manifest.UniqueID);

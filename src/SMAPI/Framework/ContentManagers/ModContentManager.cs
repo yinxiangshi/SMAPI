@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Framework.Exceptions;
 using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Toolkit.Serialization;
-using StardewModdingAPI.Utilities;
+using StardewModdingAPI.Toolkit.Utilities;
 using StardewValley;
 using xTile;
 using xTile.Format;
@@ -33,7 +33,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
         private readonly IContentManager GameContentManager;
 
         /// <summary>A case-insensitive lookup of relative paths within the <see cref="ContentManager.RootDirectory"/>.</summary>
-        private readonly CaseInsensitivePathCache RelativePathCache;
+        private readonly CaseInsensitivePathLookup RelativePathCache;
 
         /// <summary>If a map tilesheet's image source has no file extensions, the file extensions to check for in the local mod folder.</summary>
         private readonly string[] LocalTilesheetExtensions = { ".png", ".xnb" };
@@ -56,7 +56,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <param name="onDisposing">A callback to invoke when the content manager is being disposed.</param>
         /// <param name="aggressiveMemoryOptimizations">Whether to enable more aggressive memory optimizations.</param>
         /// <param name="relativePathCache">A case-insensitive lookup of relative paths within the <paramref name="rootDirectory"/>.</param>
-        public ModContentManager(string name, IContentManager gameContentManager, IServiceProvider serviceProvider, string modName, string rootDirectory, CultureInfo currentCulture, ContentCoordinator coordinator, IMonitor monitor, Reflector reflection, JsonHelper jsonHelper, Action<BaseContentManager> onDisposing, bool aggressiveMemoryOptimizations, CaseInsensitivePathCache relativePathCache)
+        public ModContentManager(string name, IContentManager gameContentManager, IServiceProvider serviceProvider, string modName, string rootDirectory, CultureInfo currentCulture, ContentCoordinator coordinator, IMonitor monitor, Reflector reflection, JsonHelper jsonHelper, Action<BaseContentManager> onDisposing, bool aggressiveMemoryOptimizations, CaseInsensitivePathLookup relativePathCache)
             : base(name, serviceProvider, rootDirectory, currentCulture, coordinator, monitor, reflection, onDisposing, isNamespaced: true, aggressiveMemoryOptimizations: aggressiveMemoryOptimizations)
         {
             this.GameContentManager = gameContentManager;

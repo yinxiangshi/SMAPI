@@ -8,7 +8,7 @@ using StardewModdingAPI.Toolkit.Framework.ModData;
 using StardewModdingAPI.Toolkit.Framework.ModScanning;
 using StardewModdingAPI.Toolkit.Framework.UpdateData;
 using StardewModdingAPI.Toolkit.Serialization.Models;
-using StardewModdingAPI.Utilities;
+using StardewModdingAPI.Toolkit.Utilities;
 
 namespace StardewModdingAPI.Framework.ModLoading
 {
@@ -141,7 +141,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                         }
 
                         // file doesn't exist
-                        string fileName = CaseInsensitivePathCache.GetFor(mod.DirectoryPath).GetFilePath(mod.Manifest.EntryDll!);
+                        string fileName = CaseInsensitivePathLookup.GetCachedFor(mod.DirectoryPath).GetFilePath(mod.Manifest.EntryDll!);
                         if (!File.Exists(Path.Combine(mod.DirectoryPath, fileName)))
                         {
                             mod.SetStatus(ModMetadataStatus.Failed, ModFailReason.InvalidManifest, $"its DLL '{mod.Manifest.EntryDll}' doesn't exist.");

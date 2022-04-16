@@ -15,7 +15,7 @@ using StardewModdingAPI.Framework.Utilities;
 using StardewModdingAPI.Internal;
 using StardewModdingAPI.Metadata;
 using StardewModdingAPI.Toolkit.Serialization;
-using StardewModdingAPI.Utilities;
+using StardewModdingAPI.Toolkit.Utilities;
 using StardewValley;
 using StardewValley.GameData;
 using xTile;
@@ -208,7 +208,7 @@ namespace StardewModdingAPI.Framework
                     jsonHelper: this.JsonHelper,
                     onDisposing: this.OnDisposing,
                     aggressiveMemoryOptimizations: this.AggressiveMemoryOptimizations,
-                    relativePathCache: CaseInsensitivePathCache.GetFor(rootDirectory)
+                    relativePathCache: CaseInsensitivePathLookup.GetCachedFor(rootDirectory)
                 );
                 this.ContentManagers.Add(manager);
                 return manager;
