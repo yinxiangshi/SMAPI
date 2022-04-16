@@ -55,7 +55,12 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
         {
             // get list
             List<string> values = !string.IsNullOrWhiteSpace(rawField)
-                ? new List<string>(rawField.Split(','))
+                ? new List<string>(
+                    from field in rawField.Split(',')
+                    let value = field.Trim()
+                    where value.Length > 0
+                    select value
+                )
                 : new List<string>();
 
             // apply changes

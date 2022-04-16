@@ -119,25 +119,27 @@ namespace StardewModdingAPI.Framework.Content
             if (prefix is null)
                 return false;
 
+            string rawTrimmed = prefix.Trim();
+
             // asset keys can't have a leading slash, but NormalizeAssetName will trim them
-            {
-                string trimmed = prefix.TrimStart();
-                if (trimmed.StartsWith('/') || trimmed.StartsWith('\\'))
-                    return false;
-            }
+            if (rawTrimmed.StartsWith('/') || rawTrimmed.StartsWith('\\'))
+                return false;
 
             // normalize prefix
             {
                 string normalized = PathUtilities.NormalizeAssetName(prefix);
 
-                string trimmed = prefix.TrimEnd();
-                if (trimmed.EndsWith('/') || trimmed.EndsWith('\\'))
+                // keep trailing slash
+                if (rawTrimmed.EndsWith('/') || rawTrimmed.EndsWith('\\'))
                     normalized += PathUtilities.PreferredAssetSeparator;
 
                 prefix = normalized;
             }
 
             // compare
+            if (prefix.Length == 0)
+                return true;
+
             return
                 this.Name.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)
                 && (

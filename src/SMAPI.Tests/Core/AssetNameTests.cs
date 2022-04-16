@@ -78,9 +78,9 @@ namespace SMAPI.Tests.Core
         [TestCase("DATA\\achievements", "data/ACHIEVEMENTS", ExpectedResult = true)]
         [TestCase("DATA\\\\achievements", "data////ACHIEVEMENTS", ExpectedResult = true)]
 
-        // whitespace-sensitive
-        [TestCase("Data/Achievements", " Data/Achievements ", ExpectedResult = false)]
-        [TestCase(" Data/Achievements ", "Data/Achievements", ExpectedResult = false)]
+        // whitespace-insensitive
+        [TestCase("Data/Achievements", " Data/Achievements ", ExpectedResult = true)]
+        [TestCase(" Data/Achievements ", "Data/Achievements", ExpectedResult = true)]
 
         // other is null or whitespace
         [TestCase("Data/Achievements", null, ExpectedResult = false)]
@@ -109,7 +109,7 @@ namespace SMAPI.Tests.Core
         [TestCase("Data/Achievements", "Data/Achievements", ExpectedResult = true)]
         [TestCase("DATA/achievements", "data/ACHIEVEMENTS", ExpectedResult = true)]
         [TestCase("DATA\\\\achievements", "data////ACHIEVEMENTS", ExpectedResult = true)]
-        [TestCase(" Data/Achievements ", "Data/Achievements", ExpectedResult = false)]
+        [TestCase(" Data/Achievements ", "Data/Achievements", ExpectedResult = true)]
         [TestCase("Data/Achievements", "   ", ExpectedResult = false)]
 
         // with locale codes
@@ -141,13 +141,13 @@ namespace SMAPI.Tests.Core
         [TestCase("DATA\\achievements", "data/ACHIEVEMENTS", ExpectedResult = true)]
         [TestCase("DATA\\\\achievements", "data////ACHIEVEMENTS", ExpectedResult = true)]
 
-        // leading-whitespace-sensitive
-        [TestCase("Data/Achievements", " Data/Achievements", ExpectedResult = false)]
-        [TestCase(" Data/Achievements ", "Data/Achievements", ExpectedResult = false)]
+        // whitespace-insensitive
+        [TestCase("Data/Achievements", " Data/Achievements", ExpectedResult = true)]
+        [TestCase(" Data/Achievements ", "Data/Achievements", ExpectedResult = true)]
+        [TestCase("Data/Achievements", "   ", ExpectedResult = true)]
 
         // invalid prefixes
         [TestCase("Data/Achievements", null, ExpectedResult = false)]
-        [TestCase("Data/Achievements", "   ", ExpectedResult = false)]
 
         // with locale codes
         [TestCase("Data/Achievements.fr-FR", "Data/Achievements", ExpectedResult = true)]

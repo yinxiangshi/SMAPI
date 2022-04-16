@@ -51,7 +51,8 @@ namespace StardewModdingAPI.Framework
             foreach (string key in this.GetAllKeysRaw())
             {
                 string? text = this.GetRaw(key, locale, withFallback: true);
-                this.ForLocale.Add(key, new Translation(this.Locale, key, text));
+                if (text != null)
+                    this.ForLocale.Add(key, new Translation(this.Locale, key, text));
             }
         }
 

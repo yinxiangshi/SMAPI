@@ -38,6 +38,9 @@ namespace SMAPI.Tests.Core
 
             // assert
             Assert.AreEqual(0, mods.Length, 0, $"Expected to find zero manifests, found {mods.Length} instead.");
+
+            // cleanup
+            Directory.Delete(rootFolder, recursive: true);
         }
 
         [Test(Description = "Assert that the resolver correctly returns a failed metadata if there's an empty mod folder.")]
@@ -56,6 +59,9 @@ namespace SMAPI.Tests.Core
             Assert.AreEqual(1, mods.Length, 0, $"Expected to find one manifest, found {mods.Length} instead.");
             Assert.AreEqual(ModMetadataStatus.Failed, mod!.Status, "The mod metadata was not marked failed.");
             Assert.IsNotNull(mod.Error, "The mod metadata did not have an error message set.");
+
+            // cleanup
+            Directory.Delete(rootFolder, recursive: true);
         }
 
         [Test(Description = "Assert that the resolver correctly reads manifest data from a randomized file.")]
@@ -115,6 +121,9 @@ namespace SMAPI.Tests.Core
             Assert.IsNotNull(mod.Manifest.Dependencies, "The dependencies field should not be null.");
             Assert.AreEqual(1, mod.Manifest.Dependencies.Length, "The dependencies field should contain one value.");
             Assert.AreEqual(originalDependency[nameof(IManifestDependency.UniqueID)], mod.Manifest.Dependencies[0].UniqueID, "The first dependency's unique ID doesn't match.");
+
+            // cleanup
+            Directory.Delete(rootFolder, recursive: true);
         }
 
         /****
@@ -123,7 +132,7 @@ namespace SMAPI.Tests.Core
         [Test(Description = "Assert that validation doesn't fail if there are no mods installed.")]
         public void ValidateManifests_NoMods_DoesNothing()
         {
-            new ModResolver().ValidateManifests(Array.Empty<ModMetadata>(), apiVersion: new SemanticVersion("1.0"), getUpdateUrl: _ => null);
+            new ModResolver().ValidateManifests(Array.Empty<ModMetadata>(), apiVersion: new SemanticVersion("1.0"), getUpdateUrl: _ => null, validateFilesExist: false);
         }
 
         [Test(Description = "Assert that validation skips manifests that have already failed without calling any other properties.")]
@@ -134,7 +143,7 @@ namespace SMAPI.Tests.Core
             mock.Setup(p => p.Status).Returns(ModMetadataStatus.Failed);
 
             // act
-            new ModResolver().ValidateManifests(new[] { mock.Object }, apiVersion: new SemanticVersion("1.0"), getUpdateUrl: _ => null);
+            new ModResolver().ValidateManifests(new[] { mock.Object }, apiVersion: new SemanticVersion("1.0"), getUpdateUrl: _ => null, validateFilesExist: false);
 
             // assert
             mock.VerifyGet(p => p.Status, Times.Once, "The validation did not check the manifest status.");
@@ -145,13 +154,13 @@ namespace SMAPI.Tests.Core
         {
             // arrange
             Mock<IModMetadata> mock = this.GetMetadata("Mod A", Array.Empty<string>(), allowStatusChange: true);
-            this.SetupMetadataForValidation(mock, new ModDataRecordVersionedFields(this.GetModDataRecord())
+            mock.Setup(p => p.DataRecord).Returns(() => new ModDataRecordVersionedFields(this.GetModDataRecord())
             {
                 Status = ModStatus.AssumeBroken
             });
 
             // act
-            new ModResolver().ValidateManifests(new[] { mock.Object }, apiVersion: new SemanticVersion("1.0"), getUpdateUrl: _ => null);
+            new ModResolver().ValidateManifests(new[] { mock.Object }, apiVersion: new SemanticVersion("1.0"), getUpdateUrl: _ => null, validateFilesExist: false);
 
             // assert
             mock.Verify(p => p.SetStatus(ModMetadataStatus.Failed, It.IsAny<ModFailReason>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once, "The validation did not fail the metadata.");
@@ -163,10 +172,9 @@ namespace SMAPI.Tests.Core
             // arrange
             Mock<IModMetadata> mock = this.GetMetadata("Mod A", Array.Empty<string>(), allowStatusChange: true);
             mock.Setup(p => p.Manifest).Returns(this.GetManifest(minimumApiVersion: "1.1"));
-            this.SetupMetadataForValidation(mock);
 
             // act
-            new ModResolver().ValidateManifests(new[] { mock.Object }, apiVersion: new SemanticVersion("1.0"), getUpdateUrl: _ => null);
+            new ModResolver().ValidateManifests(new[] { mock.Object }, apiVersion: new SemanticVersion("1.0"), getUpdateUrl: _ => null, validateFilesExist: false);
 
             // assert
             mock.Verify(p => p.SetStatus(ModMetadataStatus.Failed, It.IsAny<ModFailReason>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once, "The validation did not fail the metadata.");
@@ -176,14 +184,18 @@ namespace SMAPI.Tests.Core
         public void ValidateManifests_MissingEntryDLL_Fails()
         {
             // arrange
-            Mock<IModMetadata> mock = this.GetMetadata(this.GetManifest(id: "Mod A", version: "1.0", entryDll: "Missing.dll"), allowStatusChange: true);
-            this.SetupMetadataForValidation(mock);
+            string directoryPath = this.GetTempFolderPath();
+            Mock<IModMetadata> mock = this.GetMetadata(this.GetManifest(id: "Mod A", version: "1.0", entryDll: "Missing.dll"), allowStatusChange: true, directoryPath: directoryPath);
+            Directory.CreateDirectory(directoryPath);
 
             // act
             new ModResolver().ValidateManifests(new[] { mock.Object }, apiVersion: new SemanticVersion("1.0"), getUpdateUrl: _ => null);
 
             // assert
             mock.Verify(p => p.SetStatus(ModMetadataStatus.Failed, It.IsAny<ModFailReason>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once, "The validation did not fail the metadata.");
+
+            // cleanup
+            Directory.Delete(directoryPath);
         }
 
         [Test(Description = "Assert that validation fails when multiple mods have the same unique ID.")]
@@ -192,16 +204,13 @@ namespace SMAPI.Tests.Core
             // arrange
             Mock<IModMetadata> modA = this.GetMetadata("Mod A", Array.Empty<string>(), allowStatusChange: true);
             Mock<IModMetadata> modB = this.GetMetadata(this.GetManifest(id: "Mod A", name: "Mod B", version: "1.0"), allowStatusChange: true);
-            Mock<IModMetadata> modC = this.GetMetadata("Mod C", Array.Empty<string>(), allowStatusChange: false);
-            foreach (Mock<IModMetadata> mod in new[] { modA, modB, modC })
-                this.SetupMetadataForValidation(mod);
 
             // act
-            new ModResolver().ValidateManifests(new[] { modA.Object, modB.Object }, apiVersion: new SemanticVersion("1.0"), getUpdateUrl: _ => null);
+            new ModResolver().ValidateManifests(new[] { modA.Object, modB.Object }, apiVersion: new SemanticVersion("1.0"), getUpdateUrl: _ => null, validateFilesExist: false);
 
             // assert
-            modA.Verify(p => p.SetStatus(ModMetadataStatus.Failed, It.IsAny<ModFailReason>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once, "The validation did not fail the first mod with a unique ID.");
-            modB.Verify(p => p.SetStatus(ModMetadataStatus.Failed, It.IsAny<ModFailReason>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once, "The validation did not fail the second mod with a unique ID.");
+            modA.Verify(p => p.SetStatus(ModMetadataStatus.Failed, ModFailReason.Duplicate, It.IsAny<string>(), It.IsAny<string>()), Times.AtLeastOnce, "The validation did not fail the first mod with a unique ID.");
+            modB.Verify(p => p.SetStatus(ModMetadataStatus.Failed, ModFailReason.Duplicate, It.IsAny<string>(), It.IsAny<string>()), Times.AtLeastOnce, "The validation did not fail the second mod with a unique ID.");
         }
 
         [Test(Description = "Assert that validation fails when the manifest references a DLL that does not exist.")]
@@ -227,6 +236,9 @@ namespace SMAPI.Tests.Core
 
             // assert
             // if Moq doesn't throw a method-not-setup exception, the validation didn't override the status.
+
+            // cleanup
+            Directory.Delete(modFolder, recursive: true);
         }
 
         /****
@@ -514,14 +526,20 @@ namespace SMAPI.Tests.Core
         /// <summary>Get a randomized basic manifest.</summary>
         /// <param name="manifest">The mod manifest.</param>
         /// <param name="allowStatusChange">Whether the code being tested is allowed to change the mod status.</param>
-        private Mock<IModMetadata> GetMetadata(IManifest manifest, bool allowStatusChange = false)
+        /// <param name="directoryPath">The directory path the mod metadata should be pointed at, or <c>null</c> to generate a fake path.</param>
+        private Mock<IModMetadata> GetMetadata(IManifest manifest, bool allowStatusChange = false, string? directoryPath = null)
         {
+            directoryPath ??= this.GetTempFolderPath();
+
             Mock<IModMetadata> mod = new(MockBehavior.Strict);
             mod.Setup(p => p.DataRecord).Returns(this.GetModDataRecordVersionedFields());
             mod.Setup(p => p.Status).Returns(ModMetadataStatus.Found);
             mod.Setup(p => p.DisplayName).Returns(manifest.UniqueID);
+            mod.Setup(p => p.DirectoryPath).Returns(directoryPath);
             mod.Setup(p => p.Manifest).Returns(manifest);
             mod.Setup(p => p.HasID(It.IsAny<string>())).Returns((string id) => manifest.UniqueID == id);
+            mod.Setup(p => p.GetUpdateKeys(It.IsAny<bool>())).Returns(Enumerable.Empty<UpdateKey>());
+            mod.Setup(p => p.GetRelativePathWithRoot()).Returns(directoryPath);
             if (allowStatusChange)
             {
                 mod
@@ -530,18 +548,6 @@ namespace SMAPI.Tests.Core
                     .Returns(mod.Object);
             }
             return mod;
-        }
-
-        /// <summary>Set up a mock mod metadata for <see cref="ModResolver.ValidateManifests"/>.</summary>
-        /// <param name="mod">The mock mod metadata.</param>
-        /// <param name="modRecord">The extra metadata about the mod from SMAPI's internal data (if any).</param>
-        private void SetupMetadataForValidation(Mock<IModMetadata> mod, ModDataRecordVersionedFields? modRecord = null)
-        {
-            mod.Setup(p => p.Status).Returns(ModMetadataStatus.Found);
-            mod.Setup(p => p.Manifest).Returns(this.GetManifest());
-            mod.Setup(p => p.DirectoryPath).Returns(Path.GetTempPath());
-            mod.Setup(p => p.DataRecord).Returns(modRecord ?? this.GetModDataRecordVersionedFields());
-            mod.Setup(p => p.GetUpdateKeys(It.IsAny<bool>())).Returns(Enumerable.Empty<UpdateKey>());
         }
 
         /// <summary>Generate a default mod data record.</summary>

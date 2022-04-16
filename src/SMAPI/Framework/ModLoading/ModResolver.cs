@@ -56,9 +56,10 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <param name="mods">The mod manifests to validate.</param>
         /// <param name="apiVersion">The current SMAPI version.</param>
         /// <param name="getUpdateUrl">Get an update URL for an update key (if valid).</param>
+        /// <param name="validateFilesExist">Whether to validate that files referenced in the manifest (like <see cref="IManifest.EntryDll"/>) exist on disk. This can be disabled to only validate the manifest itself.</param>
         [SuppressMessage("ReSharper", "ConstantConditionalAccessQualifier", Justification = "Manifest values may be null before they're validated.")]
         [SuppressMessage("ReSharper", "ConditionIsAlwaysTrueOrFalse", Justification = "Manifest values may be null before they're validated.")]
-        public void ValidateManifests(IEnumerable<IModMetadata> mods, ISemanticVersion apiVersion, Func<string, string?> getUpdateUrl)
+        public void ValidateManifests(IEnumerable<IModMetadata> mods, ISemanticVersion apiVersion, Func<string, string?> getUpdateUrl, bool validateFilesExist = true)
         {
             mods = mods.ToArray();
 
@@ -141,11 +142,14 @@ namespace StardewModdingAPI.Framework.ModLoading
                         }
 
                         // file doesn't exist
-                        string fileName = CaseInsensitivePathLookup.GetCachedFor(mod.DirectoryPath).GetFilePath(mod.Manifest.EntryDll!);
-                        if (!File.Exists(Path.Combine(mod.DirectoryPath, fileName)))
+                        if (validateFilesExist)
                         {
-                            mod.SetStatus(ModMetadataStatus.Failed, ModFailReason.InvalidManifest, $"its DLL '{mod.Manifest.EntryDll}' doesn't exist.");
-                            continue;
+                            string fileName = CaseInsensitivePathLookup.GetCachedFor(mod.DirectoryPath).GetFilePath(mod.Manifest.EntryDll!);
+                            if (!File.Exists(Path.Combine(mod.DirectoryPath, fileName)))
+                            {
+                                mod.SetStatus(ModMetadataStatus.Failed, ModFailReason.InvalidManifest, $"its DLL '{mod.Manifest.EntryDll}' doesn't exist.");
+                                continue;
+                            }
                         }
                     }
 
