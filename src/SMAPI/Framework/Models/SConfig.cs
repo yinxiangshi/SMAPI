@@ -23,7 +23,7 @@ namespace StardewModdingAPI.Framework.Models
             [nameof(LogNetworkTraffic)] = false,
             [nameof(RewriteMods)] = true,
             [nameof(AggressiveMemoryOptimizations)] = false,
-            [nameof(UsePintail)] = true
+            [nameof(UsePintail)] = false
         };
 
         /// <summary>The default values for <see cref="SuppressUpdateChecks"/>, to log changes if different.</summary>

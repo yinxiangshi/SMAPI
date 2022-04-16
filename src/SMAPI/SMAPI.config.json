@@ -50,7 +50,7 @@ copy all the settings, or you may cause bugs due to overridden changes in future
      * Whether to use the experimental Pintail API proxying library, instead of the original
      * proxying built into SMAPI itself.
      */
-    "UsePintail": true,
+    "UsePintail": false,
 
     /**
      * Whether to add a section to the 'mod issues' list for mods which directly use potentially

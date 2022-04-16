@@ -44,8 +44,8 @@ the C# mod that loads them is updated.
     _These include new features not supported by the old API like load conflict resolution, edit priority, and content pack labels. They also support new cases like easily detecting when an asset has changed, and avoid data corruption issues in some edge cases._
   * Added [nullable reference type annotations](https://stardewvalleywiki.com/Modding:Migrate_to_SMAPI_4.0#Nullable_reference_type_annotations) for all APIs.
   * Added `helper.GameContent` and `helper.ModContent`, which will replace `helper.Content` in SMAPI 4.0.0.
-  * Overhauled [mod-provided API](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Integrations#Mod-provided_APIs) proxying (thanks to Shockah!).  
-    _This adds support for many previously unsupported cases: proxied interfaces in return values or input arguments, proxied enums if their values match, generic methods, and more. Existing mod APIs should work fine as-is._
+  * Added optional overhaul of [mod-provided API](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Integrations#Mod-provided_APIs) proxying (thanks to Shockah!).  
+    _This is experimental (you can enable it via `UsePintail` in `smapi-internal/config.json`). This adds support for many previously unsupported cases: proxied interfaces in return values or input arguments, proxied enums if their values match, generic methods, and more. Existing mod APIs should work fine as-is._
   * Mod files loaded through SMAPI APIs (including `helper.Content.Load`) are now case-insensitive, even on Linux.
   * Enabled deprecation notices for all deprecated APIs. These will only be shown in `TRACE` logs for at least a month after SMAPI 3.14.0 releases.
 * Other improvements:
