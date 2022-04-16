@@ -250,35 +250,24 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
         /// <param name="folder">The folder to search.</param>
         private FileInfo? FindManifest(DirectoryInfo folder)
         {
-            while (true)
+            // check for conventional manifest in current folder
+            const string defaultName = "manifest.json";
+            FileInfo file = new(Path.Combine(folder.FullName, defaultName));
+            if (file.Exists)
+                return file;
+
+            // check for manifest with incorrect capitalization
             {
-                // check for conventional manifest in current folder
-                const string defaultName = "manifest.json";
-                FileInfo file = new(Path.Combine(folder.FullName, defaultName));
-                if (file.Exists)
-                    return file;
-
-                // check for manifest with incorrect capitalization
-                {
-                    CaseInsensitivePathLookup pathLookup = new(folder.FullName, SearchOption.TopDirectoryOnly); // don't use GetCachedFor, since we only need it temporarily
-                    string realName = pathLookup.GetFilePath(defaultName);
-                    if (realName != defaultName)
-                        file = new(Path.Combine(folder.FullName, realName));
-                }
-                if (file.Exists)
-                    return file;
-
-                // check for single subfolder
-                FileSystemInfo[] entries = folder.EnumerateFileSystemInfos().Take(2).ToArray();
-                if (entries.Length == 1 && entries[0] is DirectoryInfo subfolder)
-                {
-                    folder = subfolder;
-                    continue;
-                }
-
-                // not found
-                return null;
+                CaseInsensitivePathLookup pathLookup = new(folder.FullName, SearchOption.TopDirectoryOnly); // don't use GetCachedFor, since we only need it temporarily
+                string realName = pathLookup.GetFilePath(defaultName);
+                if (realName != defaultName)
+                    file = new(Path.Combine(folder.FullName, realName));
             }
+            if (file.Exists)
+                return file;
+
+            // not found
+            return null;
         }
 
         /// <summary>Get whether a given folder should be treated as a search folder (i.e. look for subfolders containing mods).</summary>
