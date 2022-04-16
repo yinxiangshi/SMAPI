@@ -77,16 +77,36 @@
                     logStarted: new Date(@this.ForJson(log?.Timestamp)),
                     dataElement: "script#serializedData",
                     showPopup: @this.ForJson(log == null),
-                    showMods: @this.ForJson(log?.Mods.Select(p => Model.GetSlug(p.Name)).Distinct().ToDictionary(slug => slug, _ => true)),
+                    showMods: @this.ForJson(log?.Mods.Where(p => p.Loaded && !p.IsContentPack).Select(p => Model.GetSlug(p.Name)).Distinct().ToDictionary(slug => slug, _ => true)),
                     showSections: @this.ForJson(Enum.GetNames(typeof(LogSection)).ToDictionary(section => section, _ => false)),
                     showLevels: @this.ForJson(defaultFilters),
                     enableFilters: @this.ForJson(!Model.ShowRaw)
                 }
             );
 
-            new Tabby("[data-tabs]");
+            @if (log == null)
+            {
+                <text>
+                    new Tabby("[data-tabs]");
+                </text>
+            }
         });
     </script>
+}
+
+@* quick navigation links *@
+@section SidebarExtra {
+    @if (log != null)
+    {
+        <nav id="quickNav">
+            <h4>Scroll to...</h4>
+            <ul>
+                <li><a href="#content">Top</a></li>
+                <li><a href="#filterHolder">Log start</a></li>
+                <li><a href="#footer">Bottom</a></li>
+            </ul>
+        </nav>
+    }
 }
 
 @* upload result banner *@
@@ -378,6 +398,7 @@ else if (log?.IsValid == true)
                             <input
                                 type="text"
                                 v-bind:class="{ active: !!filterText }"
+                                v-model="filterText"
                                 v-on:input="updateFilterText"
                                 placeholder="search to filter log..."
                             />
@@ -390,7 +411,7 @@ else if (log?.IsValid == true)
                             v-bind:start="start"
                             v-bind:end="end"
                             v-bind:pages="totalPages"
-                            v-bind:filtered="filteredMessages.length"
+                            v-bind:filtered="filteredMessages.total"
                             v-bind:total="totalMessages"
                         />
                     </div>
