@@ -55,7 +55,7 @@ namespace StardewModdingAPI.Framework.Reflection
         }
 
         /// <inheritdoc />
-        public TValue? Invoke<TValue>(params object?[] arguments)
+        public TValue Invoke<TValue>(params object?[] arguments)
         {
             // invoke method
             object? result;
@@ -75,7 +75,7 @@ namespace StardewModdingAPI.Framework.Reflection
             // cast return value
             try
             {
-                return (TValue?)result;
+                return (TValue)result!;
             }
             catch (InvalidCastException)
             {

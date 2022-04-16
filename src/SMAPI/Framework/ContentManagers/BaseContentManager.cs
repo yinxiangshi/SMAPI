@@ -98,7 +98,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             this.AggressiveMemoryOptimizations = aggressiveMemoryOptimizations;
 
             // get asset data
-            this.BaseDisposableReferences = reflection.GetField<List<IDisposable>>(this, "disposableAssets").GetValue()
+            this.BaseDisposableReferences = reflection.GetField<List<IDisposable>?>(this, "disposableAssets").GetValue()
                 ?? throw new InvalidOperationException("Can't initialize content manager: the required 'disposableAssets' field wasn't found.");
         }
 

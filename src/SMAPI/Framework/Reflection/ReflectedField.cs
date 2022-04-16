@@ -56,11 +56,11 @@ namespace StardewModdingAPI.Framework.Reflection
         }
 
         /// <inheritdoc />
-        public TValue? GetValue()
+        public TValue GetValue()
         {
             try
             {
-                return (TValue?)this.FieldInfo.GetValue(this.Parent);
+                return (TValue)this.FieldInfo.GetValue(this.Parent)!;
             }
             catch (InvalidCastException)
             {
@@ -73,7 +73,7 @@ namespace StardewModdingAPI.Framework.Reflection
         }
 
         /// <inheritdoc />
-        public void SetValue(TValue? value)
+        public void SetValue(TValue value)
         {
             try
             {

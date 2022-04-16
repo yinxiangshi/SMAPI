@@ -17,10 +17,10 @@ namespace StardewModdingAPI
         ** Public methods
         *********/
         /// <summary>Get the field value.</summary>
-        TValue? GetValue();
+        TValue GetValue();
 
         /// <summary>Set the field value.</summary>
         //// <param name="value">The value to set.</param>
-        void SetValue(TValue? value);
+        void SetValue(TValue value);
     }
 }

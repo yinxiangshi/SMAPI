@@ -113,13 +113,13 @@ namespace StardewModdingAPI.Framework
             {
                 case LidgrenClient:
                     {
-                        string address = this.Reflection.GetField<string>(client, "address").GetValue() ?? throw new InvalidOperationException("Can't initialize base networking client: no valid address found.");
+                        string address = this.Reflection.GetField<string?>(client, "address").GetValue() ?? throw new InvalidOperationException("Can't initialize base networking client: no valid address found.");
                         return new SLidgrenClient(address, this.OnClientProcessingMessage, this.OnClientSendingMessage);
                     }
 
                 case GalaxyNetClient:
                     {
-                        GalaxyID address = this.Reflection.GetField<GalaxyID>(client, "lobbyId").GetValue() ?? throw new InvalidOperationException("Can't initialize GOG networking client: no valid address found.");
+                        GalaxyID address = this.Reflection.GetField<GalaxyID?>(client, "lobbyId").GetValue() ?? throw new InvalidOperationException("Can't initialize GOG networking client: no valid address found.");
                         return new SGalaxyNetClient(address, this.OnClientProcessingMessage, this.OnClientSendingMessage);
                     }
 
@@ -137,13 +137,13 @@ namespace StardewModdingAPI.Framework
             {
                 case LidgrenServer:
                     {
-                        IGameServer gameServer = this.Reflection.GetField<IGameServer>(server, "gameServer").GetValue() ?? throw new InvalidOperationException("Can't initialize base networking client: the required 'gameServer' field wasn't found.");
+                        IGameServer gameServer = this.Reflection.GetField<IGameServer?>(server, "gameServer").GetValue() ?? throw new InvalidOperationException("Can't initialize base networking client: the required 'gameServer' field wasn't found.");
                         return new SLidgrenServer(gameServer, this, this.OnServerProcessingMessage);
                     }
 
                 case GalaxyNetServer:
                     {
-                        IGameServer gameServer = this.Reflection.GetField<IGameServer>(server, "gameServer").GetValue() ?? throw new InvalidOperationException("Can't initialize GOG networking client: the required 'gameServer' field wasn't found.");
+                        IGameServer gameServer = this.Reflection.GetField<IGameServer?>(server, "gameServer").GetValue() ?? throw new InvalidOperationException("Can't initialize GOG networking client: the required 'gameServer' field wasn't found.");
                         return new SGalaxyNetServer(gameServer, this, this.OnServerProcessingMessage);
                     }
 

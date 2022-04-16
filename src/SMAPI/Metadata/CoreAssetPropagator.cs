@@ -806,7 +806,7 @@ namespace StardewModdingAPI.Metadata
                     if (door?.Sprite == null)
                         continue;
 
-                    string? curKey = this.Reflection.GetField<string>(door.Sprite, "textureName").GetValue();
+                    string? curKey = this.Reflection.GetField<string?>(door.Sprite, "textureName").GetValue();
                     if (this.IsSameBaseName(assetName, curKey))
                         door.Sprite.texture = texture.Value;
                 }
@@ -1002,7 +1002,7 @@ namespace StardewModdingAPI.Metadata
                     GameLocation adventureGuild = Game1.getLocationFromName("AdventureGuild");
                     if (adventureGuild != null)
                     {
-                        NPC? gil = this.Reflection.GetField<NPC>(adventureGuild, "Gil").GetValue();
+                        NPC? gil = this.Reflection.GetField<NPC?>(adventureGuild, "Gil").GetValue();
                         if (gil != null)
                             characters.Add(new { Npc = gil, AssetName = gilKey });
                     }
@@ -1031,7 +1031,7 @@ namespace StardewModdingAPI.Metadata
 
             foreach (Farmer player in players)
             {
-                this.Reflection.GetField<Dictionary<string, Dictionary<int, List<int>>>>(typeof(FarmerRenderer), "_recolorOffsets").GetValue()?.Remove(player.getTexture());
+                this.Reflection.GetField<Dictionary<string, Dictionary<int, List<int>>>?>(typeof(FarmerRenderer), "_recolorOffsets").GetValue()?.Remove(player.getTexture());
                 player.FarmerRenderer.MarkSpriteDirty();
             }
 
@@ -1049,14 +1049,18 @@ namespace StardewModdingAPI.Metadata
             foreach (GameLocation location in this.GetLocations(buildingInteriors: false))
             {
                 // get suspension bridges field
-                var field = this.Reflection.GetField<IEnumerable<SuspensionBridge>>(location, nameof(IslandNorth.suspensionBridges), required: false);
+                var field = this.Reflection.GetField<IEnumerable<SuspensionBridge>?>(location, nameof(IslandNorth.suspensionBridges), required: false);
                 // ReSharper disable once ConditionIsAlwaysTrueOrFalse -- field is nullable when required: false
                 if (field == null || !typeof(IEnumerable<SuspensionBridge>).IsAssignableFrom(field.FieldInfo.FieldType))
                     continue;
 
                 // update textures
-                foreach (SuspensionBridge bridge in field.GetValue()!)
-                    this.Reflection.GetField<Texture2D>(bridge, "_texture").SetValue(texture.Value);
+                IEnumerable<SuspensionBridge>? bridges = field.GetValue();
+                if (bridges != null)
+                {
+                    foreach (SuspensionBridge bridge in bridges)
+                        this.Reflection.GetField<Texture2D>(bridge, "_texture").SetValue(texture.Value);
+                }
             }
 
             return texture.IsValueCreated;
@@ -1134,7 +1138,7 @@ namespace StardewModdingAPI.Metadata
             {
                 // reload schedule
                 this.Reflection.GetField<bool>(villager, "_hasLoadedMasterScheduleData").SetValue(false);
-                this.Reflection.GetField<Dictionary<string, string>>(villager, "_masterScheduleData").SetValue(null);
+                this.Reflection.GetField<Dictionary<string, string>?>(villager, "_masterScheduleData").SetValue(null);
                 villager.Schedule = villager.getSchedule(Game1.dayOfMonth);
 
                 // switch to new schedule if needed
@@ -1161,7 +1165,7 @@ namespace StardewModdingAPI.Metadata
             Game1.samBandName = content.LoadString("Strings/StringsFromCSFiles:Game1.cs.2156");
             Game1.elliottBookName = content.LoadString("Strings/StringsFromCSFiles:Game1.cs.2157");
 
-            string[] dayNames = this.Reflection.GetField<string[]>(typeof(Game1), "_shortDayDisplayName").GetValue()!;
+            string[] dayNames = this.Reflection.GetField<string[]>(typeof(Game1), "_shortDayDisplayName").GetValue();
             dayNames[0] = content.LoadString("Strings/StringsFromCSFiles:Game1.cs.3042");
             dayNames[1] = content.LoadString("Strings/StringsFromCSFiles:Game1.cs.3043");
             dayNames[2] = content.LoadString("Strings/StringsFromCSFiles:Game1.cs.3044");

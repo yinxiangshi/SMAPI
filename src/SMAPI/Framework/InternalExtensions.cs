@@ -160,7 +160,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="reflection">The reflection helper with which to access private fields.</param>
         public static bool IsOpen(this SpriteBatch spriteBatch, Reflector reflection)
         {
-            return reflection.GetField<bool>(spriteBatch, "_beginCalled")!.GetValue();
+            return reflection.GetField<bool>(spriteBatch, "_beginCalled").GetValue();
         }
     }
 }

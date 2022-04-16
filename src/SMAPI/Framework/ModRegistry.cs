@@ -35,7 +35,7 @@ namespace StardewModdingAPI.Framework
             this.Mods.Add(metadata);
         }
 
-        /// <summary>Track a mod's assembly for use via <see cref="GetFrom"/>.</summary>
+        /// <summary>Track a mod's assembly for use via <see cref="GetFrom(Type?)"/>.</summary>
         /// <param name="metadata">The mod metadata.</param>
         /// <param name="modAssembly">The mod assembly.</param>
         public void TrackAssemblies(IModMetadata metadata, Assembly modAssembly)
