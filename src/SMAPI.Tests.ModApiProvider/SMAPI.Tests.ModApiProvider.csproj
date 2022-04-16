@@ -4,4 +4,8 @@
   </PropertyGroup>
 
   <Import Project="..\..\build\common.targets" />
+
+  <ItemGroup>
+    <ProjectReference Include="..\SMAPI\SMAPI.csproj" />
+  </ItemGroup>
 </Project>

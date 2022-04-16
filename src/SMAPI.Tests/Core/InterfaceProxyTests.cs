@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Reflection;
 using FluentAssertions;
 using NUnit.Framework;
@@ -8,6 +9,7 @@ using SMAPI.Tests.ModApiConsumer;
 using SMAPI.Tests.ModApiConsumer.Interfaces;
 using SMAPI.Tests.ModApiProvider;
 using StardewModdingAPI.Framework.Reflection;
+using StardewModdingAPI.Utilities;
 
 namespace SMAPI.Tests.Core
 {
@@ -306,6 +308,43 @@ namespace SMAPI.Tests.Core
 
             // assert
             actualValue.Should().BeSameAs(expectedValue);
+        }
+
+        /// <summary>Assert that a method with out parameters can be proxied correctly.</summary>
+        [Test]
+        [SuppressMessage("ReSharper", "ConvertToLocalFunction")]
+        public void CanProxy_Method_OutParameters()
+        {
+            // arrange
+            object implementation = new ProviderMod().GetModApi();
+            const int expectedNumber = 42;
+
+            // act
+            ISimpleApi proxy = this.GetProxy(implementation);
+            bool result = proxy.TryGetOutParameter(
+                inputNumber: expectedNumber,
+
+                out int outNumber,
+                out string outString,
+                out PerScreen<int> outReference,
+                out IDictionary<int, PerScreen<int>> outComplexType
+            );
+
+            // assert
+            result.Should().BeTrue();
+
+            outNumber.Should().Be(expectedNumber);
+
+            outString.Should().Be(expectedNumber.ToString());
+
+            outReference.Should().NotBeNull();
+            outReference.Value.Should().Be(expectedNumber);
+
+            outComplexType.Should().NotBeNull();
+            outComplexType.Count.Should().Be(1);
+            outComplexType.Keys.First().Should().Be(expectedNumber);
+            outComplexType.Values.First().Should().NotBeNull();
+            outComplexType.Values.First().Value.Should().Be(expectedNumber);
         }
 
 

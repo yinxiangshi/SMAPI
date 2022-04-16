@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using StardewModdingAPI.Utilities;
 
 namespace SMAPI.Tests.ModApiConsumer.Interfaces
 {
@@ -68,6 +69,9 @@ namespace SMAPI.Tests.ModApiConsumer.Interfaces
 
         /// <summary>A simple method which returns a lambda.</summary>
         Func<string, string> GetLambda(Func<string, string> value);
+
+        /// <summary>A simple method which returns out parameters.</summary>
+        bool TryGetOutParameter(int inputNumber, out int outNumber, out string outString, out PerScreen<int> outReference, out IDictionary<int, PerScreen<int>> outComplexType);
 
 
         /****

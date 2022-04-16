@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using StardewModdingAPI.Utilities;
 
 namespace SMAPI.Tests.ModApiProvider.Framework
 {
@@ -94,6 +95,20 @@ namespace SMAPI.Tests.ModApiProvider.Framework
         public Func<string, string> GetLambda(Func<string, string> value)
         {
             return value;
+        }
+
+        /// <summary>A simple method which returns out parameters.</summary>
+        public bool TryGetOutParameter(int inputNumber, out int outNumber, out string outString, out PerScreen<int> outReference, out IDictionary<int, PerScreen<int>> outComplexType)
+        {
+            outNumber = inputNumber;
+            outString = inputNumber.ToString();
+            outReference = new PerScreen<int>(() => inputNumber);
+            outComplexType = new Dictionary<int, PerScreen<int>>
+            {
+                [inputNumber] = new PerScreen<int>(() => inputNumber)
+            };
+
+            return true;
         }
 
 
