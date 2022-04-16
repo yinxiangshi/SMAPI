@@ -97,55 +97,43 @@ smapi.logParser = function (state) {
         },
 
         /**
-         * Try parsing the value as an integer, in base 10. Return the number
-         * if it's valid, or return the default value otherwise.
-         * @param {String} value The value to parse.
-         * @param {Number} defaultValue The value to return if parsing fails.
-         * @param {Function} critera An optional criteria to check the number with.
+         * Try parsing the value as a base-10 integer.
+         * @param {string} value The value to parse.
+         * @param {number} defaultValue The value to return if parsing fails.
+         * @param {() => boolean} criteria An optional callback to check whether a parsed number is valid.
+         * @returns {number} The parsed number if it's valid, else the default value.
          */
-        tryNumber(value, defaultValue, critera = null) {
-            try {
-                value = parseInt(value, 10);
-            } catch {
-                return defaultValue;
-            }
-
-            if (isNaN(value) || !isFinite(value) || (critera && !critera(value)))
-                return defaultValue;
-
-            return value;
+        tryParseNumber(value, defaultValue, criteria = null) {
+            value = parseInt(value, 10);
+            return !isNaN(value) && isFinite(value) && (!criteria || criteria(value))
+                ? value
+                : defaultValue;
         },
 
         /**
-         * Check the shallow equality of two objects.
-         * @param {Array} first
-         * @param {Array} second
+         * Get whether two objects are equivalent based on their top-level properties.
+         * @param {Object} left The first value to compare.
+         * @param {Object} right The second value to compare.
          * @returns {Boolean}
          */
-        shallowEquals(first, second) {
-            if (typeof first !== "object" || typeof second !== "object")
-                return first === second;
+        shallowEquals(left, right) {
+            if (typeof left !== "object" || typeof right !== "object")
+                return left === right;
 
-            if (first == null || second == null)
-                return first == null && second == null;
+            if (left == null || right == null)
+                return left == null && right == null;
 
-            const f_array = Array.isArray(first);
-            const s_array = Array.isArray(second);
-
-            if (f_array !== s_array)
+            if (Array.isArray(left) !== Array.isArray(right))
                 return false;
 
-            const f_keys = Object.keys(first);
-            const s_keys = Object.keys(second);
+            const leftKeys = Object.keys(left);
+            const rightKeys = Object.keys(right);
 
-            if (f_keys.length != s_keys.length)
+            if (leftKeys.length != rightKeys.length)
                 return false;
 
-            for (const key of f_keys) {
-                if (!s_keys.includes(key))
-                    return false;
-
-                if (first[key] !== second[key])
+            for (const key of leftKeys) {
+                if (!rightKeys.includes(key) || left[key] !== right[key])
                     return false;
             }
 
@@ -203,20 +191,6 @@ smapi.logParser = function (state) {
         modsShown: 0,
         modsHidden: 0
     };
-
-    function updateModFilters() {
-        // counts
-        stats.modsShown = 0;
-        stats.modsHidden = 0;
-        for (let key in state.showMods) {
-            if (state.showMods.hasOwnProperty(key)) {
-                if (state.showMods[key])
-                    stats.modsShown++;
-                else
-                    stats.modsHidden++;
-            }
-        }
-    }
 
     // load raw log data
     {
@@ -282,9 +256,9 @@ smapi.logParser = function (state) {
     state.perPage = 1000;
     state.page = 1;
 
-    state.defaultMods = JSON.parse(JSON.stringify(state.showMods));
-    state.defaultSections = JSON.parse(JSON.stringify(state.showSections));
-    state.defaultLevels = JSON.parse(JSON.stringify(state.showLevels));
+    state.defaultMods = { ...state.showMods };
+    state.defaultSections = { ...state.showSections };
+    state.defaultLevels = { ...state.showLevels };
 
     // load saved values, if any
     if (localStorage.settings) {
@@ -336,18 +310,22 @@ smapi.logParser = function (state) {
                 "div",
                 { class: "stats" },
                 [
-                    createElement('abbr', {
-                        attrs: {
-                            title: "These numbers may be inaccurate when using filtering with sections collapsed."
-                        }
-                    }, [
-                        "showing ",
-                        createElement("strong", helpers.formatNumber(props.start + 1)),
-                        " to ",
-                        createElement("strong", helpers.formatNumber(props.end)),
-                        " of ",
-                        createElement("strong", helpers.formatNumber(props.filtered))
-                    ]),
+                    createElement(
+                        "abbr",
+                        {
+                            attrs: {
+                                title: "These numbers may be inaccurate when using filtering with sections collapsed."
+                            }
+                        },
+                        [
+                            "showing ",
+                            createElement("strong", helpers.formatNumber(props.start + 1)),
+                            " to ",
+                            createElement("strong", helpers.formatNumber(props.end)),
+                            " of ",
+                            createElement("strong", helpers.formatNumber(props.filtered))
+                        ]
+                    ),
                     " (total: ",
                     createElement("strong", helpers.formatNumber(props.total)),
                     ")"
@@ -696,29 +674,18 @@ smapi.logParser = function (state) {
         methods: {
             loadFromUrl: function () {
                 const params = new URL(location).searchParams;
-                if (params.has("PerPage")) {
-                    state.perPage = helpers.tryNumber(params.get("PerPage"), 1000, n => n > 0);
-                } else {
-                    state.perPage = 1000;
-                }
 
-                if (params.has("Page")) {
-                    this.page = helpers.tryNumber(params.get("Page"), 1, n => n > 0);
-                } else {
-                    this.page = 1;
-                }
-
-                if (params.has("Filter"))
-                    state.filterText = params.get("Filter");
-                else
-                    state.filterText = "";
+                state.perPage = helpers.tryParseNumber(params.get("PerPage"), 1000, n => n > 0);
+                this.page = helpers.tryParseNumber(params.get("Page"), 1, n => n > 0);
+                state.filterText = params.get("Filter") || "";
 
                 if (params.has("FilterMode")) {
                     const values = params.get("FilterMode").split("~");
-                    state.useRegex = values.includes('Regex');
-                    state.useInsensitive = !values.includes('Sensitive');
-                    state.useWord = values.includes('Word');
-                } else {
+                    state.useRegex = values.includes("Regex");
+                    state.useInsensitive = !values.includes("Sensitive");
+                    state.useWord = values.includes("Word");
+                }
+                else {
                     state.useRegex = false;
                     state.useInsensitive = true;
                     state.useWord = false;
@@ -729,7 +696,8 @@ smapi.logParser = function (state) {
                     for (const key of Object.keys(this.showMods))
                         this.showMods[key] = value.includes(key);
 
-                } else {
+                }
+                else {
                     for (const key of Object.keys(this.showMods))
                         this.showMods[key] = state.defaultMods[key];
                 }
@@ -739,7 +707,8 @@ smapi.logParser = function (state) {
                     for (const key of Object.keys(this.showLevels))
                         this.showLevels[key] = values.includes(key);
 
-                } else {
+                }
+                else {
                     const keys = Object.keys(this.showLevels);
                     for (const key of Object.keys(this.showLevels))
                         this.showLevels[key] = state.defaultLevels[key];
@@ -750,41 +719,42 @@ smapi.logParser = function (state) {
                     for (const key of Object.keys(this.showSections))
                         this.showSections[key] = values.includes(key);
 
-                } else {
+                }
+                else {
                     for (const key of Object.keys(this.showSections))
                         this.showSections[key] = state.defaultSections[key];
                 }
 
-                updateModFilters();
+                this.updateModFilters();
                 this.updateFilterText();
             },
 
-            // Whenever the page state changed, replace the current page URL. Using
-            // replaceState rather than pushState to avoid filling the tab history
-            // with tons of useless history steps the user probably doesn't
-            // really care about.
+            /**
+             * Update the page URL to track non-default filter values.
+             */
             updateUrl: function () {
                 const url = new URL(location);
                 url.searchParams.set("Page", state.page);
                 url.searchParams.set("PerPage", state.perPage);
 
                 if (!helpers.shallowEquals(this.showMods, state.defaultMods))
-                    url.searchParams.set("Mods", Object.entries(this.showMods).filter(x => x[1]).map(x => x[0]).join("~"));
+                    url.searchParams.set("Mods", Object.entries(this.showMods).filter(p => p[1]).map(p => p[0]).join("~"));
                 else
                     url.searchParams.delete("Mods");
 
                 if (!helpers.shallowEquals(this.showLevels, state.defaultLevels))
-                    url.searchParams.set("Levels", Object.entries(this.showLevels).filter(x => x[1]).map(x => x[0]).join("~"));
+                    url.searchParams.set("Levels", Object.entries(this.showLevels).filter(p => p[1]).map(p => p[0]).join("~"));
                 else
                     url.searchParams.delete("Levels");
 
                 if (!helpers.shallowEquals(this.showSections, state.defaultSections))
-                    url.searchParams.set("Sections", Object.entries(this.showSections).filter(x => x[1]).map(x => x[0]).join("~"));
+                    url.searchParams.set("Sections", Object.entries(this.showSections).filter(p => p[1]).map(p => p[0]).join("~"));
                 else
                     url.searchParams.delete("Sections");
 
-                if (state.filterText && state.filterText.length) {
+                if (state.filterText?.length) {
                     url.searchParams.set("Filter", state.filterText);
+
                     const modes = [];
                     if (state.useRegex)
                         modes.push("Regex");
@@ -798,12 +768,13 @@ smapi.logParser = function (state) {
                     else
                         url.searchParams.delete("FilterMode");
 
-                } else {
+                }
+                else {
                     url.searchParams.delete("Filter");
                     url.searchParams.delete("FilterMode");
                 }
 
-                window.history.replaceState(null, document.title, url.toString());
+                window.history.replaceState(null, document.title, url.toString()); // use replaceState instead of pushState to avoid filling the tab history with history steps the user probably doesn't care about
             },
 
             toggleLevel: function (id) {
@@ -863,8 +834,9 @@ smapi.logParser = function (state) {
                 this.updateUrl();
             },
 
-            // Persist settings into localStorage for use the next time
-            // the user opens a log.
+            /**
+             * Persist settings into localStorage for use the next time the user opens a log.
+             */
             saveSettings: function () {
                 localStorage.settings = JSON.stringify({
                     showContentPacks: state.showContentPacks,
@@ -900,6 +872,20 @@ smapi.logParser = function (state) {
                 250
             ),
 
+            updateModFilters: function () {
+                // counts
+                stats.modsShown = 0;
+                stats.modsHidden = 0;
+                for (let key in state.showMods) {
+                    if (state.showMods.hasOwnProperty(key)) {
+                        if (state.showMods[key])
+                            stats.modsShown++;
+                        else
+                            stats.modsHidden++;
+                    }
+                }
+            },
+
             toggleMod: function (id) {
                 if (!state.enableFilters)
                     return;
@@ -920,7 +906,7 @@ smapi.logParser = function (state) {
                 else
                     this.showMods[id] = !this.showMods[id];
 
-                updateModFilters();
+                this.updateModFilters();
                 this.updateUrl();
             },
 
@@ -941,7 +927,7 @@ smapi.logParser = function (state) {
                         this.showMods[key] = true;
                     }
                 }
-                updateModFilters();
+                this.updateModFilters();
                 this.updateUrl();
             },
 
@@ -954,7 +940,7 @@ smapi.logParser = function (state) {
                         this.showMods[key] = false;
                     }
                 }
-                updateModFilters();
+                this.updateModFilters();
                 this.updateUrl();
             },
 
