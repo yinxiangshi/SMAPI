@@ -17,10 +17,11 @@
   * Fixed `set_farm_type` console command not updating warps.
 
 ### For the web UI
-* Overhauled log parser UI (thanks to KhloeLeclair!):
+* Improved log parser UI (thanks to KhloeLeclair!):
   * Added pagination for big logs.
   * Added search box to filter the log.
   * Added option to show/hide content packs in the mod list.
+  * Added jump links in the sidebar.
   * The filter options now stick to the top of the screen when scrolling.
   * Rewrote rendering to improve performance.
 * Updated the JSON validator/schema for Content Patcher 1.25.0.
