@@ -16,6 +16,9 @@ namespace StardewModdingAPI.Utilities
         /// <summary>A case-insensitive lookup of file paths within the <see cref="RootPath"/>. Each path is listed in both file path and asset name format, so it's usable in both contexts without needing to re-parse paths.</summary>
         private readonly Lazy<Dictionary<string, string>> RelativePathCache;
 
+        /// <summary>The case-insensitive path caches by root path.</summary>
+        private static readonly Dictionary<string, CaseInsensitivePathCache> CachesByRootPath = new(StringComparer.OrdinalIgnoreCase);
+
 
         /*********
         ** Public methods
@@ -65,6 +68,18 @@ namespace StardewModdingAPI.Utilities
             this.CacheRawPath(this.RelativePathCache.Value, relativePath);
         }
 
+        /// <summary>Get a cached dictionary of relative paths within a root path, for case-insensitive file lookups.</summary>
+        /// <param name="rootPath">The root path to scan.</param>
+        public static CaseInsensitivePathCache GetFor(string rootPath)
+        {
+            rootPath = PathUtilities.NormalizePath(rootPath);
+
+            if (!CaseInsensitivePathCache.CachesByRootPath.TryGetValue(rootPath, out CaseInsensitivePathCache? cache))
+                CaseInsensitivePathCache.CachesByRootPath[rootPath] = cache = new CaseInsensitivePathCache(rootPath);
+
+            return cache;
+        }
+
 
         /*********
         ** Private methods
@@ -82,15 +97,13 @@ namespace StardewModdingAPI.Utilities
             if (this.RelativePathCache.Value.TryGetValue(relativePath, out string? resolved))
                 return resolved;
 
-            // file exists but isn't cached for some reason
-            // cache it now so any later references to it are case-insensitive
+            // keep capitalization as-is
             if (File.Exists(Path.Combine(this.RootPath, relativePath)))
             {
+                // file exists but isn't cached for some reason
+                // cache it now so any later references to it are case-insensitive
                 this.CacheRawPath(this.RelativePathCache.Value, relativePath);
-                return relativePath;
             }
-
-            // no such file, keep capitalization as-is
             return relativePath;
         }
 

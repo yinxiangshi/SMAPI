@@ -8,7 +8,7 @@ using StardewModdingAPI.Toolkit.Framework.ModData;
 using StardewModdingAPI.Toolkit.Framework.ModScanning;
 using StardewModdingAPI.Toolkit.Framework.UpdateData;
 using StardewModdingAPI.Toolkit.Serialization.Models;
-using StardewModdingAPI.Toolkit.Utilities;
+using StardewModdingAPI.Utilities;
 
 namespace StardewModdingAPI.Framework.ModLoading
 {
@@ -140,18 +140,11 @@ namespace StardewModdingAPI.Framework.ModLoading
                             continue;
                         }
 
-                        // invalid path
-                        if (!File.Exists(Path.Combine(mod.DirectoryPath, mod.Manifest.EntryDll!)))
+                        // file doesn't exist
+                        string fileName = CaseInsensitivePathCache.GetFor(mod.DirectoryPath).GetFilePath(mod.Manifest.EntryDll!);
+                        if (!File.Exists(Path.Combine(mod.DirectoryPath, fileName)))
                         {
                             mod.SetStatus(ModMetadataStatus.Failed, ModFailReason.InvalidManifest, $"its DLL '{mod.Manifest.EntryDll}' doesn't exist.");
-                            continue;
-                        }
-
-                        // invalid capitalization
-                        string? actualFilename = new DirectoryInfo(mod.DirectoryPath).GetFiles(mod.Manifest.EntryDll!).FirstOrDefault()?.Name;
-                        if (actualFilename != mod.Manifest.EntryDll)
-                        {
-                            mod.SetStatus(ModMetadataStatus.Failed, ModFailReason.InvalidManifest, $"its {nameof(IManifest.EntryDll)} value '{mod.Manifest.EntryDll}' doesn't match the actual file capitalization '{actualFilename}'. The capitalization must match for crossplatform compatibility.");
                             continue;
                         }
                     }

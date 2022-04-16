@@ -1748,7 +1748,7 @@ namespace StardewModdingAPI.Framework
             if (mod.IsContentPack)
             {
                 IMonitor monitor = this.LogManager.GetMonitor(mod.DisplayName);
-                CaseInsensitivePathCache relativePathCache = this.ContentCore.GetCaseInsensitivePathCache(mod.DirectoryPath);
+                CaseInsensitivePathCache relativePathCache = CaseInsensitivePathCache.GetFor(mod.DirectoryPath);
                 GameContentHelper gameContentHelper = new(this.ContentCore, mod, mod.DisplayName, monitor, this.Reflection);
                 IModContentHelper modContentHelper = new ModContentHelper(this.ContentCore, mod.DirectoryPath, mod, mod.DisplayName, gameContentHelper.GetUnderlyingContentManager(), relativePathCache, this.Reflection);
                 TranslationHelper translationHelper = new(mod, contentCore.GetLocale(), contentCore.Language);
@@ -1765,7 +1765,10 @@ namespace StardewModdingAPI.Framework
             else
             {
                 // get mod info
-                string assemblyPath = Path.Combine(mod.DirectoryPath, manifest.EntryDll!);
+                string assemblyPath = Path.Combine(
+                    mod.DirectoryPath,
+                    CaseInsensitivePathCache.GetFor(mod.DirectoryPath).GetFilePath(manifest.EntryDll!)
+                );
 
                 // load mod
                 Assembly modAssembly;
@@ -1830,7 +1833,7 @@ namespace StardewModdingAPI.Framework
                         {
                             IMonitor packMonitor = this.LogManager.GetMonitor(packManifest.Name);
 
-                            CaseInsensitivePathCache relativePathCache = this.ContentCore.GetCaseInsensitivePathCache(packDirPath);
+                            CaseInsensitivePathCache relativePathCache = CaseInsensitivePathCache.GetFor(packDirPath);
 
                             GameContentHelper gameContentHelper = new(contentCore, mod, packManifest.Name, packMonitor, this.Reflection);
                             IModContentHelper packContentHelper = new ModContentHelper(contentCore, packDirPath, mod, packManifest.Name, gameContentHelper.GetUnderlyingContentManager(), relativePathCache, this.Reflection);
@@ -1844,7 +1847,7 @@ namespace StardewModdingAPI.Framework
 
                         IModEvents events = new ModEvents(mod, this.EventManager);
                         ICommandHelper commandHelper = new CommandHelper(mod, this.CommandManager);
-                        CaseInsensitivePathCache relativePathCache = this.ContentCore.GetCaseInsensitivePathCache(mod.DirectoryPath);
+                        CaseInsensitivePathCache relativePathCache = CaseInsensitivePathCache.GetFor(mod.DirectoryPath);
 #pragma warning disable CS0612 // deprecated code
                         ContentHelper contentHelper = new(contentCore, mod.DirectoryPath, mod, monitor, this.Reflection);
 #pragma warning restore CS0612

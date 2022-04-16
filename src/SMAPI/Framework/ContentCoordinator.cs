@@ -80,9 +80,6 @@ namespace StardewModdingAPI.Framework
         /// <summary>The cached asset load/edit operations to apply, indexed by asset name.</summary>
         private readonly TickCacheDictionary<IAssetName, AssetOperationGroup[]> AssetOperationsByKey = new();
 
-        /// <summary>The previously created case-insensitive path caches by root path.</summary>
-        private readonly Dictionary<string, CaseInsensitivePathCache> CaseInsensitivePathCaches = new(StringComparer.OrdinalIgnoreCase);
-
 
         /*********
         ** Accessors
@@ -211,7 +208,7 @@ namespace StardewModdingAPI.Framework
                     jsonHelper: this.JsonHelper,
                     onDisposing: this.OnDisposing,
                     aggressiveMemoryOptimizations: this.AggressiveMemoryOptimizations,
-                    relativePathCache: this.GetCaseInsensitivePathCache(rootDirectory)
+                    relativePathCache: CaseInsensitivePathCache.GetFor(rootDirectory)
                 );
                 this.ContentManagers.Add(manager);
                 return manager;
@@ -484,18 +481,6 @@ namespace StardewModdingAPI.Framework
                 }
                 return values;
             });
-        }
-
-        /// <summary>Get a dictionary of relative paths within a root path, for case-insensitive file lookups.</summary>
-        /// <param name="rootPath">The root path to scan.</param>
-        public CaseInsensitivePathCache GetCaseInsensitivePathCache(string rootPath)
-        {
-            rootPath = PathUtilities.NormalizePath(rootPath);
-
-            if (!this.CaseInsensitivePathCaches.TryGetValue(rootPath, out CaseInsensitivePathCache? cache))
-                this.CaseInsensitivePathCaches[rootPath] = cache = new CaseInsensitivePathCache(rootPath);
-
-            return cache;
         }
 
         /// <summary>Get the tilesheet ID order used by the unmodified version of a map asset.</summary>
