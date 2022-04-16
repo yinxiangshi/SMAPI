@@ -64,6 +64,9 @@ the C# mod that loads them is updated.
   * Fixed issue where suppressing `[Left|Right]Thumbstick[Down|Left]` keys would suppress the opposite direction instead.
   * Fixed null handling in various edge cases.
 
+### For SMAPI contributors
+* You no longer need a Nexus API key to launch the SMAPI web project locally.
+
 ## 3.13.4
 Released 16 January 2022 for Stardew Valley 1.5.6 or later.
 

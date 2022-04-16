@@ -128,14 +128,21 @@ namespace StardewModdingAPI.Web
                     modUrlFormat: api.ModDropModPageUrl
                 ));
 
-                services.AddSingleton<INexusClient>(new NexusClient(
-                    webUserAgent: userAgent,
-                    webBaseUrl: api.NexusBaseUrl,
-                    webModUrlFormat: api.NexusModUrlFormat,
-                    webModScrapeUrlFormat: api.NexusModScrapeUrlFormat,
-                    apiAppVersion: version,
-                    apiKey: api.NexusApiKey
-                ));
+                if (!string.IsNullOrWhiteSpace(api.NexusApiKey))
+                {
+                    services.AddSingleton<INexusClient>(new NexusClient(
+                        webUserAgent: userAgent,
+                        webBaseUrl: api.NexusBaseUrl,
+                        webModUrlFormat: api.NexusModUrlFormat,
+                        webModScrapeUrlFormat: api.NexusModScrapeUrlFormat,
+                        apiAppVersion: version,
+                        apiKey: api.NexusApiKey
+                    ));
+                }
+                else
+                {
+                    services.AddSingleton<INexusClient>(new DisabledNexusClient());
+                }
 
                 services.AddSingleton<IPastebinClient>(new PastebinClient(
                     baseUrl: api.PastebinBaseUrl,
