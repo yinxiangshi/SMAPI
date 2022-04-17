@@ -406,6 +406,12 @@ else if (log?.IsValid == true)
                             <span role="button" v-bind:class="{ active: !filterInsensitive }" v-on:click="toggleFilterInsensitive" title="Match exact capitalization only.">aA</span>
                             <span role="button" v-bind:class="{ active: filterUseWord, 'whole-word': true }" v-on:click="toggleFilterWord" title="Match whole word only."><i>“ ”</i></span>
                             <span role="button" v-bind:class="{ active: shouldHighlight }" v-on:click="toggleHighlight" title="Highlight matches in the log text.">HL</span>
+                            <div
+                                v-if="filterError"
+                                class="filter-error"
+                            >
+                                {{ filterError }}
+                            </div>
                         </div>
                         <filter-stats
                             v-bind:start="start"

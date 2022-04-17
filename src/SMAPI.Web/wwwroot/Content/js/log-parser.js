@@ -247,7 +247,8 @@ smapi.logParser = function (state) {
     // add the properties we're passing to Vue
     state.totalMessages = state.messages.length;
     state.filterText = "";
-    state.filterRegex = "";
+    state.filterRegex = null;
+    state.filterError = null;
     state.showContentPacks = true;
     state.useHighlight = true;
     state.useRegex = false;
@@ -506,6 +507,12 @@ smapi.logParser = function (state) {
                     }
 
                     index = match.index + match[0].length;
+
+                    // In the event of a zero-length match, forcibly increment
+                    // the last index of the regular expression to ensure we
+                    // aren't stuck in an infinite loop.
+                    if (match[0].length == 0)
+                        filter.lastIndex++;
                 }
 
                 // Add any trailing text after the last match was found.
@@ -857,14 +864,30 @@ smapi.logParser = function (state) {
                     if (!text || !text.length) {
                         this.filterText = "";
                         this.filterRegex = null;
+                        this.filterError = null;
                     }
                     else {
                         if (!state.useRegex)
                             text = helpers.escapeRegex(text);
-                        this.filterRegex = new RegExp(
-                            state.useWord ? `\\b${text}\\b` : text,
-                            state.useInsensitive ? "ig" : "g"
-                        );
+
+                        const flags = state.useInsensitive ? "ig" : "g";
+
+                        this.filterError = null;
+                        let regex;
+
+                        try {
+                            regex = new RegExp(text, flags);
+                        } catch (err) {
+                            regex = null;
+                            this.filterError = err.message;
+                        }
+
+                        if (regex)
+                            this.filterRegex = state.useWord ?
+                                new RegExp(`\\b(?:${text})\\b`, flags) :
+                                regex;
+                        else
+                            this.filterRegex = null;
                     }
 
                     this.updateUrl();
