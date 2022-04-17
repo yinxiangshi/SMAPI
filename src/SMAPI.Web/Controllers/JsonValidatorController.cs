@@ -122,7 +122,7 @@ namespace StardewModdingAPI.Web.Controllers
                 FileInfo? schemaFile = this.FindSchemaFile(schemaName);
                 if (schemaFile == null)
                     return this.View("Index", result.SetParseError($"Invalid schema '{schemaName}'."));
-                schema = JSchema.Parse(System.IO.File.ReadAllText(schemaFile.FullName));
+                schema = JSchema.Parse(await System.IO.File.ReadAllTextAsync(schemaFile.FullName));
             }
 
             // get format doc URL
@@ -151,7 +151,7 @@ namespace StardewModdingAPI.Web.Controllers
             string schemaName = this.NormalizeSchemaName(request.SchemaName);
 
             // get raw text
-            string input = request.Content;
+            string? input = request.Content;
             if (string.IsNullOrWhiteSpace(input))
                 return this.View("Index", this.GetModel(null, schemaName, isEditView: true).SetUploadError("The JSON file seems to be empty."));
 
