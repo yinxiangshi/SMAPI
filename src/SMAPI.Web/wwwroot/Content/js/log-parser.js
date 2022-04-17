@@ -860,34 +860,29 @@ smapi.logParser = function (state) {
             // much easier.
             updateFilterText: helpers.getDebouncedHandler(
                 function () {
+                    // reset
+                    this.filterError = null;
+                    this.filterRegex = null;
+
+                    // apply search
                     let text = state.filterText;
-                    if (!text || !text.length) {
+                    if (!text)
                         this.filterText = "";
-                        this.filterRegex = null;
-                        this.filterError = null;
-                    }
                     else {
                         if (!state.useRegex)
                             text = helpers.escapeRegex(text);
 
                         const flags = state.useInsensitive ? "ig" : "g";
 
-                        this.filterError = null;
-                        let regex;
-
                         try {
-                            regex = new RegExp(text, flags);
-                        } catch (err) {
-                            regex = null;
+                            this.filterRegex = new RegExp(text, flags);
+                        }
+                        catch (err) {
                             this.filterError = err.message;
                         }
 
-                        if (regex)
-                            this.filterRegex = state.useWord ?
-                                new RegExp(`\\b(?:${text})\\b`, flags) :
-                                regex;
-                        else
-                            this.filterRegex = null;
+                        if (this.filterRegex && state.useWord)
+                            this.filterRegex = new RegExp(`\\b(?:${text})\\b`, flags);
                     }
 
                     this.updateUrl();
