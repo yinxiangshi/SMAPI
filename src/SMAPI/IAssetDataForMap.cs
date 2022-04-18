@@ -17,10 +17,9 @@ namespace StardewModdingAPI
         void PatchMap(Map source, Rectangle? sourceArea = null, Rectangle? targetArea = null, PatchMapMode patchMode = PatchMapMode.Overlay);
 
         /// <summary>Extend the map if needed to fit the given size. Note that this is an expensive operation and resizes the map in-place.</summary>
-        /// <param name="map">The map to resize.</param>
         /// <param name="minWidth">The minimum map width in tiles.</param>
         /// <param name="minHeight">The minimum map height in tiles.</param>
         /// <returns>Whether the map was resized.</returns>
-        bool ExtendMap(Map map, int minWidth, int minHeight);
+        bool ExtendMap(int minWidth = 0, int minHeight = 0);
     }
 }

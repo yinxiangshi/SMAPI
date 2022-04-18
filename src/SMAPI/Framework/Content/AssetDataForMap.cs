@@ -151,9 +151,10 @@ namespace StardewModdingAPI.Framework.Content
         }
 
         /// <inheritdoc />
-        public bool ExtendMap(Map map, int minWidth, int minHeight)
+        public bool ExtendMap(int minWidth = 0, int minHeight = 0)
         {
             bool resized = false;
+            Map map = this.Data;
 
             // resize layers
             foreach (Layer layer in map.Layers)
