@@ -56,15 +56,21 @@ namespace StardewModdingAPI.Framework.Deprecations
         /// <param name="nounPhrase">A noun phrase describing what is deprecated.</param>
         /// <param name="version">The SMAPI version which deprecated it.</param>
         /// <param name="severity">How deprecated the code is.</param>
-        public void Warn(IModMetadata? source, string nounPhrase, string version, DeprecationLevel severity)
+        /// <param name="unlessStackIncludes">A list of stack trace substrings which should suppress deprecation warnings if they appear in the stack trace.</param>
+        public void Warn(IModMetadata? source, string nounPhrase, string version, DeprecationLevel severity, string[]? unlessStackIncludes = null)
         {
-            // ignore if already warned
-            if (!this.MarkWarned(source, nounPhrase, version))
+            // skip if already warned
+            string cacheKey = $"{source?.DisplayName ?? "<unknown>"}::{nounPhrase}::{version}";
+            if (this.LoggedDeprecations.Contains(cacheKey))
                 return;
 
-            // queue warning
+            // warn if valid
             ImmutableStackTrace stack = ImmutableStackTrace.Get(skipFrames: 1);
-            this.QueuedWarnings.Add(new DeprecationWarning(source, nounPhrase, version, severity, stack));
+            if (!this.ShouldSuppress(stack, unlessStackIncludes))
+            {
+                this.LoggedDeprecations.Add(cacheKey);
+                this.QueuedWarnings.Add(new DeprecationWarning(source, nounPhrase, version, severity, stack));
+            }
         }
 
         /// <summary>A placeholder method used to track deprecated code for which a separate warning will be shown.</summary>
@@ -117,18 +123,22 @@ namespace StardewModdingAPI.Framework.Deprecations
         /*********
         ** Private methods
         *********/
-        /// <summary>Mark a deprecation warning as already logged.</summary>
-        /// <param name="source">The mod which used the deprecated code.</param>
-        /// <param name="nounPhrase">A noun phrase describing what is deprecated (e.g. "the Extensions.AsInt32 method").</param>
-        /// <param name="version">The SMAPI version which deprecated it.</param>
-        /// <returns>Returns whether the deprecation was successfully marked as warned. Returns <c>false</c> if it was already marked.</returns>
-        private bool MarkWarned(IModMetadata? source, string nounPhrase, string version)
+        /// <summary>Get whether a deprecation warning should be suppressed.</summary>
+        /// <param name="stack">The stack trace for which it was raised.</param>
+        /// <param name="unlessStackIncludes">A list of stack trace substrings which should suppress deprecation warnings if they appear in the stack trace.</param>
+        private bool ShouldSuppress(ImmutableStackTrace stack, string[]? unlessStackIncludes)
         {
-            string key = $"{source?.DisplayName ?? "<unknown>"}::{nounPhrase}::{version}";
-            if (this.LoggedDeprecations.Contains(key))
-                return false;
-            this.LoggedDeprecations.Add(key);
-            return true;
+            if (unlessStackIncludes?.Any() == true)
+            {
+                string stackTrace = stack.ToString();
+                foreach (string method in unlessStackIncludes)
+                {
+                    if (stackTrace.Contains(method))
+                        return true;
+                }
+            }
+
+            return false;
         }
 
         /// <summary>Get the simplest stack trace which shows where in the mod the deprecated code was called from.</summary>

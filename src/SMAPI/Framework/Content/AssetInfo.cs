@@ -36,7 +36,12 @@ namespace StardewModdingAPI.Framework.Content
                     source: SCore.DeprecationManager.GetModFromStack(),
                     nounPhrase: $"{nameof(IAssetInfo)}.{nameof(IAssetInfo.AssetName)}",
                     version: "3.14.0",
-                    severity: DeprecationLevel.Notice
+                    severity: DeprecationLevel.Notice,
+                    unlessStackIncludes: new[]
+                    {
+                        $"{typeof(AssetInterceptorChange).FullName}.{nameof(AssetInterceptorChange.CanIntercept)}",
+                        $"{typeof(ContentCoordinator).FullName}.{nameof(ContentCoordinator.GetAssetOperations)}"
+                    }
                 );
 
                 return this.NameWithoutLocale.Name;
@@ -72,7 +77,12 @@ namespace StardewModdingAPI.Framework.Content
                 source: SCore.DeprecationManager.GetModFromStack(),
                 nounPhrase: $"{nameof(IAssetInfo)}.{nameof(IAssetInfo.AssetNameEquals)}",
                 version: "3.14.0",
-                severity: DeprecationLevel.Notice
+                severity: DeprecationLevel.Notice,
+                unlessStackIncludes: new[]
+                {
+                    $"{typeof(AssetInterceptorChange).FullName}.{nameof(AssetInterceptorChange.CanIntercept)}",
+                    $"{typeof(ContentCoordinator).FullName}.{nameof(ContentCoordinator.GetAssetOperations)}"
+                }
             );
 
 
