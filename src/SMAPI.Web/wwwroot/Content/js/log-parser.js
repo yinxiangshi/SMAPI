@@ -245,6 +245,7 @@ smapi.logParser = function (state) {
         state.localTimeStarted = ("0" + state.logStarted.getHours()).slice(-2) + ":" + ("0" + state.logStarted.getMinutes()).slice(-2);
 
     // add the properties we're passing to Vue
+    const defaultPerPage = 1000;
     state.totalMessages = state.messages.length;
     state.filterText = "";
     state.filterRegex = null;
@@ -254,7 +255,7 @@ smapi.logParser = function (state) {
     state.useRegex = false;
     state.useInsensitive = true;
     state.useWord = false;
-    state.perPage = 1000;
+    state.perPage = defaultPerPage;
     state.page = 1;
 
     state.defaultMods = { ...state.showMods };
@@ -682,7 +683,7 @@ smapi.logParser = function (state) {
             loadFromUrl: function () {
                 const params = new URL(location).searchParams;
 
-                state.perPage = helpers.tryParseNumber(params.get("PerPage"), 1000, n => n > 0);
+                state.perPage = helpers.tryParseNumber(params.get("PerPage"), defaultPerPage, n => n > 0);
                 this.page = helpers.tryParseNumber(params.get("Page"), 1, n => n > 0);
                 state.filterText = params.get("Filter") || "";
 
@@ -741,8 +742,12 @@ smapi.logParser = function (state) {
              */
             updateUrl: function () {
                 const url = new URL(location);
-                url.searchParams.set("Page", state.page);
-                url.searchParams.set("PerPage", state.perPage);
+
+                if (state.page != 1)
+                    url.searchParams.set("Page", state.page);
+
+                if (state.perPage != defaultPerPage)
+                    url.searchParams.set("PerPage", state.perPage);
 
                 if (!helpers.shallowEquals(this.showMods, state.defaultMods))
                     url.searchParams.set("Mods", Object.entries(this.showMods).filter(p => p[1]).map(p => p[0]).join("~"));
