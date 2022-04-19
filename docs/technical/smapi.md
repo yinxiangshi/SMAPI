@@ -83,7 +83,7 @@ folder before compiling.
 ## Prepare a release
 ### On any platform
 **⚠ Ideally we'd have one set of instructions for all platforms. The instructions in this section
-will produce a fully functional release for all supported platfrms, _except_ that the application
+will produce a fully functional release for all supported platforms, _except_ that the application
 icon for SMAPI on Windows will disappear due to [.NET runtime bug
 3828](https://github.com/dotnet/runtime/issues/3828). Until that's fixed, see the _[on
 Windows](#on-windows)_ section below to create a build that retains the icon.**
