@@ -63,7 +63,7 @@ namespace StardewModdingAPI.Framework.Deprecations
                 return;
 
             // queue warning
-            var stack = new StackTrace(skipFrames: 1); // skip this method
+            ImmutableStackTrace stack = ImmutableStackTrace.Get(skipFrames: 1);
             this.QueuedWarnings.Add(new DeprecationWarning(source, nounPhrase, version, severity, stack));
         }
 
@@ -134,7 +134,7 @@ namespace StardewModdingAPI.Framework.Deprecations
         /// <summary>Get the simplest stack trace which shows where in the mod the deprecated code was called from.</summary>
         /// <param name="stack">The stack trace.</param>
         /// <param name="mod">The mod for which to show a stack trace.</param>
-        private string GetSimplifiedStackTrace(StackTrace stack, IModMetadata? mod)
+        private string GetSimplifiedStackTrace(ImmutableStackTrace stack, IModMetadata? mod)
         {
             // unknown mod, show entire stack trace
             if (mod == null)

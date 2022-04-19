@@ -24,7 +24,7 @@ namespace StardewModdingAPI.Framework.Deprecations
         public DeprecationLevel Level { get; }
 
         /// <summary>The stack trace when the deprecation warning was raised.</summary>
-        public StackTrace StackTrace { get; }
+        public ImmutableStackTrace StackTrace { get; }
 
 
         /*********
@@ -36,7 +36,7 @@ namespace StardewModdingAPI.Framework.Deprecations
         /// <param name="version">The SMAPI version which deprecated it.</param>
         /// <param name="level">The deprecation level for the affected code.</param>
         /// <param name="stackTrace">The stack trace when the deprecation warning was raised.</param>
-        public DeprecationWarning(IModMetadata? mod, string nounPhrase, string version, DeprecationLevel level, StackTrace stackTrace)
+        public DeprecationWarning(IModMetadata? mod, string nounPhrase, string version, DeprecationLevel level, ImmutableStackTrace stackTrace)
         {
             this.Mod = mod;
             this.NounPhrase = nounPhrase;
