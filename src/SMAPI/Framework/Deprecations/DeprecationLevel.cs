@@ -1,4 +1,4 @@
-namespace StardewModdingAPI.Framework
+namespace StardewModdingAPI.Framework.Deprecations
 {
     /// <summary>Indicates how deprecated something is.</summary>
     internal enum DeprecationLevel

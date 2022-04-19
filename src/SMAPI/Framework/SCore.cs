@@ -20,6 +20,7 @@ using StardewModdingAPI.Enums;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework.Content;
 using StardewModdingAPI.Framework.ContentManagers;
+using StardewModdingAPI.Framework.Deprecations;
 using StardewModdingAPI.Framework.Events;
 using StardewModdingAPI.Framework.Exceptions;
 using StardewModdingAPI.Framework.Input;

@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace StardewModdingAPI.Framework
+namespace StardewModdingAPI.Framework.Deprecations
 {
     /// <summary>A deprecation warning for a mod.</summary>
     internal class DeprecationWarning

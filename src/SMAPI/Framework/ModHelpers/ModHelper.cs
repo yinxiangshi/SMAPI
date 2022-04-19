@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using StardewModdingAPI.Events;
+using StardewModdingAPI.Framework.Deprecations;
 using StardewModdingAPI.Framework.Input;
 
 namespace StardewModdingAPI.Framework.ModHelpers

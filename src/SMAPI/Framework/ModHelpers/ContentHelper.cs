@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using StardewModdingAPI.Framework.Content;
 using StardewModdingAPI.Framework.ContentManagers;
+using StardewModdingAPI.Framework.Deprecations;
 using StardewModdingAPI.Framework.Exceptions;
 using StardewModdingAPI.Framework.Reflection;
 using StardewValley;

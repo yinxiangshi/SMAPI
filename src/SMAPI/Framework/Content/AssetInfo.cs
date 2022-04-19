@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
+using StardewModdingAPI.Framework.Deprecations;
 
 namespace StardewModdingAPI.Framework.Content
 {

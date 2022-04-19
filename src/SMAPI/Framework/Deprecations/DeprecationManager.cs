@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
-namespace StardewModdingAPI.Framework
+namespace StardewModdingAPI.Framework.Deprecations
 {
     /// <summary>Manages deprecation warnings.</summary>
     internal class DeprecationManager

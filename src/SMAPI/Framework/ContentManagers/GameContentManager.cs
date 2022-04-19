@@ -8,6 +8,7 @@ using System.Reflection;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework.Content;
+using StardewModdingAPI.Framework.Deprecations;
 using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Framework.Utilities;
 using StardewModdingAPI.Internal;

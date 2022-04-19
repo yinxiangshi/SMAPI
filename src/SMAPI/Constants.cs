@@ -6,6 +6,7 @@ using System.Reflection;
 using Mono.Cecil;
 using StardewModdingAPI.Enums;
 using StardewModdingAPI.Framework;
+using StardewModdingAPI.Framework.Deprecations;
 using StardewModdingAPI.Framework.ModLoading;
 using StardewModdingAPI.Toolkit.Framework;
 using StardewModdingAPI.Toolkit.Utilities;

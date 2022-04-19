@@ -1,4 +1,5 @@
 using System;
+using StardewModdingAPI.Framework.Deprecations;
 
 namespace StardewModdingAPI.Framework.ModHelpers
 {
