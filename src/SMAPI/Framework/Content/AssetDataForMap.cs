@@ -99,8 +99,15 @@ namespace StardewModdingAPI.Framework.Content
             }
 
             // get target layers
-            IDictionary<Layer, Layer> sourceToTargetLayers = source.Layers.ToDictionary(p => p, p => target.GetLayer(p.Id));
-            HashSet<Layer> orphanedTargetLayers = new HashSet<Layer>(target.Layers.Except(sourceToTargetLayers.Values));
+            Dictionary<Layer, Layer> sourceToTargetLayers =
+                (
+                    from sourceLayer in source.Layers
+                    let targetLayer = target.GetLayer(sourceLayer.Id)
+                    where targetLayer != null
+                    select (sourceLayer, targetLayer)
+                )
+                .ToDictionary(p => p.sourceLayer, p => p.targetLayer);
+            HashSet<Layer> orphanedTargetLayers = new(target.Layers.Except(sourceToTargetLayers.Values));
 
             // apply tiles
             bool replaceAll = patchMode == PatchMapMode.Replace;
