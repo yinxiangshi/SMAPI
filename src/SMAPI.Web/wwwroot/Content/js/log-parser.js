@@ -743,11 +743,14 @@ smapi.logParser = function (state) {
             updateUrl: function () {
                 const url = new URL(location);
 
-                if (state.page != 1)
+                if (state.page != 1 || state.perPage != defaultPerPage) {
                     url.searchParams.set("Page", state.page);
-
-                if (state.perPage != defaultPerPage)
                     url.searchParams.set("PerPage", state.perPage);
+                }
+                else {
+                    url.searchParams.delete("Page");
+                    url.searchParams.delete("PerPage");
+                }
 
                 if (!helpers.shallowEquals(this.showMods, state.defaultMods))
                     url.searchParams.set("Mods", Object.entries(this.showMods).filter(p => p[1]).map(p => p[0]).join("~"));
