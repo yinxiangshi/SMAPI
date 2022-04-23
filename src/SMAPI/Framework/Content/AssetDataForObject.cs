@@ -25,8 +25,9 @@ namespace StardewModdingAPI.Framework.Content
         /// <param name="data">The content data being read.</param>
         /// <param name="getNormalizedPath">Normalizes an asset key to match the cache key.</param>
         /// <param name="reflection">Simplifies access to private code.</param>
-        public AssetDataForObject(string? locale, IAssetName assetName, object data, Func<string, string> getNormalizedPath, Reflector reflection)
-            : base(locale, assetName, data, getNormalizedPath, onDataReplaced: null)
+        /// <param name="onDataReplaced">A callback to invoke when the data is replaced (if any).</param>
+        public AssetDataForObject(string? locale, IAssetName assetName, object data, Func<string, string> getNormalizedPath, Reflector reflection, Action<object>? onDataReplaced = null)
+            : base(locale, assetName, data, getNormalizedPath, onDataReplaced)
         {
             this.Reflection = reflection;
         }
@@ -36,8 +37,9 @@ namespace StardewModdingAPI.Framework.Content
         /// <param name="data">The content data being read.</param>
         /// <param name="getNormalizedPath">Normalizes an asset key to match the cache key.</param>
         /// <param name="reflection">Simplifies access to private code.</param>
-        public AssetDataForObject(IAssetInfo info, object data, Func<string, string> getNormalizedPath, Reflector reflection)
-            : this(info.Locale, info.Name, data, getNormalizedPath, reflection) { }
+        /// <param name="onDataReplaced">A callback to invoke when the data is replaced (if any).</param>
+        public AssetDataForObject(IAssetInfo info, object data, Func<string, string> getNormalizedPath, Reflector reflection, Action<object>? onDataReplaced = null)
+            : this(info.Locale, info.Name, data, getNormalizedPath, reflection, onDataReplaced) { }
 
         /// <inheritdoc />
         public IAssetDataForDictionary<TKey, TValue> AsDictionary<TKey, TValue>()
