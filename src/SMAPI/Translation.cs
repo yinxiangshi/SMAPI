@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
@@ -120,9 +121,10 @@ namespace StardewModdingAPI
         /// <summary>Get a string representation of the given translation.</summary>
         /// <param name="translation">The translation key.</param>
         /// <remarks><strong>Limitation with nullable reference types: if there's no text and you disabled the fallback via <see cref="UsePlaceholder"/>, this will return null but the return value will still be marked non-nullable.</strong></remarks>
+        [SuppressMessage("ReSharper", "ConstantConditionalAccessQualifier", Justification = "The null check is required due to limitations in nullable type annotations (see remarks).")]
         public static implicit operator string(Translation translation)
         {
-            return translation.ToString();
+            return translation?.ToString()!;
         }
 
 
