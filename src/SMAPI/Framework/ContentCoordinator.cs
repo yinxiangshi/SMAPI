@@ -691,12 +691,9 @@ namespace StardewModdingAPI.Framework
         /// <param name="asset">The asset info.</param>
         private IAssetInfo GetLegacyAssetInfo(IAssetInfo asset)
         {
-            if (!this.TryGetLegacyAssetName(asset.Name, out IAssetName legacyName))
-                return asset;
-
             return new AssetInfo(
-                locale: null,
-                assetName: legacyName,
+                locale: this.GetLegacyLocale(asset),
+                assetName: this.GetLegacyAssetName(asset.Name),
                 type: asset.DataType,
                 getNormalizedPath: this.MainContentManager.AssertAndNormalizeAssetName
             );
@@ -706,49 +703,45 @@ namespace StardewModdingAPI.Framework
         /// <param name="asset">The asset data.</param>
         private IAssetData GetLegacyAssetData(IAssetData asset)
         {
-            if (!this.TryGetLegacyAssetName(asset.Name, out IAssetName legacyName))
-                return asset;
+            return new AssetDataForObject(
+                locale: this.GetLegacyLocale(asset),
+                assetName: this.GetLegacyAssetName(asset.Name),
+                data: asset.Data,
+                getNormalizedPath: this.MainContentManager.AssertAndNormalizeAssetName,
+                reflection: this.Reflection,
+                onDataReplaced: asset.ReplaceWith
+            );
+        }
 
-            return asset.Name.LocaleCode == null
-                ? asset
-                : new AssetDataForObject(
-                    locale: null,
-                    assetName: legacyName,
-                    data: asset.Data,
-                    getNormalizedPath: this.MainContentManager.AssertAndNormalizeAssetName,
-                    reflection: this.Reflection,
-                    onDataReplaced: asset.ReplaceWith
-                );
+        /// <summary>Get the <see cref="IAssetInfo.Locale"/> value compatible with legacy <see cref="IAssetLoader"/> and <see cref="IAssetEditor"/> instances, which expect the locale to default to the current game locale or an empty string.</summary>
+        /// <param name="asset">The non-legacy asset info to map.</param>
+        private string GetLegacyLocale(IAssetInfo asset)
+        {
+            return asset.Locale ?? this.GetLocale();
         }
 
         /// <summary>Get an asset name compatible with legacy <see cref="IAssetLoader"/> and <see cref="IAssetEditor"/> instances, which always expect the base name.</summary>
         /// <param name="asset">The asset name to map.</param>
-        /// <param name="newAsset">The legacy asset name (or the <paramref name="asset"/> if no change is needed).</param>
-        /// <returns>Returns whether any change is needed for legacy compatibility.</returns>
-        private bool TryGetLegacyAssetName(IAssetName asset, out IAssetName newAsset)
+        /// <returns>Returns the legacy asset name if needed, or the <paramref name="asset"/> if no change is needed.</returns>
+        private IAssetName GetLegacyAssetName(IAssetName asset)
         {
             // strip _international suffix
             const string internationalSuffix = "_international";
             if (asset.Name.EndsWith(internationalSuffix))
             {
-                newAsset = new AssetName(
+                return new AssetName(
                     baseName: asset.Name[..^internationalSuffix.Length],
                     localeCode: null,
                     languageCode: null
                 );
-                return true;
             }
 
             // else strip locale
             if (asset.LocaleCode != null)
-            {
-                newAsset = new AssetName(asset.BaseName, null, null);
-                return true;
-            }
+                return new AssetName(asset.BaseName, null, null);
 
             // else no change needed
-            newAsset = asset;
-            return false;
+            return asset;
         }
     }
 }

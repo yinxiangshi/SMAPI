@@ -9,10 +9,11 @@ namespace StardewModdingAPI
         ** Accessors
         *********/
         /// <summary>The content's locale code, if the content is localized.</summary>
+        /// <remarks>LEGACY NOTE: when reading this field from an <see cref="IAssetLoader"/> or <see cref="IAssetEditor"/> implementation, for non-localized assets it will return the current game locale (or an empty string for English) instead of null.</remarks>
         string? Locale { get; }
 
         /// <summary>The asset name being read.</summary>
-        /// <remarks>NOTE: when reading this field from an <see cref="IAssetLoader"/> or <see cref="IAssetEditor"/> implementation, it's always equivalent to <see cref="NameWithoutLocale"/> for backwards compatibility.</remarks>
+        /// <remarks>LEGACY NOTE: when reading this field from an <see cref="IAssetLoader"/> or <see cref="IAssetEditor"/> implementation, it's always equivalent to <see cref="NameWithoutLocale"/> for backwards compatibility.</remarks>
         public IAssetName Name { get; }
 
         /// <summary>The <see cref="Name"/> with any locale codes stripped.</summary>
