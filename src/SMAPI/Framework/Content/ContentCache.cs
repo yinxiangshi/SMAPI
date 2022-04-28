@@ -76,7 +76,7 @@ namespace StardewModdingAPI.Framework.Content
         {
             key = this.NormalizePathSeparators(key);
             return key.EndsWith(".xnb", StringComparison.OrdinalIgnoreCase)
-                ? key.Substring(0, key.Length - 4)
+                ? key[..^4]
                 : key;
         }
 

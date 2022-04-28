@@ -118,6 +118,17 @@ namespace StardewModdingAPI.Framework.ModHelpers
                 switch (source)
                 {
                     case ContentSource.GameContent:
+                        if (assetName.Name.EndsWith(".xnb", StringComparison.OrdinalIgnoreCase))
+                        {
+                            assetName = this.ContentCore.ParseAssetName(assetName.Name[..^4], allowLocales: true);
+                            SCore.DeprecationManager.Warn(
+                                this.Mod,
+                                "loading assets from the Content folder with a .xnb file extension",
+                                "3.14.0",
+                                DeprecationLevel.Notice
+                            );
+                        }
+
                         return this.GameContentManager.LoadLocalized<T>(assetName, this.CurrentLocaleConstant, useCache: false);
 
                     case ContentSource.ModFolder:
