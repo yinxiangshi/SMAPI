@@ -120,17 +120,16 @@ Windows](#on-windows)_ section below to create a build that retains the icon.**
 2. Launch the game through the Steam UI.
 
 ### Prepare the release
-1. Run `build/unix/set-smapi-version.sh` to set the SMAPI version. Make sure you use a [semantic
-   version](https://semver.org). Recommended format:
+1. Run `build/unix/prepare-install-package.sh VERSION_HERE` to create the release package in the
+   root `bin` folder.
+
+   Make sure you use a [semantic version](https://semver.org). Recommended format:
 
    build type | format                   | example
    :--------- | :----------------------- | :------
    dev build  | `<version>-alpha.<date>` | `4.0.0-alpha.20251230`
    prerelease | `<version>-beta.<date>`  | `4.0.0-beta.20251230`
    release    | `<version>`              | `4.0.0`
-
-2. Run `build/unix/prepare-install-package.sh` to create the release package in the root `bin`
-   folder.
 
 ### On Windows
 #### First-time setup
@@ -147,8 +146,10 @@ Windows](#on-windows)_ section below to create a build that retains the icon.**
    ```
 
 ### Prepare the release
-1. Run `build/windows/set-smapi-version.ps1` in PowerShell to set the SMAPI version. Make sure you
-   use a [semantic version](https://semver.org). Recommended format:
+1. Run `build/windows/prepare-install-package.ps1 VERSION_HERE` in PowerShell to create the release
+   package folders in the root `bin` folder.
+
+   Make sure you use a [semantic version](https://semver.org). Recommended format:
 
    build type | format                   | example
    :--------- | :----------------------- | :------
@@ -156,12 +157,9 @@ Windows](#on-windows)_ section below to create a build that retains the icon.**
    prerelease | `<version>-beta.<date>`  | `4.0.0-beta.20251230`
    release    | `<version>`              | `4.0.0`
 
-2. Run `build/windows/prepare-install-package.ps1` in PowerShell to create the release package
-   folders in the root `bin` folder.
-
-3. Launch WSL and run this script:
+2. Launch WSL and run this script:
    ```bash
-   # edit to match the build created in steps 1-2
+   # edit to match the build created in steps 1
    # In WSL, `/mnt/c/example` accesses `C:\example` on the Windows filesystem.
    version="4.0.0"
    binFolder="/mnt/e/source/_Stardew/SMAPI/bin"

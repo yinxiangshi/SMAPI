@@ -29,6 +29,20 @@ cd "`dirname "$0"`/../.."
 
 
 ##########
+## Set version
+##########
+# get version number
+version="$1"
+if [ $# -eq 0 ]; then
+    echo "SMAPI release version (like '4.0.0'):"
+    read version
+fi
+
+# set version
+. ${0%/*}/set-smapi-version.sh "$version"
+
+
+##########
 ## Clear old build files
 ##########
 echo "Clearing old builds..."
@@ -190,13 +204,6 @@ done
 ##########
 ## Create release zips
 ##########
-# get version number
-version="$1"
-if [ $# -eq 0 ]; then
-    echo "SMAPI release version (like '4.0.0'):"
-    read version
-fi
-
 # rename folders
 mv "$packagePath" "bin/SMAPI $version installer"
 mv "$packageDevPath" "bin/SMAPI $version installer for developers"

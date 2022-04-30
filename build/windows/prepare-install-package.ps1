@@ -12,6 +12,20 @@
 
 . "$PSScriptRoot\lib\in-place-regex.ps1"
 
+
+##########
+## Set version
+##########
+# get version number
+$version = $args[0]
+if (!$version) {
+    $version = Read-Host "SMAPI release version (like '4.0.0')"
+}
+
+# set version
+. "$PSScriptRoot/set-smapi-version.ps1" "$version"
+
+
 ##########
 ## Constants
 ##########
@@ -197,12 +211,6 @@ foreach ($folder in $folders) {
 ###########
 ### Create release zips
 ###########
-# get version number
-$version = $args[0]
-if (!$version) {
-    $version = Read-Host "SMAPI release version (like '4.0.0')"
-}
-
 # rename folders
 mv "$packagePath" "bin/SMAPI $version installer"
 mv "$packageDevPath" "bin/SMAPI $version installer for developers"
