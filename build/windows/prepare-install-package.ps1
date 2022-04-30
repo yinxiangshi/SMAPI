@@ -184,14 +184,13 @@ foreach ($folder in $folders) {
     # disable developer mode in main package
     In-Place-Regex -Path "$packagePath/internal/$folder/bundle/smapi-internal/config.json" -Search "`"DeveloperMode`": true" -Replace "`"DeveloperMode`": false"
 
-    # DISABLED: will be handled by Linux script
     # convert bundle folder into final 'install.dat' files
-    #foreach ($path in @("$packagePath/internal/$folder", "$packageDevPath/internal/$folder"))
-    #{
-    #    Compress-Archive -Path "$path/bundle/*" -CompressionLevel Optimal -DestinationPath "$path/install.zip"
-    #    mv "$path/install.zip" "$path/install.dat"
-    #    rm -Recurse -Force "$path/bundle"
-    #}
+    foreach ($path in @("$packagePath/internal/$folder", "$packageDevPath/internal/$folder"))
+    {
+        Compress-Archive -Path "$path/bundle/*" -CompressionLevel Optimal -DestinationPath "$path/install.zip"
+        mv "$path/install.zip" "$path/install.dat"
+        rm -Recurse -Force "$path/bundle"
+    }
 }
 
 
@@ -208,10 +207,9 @@ if (!$version) {
 mv "$packagePath" "bin/SMAPI $version installer"
 mv "$packageDevPath" "bin/SMAPI $version installer for developers"
 
-# DISABLED: will be handled by Linux script
-## package files
-#Compress-Archive -Path "bin/SMAPI $version installer" -DestinationPath "bin/SMAPI $version installer.zip" -CompressionLevel Optimal
-#Compress-Archive -Path "bin/SMAPI $version installer for developers" -DestinationPath "bin/SMAPI $version installer for developers.zip" -CompressionLevel Optimal
+# package files
+Compress-Archive -Path "bin/SMAPI $version installer" -DestinationPath "bin/SMAPI $version installer.zip" -CompressionLevel Optimal
+Compress-Archive -Path "bin/SMAPI $version installer for developers" -DestinationPath "bin/SMAPI $version installer for developers.zip" -CompressionLevel Optimal
 
 echo ""
 echo "Done! See docs/technical/smapi.md to create the release zips."
