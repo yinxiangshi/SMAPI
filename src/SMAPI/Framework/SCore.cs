@@ -1604,7 +1604,8 @@ namespace StardewModdingAPI.Framework
                             source: metadata,
                             nounPhrase: $"{nameof(IAssetEditor)}",
                             version: "3.14.0",
-                            severity: DeprecationLevel.Notice
+                            severity: DeprecationLevel.Notice,
+                            logStackTrace: false
                         );
 
                         this.ContentCore.Editors.Add(new ModLinked<IAssetEditor>(metadata, editor));
@@ -1616,7 +1617,8 @@ namespace StardewModdingAPI.Framework
                             source: metadata,
                             nounPhrase: $"{nameof(IAssetLoader)}",
                             version: "3.14.0",
-                            severity: DeprecationLevel.Notice
+                            severity: DeprecationLevel.Notice,
+                            logStackTrace: false
                         );
 
                         this.ContentCore.Loaders.Add(new ModLinked<IAssetLoader>(metadata, loader));

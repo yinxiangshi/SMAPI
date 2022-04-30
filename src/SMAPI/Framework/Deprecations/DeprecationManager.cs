@@ -57,7 +57,8 @@ namespace StardewModdingAPI.Framework.Deprecations
         /// <param name="version">The SMAPI version which deprecated it.</param>
         /// <param name="severity">How deprecated the code is.</param>
         /// <param name="unlessStackIncludes">A list of stack trace substrings which should suppress deprecation warnings if they appear in the stack trace.</param>
-        public void Warn(IModMetadata? source, string nounPhrase, string version, DeprecationLevel severity, string[]? unlessStackIncludes = null)
+        /// <param name="logStackTrace">Whether to log a stack trace showing where the deprecated code is in the mod.</param>
+        public void Warn(IModMetadata? source, string nounPhrase, string version, DeprecationLevel severity, string[]? unlessStackIncludes = null, bool logStackTrace = true)
         {
             // skip if already warned
             string cacheKey = $"{source?.DisplayName ?? "<unknown>"}::{nounPhrase}::{version}";
@@ -69,7 +70,7 @@ namespace StardewModdingAPI.Framework.Deprecations
             if (!this.ShouldSuppress(stack, unlessStackIncludes))
             {
                 this.LoggedDeprecations.Add(cacheKey);
-                this.QueuedWarnings.Add(new DeprecationWarning(source, nounPhrase, version, severity, stack));
+                this.QueuedWarnings.Add(new DeprecationWarning(source, nounPhrase, version, severity, stack, logStackTrace));
             }
         }
 
@@ -108,11 +109,16 @@ namespace StardewModdingAPI.Framework.Deprecations
 
                 // log message
                 if (level == LogLevel.Trace)
-                    this.Monitor.Log($"{message}\n{this.GetSimplifiedStackTrace(warning.StackTrace, warning.Mod)}", level);
+                {
+                    if (warning.LogStackTrace)
+                        message += $"\n{this.GetSimplifiedStackTrace(warning.StackTrace, warning.Mod)}";
+                    this.Monitor.Log(message, level);
+                }
                 else
                 {
                     this.Monitor.Log(message, level);
-                    this.Monitor.Log(this.GetSimplifiedStackTrace(warning.StackTrace, warning.Mod), LogLevel.Debug);
+                    if (warning.LogStackTrace)
+                        this.Monitor.Log(this.GetSimplifiedStackTrace(warning.StackTrace, warning.Mod), LogLevel.Debug);
                 }
             }
 
