@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using StardewModdingAPI.Toolkit.Utilities;
 
@@ -31,11 +32,15 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.WebApi
         *********/
         /// <summary>Construct an empty instance.</summary>
         [Obsolete("This constructor only exists to support ASP.NET model binding, and shouldn't be used directly.")]
+        [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "Used by ASP.NET model binding.")]
         public ModSearchModel()
         {
             // ASP.NET Web API needs a public empty constructor for top-level request models, and
             // it'll fail if the other constructor is marked with [JsonConstructor]. Apparently
             // it's fine with non-empty constructors in nested models like ModSearchEntryModel.
+            this.Mods = Array.Empty<ModSearchEntryModel>();
+            this.ApiVersion = null!;
+            this.GameVersion = null!;
         }
 
         /// <summary>Construct an instance.</summary>
