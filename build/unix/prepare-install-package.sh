@@ -9,7 +9,7 @@
 
 
 ##########
-## Constants
+## Fetch values
 ##########
 # paths
 gamePath="/home/pathoschild/Stardew Valley"
@@ -21,25 +21,18 @@ folders=("linux" "macOS" "windows")
 declare -A runtimes=(["linux"]="linux-x64" ["macOS"]="osx-x64" ["windows"]="win-x64")
 declare -A msBuildPlatformNames=(["linux"]="Unix" ["macOS"]="OSX" ["windows"]="Windows_NT")
 
-
-##########
-## Move to SMAPI root
-##########
-cd "`dirname "$0"`/../.."
-
-
-##########
-## Set version
-##########
-# get version number
+# version number
 version="$1"
 if [ $# -eq 0 ]; then
     echo "SMAPI release version (like '4.0.0'):"
     read version
 fi
 
-# set version
-. ${0%/*}/set-smapi-version.sh "$version"
+
+##########
+## Move to SMAPI root
+##########
+cd "`dirname "$0"`/../.."
 
 
 ##########
@@ -56,6 +49,7 @@ echo ""
 ##########
 ## Compile files
 ##########
+. ${0%/*}/set-smapi-version.sh "$version"
 for folder in ${folders[@]}; do
     runtime=${runtimes[$folder]}
     msbuildPlatformName=${msBuildPlatformNames[$folder]}

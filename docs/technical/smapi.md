@@ -166,5 +166,8 @@ Windows](#on-windows)_ section below to create a build that retains the icon.**
    build/windows/finalize-install-package.sh "$version" "$binFolder"
    ```
 
+Note: to prepare a test Windows-only build, you can pass `--windows-only` in the first step and
+skip the second one.
+
 ## Release notes
 See [release notes](../release-notes.md).
