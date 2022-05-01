@@ -12,7 +12,7 @@ namespace StardewModdingAPI.Installer.Framework
         ** Fields
         *********/
         /// <summary>The underlying toolkit game scanner.</summary>
-        private readonly GameScanner GameScanner = new GameScanner();
+        private readonly GameScanner GameScanner = new();
 
 
         /*********
@@ -44,7 +44,7 @@ namespace StardewModdingAPI.Installer.Framework
         /// <summary>Get the installer's version number.</summary>
         public ISemanticVersion GetInstallerVersion()
         {
-            var raw = this.GetType().Assembly.GetName().Version;
+            var raw = this.GetType().Assembly.GetName().Version!;
             return new SemanticVersion(raw);
         }
 

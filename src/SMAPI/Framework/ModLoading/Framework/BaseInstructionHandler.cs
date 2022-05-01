@@ -57,7 +57,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
         /// <param name="flag">The result flag to set.</param>
         /// <param name="resultMessage">The result message to add.</param>
         /// <returns>Returns true for convenience.</returns>
-        protected bool MarkFlag(InstructionHandleResult flag, string resultMessage = null)
+        protected bool MarkFlag(InstructionHandleResult flag, string? resultMessage = null)
         {
             this.Flags.Add(flag);
             if (resultMessage != null)

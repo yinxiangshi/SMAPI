@@ -32,8 +32,8 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <summary>The game content manager used for map tilesheets not provided by the mod.</summary>
         private readonly IContentManager GameContentManager;
 
-        /// <summary>The language code for language-agnostic mod assets.</summary>
-        private readonly LanguageCode DefaultLanguage = Constants.DefaultLanguage;
+        /// <summary>A case-insensitive lookup of relative paths within the <see cref="ContentManager.RootDirectory"/>.</summary>
+        private readonly CaseInsensitivePathLookup RelativePathCache;
 
         /// <summary>If a map tilesheet's image source has no file extensions, the file extensions to check for in the local mod folder.</summary>
         private readonly string[] LocalTilesheetExtensions = { ".png", ".xnb" };
@@ -55,33 +55,31 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <param name="jsonHelper">Encapsulates SMAPI's JSON file parsing.</param>
         /// <param name="onDisposing">A callback to invoke when the content manager is being disposed.</param>
         /// <param name="aggressiveMemoryOptimizations">Whether to enable more aggressive memory optimizations.</param>
-        public ModContentManager(string name, IContentManager gameContentManager, IServiceProvider serviceProvider, string modName, string rootDirectory, CultureInfo currentCulture, ContentCoordinator coordinator, IMonitor monitor, Reflector reflection, JsonHelper jsonHelper, Action<BaseContentManager> onDisposing, bool aggressiveMemoryOptimizations)
+        /// <param name="relativePathCache">A case-insensitive lookup of relative paths within the <paramref name="rootDirectory"/>.</param>
+        public ModContentManager(string name, IContentManager gameContentManager, IServiceProvider serviceProvider, string modName, string rootDirectory, CultureInfo currentCulture, ContentCoordinator coordinator, IMonitor monitor, Reflector reflection, JsonHelper jsonHelper, Action<BaseContentManager> onDisposing, bool aggressiveMemoryOptimizations, CaseInsensitivePathLookup relativePathCache)
             : base(name, serviceProvider, rootDirectory, currentCulture, coordinator, monitor, reflection, onDisposing, isNamespaced: true, aggressiveMemoryOptimizations: aggressiveMemoryOptimizations)
         {
             this.GameContentManager = gameContentManager;
+            this.RelativePathCache = relativePathCache;
             this.JsonHelper = jsonHelper;
             this.ModName = modName;
+
+            this.TryLocalizeKeys = false;
         }
 
         /// <inheritdoc />
-        public override T Load<T>(string assetName)
+        public override bool DoesAssetExist<T>(IAssetName assetName)
         {
-            return this.Load<T>(assetName, this.DefaultLanguage, useCache: false);
+            if (base.DoesAssetExist<T>(assetName))
+                return true;
+
+            FileInfo file = this.GetModFile(assetName.Name);
+            return file.Exists;
         }
 
         /// <inheritdoc />
-        public override T Load<T>(string assetName, LanguageCode language)
+        public override T LoadExact<T>(IAssetName assetName, bool useCache)
         {
-            return this.Load<T>(assetName, language, useCache: false);
-        }
-
-        /// <inheritdoc />
-        public override T Load<T>(string assetName, LanguageCode language, bool useCache)
-        {
-            // normalize key
-            bool isXnbFile = Path.GetExtension(assetName).ToLower() == ".xnb";
-            assetName = this.AssertAndNormalizeAssetName(assetName);
-
             // disable caching
             // This is necessary to avoid assets being shared between content managers, which can
             // cause changes to an asset through one content manager affecting the same asset in
@@ -90,106 +88,43 @@ namespace StardewModdingAPI.Framework.ContentManagers
             if (useCache)
                 throw new InvalidOperationException("Mod content managers don't support asset caching.");
 
-            // disable language handling
-            // Mod files don't support automatic translation logic, so this should never happen.
-            if (language != this.DefaultLanguage)
-                throw new InvalidOperationException("Localized assets aren't supported by the mod content manager.");
-
             // resolve managed asset key
             {
-                if (this.Coordinator.TryParseManagedAssetKey(assetName, out string contentManagerID, out string relativePath))
+                if (this.Coordinator.TryParseManagedAssetKey(assetName.Name, out string? contentManagerID, out IAssetName? relativePath))
                 {
                     if (contentManagerID != this.Name)
-                        throw new SContentLoadException($"Can't load managed asset key '{assetName}' through content manager '{this.Name}' for a different mod.");
+                        throw this.GetLoadError(assetName, "can't load a different mod's managed asset key through this mod content manager.");
                     assetName = relativePath;
                 }
             }
 
             // get local asset
-            SContentLoadException GetContentError(string reasonPhrase) => new SContentLoadException($"Failed loading asset '{assetName}' from {this.Name}: {reasonPhrase}");
             T asset;
             try
             {
                 // get file
-                FileInfo file = this.GetModFile(isXnbFile ? $"{assetName}.xnb" : assetName); // .xnb extension is stripped from asset names passed to the content manager
+                FileInfo file = this.GetModFile(assetName.Name);
                 if (!file.Exists)
-                    throw GetContentError("the specified path doesn't exist.");
+                    throw this.GetLoadError(assetName, "the specified path doesn't exist.");
 
                 // load content
-                switch (file.Extension.ToLower())
+                asset = file.Extension.ToLower() switch
                 {
-                    // XNB file
-                    case ".xnb":
-                        {
-                            asset = this.RawLoad<T>(assetName, useCache: false);
-                            if (asset is Map map)
-                            {
-                                map.assetPath = assetName;
-                                this.FixTilesheetPaths(map, relativeMapPath: assetName, fixEagerPathPrefixes: true);
-                            }
-                        }
-                        break;
-
-                    // unpacked Bitmap font
-                    case ".fnt":
-                        {
-                            string source = File.ReadAllText(file.FullName);
-                            asset = (T)(object)new XmlSource(source);
-                        }
-                        break;
-
-                    // unpacked data
-                    case ".json":
-                        {
-                            if (!this.JsonHelper.ReadJsonFileIfExists(file.FullName, out asset))
-                                throw GetContentError("the JSON file is invalid."); // should never happen since we check for file existence above
-                        }
-                        break;
-
-                    // unpacked image
-                    case ".png":
-                        {
-                            // validate
-                            if (typeof(T) != typeof(Texture2D))
-                                throw GetContentError($"can't read file with extension '{file.Extension}' as type '{typeof(T)}'; must be type '{typeof(Texture2D)}'.");
-
-                            // fetch & cache
-                            using FileStream stream = File.OpenRead(file.FullName);
-
-                            Texture2D texture = Texture2D.FromStream(Game1.graphics.GraphicsDevice, stream);
-                            texture = this.PremultiplyTransparency(texture);
-                            asset = (T)(object)texture;
-                        }
-                        break;
-
-                    // unpacked map
-                    case ".tbin":
-                    case ".tmx":
-                        {
-                            // validate
-                            if (typeof(T) != typeof(Map))
-                                throw GetContentError($"can't read file with extension '{file.Extension}' as type '{typeof(T)}'; must be type '{typeof(Map)}'.");
-
-                            // fetch & cache
-                            FormatManager formatManager = FormatManager.Instance;
-                            Map map = formatManager.LoadMap(file.FullName);
-                            map.assetPath = assetName;
-                            this.FixTilesheetPaths(map, relativeMapPath: assetName, fixEagerPathPrefixes: false);
-                            asset = (T)(object)map;
-                        }
-                        break;
-
-                    default:
-                        throw GetContentError($"unknown file extension '{file.Extension}'; must be one of '.fnt', '.json', '.png', '.tbin', or '.xnb'.");
-                }
+                    ".fnt" => this.LoadFont<T>(assetName, file),
+                    ".json" => this.LoadDataFile<T>(assetName, file),
+                    ".png" => this.LoadImageFile<T>(assetName, file),
+                    ".tbin" or ".tmx" => this.LoadMapFile<T>(assetName, file),
+                    ".xnb" => this.LoadXnbFile<T>(assetName),
+                    _ => this.HandleUnknownFileType<T>(assetName, file)
+                };
             }
-            catch (Exception ex) when (!(ex is SContentLoadException))
+            catch (Exception ex) when (ex is not SContentLoadException)
             {
-                throw new SContentLoadException($"The content manager failed loading content asset '{assetName}' from {this.Name}.", ex);
+                throw this.GetLoadError(assetName, "an unexpected occurred.", ex);
             }
 
             // track & return asset
-            this.TrackAsset(assetName, asset, language, useCache);
+            this.TrackAsset(assetName, asset, useCache: false);
             return asset;
         }
 
@@ -202,36 +137,137 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <summary>Get the underlying key in the game's content cache for an asset. This does not validate whether the asset exists.</summary>
         /// <param name="key">The local path to a content file relative to the mod folder.</param>
         /// <exception cref="ArgumentException">The <paramref name="key"/> is empty or contains invalid characters.</exception>
-        public string GetInternalAssetKey(string key)
+        public IAssetName GetInternalAssetKey(string key)
         {
             FileInfo file = this.GetModFile(key);
-            string relativePath = PathUtilities.GetRelativePath(this.RootDirectory, file.FullName);
-            return Path.Combine(this.Name, relativePath);
+            string relativePath = Path.GetRelativePath(this.RootDirectory, file.FullName);
+            string internalKey = Path.Combine(this.Name, relativePath);
+
+            return this.Coordinator.ParseAssetName(internalKey, allowLocales: false);
         }
 
 
         /*********
         ** Private methods
         *********/
-        /// <inheritdoc />
-        protected override bool IsNormalizedKeyLoaded(string normalizedAssetName, LanguageCode language)
+        /// <summary>Load an unpacked font file (<c>.fnt</c>).</summary>
+        /// <typeparam name="T">The type of asset to load.</typeparam>
+        /// <param name="assetName">The asset name relative to the loader root directory.</param>
+        /// <param name="file">The file to load.</param>
+        private T LoadFont<T>(IAssetName assetName, FileInfo file)
         {
-            return this.Cache.ContainsKey(normalizedAssetName);
+            // validate
+            if (!typeof(T).IsAssignableFrom(typeof(XmlSource)))
+                throw this.GetLoadError(assetName, $"can't read file with extension '{file.Extension}' as type '{typeof(T)}'; must be type '{typeof(XmlSource)}'.");
+
+            // load
+            string source = File.ReadAllText(file.FullName);
+            return (T)(object)new XmlSource(source);
+        }
+
+        /// <summary>Load an unpacked data file (<c>.json</c>).</summary>
+        /// <typeparam name="T">The type of asset to load.</typeparam>
+        /// <param name="assetName">The asset name relative to the loader root directory.</param>
+        /// <param name="file">The file to load.</param>
+        private T LoadDataFile<T>(IAssetName assetName, FileInfo file)
+        {
+            if (!this.JsonHelper.ReadJsonFileIfExists(file.FullName, out T? asset))
+                throw this.GetLoadError(assetName, "the JSON file is invalid."); // should never happen since we check for file existence before calling this method
+
+            return asset;
+        }
+
+        /// <summary>Load an unpacked image file (<c>.json</c>).</summary>
+        /// <typeparam name="T">The type of asset to load.</typeparam>
+        /// <param name="assetName">The asset name relative to the loader root directory.</param>
+        /// <param name="file">The file to load.</param>
+        private T LoadImageFile<T>(IAssetName assetName, FileInfo file)
+        {
+            // validate
+            if (typeof(T) != typeof(Texture2D))
+                throw this.GetLoadError(assetName, $"can't read file with extension '{file.Extension}' as type '{typeof(T)}'; must be type '{typeof(Texture2D)}'.");
+
+            // load
+            using FileStream stream = File.OpenRead(file.FullName);
+            Texture2D texture = Texture2D.FromStream(Game1.graphics.GraphicsDevice, stream);
+            texture = this.PremultiplyTransparency(texture);
+            return (T)(object)texture;
+        }
+
+        /// <summary>Load an unpacked image file (<c>.tbin</c> or <c>.tmx</c>).</summary>
+        /// <typeparam name="T">The type of asset to load.</typeparam>
+        /// <param name="assetName">The asset name relative to the loader root directory.</param>
+        /// <param name="file">The file to load.</param>
+        private T LoadMapFile<T>(IAssetName assetName, FileInfo file)
+        {
+            // validate
+            if (typeof(T) != typeof(Map))
+                throw this.GetLoadError(assetName, $"can't read file with extension '{file.Extension}' as type '{typeof(T)}'; must be type '{typeof(Map)}'.");
+
+            // load
+            FormatManager formatManager = FormatManager.Instance;
+            Map map = formatManager.LoadMap(file.FullName);
+            map.assetPath = assetName.Name;
+            this.FixTilesheetPaths(map, relativeMapPath: assetName.Name, fixEagerPathPrefixes: false);
+            return (T)(object)map;
+        }
+
+        /// <summary>Load a packed file (<c>.xnb</c>).</summary>
+        /// <typeparam name="T">The type of asset to load.</typeparam>
+        /// <param name="assetName">The asset name relative to the loader root directory.</param>
+        private T LoadXnbFile<T>(IAssetName assetName)
+        {
+            // the underlying content manager adds a .xnb extension implicitly, so
+            // we need to strip it here to avoid trying to load a '.xnb.xnb' file.
+            IAssetName loadName = assetName.Name.EndsWith(".xnb", StringComparison.OrdinalIgnoreCase)
+                ? this.Coordinator.ParseAssetName(assetName.Name[..^".xnb".Length], allowLocales: false)
+                : assetName;
+
+            // load asset
+            T asset = this.RawLoad<T>(loadName, useCache: false);
+            if (asset is Map map)
+            {
+                map.assetPath = loadName.Name;
+                this.FixTilesheetPaths(map, relativeMapPath: loadName.Name, fixEagerPathPrefixes: true);
+            }
+
+            return asset;
+        }
+
+        /// <summary>Handle a request to load a file type that isn't supported by SMAPI.</summary>
+        /// <typeparam name="T">The expected file type.</typeparam>
+        /// <param name="assetName">The asset name relative to the loader root directory.</param>
+        /// <param name="file">The file to load.</param>
+        private T HandleUnknownFileType<T>(IAssetName assetName, FileInfo file)
+        {
+            throw this.GetLoadError(assetName, $"unknown file extension '{file.Extension}'; must be one of '.fnt', '.json', '.png', '.tbin', '.tmx', or '.xnb'.");
+        }
+
+        /// <summary>Get an error which indicates that an asset couldn't be loaded.</summary>
+        /// <param name="assetName">The asset name that failed to load.</param>
+        /// <param name="reasonPhrase">The reason the file couldn't be loaded.</param>
+        /// <param name="exception">The underlying exception, if applicable.</param>
+        private SContentLoadException GetLoadError(IAssetName assetName, string reasonPhrase, Exception? exception = null)
+        {
+            return new($"Failed loading asset '{assetName}' from {this.Name}: {reasonPhrase}", exception);
         }
 
         /// <summary>Get a file from the mod folder.</summary>
         /// <param name="path">The asset path relative to the content folder.</param>
         private FileInfo GetModFile(string path)
         {
+            // map to case-insensitive path if needed
+            path = this.RelativePathCache.GetFilePath(path);
+
             // try exact match
-            FileInfo file = new FileInfo(Path.Combine(this.FullRootDirectory, path));
+            FileInfo file = new(Path.Combine(this.FullRootDirectory, path));
 
             // try with default extension
-            if (!file.Exists && file.Extension == string.Empty)
+            if (!file.Exists)
             {
                 foreach (string extension in this.LocalTilesheetExtensions)
                 {
-                    FileInfo result = new FileInfo(file.FullName + extension);
+                    FileInfo result = new(file.FullName + extension);
                     if (result.Exists)
                     {
                         file = result;
@@ -252,16 +288,20 @@ namespace StardewModdingAPI.Framework.ContentManagers
             // premultiply pixels
             Color[] data = new Color[texture.Width * texture.Height];
             texture.GetData(data);
+            bool changed = false;
             for (int i = 0; i < data.Length; i++)
             {
-                var pixel = data[i];
-                if (pixel.A == byte.MinValue || pixel.A == byte.MaxValue)
+                Color pixel = data[i];
+                if (pixel.A is (byte.MinValue or byte.MaxValue))
                     continue; // no need to change fully transparent/opaque pixels
 
                 data[i] = new Color(pixel.R * pixel.A / byte.MaxValue, pixel.G * pixel.A / byte.MaxValue, pixel.B * pixel.A / byte.MaxValue, pixel.A); // slower version: Color.FromNonPremultiplied(data[i].ToVector4())
+                changed = true;
             }
 
-            texture.SetData(data);
+            if (changed)
+                texture.SetData(data);
+
             return texture;
         }
 
@@ -296,15 +336,18 @@ namespace StardewModdingAPI.Framework.ContentManagers
                 // load best match
                 try
                 {
-                    if (!this.TryGetTilesheetAssetName(relativeMapFolder, imageSource, out string assetName, out string error))
+                    if (!this.TryGetTilesheetAssetName(relativeMapFolder, imageSource, out IAssetName? assetName, out string? error))
                         throw new SContentLoadException($"{errorPrefix} {error}");
 
-                    if (assetName != tilesheet.ImageSource)
-                        this.Monitor.VerboseLog($"   Mapped tilesheet '{tilesheet.ImageSource}' to '{assetName}'.");
+                    if (assetName is not null)
+                    {
+                        if (!assetName.IsEquivalentTo(tilesheet.ImageSource))
+                            this.Monitor.VerboseLog($"   Mapped tilesheet '{tilesheet.ImageSource}' to '{assetName}'.");
 
-                    tilesheet.ImageSource = assetName;
+                        tilesheet.ImageSource = assetName.Name;
+                    }
                 }
-                catch (Exception ex) when (!(ex is SContentLoadException))
+                catch (Exception ex) when (ex is not SContentLoadException)
                 {
                     throw new SContentLoadException($"{errorPrefix} The tilesheet couldn't be loaded.", ex);
                 }
@@ -318,7 +361,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <param name="error">A message indicating why the file couldn't be loaded.</param>
         /// <returns>Returns whether the asset name was found.</returns>
         /// <remarks>See remarks on <see cref="FixTilesheetPaths"/>.</remarks>
-        private bool TryGetTilesheetAssetName(string modRelativeMapFolder, string relativePath, out string assetName, out string error)
+        private bool TryGetTilesheetAssetName(string modRelativeMapFolder, string relativePath, out IAssetName? assetName, out string? error)
         {
             assetName = null;
             error = null;
@@ -326,7 +369,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             // nothing to do
             if (string.IsNullOrWhiteSpace(relativePath))
             {
-                assetName = relativePath;
+                assetName = null;
                 return true;
             }
 
@@ -350,10 +393,10 @@ namespace StardewModdingAPI.Framework.ContentManagers
             }
 
             // get from game assets
-            string contentKey = this.GetContentKeyForTilesheetImageSource(relativePath);
+            IAssetName contentKey = this.Coordinator.ParseAssetName(this.GetContentKeyForTilesheetImageSource(relativePath), allowLocales: false);
             try
             {
-                this.GameContentManager.Load<Texture2D>(contentKey, this.Language, useCache: true); // no need to bypass cache here, since we're not storing the asset
+                this.GameContentManager.LoadLocalized<Texture2D>(contentKey, this.GameContentManager.Language, useCache: true); // no need to bypass cache here, since we're not storing the asset
                 assetName = contentKey;
                 return true;
             }
@@ -366,7 +409,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
                 // if the content file doesn't exist, that doesn't mean the error here is a
                 // content-not-found error. Unfortunately XNA doesn't provide a good way to
                 // detect the error type.
-                if (this.GetContentFolderFileExists(contentKey))
+                if (this.GetContentFolderFileExists(contentKey.Name))
                     throw;
             }
 

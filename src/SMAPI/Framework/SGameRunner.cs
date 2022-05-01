@@ -93,7 +93,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="instanceIndex">The instance index.</param>
         public override Game1 CreateGameInstance(PlayerIndex playerIndex = PlayerIndex.One, int instanceIndex = 0)
         {
-            SInputState inputState = new SInputState();
+            SInputState inputState = new();
             return new SGame(playerIndex, instanceIndex, this.Monitor, this.Reflection, this.Events, inputState, this.ModHooks, this.Multiplayer, this.ExitGameImmediately, this.OnPlayerInstanceUpdating, this.OnGameContentLoaded);
         }
 
@@ -148,7 +148,7 @@ namespace StardewModdingAPI.Framework
         /// <summary>Update metadata when a split screen is added or removed.</summary>
         private void UpdateForSplitScreenChanges()
         {
-            HashSet<int> oldScreenIds = new HashSet<int>(Context.ActiveScreenIds);
+            HashSet<int> oldScreenIds = new(Context.ActiveScreenIds);
 
             // track active screens
             Context.ActiveScreenIds.Clear();

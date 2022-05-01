@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using StardewModdingAPI.Framework.ModHelpers;
 using StardewModdingAPI.Toolkit.Serialization;
@@ -13,14 +12,11 @@ namespace StardewModdingAPI.Framework
         /*********
         ** Fields
         *********/
-        /// <summary>Provides an API for loading content assets.</summary>
-        private readonly IContentHelper Content;
-
         /// <summary>Encapsulates SMAPI's JSON file parsing.</summary>
         private readonly JsonHelper JsonHelper;
 
-        /// <summary>A cache of case-insensitive => exact relative paths within the content pack, for case-insensitive file lookups on Linux/macOS.</summary>
-        private readonly IDictionary<string, string> RelativePaths = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        /// <summary>A case-insensitive lookup of relative paths within the <see cref="DirectoryPath"/>.</summary>
+        private readonly CaseInsensitivePathLookup RelativePathCache;
 
 
         /*********
@@ -35,6 +31,9 @@ namespace StardewModdingAPI.Framework
         /// <inheritdoc />
         public ITranslationHelper Translation => this.TranslationImpl;
 
+        /// <inheritdoc />
+        public IModContentHelper ModContent { get; }
+
         /// <summary>The underlying translation helper.</summary>
         internal TranslationHelper TranslationImpl { get; set; }
 
@@ -45,22 +44,18 @@ namespace StardewModdingAPI.Framework
         /// <summary>Construct an instance.</summary>
         /// <param name="directoryPath">The full path to the content pack's folder.</param>
         /// <param name="manifest">The content pack's manifest.</param>
-        /// <param name="content">Provides an API for loading content assets.</param>
+        /// <param name="content">Provides an API for loading content assets from the content pack's folder.</param>
         /// <param name="translation">Provides translations stored in the content pack's <c>i18n</c> folder.</param>
         /// <param name="jsonHelper">Encapsulates SMAPI's JSON file parsing.</param>
-        public ContentPack(string directoryPath, IManifest manifest, IContentHelper content, TranslationHelper translation, JsonHelper jsonHelper)
+        /// <param name="relativePathCache">A case-insensitive lookup of relative paths within the <paramref name="directoryPath"/>.</param>
+        public ContentPack(string directoryPath, IManifest manifest, IModContentHelper content, TranslationHelper translation, JsonHelper jsonHelper, CaseInsensitivePathLookup relativePathCache)
         {
             this.DirectoryPath = directoryPath;
             this.Manifest = manifest;
-            this.Content = content;
+            this.ModContent = content;
             this.TranslationImpl = translation;
             this.JsonHelper = jsonHelper;
-
-            foreach (string path in Directory.EnumerateFiles(this.DirectoryPath, "*", SearchOption.AllDirectories))
-            {
-                string relativePath = path.Substring(this.DirectoryPath.Length + 1);
-                this.RelativePaths[relativePath] = relativePath;
-            }
+            this.RelativePathCache = relativePathCache;
         }
 
         /// <inheritdoc />
@@ -72,12 +67,12 @@ namespace StardewModdingAPI.Framework
         }
 
         /// <inheritdoc />
-        public TModel ReadJsonFile<TModel>(string path) where TModel : class
+        public TModel? ReadJsonFile<TModel>(string path) where TModel : class
         {
             path = PathUtilities.NormalizePath(path);
 
             FileInfo file = this.GetFile(path);
-            return file.Exists && this.JsonHelper.ReadJsonFileIfExists(file.FullName, out TModel model)
+            return file.Exists && this.JsonHelper.ReadJsonFileIfExists(file.FullName, out TModel? model)
                 ? model
                 : null;
         }
@@ -90,44 +85,28 @@ namespace StardewModdingAPI.Framework
             FileInfo file = this.GetFile(path, out path);
             this.JsonHelper.WriteJsonFile(file.FullName, data);
 
-            if (!this.RelativePaths.ContainsKey(path))
-                this.RelativePaths[path] = path;
+            this.RelativePathCache.Add(path);
         }
 
         /// <inheritdoc />
+        [Obsolete]
         public T LoadAsset<T>(string key)
+            where T : notnull
         {
-            key = PathUtilities.NormalizePath(key);
-
-            key = this.GetCaseInsensitiveRelativePath(key);
-            return this.Content.Load<T>(key, ContentSource.ModFolder);
+            return this.ModContent.Load<T>(key);
         }
 
         /// <inheritdoc />
+        [Obsolete]
         public string GetActualAssetKey(string key)
         {
-            key = PathUtilities.NormalizePath(key);
-
-            key = this.GetCaseInsensitiveRelativePath(key);
-            return this.Content.GetActualAssetKey(key, ContentSource.ModFolder);
+            return this.ModContent.GetInternalAssetName(key).Name;
         }
 
 
         /*********
         ** Private methods
         *********/
-        /// <summary>Get the real relative path from a case-insensitive path.</summary>
-        /// <param name="relativePath">The normalized relative path.</param>
-        private string GetCaseInsensitiveRelativePath(string relativePath)
-        {
-            if (!PathUtilities.IsSafeRelativePath(relativePath))
-                throw new InvalidOperationException($"You must call {nameof(IContentPack)} methods with a relative path.");
-
-            return !string.IsNullOrWhiteSpace(relativePath) && this.RelativePaths.TryGetValue(relativePath, out string caseInsensitivePath)
-                ? caseInsensitivePath
-                : relativePath;
-        }
-
         /// <summary>Get the underlying file info.</summary>
         /// <param name="relativePath">The normalized file path relative to the content pack directory.</param>
         private FileInfo GetFile(string relativePath)
@@ -140,7 +119,11 @@ namespace StardewModdingAPI.Framework
         /// <param name="actualRelativePath">The relative path after case-insensitive matching.</param>
         private FileInfo GetFile(string relativePath, out string actualRelativePath)
         {
-            actualRelativePath = this.GetCaseInsensitiveRelativePath(relativePath);
+            if (!PathUtilities.IsSafeRelativePath(relativePath))
+                throw new InvalidOperationException($"You must call {nameof(IContentPack)} methods with a relative path.");
+
+            actualRelativePath = this.RelativePathCache.GetFilePath(relativePath);
+
             return new FileInfo(Path.Combine(this.DirectoryPath, actualRelativePath));
         }
     }

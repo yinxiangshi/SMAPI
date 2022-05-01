@@ -16,7 +16,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Symbols
         private readonly ISymbolReaderProvider BaseProvider = new DefaultSymbolReaderProvider(throwIfNoSymbol: false);
 
         /// <summary>The symbol data loaded by absolute assembly path.</summary>
-        private readonly Dictionary<string, Stream> SymbolsByAssemblyPath = new Dictionary<string, Stream>(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, Stream> SymbolsByAssemblyPath = new(StringComparer.OrdinalIgnoreCase);
 
 
         /*********
@@ -36,7 +36,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Symbols
         /// <param name="fileName">The assembly file name.</param>
         public ISymbolReader GetSymbolReader(ModuleDefinition module, string fileName)
         {
-            return this.SymbolsByAssemblyPath.TryGetValue(module.Name, out Stream symbolData)
+            return this.SymbolsByAssemblyPath.TryGetValue(module.Name, out Stream? symbolData)
                 ? new SymbolReader(module, symbolData)
                 : this.BaseProvider.GetSymbolReader(module, fileName);
         }
@@ -46,7 +46,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Symbols
         /// <param name="symbolStream">The loaded symbol file stream.</param>
         public ISymbolReader GetSymbolReader(ModuleDefinition module, Stream symbolStream)
         {
-            return this.SymbolsByAssemblyPath.TryGetValue(module.Name, out Stream symbolData)
+            return this.SymbolsByAssemblyPath.TryGetValue(module.Name, out Stream? symbolData)
                 ? new SymbolReader(module, symbolData)
                 : this.BaseProvider.GetSymbolReader(module, symbolStream);
         }

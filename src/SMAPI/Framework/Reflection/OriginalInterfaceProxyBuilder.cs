@@ -6,7 +6,7 @@ using System.Reflection.Emit;
 namespace StardewModdingAPI.Framework.Reflection
 {
     /// <summary>Generates a proxy class to access a mod API through an arbitrary interface.</summary>
-    internal class InterfaceProxyBuilder
+    internal class OriginalInterfaceProxyBuilder
     {
         /*********
         ** Fields
@@ -26,7 +26,7 @@ namespace StardewModdingAPI.Framework.Reflection
         /// <param name="moduleBuilder">The CLR module in which to create proxy classes.</param>
         /// <param name="interfaceType">The interface type to implement.</param>
         /// <param name="targetType">The target type.</param>
-        public InterfaceProxyBuilder(string name, ModuleBuilder moduleBuilder, Type interfaceType, Type targetType)
+        public OriginalInterfaceProxyBuilder(string name, ModuleBuilder moduleBuilder, Type interfaceType, Type targetType)
         {
             // validate
             if (name == null)
@@ -48,7 +48,7 @@ namespace StardewModdingAPI.Framework.Reflection
 
                 il.Emit(OpCodes.Ldarg_0); // this
                 // ReSharper disable once AssignNullToNotNullAttribute -- never null
-                il.Emit(OpCodes.Call, typeof(object).GetConstructor(new Type[0])); // call base constructor
+                il.Emit(OpCodes.Call, typeof(object).GetConstructor(Type.EmptyTypes)!); // call base constructor
                 il.Emit(OpCodes.Ldarg_0);      // this
                 il.Emit(OpCodes.Ldarg_1);      // load argument
                 il.Emit(OpCodes.Stfld, targetField); // set field to loaded argument
@@ -67,14 +67,14 @@ namespace StardewModdingAPI.Framework.Reflection
 
             // save info
             this.TargetType = targetType;
-            this.ProxyType = proxyBuilder.CreateType();
+            this.ProxyType = proxyBuilder.CreateType()!;
         }
 
         /// <summary>Create an instance of the proxy for a target instance.</summary>
         /// <param name="targetInstance">The target instance.</param>
         public object CreateInstance(object targetInstance)
         {
-            ConstructorInfo constructor = this.ProxyType.GetConstructor(new[] { this.TargetType });
+            ConstructorInfo? constructor = this.ProxyType.GetConstructor(new[] { this.TargetType });
             if (constructor == null)
                 throw new InvalidOperationException($"Couldn't find the constructor for generated proxy type '{this.ProxyType.Name}'."); // should never happen
             return constructor.Invoke(new[] { targetInstance });

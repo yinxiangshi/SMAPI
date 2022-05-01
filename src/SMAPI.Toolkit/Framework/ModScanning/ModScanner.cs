@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using StardewModdingAPI.Toolkit.Serialization;
 using StardewModdingAPI.Toolkit.Serialization.Models;
+using StardewModdingAPI.Toolkit.Utilities;
 
 namespace StardewModdingAPI.Toolkit.Framework.ModScanning
 {
@@ -18,7 +19,7 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
         private readonly JsonHelper JsonHelper;
 
         /// <summary>A list of filesystem entry names to ignore when checking whether a folder should be treated as a mod.</summary>
-        private readonly HashSet<Regex> IgnoreFilesystemNames = new HashSet<Regex>
+        private readonly HashSet<Regex> IgnoreFilesystemNames = new()
         {
             new Regex(@"^__folder_managed_by_vortex$", RegexOptions.Compiled | RegexOptions.IgnoreCase), // Vortex mod manager
             new Regex(@"(?:^\._|^\.DS_Store$|^__MACOSX$|^mcs$)", RegexOptions.Compiled | RegexOptions.IgnoreCase), // macOS
@@ -26,7 +27,7 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
         };
 
         /// <summary>A list of file extensions to ignore when searching for mod files.</summary>
-        private readonly HashSet<string> IgnoreFileExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private readonly HashSet<string> IgnoreFileExtensions = new(StringComparer.OrdinalIgnoreCase)
         {
             // text
             ".doc",
@@ -60,7 +61,7 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
         };
 
         /// <summary>The extensions for packed content files.</summary>
-        private readonly HashSet<string> StrictXnbModExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private readonly HashSet<string> StrictXnbModExtensions = new(StringComparer.OrdinalIgnoreCase)
         {
             ".xgs",
             ".xnb",
@@ -69,7 +70,7 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
         };
 
         /// <summary>The extensions for files which an XNB mod may contain, in addition to <see cref="StrictXnbModExtensions"/>.</summary>
-        private readonly HashSet<string> PotentialXnbModExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private readonly HashSet<string> PotentialXnbModExtensions = new(StringComparer.OrdinalIgnoreCase)
         {
             ".json",
             ".yaml"
@@ -96,7 +97,7 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
         /// <param name="rootPath">The root folder containing mods.</param>
         public IEnumerable<ModFolder> GetModFolders(string rootPath)
         {
-            DirectoryInfo root = new DirectoryInfo(rootPath);
+            DirectoryInfo root = new(rootPath);
             return this.GetModFolders(root, root);
         }
 
@@ -115,7 +116,7 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
         public ModFolder ReadFolder(DirectoryInfo root, DirectoryInfo searchFolder)
         {
             // find manifest.json
-            FileInfo manifestFile = this.FindManifest(searchFolder);
+            FileInfo? manifestFile = this.FindManifest(searchFolder);
 
             // set appropriate invalid-mod error
             if (manifestFile == null)
@@ -137,7 +138,7 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
                     return new ModFolder(root, searchFolder, ModType.Xnb, null, ModParseError.XnbMod, "it's not a SMAPI mod (see https://smapi.io/xnb for info).");
 
                 // SMAPI installer
-                if (relevantFiles.Any(p => p.Name == "install on Linux.sh" || p.Name == "install on macOS.command" || p.Name == "install on Windows.bat"))
+                if (relevantFiles.Any(p => p.Name is "install on Linux.sh" or "install on macOS.command" or "install on Windows.bat"))
                     return new ModFolder(root, searchFolder, ModType.Invalid, null, ModParseError.ManifestMissing, "the SMAPI installer isn't a mod (you can delete this folder after running the installer file).");
 
                 // not a mod?
@@ -145,13 +146,13 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
             }
 
             // read mod info
-            Manifest manifest = null;
+            Manifest? manifest = null;
             ModParseError error = ModParseError.None;
-            string errorText = null;
+            string? errorText = null;
             {
                 try
                 {
-                    if (!this.JsonHelper.ReadJsonFileIfExists<Manifest>(manifestFile.FullName, out manifest) || manifest == null)
+                    if (!this.JsonHelper.ReadJsonFileIfExists<Manifest>(manifestFile.FullName, out manifest))
                     {
                         error = ModParseError.ManifestInvalid;
                         errorText = "its manifest is invalid.";
@@ -169,14 +170,6 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
                 }
             }
 
-            // normalize display fields
-            if (manifest != null)
-            {
-                manifest.Name = this.StripNewlines(manifest.Name);
-                manifest.Description = this.StripNewlines(manifest.Description);
-                manifest.Author = this.StripNewlines(manifest.Author);
-            }
-
             // get mod type
             ModType type;
             {
@@ -192,7 +185,7 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
             }
 
             // build result
-            return new ModFolder(root, manifestFile.Directory, type, manifest, error, errorText);
+            return new ModFolder(root, manifestFile.Directory!, type, manifest, error, errorText);
         }
 
 
@@ -255,26 +248,26 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
 
         /// <summary>Find the manifest for a mod folder.</summary>
         /// <param name="folder">The folder to search.</param>
-        private FileInfo FindManifest(DirectoryInfo folder)
+        private FileInfo? FindManifest(DirectoryInfo folder)
         {
-            while (true)
+            // check for conventional manifest in current folder
+            const string defaultName = "manifest.json";
+            FileInfo file = new(Path.Combine(folder.FullName, defaultName));
+            if (file.Exists)
+                return file;
+
+            // check for manifest with incorrect capitalization
             {
-                // check for manifest in current folder
-                FileInfo file = new FileInfo(Path.Combine(folder.FullName, "manifest.json"));
-                if (file.Exists)
-                    return file;
-
-                // check for single subfolder
-                FileSystemInfo[] entries = folder.EnumerateFileSystemInfos().Take(2).ToArray();
-                if (entries.Length == 1 && entries[0] is DirectoryInfo subfolder)
-                {
-                    folder = subfolder;
-                    continue;
-                }
-
-                // not found
-                return null;
+                CaseInsensitivePathLookup pathLookup = new(folder.FullName, SearchOption.TopDirectoryOnly); // don't use GetCachedFor, since we only need it temporarily
+                string realName = pathLookup.GetFilePath(defaultName);
+                if (realName != defaultName)
+                    file = new(Path.Combine(folder.FullName, realName));
             }
+            if (file.Exists)
+                return file;
+
+            // not found
+            return null;
         }
 
         /// <summary>Get whether a given folder should be treated as a search folder (i.e. look for subfolders containing mods).</summary>
@@ -314,8 +307,8 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
         /// <param name="entry">The file or folder.</param>
         private bool IsRelevant(FileSystemInfo entry)
         {
-            // ignored file extension
-            if (entry is FileInfo file && this.IgnoreFileExtensions.Contains(file.Extension))
+            // ignored file extensions and any files starting with "."
+            if ((entry is FileInfo file) && (this.IgnoreFileExtensions.Contains(file.Extension) || file.Name.StartsWith(".")))
                 return false;
 
             // ignored entry name
@@ -362,13 +355,6 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
             }
 
             return hasVortexMarker;
-        }
-
-        /// <summary>Strip newlines from a string.</summary>
-        /// <param name="input">The input to strip.</param>
-        private string StripNewlines(string input)
-        {
-            return input?.Replace("\r", "").Replace("\n", "");
         }
     }
 }

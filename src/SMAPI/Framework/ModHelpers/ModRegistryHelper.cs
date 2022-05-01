@@ -16,22 +16,22 @@ namespace StardewModdingAPI.Framework.ModHelpers
         private readonly IMonitor Monitor;
 
         /// <summary>The mod IDs for APIs accessed by this instanced.</summary>
-        private readonly HashSet<string> AccessedModApis = new HashSet<string>();
+        private readonly HashSet<string> AccessedModApis = new();
 
         /// <summary>Generates proxy classes to access mod APIs through an arbitrary interface.</summary>
-        private readonly InterfaceProxyFactory ProxyFactory;
+        private readonly IInterfaceProxyFactory ProxyFactory;
 
 
         /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="modID">The unique ID of the relevant mod.</param>
+        /// <param name="mod">The mod using this instance.</param>
         /// <param name="registry">The underlying mod registry.</param>
         /// <param name="proxyFactory">Generates proxy classes to access mod APIs through an arbitrary interface.</param>
         /// <param name="monitor">Encapsulates monitoring and logging for the mod.</param>
-        public ModRegistryHelper(string modID, ModRegistry registry, InterfaceProxyFactory proxyFactory, IMonitor monitor)
-            : base(modID)
+        public ModRegistryHelper(IModMetadata mod, ModRegistry registry, IInterfaceProxyFactory proxyFactory, IMonitor monitor)
+            : base(mod)
         {
             this.Registry = registry;
             this.ProxyFactory = proxyFactory;
@@ -45,7 +45,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         }
 
         /// <inheritdoc />
-        public IModInfo Get(string uniqueID)
+        public IModInfo? Get(string uniqueID)
         {
             return this.Registry.Get(uniqueID);
         }
@@ -57,7 +57,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         }
 
         /// <inheritdoc />
-        public object GetApi(string uniqueID)
+        public object? GetApi(string uniqueID)
         {
             // validate ready
             if (!this.Registry.AreAllModsInitialized)
@@ -67,17 +67,18 @@ namespace StardewModdingAPI.Framework.ModHelpers
             }
 
             // get raw API
-            IModMetadata mod = this.Registry.Get(uniqueID);
+            IModMetadata? mod = this.Registry.Get(uniqueID);
             if (mod?.Api != null && this.AccessedModApis.Add(mod.Manifest.UniqueID))
-                this.Monitor.Log($"Accessed mod-provided API for {mod.DisplayName}.", LogLevel.Trace);
+                this.Monitor.Log($"Accessed mod-provided API for {mod.DisplayName}.");
             return mod?.Api;
         }
 
         /// <inheritdoc />
-        public TInterface GetApi<TInterface>(string uniqueID) where TInterface : class
+        public TInterface? GetApi<TInterface>(string uniqueID)
+            where TInterface : class
         {
             // get raw API
-            object api = this.GetApi(uniqueID);
+            object? api = this.GetApi(uniqueID);
             if (api == null)
                 return null;
 
@@ -94,9 +95,9 @@ namespace StardewModdingAPI.Framework.ModHelpers
             }
 
             // get API of type
-            if (api is TInterface castApi)
-                return castApi;
-            return this.ProxyFactory.CreateProxy<TInterface>(api, this.ModID, uniqueID);
+            return api is TInterface castApi
+                ? castApi
+                : this.ProxyFactory.CreateProxy<TInterface>(api, sourceModID: this.ModID, targetModID: uniqueID);
         }
     }
 }

@@ -30,7 +30,7 @@ namespace StardewModdingAPI.Internal.Patching
         /// <param name="name">The method name.</param>
         /// <param name="parameters">The method parameter types, or <c>null</c> if it's not overloaded.</param>
         /// <param name="generics">The method generic types, or <c>null</c> if it's not generic.</param>
-        protected MethodInfo RequireMethod<TTarget>(string name, Type[] parameters = null, Type[] generics = null)
+        protected MethodInfo RequireMethod<TTarget>(string name, Type[]? parameters = null, Type[]? generics = null)
         {
             return PatchHelper.RequireMethod<TTarget>(name, parameters, generics);
         }
@@ -40,7 +40,7 @@ namespace StardewModdingAPI.Internal.Patching
         /// <param name="priority">The patch priority to apply, usually specified using Harmony's <see cref="Priority"/> enum, or <c>null</c> to keep the default value.</param>
         protected HarmonyMethod GetHarmonyMethod(string name, int? priority = null)
         {
-            var method = new HarmonyMethod(
+            HarmonyMethod method = new(
                 AccessTools.Method(this.GetType(), name)
                 ?? throw new InvalidOperationException($"Can't find patcher method {PatchHelper.GetMethodString(this.GetType(), name)}.")
             );

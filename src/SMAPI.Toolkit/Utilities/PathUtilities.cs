@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Contracts;
 using System.IO;
 using System.Linq;
@@ -36,8 +37,11 @@ namespace StardewModdingAPI.Toolkit.Utilities
         /// <param name="path">The path to split.</param>
         /// <param name="limit">The number of segments to match. Any additional segments will be merged into the last returned part.</param>
         [Pure]
-        public static string[] GetSegments(string path, int? limit = null)
+        public static string[] GetSegments(string? path, int? limit = null)
         {
+            if (path == null)
+                return Array.Empty<string>();
+
             return limit.HasValue
                 ? path.Split(PathUtilities.PossiblePathSeparators, limit.Value, StringSplitOptions.RemoveEmptyEntries)
                 : path.Split(PathUtilities.PossiblePathSeparators, StringSplitOptions.RemoveEmptyEntries);
@@ -45,8 +49,16 @@ namespace StardewModdingAPI.Toolkit.Utilities
 
         /// <summary>Normalize an asset name to match how MonoGame's content APIs would normalize and cache it.</summary>
         /// <param name="assetName">The asset name to normalize.</param>
-        public static string NormalizeAssetName(string assetName)
+        [Pure]
+#if NET5_0_OR_GREATER
+        [return: NotNullIfNotNull("assetName")]
+#endif
+        public static string? NormalizeAssetName(string? assetName)
         {
+            assetName = assetName?.Trim();
+            if (string.IsNullOrEmpty(assetName))
+                return assetName;
+
             return string.Join(PathUtilities.PreferredAssetSeparator.ToString(), PathUtilities.GetSegments(assetName)); // based on MonoGame's ContentManager.Load<T> logic
         }
 
@@ -54,7 +66,10 @@ namespace StardewModdingAPI.Toolkit.Utilities
         /// <param name="path">The file path to normalize.</param>
         /// <remarks>This should only be used for file paths. For asset names, use <see cref="NormalizeAssetName"/> instead.</remarks>
         [Pure]
-        public static string NormalizePath(string path)
+#if NET5_0_OR_GREATER
+        [return: NotNullIfNotNull("path")]
+#endif
+        public static string? NormalizePath(string? path)
         {
             path = path?.Trim();
             if (string.IsNullOrEmpty(path))
@@ -100,8 +115,8 @@ namespace StardewModdingAPI.Toolkit.Utilities
             // though, this is only for compatibility with the mod build package.
 
             // convert to URIs
-            Uri from = new Uri(sourceDir.TrimEnd(PathUtilities.PossiblePathSeparators) + "/");
-            Uri to = new Uri(targetPath.TrimEnd(PathUtilities.PossiblePathSeparators) + "/");
+            Uri from = new(sourceDir.TrimEnd(PathUtilities.PossiblePathSeparators) + "/");
+            Uri to = new(targetPath.TrimEnd(PathUtilities.PossiblePathSeparators) + "/");
             if (from.Scheme != to.Scheme)
                 throw new InvalidOperationException($"Can't get path for '{targetPath}' relative to '{sourceDir}'.");
 
@@ -132,7 +147,7 @@ namespace StardewModdingAPI.Toolkit.Utilities
         /// <summary>Get whether a path is relative and doesn't try to climb out of its containing folder (e.g. doesn't contain <c>../</c>).</summary>
         /// <param name="path">The path to check.</param>
         [Pure]
-        public static bool IsSafeRelativePath(string path)
+        public static bool IsSafeRelativePath(string? path)
         {
             if (string.IsNullOrWhiteSpace(path))
                 return true;
@@ -145,9 +160,11 @@ namespace StardewModdingAPI.Toolkit.Utilities
         /// <summary>Get whether a string is a valid 'slug', containing only basic characters that are safe in all contexts (e.g. filenames, URLs, etc).</summary>
         /// <param name="str">The string to check.</param>
         [Pure]
-        public static bool IsSlug(string str)
+        public static bool IsSlug(string? str)
         {
-            return !Regex.IsMatch(str, "[^a-z0-9_.-]", RegexOptions.IgnoreCase);
+            return
+                string.IsNullOrWhiteSpace(str)
+                || !Regex.IsMatch(str, "[^a-z0-9_.-]", RegexOptions.IgnoreCase);
         }
     }
 }

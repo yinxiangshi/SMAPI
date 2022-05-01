@@ -40,7 +40,8 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
         {
             this.GetValue = getValue;
             this.Comparer = comparer;
-            this.PreviousValue = getValue();
+            this.CurrentValue = getValue();
+            this.PreviousValue = this.CurrentValue;
         }
 
         /// <summary>Update the current value if needed.</summary>

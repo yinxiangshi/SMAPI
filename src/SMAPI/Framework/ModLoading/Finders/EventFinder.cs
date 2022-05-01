@@ -55,7 +55,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
         {
             if (this.MethodNames.Any())
             {
-                MethodReference methodRef = RewriteHelper.AsMethodReference(instruction);
+                MethodReference? methodRef = RewriteHelper.AsMethodReference(instruction);
                 if (methodRef != null && methodRef.DeclaringType.FullName == this.FullTypeName && this.MethodNames.Contains(methodRef.Name))
                 {
                     string eventName = methodRef.Name.Split(new[] { '_' }, 2)[1];

@@ -30,7 +30,7 @@ namespace StardewModdingAPI.Framework.Logging
             this.Path = path;
 
             // create log directory if needed
-            string logDir = System.IO.Path.GetDirectoryName(path);
+            string? logDir = System.IO.Path.GetDirectoryName(path);
             if (logDir == null)
                 throw new ArgumentException($"The log path '{path}' is not valid.");
             Directory.CreateDirectory(logDir);

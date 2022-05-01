@@ -81,7 +81,7 @@ namespace StardewModdingAPI.Web
 
             // init Hangfire
             services
-                .AddHangfire((serv, config) =>
+                .AddHangfire((_, config) =>
                 {
                     config
                         .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
@@ -100,7 +100,7 @@ namespace StardewModdingAPI.Web
             // init API clients
             {
                 ApiClientsConfig api = this.Configuration.GetSection("ApiClients").Get<ApiClientsConfig>();
-                string version = this.GetType().Assembly.GetName().Version.ToString(3);
+                string version = this.GetType().Assembly.GetName().Version!.ToString(3);
                 string userAgent = string.Format(api.UserAgent, version);
 
                 services.AddSingleton<IChucklefishClient>(new ChucklefishClient(
@@ -128,14 +128,21 @@ namespace StardewModdingAPI.Web
                     modUrlFormat: api.ModDropModPageUrl
                 ));
 
-                services.AddSingleton<INexusClient>(new NexusClient(
-                    webUserAgent: userAgent,
-                    webBaseUrl: api.NexusBaseUrl,
-                    webModUrlFormat: api.NexusModUrlFormat,
-                    webModScrapeUrlFormat: api.NexusModScrapeUrlFormat,
-                    apiAppVersion: version,
-                    apiKey: api.NexusApiKey
-                ));
+                if (!string.IsNullOrWhiteSpace(api.NexusApiKey))
+                {
+                    services.AddSingleton<INexusClient>(new NexusClient(
+                        webUserAgent: userAgent,
+                        webBaseUrl: api.NexusBaseUrl,
+                        webModUrlFormat: api.NexusModUrlFormat,
+                        webModScrapeUrlFormat: api.NexusModScrapeUrlFormat,
+                        apiAppVersion: version,
+                        apiKey: api.NexusApiKey
+                    ));
+                }
+                else
+                {
+                    services.AddSingleton<INexusClient>(new DisabledNexusClient());
+                }
 
                 services.AddSingleton<IPastebinClient>(new PastebinClient(
                     baseUrl: api.PastebinBaseUrl,

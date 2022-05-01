@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using StardewModdingAPI.Events;
+using StardewModdingAPI.Framework.Deprecations;
 using StardewModdingAPI.Framework.Input;
 
 namespace StardewModdingAPI.Framework.ModHelpers
@@ -8,6 +9,14 @@ namespace StardewModdingAPI.Framework.ModHelpers
     /// <summary>Provides simplified APIs for writing mods.</summary>
     internal class ModHelper : BaseHelper, IModHelper, IDisposable
     {
+        /*********
+        ** Fields
+        *********/
+        /// <summary>The backing field for <see cref="Content"/>.</summary>
+        [Obsolete]
+        private readonly ContentHelper ContentImpl;
+
+
         /*********
         ** Accessors
         *********/
@@ -18,7 +27,27 @@ namespace StardewModdingAPI.Framework.ModHelpers
         public IModEvents Events { get; }
 
         /// <inheritdoc />
-        public IContentHelper Content { get; }
+        [Obsolete]
+        public IContentHelper Content
+        {
+            get
+            {
+                SCore.DeprecationManager.Warn(
+                    source: SCore.DeprecationManager.GetMod(this.ModID),
+                    nounPhrase: $"{nameof(IModHelper)}.{nameof(IModHelper.Content)}",
+                    version: "3.14.0",
+                    severity: DeprecationLevel.Notice
+                );
+
+                return this.ContentImpl;
+            }
+        }
+
+        /// <inheritdoc />
+        public IGameContentHelper GameContent { get; }
+
+        /// <inheritdoc />
+        public IModContentHelper ModContent { get; }
 
         /// <inheritdoc />
         public IContentPackHelper ContentPacks { get; }
@@ -49,11 +78,13 @@ namespace StardewModdingAPI.Framework.ModHelpers
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="modID">The mod's unique ID.</param>
+        /// <param name="mod">The mod using this instance.</param>
         /// <param name="modDirectory">The full path to the mod's folder.</param>
         /// <param name="currentInputState">Manages the game's input state for the current player instance. That may not be the main player in split-screen mode.</param>
         /// <param name="events">Manages access to events raised by SMAPI.</param>
         /// <param name="contentHelper">An API for loading content assets.</param>
+        /// <param name="gameContentHelper">An API for loading content assets from the game's <c>Content</c> folder or via <see cref="IModEvents.Content"/>.</param>
+        /// <param name="modContentHelper">An API for loading content assets from your mod's files.</param>
         /// <param name="contentPackHelper">An API for managing content packs.</param>
         /// <param name="commandHelper">An API for managing console commands.</param>
         /// <param name="dataHelper">An API for reading and writing persistent mod data.</param>
@@ -63,8 +94,14 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <param name="translationHelper">An API for reading translations stored in the mod's <c>i18n</c> folder.</param>
         /// <exception cref="ArgumentNullException">An argument is null or empty.</exception>
         /// <exception cref="InvalidOperationException">The <paramref name="modDirectory"/> path does not exist on disk.</exception>
-        public ModHelper(string modID, string modDirectory, Func<SInputState> currentInputState, IModEvents events, IContentHelper contentHelper, IContentPackHelper contentPackHelper, ICommandHelper commandHelper, IDataHelper dataHelper, IModRegistry modRegistry, IReflectionHelper reflectionHelper, IMultiplayerHelper multiplayer, ITranslationHelper translationHelper)
-            : base(modID)
+        public ModHelper(
+            IModMetadata mod, string modDirectory, Func<SInputState> currentInputState, IModEvents events,
+#pragma warning disable CS0612 // deprecated code
+            ContentHelper contentHelper,
+#pragma warning restore CS0612
+            IGameContentHelper gameContentHelper, IModContentHelper modContentHelper, IContentPackHelper contentPackHelper, ICommandHelper commandHelper, IDataHelper dataHelper, IModRegistry modRegistry, IReflectionHelper reflectionHelper, IMultiplayerHelper multiplayer, ITranslationHelper translationHelper
+        )
+            : base(mod)
         {
             // validate directory
             if (string.IsNullOrWhiteSpace(modDirectory))
@@ -74,16 +111,27 @@ namespace StardewModdingAPI.Framework.ModHelpers
 
             // initialize
             this.DirectoryPath = modDirectory;
-            this.Content = contentHelper ?? throw new ArgumentNullException(nameof(contentHelper));
+#pragma warning disable CS0612 // deprecated code
+            this.ContentImpl = contentHelper ?? throw new ArgumentNullException(nameof(contentHelper));
+#pragma warning restore CS0612
+            this.GameContent = gameContentHelper ?? throw new ArgumentNullException(nameof(gameContentHelper));
+            this.ModContent = modContentHelper ?? throw new ArgumentNullException(nameof(modContentHelper));
             this.ContentPacks = contentPackHelper ?? throw new ArgumentNullException(nameof(contentPackHelper));
             this.Data = dataHelper ?? throw new ArgumentNullException(nameof(dataHelper));
-            this.Input = new InputHelper(modID, currentInputState);
+            this.Input = new InputHelper(mod, currentInputState);
             this.ModRegistry = modRegistry ?? throw new ArgumentNullException(nameof(modRegistry));
             this.ConsoleCommands = commandHelper ?? throw new ArgumentNullException(nameof(commandHelper));
             this.Reflection = reflectionHelper ?? throw new ArgumentNullException(nameof(reflectionHelper));
             this.Multiplayer = multiplayer ?? throw new ArgumentNullException(nameof(multiplayer));
             this.Translation = translationHelper ?? throw new ArgumentNullException(nameof(translationHelper));
             this.Events = events;
+        }
+
+        /// <summary>Get the underlying instance for <see cref="IContentHelper"/>.</summary>
+        [Obsolete]
+        public ContentHelper GetLegacyContentHelper()
+        {
+            return this.ContentImpl;
         }
 
         /****

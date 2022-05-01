@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using StardewModdingAPI.Toolkit.Serialization;
 
@@ -40,7 +41,7 @@ namespace StardewModdingAPI.Utilities
         /// <exception cref="FormatException">The <paramref name="input"/> format is invalid.</exception>
         public static KeybindList Parse(string input)
         {
-            return KeybindList.TryParse(input, out KeybindList parsed, out string[] errors)
+            return KeybindList.TryParse(input, out KeybindList? parsed, out string[] errors)
                 ? parsed
                 : throw new SParseException($"Can't parse {nameof(Keybind)} from invalid value '{input}'.\n{string.Join("\n", errors)}");
         }
@@ -49,13 +50,13 @@ namespace StardewModdingAPI.Utilities
         /// <param name="input">The keybind string. See remarks on <see cref="ToString"/> for format details.</param>
         /// <param name="parsed">The parsed keybind list, if valid.</param>
         /// <param name="errors">The errors that occurred while parsing the input, if any.</param>
-        public static bool TryParse(string input, out KeybindList parsed, out string[] errors)
+        public static bool TryParse(string? input, [NotNullWhen(true)] out KeybindList? parsed, out string[] errors)
         {
             // empty input
             if (string.IsNullOrWhiteSpace(input))
             {
                 parsed = new KeybindList();
-                errors = new string[0];
+                errors = Array.Empty<string>();
                 return true;
             }
 
@@ -67,7 +68,7 @@ namespace StardewModdingAPI.Utilities
                 if (string.IsNullOrWhiteSpace(rawSet))
                     continue;
 
-                if (!Keybind.TryParse(rawSet, out Keybind keybind, out string[] curErrors))
+                if (!Keybind.TryParse(rawSet, out Keybind? keybind, out string[] curErrors))
                     rawErrors.AddRange(curErrors);
                 else
                     keybinds.Add(keybind);
@@ -83,7 +84,7 @@ namespace StardewModdingAPI.Utilities
             else
             {
                 parsed = new KeybindList(keybinds.ToArray());
-                errors = new string[0];
+                errors = Array.Empty<string>();
                 return true;
             }
         }
@@ -139,7 +140,7 @@ namespace StardewModdingAPI.Utilities
         public bool IsDown()
         {
             SButtonState state = this.GetState();
-            return state == SButtonState.Pressed || state == SButtonState.Held;
+            return state is SButtonState.Pressed or SButtonState.Held;
         }
 
         /// <summary>Get whether the input binding was just pressed this tick.</summary>
@@ -149,7 +150,7 @@ namespace StardewModdingAPI.Utilities
         }
 
         /// <summary>Get the keybind which is currently down, if any. If there are multiple keybinds down, the first one is returned.</summary>
-        public Keybind GetKeybindCurrentlyDown()
+        public Keybind? GetKeybindCurrentlyDown()
         {
             return this.Keybinds.FirstOrDefault(p => p.GetState().IsDown());
         }

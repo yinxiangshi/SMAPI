@@ -8,6 +8,13 @@ namespace StardewModdingAPI.Framework.Logging
     internal class InterceptingTextWriter : TextWriter
     {
         /*********
+        ** Fields
+        *********/
+        /// <summary>The event raised when a message is written to the console directly.</summary>
+        private readonly Action<string> OnMessageIntercepted;
+
+
+        /*********
         ** Accessors
         *********/
         /// <summary>Prefixing a message with this character indicates that the console interceptor should write the string without intercepting it. (The character itself is not written.)</summary>
@@ -19,9 +26,6 @@ namespace StardewModdingAPI.Framework.Logging
         /// <inheritdoc />
         public override Encoding Encoding => this.Out.Encoding;
 
-        /// <summary>The event raised when a message is written to the console directly.</summary>
-        public event Action<string> OnMessageIntercepted;
-
         /// <summary>Whether the text writer should ignore the next input if it's a newline.</summary>
         /// <remarks>This is used when log output is suppressed from the console, since <c>Console.WriteLine</c> writes the trailing newline as a separate call.</remarks>
         public bool IgnoreNextIfNewline { get; set; }
@@ -32,9 +36,11 @@ namespace StardewModdingAPI.Framework.Logging
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="output">The underlying output writer.</param>
-        public InterceptingTextWriter(TextWriter output)
+        /// <param name="onMessageIntercepted">The event raised when a message is written to the console directly.</param>
+        public InterceptingTextWriter(TextWriter output, Action<string> onMessageIntercepted)
         {
             this.Out = output;
+            this.OnMessageIntercepted = onMessageIntercepted;
         }
 
         /// <inheritdoc />
@@ -63,19 +69,13 @@ namespace StardewModdingAPI.Framework.Logging
                     this.Out.Write(buffer, index, count);
             }
             else
-                this.OnMessageIntercepted?.Invoke(new string(buffer, index, count));
+                this.OnMessageIntercepted(new string(buffer, index, count));
         }
 
         /// <inheritdoc />
         public override void Write(char ch)
         {
             this.Out.Write(ch);
-        }
-
-        /// <inheritdoc />
-        protected override void Dispose(bool disposing)
-        {
-            this.OnMessageIntercepted = null;
         }
 
 

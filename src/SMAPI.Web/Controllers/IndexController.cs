@@ -57,8 +57,8 @@ namespace StardewModdingAPI.Web.Controllers
         {
             // choose versions
             ReleaseVersion[] versions = await this.GetReleaseVersionsAsync();
-            ReleaseVersion stableVersion = versions.LastOrDefault(version => !version.IsForDevs);
-            ReleaseVersion stableVersionForDevs = versions.LastOrDefault(version => version.IsForDevs);
+            ReleaseVersion? stableVersion = versions.LastOrDefault(version => !version.IsForDevs);
+            ReleaseVersion? stableVersionForDevs = versions.LastOrDefault(version => version.IsForDevs);
 
             // render view
             IndexVersionModel stableVersionModel = stableVersion != null
@@ -89,14 +89,14 @@ namespace StardewModdingAPI.Web.Controllers
                 entry.AbsoluteExpiration = DateTimeOffset.UtcNow.Add(this.CacheTime);
 
                 // get latest stable release
-                GitRelease release = await this.GitHub.GetLatestReleaseAsync(this.RepositoryName, includePrerelease: false);
+                GitRelease? release = await this.GitHub.GetLatestReleaseAsync(this.RepositoryName, includePrerelease: false);
 
                 // strip 'noinclude' blocks from release description
                 if (release != null)
                 {
-                    HtmlDocument doc = new HtmlDocument();
+                    HtmlDocument doc = new();
                     doc.LoadHtml(release.Body);
-                    foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//*[@class='noinclude']")?.ToArray() ?? new HtmlNode[0])
+                    foreach (HtmlNode node in doc.DocumentNode.SelectNodes("//*[@class='noinclude']")?.ToArray() ?? Array.Empty<HtmlNode>())
                         node.Remove();
                     release.Body = doc.DocumentNode.InnerHtml.Trim();
                 }
@@ -111,7 +111,7 @@ namespace StardewModdingAPI.Web.Controllers
 
         /// <summary>Get a parsed list of SMAPI downloads for a release.</summary>
         /// <param name="release">The GitHub release.</param>
-        private IEnumerable<ReleaseVersion> ParseReleaseVersions(GitRelease release)
+        private IEnumerable<ReleaseVersion> ParseReleaseVersions(GitRelease? release)
         {
             if (release?.Assets == null)
                 yield break;
@@ -122,7 +122,7 @@ namespace StardewModdingAPI.Web.Controllers
                     continue;
 
                 Match match = Regex.Match(asset.FileName, @"SMAPI-(?<version>[\d\.]+(?:-.+)?)-installer(?<forDevs>-for-developers)?.zip");
-                if (!match.Success || !SemanticVersion.TryParse(match.Groups["version"].Value, out ISemanticVersion version))
+                if (!match.Success || !SemanticVersion.TryParse(match.Groups["version"].Value, out ISemanticVersion? version))
                     continue;
                 bool isForDevs = match.Groups["forDevs"].Success;
 

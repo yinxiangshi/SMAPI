@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -31,17 +32,17 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction)
         {
             // get field ref
-            FieldReference fieldRef = RewriteHelper.AsFieldReference(instruction);
+            FieldReference? fieldRef = RewriteHelper.AsFieldReference(instruction);
             if (fieldRef == null || !this.ShouldValidate(fieldRef.DeclaringType))
                 return false;
 
             // skip if not broken
-            FieldDefinition fieldDefinition = fieldRef.Resolve();
-            if (fieldDefinition != null && !fieldDefinition.HasConstant)
+            FieldDefinition? fieldDefinition = fieldRef.Resolve();
+            if (fieldDefinition?.HasConstant == false)
                 return false;
 
             // rewrite if possible
-            TypeDefinition declaringType = fieldRef.DeclaringType.Resolve();
+            TypeDefinition? declaringType = fieldRef.DeclaringType.Resolve();
             bool isRead = instruction.OpCode == OpCodes.Ldsfld || instruction.OpCode == OpCodes.Ldfld;
             return
                 this.TryRewriteToProperty(module, instruction, fieldRef, declaringType, isRead)
@@ -54,7 +55,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         *********/
         /// <summary>Whether references to the given type should be validated.</summary>
         /// <param name="type">The type reference.</param>
-        private bool ShouldValidate(TypeReference type)
+        private bool ShouldValidate([NotNullWhen(true)] TypeReference? type)
         {
             return type != null && this.RewriteReferencesToAssemblies.Contains(type.Scope.Name);
         }
@@ -68,8 +69,8 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         private bool TryRewriteToProperty(ModuleDefinition module, Instruction instruction, FieldReference fieldRef, TypeDefinition declaringType, bool isRead)
         {
             // get equivalent property
-            PropertyDefinition property = declaringType?.Properties.FirstOrDefault(p => p.Name == fieldRef.Name);
-            MethodDefinition method = isRead ? property?.GetMethod : property?.SetMethod;
+            PropertyDefinition? property = declaringType?.Properties.FirstOrDefault(p => p.Name == fieldRef.Name);
+            MethodDefinition? method = isRead ? property?.GetMethod : property?.SetMethod;
             if (method == null)
                 return false;
 
@@ -84,14 +85,14 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         /// <summary>Try rewriting the field into a matching const field.</summary>
         /// <param name="instruction">The CIL instruction to rewrite.</param>
         /// <param name="field">The field definition.</param>
-        private bool TryRewriteToConstField(Instruction instruction, FieldDefinition field)
+        private bool TryRewriteToConstField(Instruction instruction, FieldDefinition? field)
         {
             // must have been a static field read, and the new field must be const
             if (instruction.OpCode != OpCodes.Ldsfld || field?.HasConstant != true)
                 return false;
 
             // get opcode for value type
-            Instruction loadInstruction = RewriteHelper.GetLoadValueInstruction(field.Constant);
+            Instruction? loadInstruction = RewriteHelper.GetLoadValueInstruction(field.Constant);
             if (loadInstruction == null)
                 return false;
 

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
@@ -47,11 +48,19 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
         /// <summary>Apply the change descriptors to a comma-delimited field.</summary>
         /// <param name="rawField">The raw field text.</param>
         /// <returns>Returns the modified field.</returns>
-        public string ApplyToCopy(string rawField)
+#if NET5_0_OR_GREATER
+        [return: NotNullIfNotNull("rawField")]
+#endif
+        public string? ApplyToCopy(string? rawField)
         {
             // get list
             List<string> values = !string.IsNullOrWhiteSpace(rawField)
-                ? new List<string>(rawField.Split(','))
+                ? new List<string>(
+                    from field in rawField.Split(',')
+                    let value = field.Trim()
+                    where value.Length > 0
+                    select value
+                )
                 : new List<string>();
 
             // apply changes
@@ -73,12 +82,12 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
             {
                 for (int i = values.Count - 1; i >= 0; i--)
                 {
-                    string value = this.FormatValue(values[i]?.Trim() ?? string.Empty);
+                    string value = this.FormatValue(values[i].Trim());
 
                     if (this.Remove.Contains(value))
                         values.RemoveAt(i);
 
-                    else if (this.Replace.TryGetValue(value, out string newValue))
+                    else if (this.Replace.TryGetValue(value, out string? newValue))
                         values[i] = newValue;
                 }
             }
@@ -86,7 +95,7 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
             // add values
             if (this.Add.Any())
             {
-                HashSet<string> curValues = new HashSet<string>(values.Select(p => p?.Trim() ?? string.Empty), StringComparer.OrdinalIgnoreCase);
+                HashSet<string> curValues = new HashSet<string>(values.Select(p => p.Trim()), StringComparer.OrdinalIgnoreCase);
                 foreach (string add in this.Add)
                 {
                     if (!curValues.Contains(add))
@@ -119,7 +128,7 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
         /// <param name="descriptor">The raw change descriptor.</param>
         /// <param name="errors">The human-readable error message describing any invalid values that were ignored.</param>
         /// <param name="formatValue">Format a raw value into a normalized form if needed.</param>
-        public static ChangeDescriptor Parse(string descriptor, out string[] errors, Func<string, string> formatValue = null)
+        public static ChangeDescriptor Parse(string? descriptor, out string[] errors, Func<string, string>? formatValue = null)
         {
             // init
             formatValue ??= p => p;
@@ -179,7 +188,7 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
                 errors = rawErrors.ToArray();
             }
             else
-                errors = new string[0];
+                errors = Array.Empty<string>();
 
             // build model
             return new ChangeDescriptor(

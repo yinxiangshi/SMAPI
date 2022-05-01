@@ -20,7 +20,7 @@ namespace StardewModdingAPI
         private static readonly string DllSearchPath = EarlyConstants.InternalFilesPath;
 
         /// <summary>The assembly paths in the search folders indexed by assembly name.</summary>
-        private static Dictionary<string, string> AssemblyPathsByName;
+        private static Dictionary<string, string>? AssemblyPathsByName;
 
 
         /*********
@@ -59,26 +59,26 @@ namespace StardewModdingAPI
         /// <summary>Method called when assembly resolution fails, which may return a manually resolved assembly.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event arguments.</param>
-        private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs e)
+        private static Assembly? CurrentDomain_AssemblyResolve(object? sender, ResolveEventArgs e)
         {
             // cache assembly paths by name
             if (Program.AssemblyPathsByName == null)
             {
                 Program.AssemblyPathsByName = new(StringComparer.OrdinalIgnoreCase);
 
-                foreach (string searchPath in new[] { EarlyConstants.ExecutionPath, Program.DllSearchPath })
+                foreach (string searchPath in new[] { EarlyConstants.GamePath, Program.DllSearchPath })
                 {
                     foreach (string dllPath in Directory.EnumerateFiles(searchPath, "*.dll"))
                     {
                         try
                         {
-                            string curName = AssemblyName.GetAssemblyName(dllPath).Name;
+                            string? curName = AssemblyName.GetAssemblyName(dllPath).Name;
                             if (curName != null)
                                 Program.AssemblyPathsByName[curName] = dllPath;
                         }
                         catch
                         {
-                            continue;
+                            // ignore invalid DLL
                         }
                     }
                 }
@@ -87,8 +87,8 @@ namespace StardewModdingAPI
             // resolve
             try
             {
-                string searchName = new AssemblyName(e.Name).Name;
-                return searchName != null && Program.AssemblyPathsByName.TryGetValue(searchName, out string assemblyPath)
+                string? searchName = new AssemblyName(e.Name).Name;
+                return searchName != null && Program.AssemblyPathsByName.TryGetValue(searchName, out string? assemblyPath)
                     ? Assembly.LoadFrom(assemblyPath)
                     : null;
             }
@@ -110,7 +110,7 @@ namespace StardewModdingAPI
             catch (Exception ex)
             {
                 // file doesn't exist
-                if (!File.Exists(Path.Combine(EarlyConstants.ExecutionPath, $"{EarlyConstants.GameAssemblyName}.exe")))
+                if (!File.Exists(Path.Combine(EarlyConstants.GamePath, $"{EarlyConstants.GameAssemblyName}.exe")))
                     Program.PrintErrorAndExit("Oops! SMAPI can't find the game. Make sure you're running StardewModdingAPI.exe in your game folder.");
 
                 // can't load file
@@ -127,7 +127,7 @@ namespace StardewModdingAPI
             // min version
             if (Constants.GameVersion.IsOlderThan(Constants.MinimumGameVersion))
             {
-                ISemanticVersion suggestedApiVersion = Constants.GetCompatibleApiVersion(Constants.GameVersion);
+                ISemanticVersion? suggestedApiVersion = Constants.GetCompatibleApiVersion(Constants.GameVersion);
                 Program.PrintErrorAndExit(suggestedApiVersion != null
                     ? $"Oops! You're running Stardew Valley {Constants.GameVersion}, but the oldest supported version is {Constants.MinimumGameVersion}. You can install SMAPI {suggestedApiVersion} instead to fix this error, or update your game to the latest version."
                     : $"Oops! You're running Stardew Valley {Constants.GameVersion}, but the oldest supported version is {Constants.MinimumGameVersion}. Please update your game before using SMAPI."
@@ -150,7 +150,7 @@ namespace StardewModdingAPI
             foreach (var type in new[] { typeof(IManifest), typeof(Manifest) })
             {
                 AssemblyName assemblyName = type.Assembly.GetName();
-                ISemanticVersion assemblyVersion = new SemanticVersion(assemblyName.Version);
+                ISemanticVersion assemblyVersion = new SemanticVersion(assemblyName.Version!);
                 if (!assemblyVersion.Equals(smapiVersion))
                     Program.PrintErrorAndExit($"Oops! The 'smapi-internal/{assemblyName.Name}.dll' file is version {assemblyVersion} instead of the required {Constants.ApiVersion}. SMAPI doesn't seem to be installed correctly.");
             }
@@ -160,8 +160,8 @@ namespace StardewModdingAPI
         /// <remarks>This is needed to resolve native DLLs like libSkiaSharp.</remarks>
         private static void AssertDepsJson()
         {
-            string sourcePath = Path.Combine(Constants.ExecutionPath, "Stardew Valley.deps.json");
-            string targetPath = Path.Combine(Constants.ExecutionPath, "StardewModdingAPI.deps.json");
+            string sourcePath = Path.Combine(Constants.GamePath, "Stardew Valley.deps.json");
+            string targetPath = Path.Combine(Constants.GamePath, "StardewModdingAPI.deps.json");
 
             if (!File.Exists(targetPath) || FileUtilities.GetFileHash(sourcePath) != FileUtilities.GetFileHash(targetPath))
             {
@@ -179,34 +179,47 @@ namespace StardewModdingAPI
             bool writeToConsole = !args.Contains("--no-terminal") && Environment.GetEnvironmentVariable("SMAPI_NO_TERMINAL") == null;
 
             // get mods path
+            bool? developerMode = null;
             string modsPath;
             {
-                string rawModsPath = null;
+                string? rawModsPath = null;
 
-                // get from command line args
+                // get mods path from command line args
                 int pathIndex = Array.LastIndexOf(args, "--mods-path") + 1;
                 if (pathIndex >= 1 && args.Length >= pathIndex)
                     rawModsPath = args[pathIndex];
 
+                // get developer mode from command line args
+                if (args.Contains("--developer-mode"))
+                    developerMode = true;
+                if (args.Contains("--developer-mode-off"))
+                    developerMode = false;
+
                 // get from environment variables
                 if (string.IsNullOrWhiteSpace(rawModsPath))
                     rawModsPath = Environment.GetEnvironmentVariable("SMAPI_MODS_PATH");
+                if (developerMode is null)
+                {
+                    string? rawDeveloperMode = Environment.GetEnvironmentVariable("SMAPI_DEVELOPER_MODE");
+                    if (rawDeveloperMode != null)
+                        developerMode = bool.Parse(rawDeveloperMode);
+                }
 
-                // normalise
+                // normalize
                 modsPath = !string.IsNullOrWhiteSpace(rawModsPath)
-                    ? Path.Combine(Constants.ExecutionPath, rawModsPath)
+                    ? Path.Combine(Constants.GamePath, rawModsPath)
                     : Constants.DefaultModsPath;
             }
 
             // load SMAPI
-            using SCore core = new SCore(modsPath, writeToConsole);
+            using SCore core = new(modsPath, writeToConsole, developerMode);
             core.RunInteractively();
         }
 
         /// <summary>Write an error directly to the console and exit.</summary>
         /// <param name="message">The error message to display.</param>
         /// <param name="technicalMessage">An additional message to log with technical details.</param>
-        private static void PrintErrorAndExit(string message, string technicalMessage = null)
+        private static void PrintErrorAndExit(string message, string? technicalMessage = null)
         {
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine(message);

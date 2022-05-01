@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using StardewModdingAPI.Framework;
 
@@ -42,13 +43,13 @@ namespace StardewModdingAPI.Utilities
         /// <param name="input">The keybind string. See remarks on <see cref="ToString"/> for format details.</param>
         /// <param name="parsed">The parsed keybind, if valid.</param>
         /// <param name="errors">The parse errors, if any.</param>
-        public static bool TryParse(string input, out Keybind parsed, out string[] errors)
+        public static bool TryParse(string input, [NotNullWhen(true)] out Keybind? parsed, out string[] errors)
         {
             // empty input
             if (string.IsNullOrWhiteSpace(input))
             {
                 parsed = new Keybind(SButton.None);
-                errors = new string[0];
+                errors = Array.Empty<string>();
                 return true;
             }
 
@@ -97,7 +98,7 @@ namespace StardewModdingAPI.Utilities
             else
             {
                 parsed = new Keybind(buttons);
-                errors = new string[0];
+                errors = Array.Empty<string>();
                 return true;
             }
         }
@@ -118,11 +119,11 @@ namespace StardewModdingAPI.Utilities
                 return SButtonState.None;
 
             // mix of held + pressed => pressed
-            if (states.All(p => p == SButtonState.Pressed || p == SButtonState.Held))
+            if (states.All(p => p is SButtonState.Pressed or SButtonState.Held))
                 return SButtonState.Pressed;
 
             // mix of held + released => released
-            if (states.All(p => p == SButtonState.Held || p == SButtonState.Released))
+            if (states.All(p => p is SButtonState.Held or SButtonState.Released))
                 return SButtonState.Released;
 
             // not down last tick or now

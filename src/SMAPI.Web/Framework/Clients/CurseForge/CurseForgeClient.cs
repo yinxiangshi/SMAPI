@@ -17,7 +17,7 @@ namespace StardewModdingAPI.Web.Framework.Clients.CurseForge
         private readonly IClient Client;
 
         /// <summary>A regex pattern which matches a version number in a CurseForge mod file name.</summary>
-        private readonly Regex VersionInNamePattern = new Regex(@"^(?:.+? | *)v?(\d+\.\d+(?:\.\d+)?(?:-.+?)?) *(?:\.(?:zip|rar|7z))?$", RegexOptions.Compiled);
+        private readonly Regex VersionInNamePattern = new(@"^(?:.+? | *)v?(\d+\.\d+(?:\.\d+)?(?:-.+?)?) *(?:\.(?:zip|rar|7z))?$", RegexOptions.Compiled);
 
 
         /*********
@@ -40,7 +40,7 @@ namespace StardewModdingAPI.Web.Framework.Clients.CurseForge
 
         /// <summary>Get update check info about a mod.</summary>
         /// <param name="id">The mod ID.</param>
-        public async Task<IModPage> GetModData(string id)
+        public async Task<IModPage?> GetModData(string id)
         {
             IModPage page = new GenericModPage(this.SiteKey, id);
 
@@ -49,9 +49,9 @@ namespace StardewModdingAPI.Web.Framework.Clients.CurseForge
                 return page.SetError(RemoteModStatus.DoesNotExist, $"The value '{id}' isn't a valid CurseForge mod ID, must be an integer ID.");
 
             // get raw data
-            ModModel mod = await this.Client
+            ModModel? mod = await this.Client
                 .GetAsync($"addon/{parsedId}")
-                .As<ModModel>();
+                .As<ModModel?>();
             if (mod == null)
                 return page.SetError(RemoteModStatus.DoesNotExist, "Found no CurseForge mod with this ID.");
 
@@ -71,7 +71,7 @@ namespace StardewModdingAPI.Web.Framework.Clients.CurseForge
         /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
         public void Dispose()
         {
-            this.Client?.Dispose();
+            this.Client.Dispose();
         }
 
 
@@ -80,9 +80,9 @@ namespace StardewModdingAPI.Web.Framework.Clients.CurseForge
         *********/
         /// <summary>Get a raw version string for a mod file, if available.</summary>
         /// <param name="file">The file whose version to get.</param>
-        private string GetRawVersion(ModFileModel file)
+        private string? GetRawVersion(ModFileModel file)
         {
-            Match match = this.VersionInNamePattern.Match(file.DisplayName);
+            Match match = this.VersionInNamePattern.Match(file.DisplayName ?? "");
             if (!match.Success)
                 match = this.VersionInNamePattern.Match(file.FileName);
 

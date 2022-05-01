@@ -16,13 +16,13 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
         private readonly ObservableCollection<TValue> Field;
 
         /// <summary>The pairs added since the last reset.</summary>
-        private readonly List<TValue> AddedImpl = new List<TValue>();
+        private readonly List<TValue> AddedImpl = new();
 
         /// <summary>The pairs removed since the last reset.</summary>
-        private readonly List<TValue> RemovedImpl = new List<TValue>();
+        private readonly List<TValue> RemovedImpl = new();
 
         /// <summary>The previous values as of the last update.</summary>
-        private readonly List<TValue> PreviousValues = new List<TValue>();
+        private readonly List<TValue> PreviousValues = new();
 
 
         /*********
@@ -79,7 +79,7 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
         /// <summary>A callback invoked when an entry is added or removed from the collection.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event arguments.</param>
-        private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        private void OnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
             if (e.Action == NotifyCollectionChangedAction.Reset)
             {
@@ -88,8 +88,8 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
             }
             else
             {
-                TValue[] added = e.NewItems?.Cast<TValue>().ToArray();
-                TValue[] removed = e.OldItems?.Cast<TValue>().ToArray();
+                TValue[]? added = e.NewItems?.Cast<TValue>().ToArray();
+                TValue[]? removed = e.OldItems?.Cast<TValue>().ToArray();
 
                 if (removed != null)
                 {

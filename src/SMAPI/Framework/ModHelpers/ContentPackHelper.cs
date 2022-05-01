@@ -22,11 +22,11 @@ namespace StardewModdingAPI.Framework.ModHelpers
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="modID">The unique ID of the relevant mod.</param>
+        /// <param name="mod">The mod using this instance.</param>
         /// <param name="contentPacks">The content packs loaded for this mod.</param>
         /// <param name="createContentPack">Create a temporary content pack.</param>
-        public ContentPackHelper(string modID, Lazy<IContentPack[]> contentPacks, Func<string, IManifest, IContentPack> createContentPack)
-            : base(modID)
+        public ContentPackHelper(IModMetadata mod, Lazy<IContentPack[]> contentPacks, Func<string, IManifest, IContentPack> createContentPack)
+            : base(mod)
         {
             this.ContentPacks = contentPacks;
             this.CreateContentPack = createContentPack;

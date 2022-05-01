@@ -21,8 +21,8 @@ namespace StardewModdingAPI
         void PatchImage(Texture2D source, Rectangle? sourceArea = null, Rectangle? targetArea = null, PatchMode patchMode = PatchMode.Replace);
 
         /// <summary>Extend the image if needed to fit the given size. Note that this is an expensive operation, creates a new texture instance, and that extending a spritesheet horizontally may cause game errors or bugs.</summary>
-        /// <param name="minWidth">The minimum texture width.</param>
-        /// <param name="minHeight">The minimum texture height.</param>
+        /// <param name="minWidth">The minimum texture width in pixels.</param>
+        /// <param name="minHeight">The minimum texture height in pixels.</param>
         /// <returns>Whether the texture was resized.</returns>
         bool ExtendImage(int minWidth, int minHeight);
     }

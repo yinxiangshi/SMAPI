@@ -17,8 +17,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         ** Fields
         *********/
         /// <summary>Writes messages to the console and log file on behalf of the game.</summary>
-        private static IMonitor MonitorForGame;
-
+        private static IMonitor MonitorForGame = null!;
 
         /*********
         ** Public methods
@@ -52,7 +51,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         /// <param name="precondition">The precondition to be parsed.</param>
         /// <param name="__exception">The exception thrown by the wrapped method, if any.</param>
         /// <returns>Returns the exception to throw, if any.</returns>
-        private static Exception Finalize_CheckEventPrecondition(ref int __result, string precondition, Exception __exception)
+        private static Exception? Finalize_CheckEventPrecondition(ref int __result, string precondition, Exception? __exception)
         {
             if (__exception != null)
             {
@@ -68,7 +67,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         /// <param name="map">The map whose tilesheets to update.</param>
         /// <param name="__exception">The exception thrown by the wrapped method, if any.</param>
         /// <returns>Returns the exception to throw, if any.</returns>
-        private static Exception Finalize_UpdateSeasonalTileSheets(GameLocation __instance, Map map, Exception __exception)
+        private static Exception? Finalize_UpdateSeasonalTileSheets(GameLocation __instance, Map map, Exception? __exception)
         {
             if (__exception != null)
                 GameLocationPatcher.MonitorForGame.Log($"Failed updating seasonal tilesheets for location '{__instance.NameOrUniqueName}': \n{__exception}", LogLevel.Error);

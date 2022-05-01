@@ -39,7 +39,7 @@ namespace StardewModdingAPI.Framework
         }
 
         /// <inheritdoc />
-        public bool Equals(ICursorPosition other)
+        public bool Equals(ICursorPosition? other)
         {
             return other != null && this.AbsolutePixels == other.AbsolutePixels;
         }

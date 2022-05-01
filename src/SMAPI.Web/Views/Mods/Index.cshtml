@@ -6,7 +6,7 @@
 @{
     ViewData["Title"] = "Mod compatibility";
 
-    TimeSpan staleAge = DateTimeOffset.UtcNow - Model.LastUpdated;
+    TimeSpan staleAge = DateTimeOffset.UtcNow - Model!.LastUpdated;
 
     bool hasBeta = Model.BetaVersion != null;
     string betaLabel = $"SDV {Model.BetaVersion} only";
@@ -19,7 +19,7 @@
     <script src="~/Content/js/mods.js?r=20210929"></script>
     <script>
         $(function() {
-            var data = @this.ForJson(Model.Mods ?? new ModModel[0]);
+            var data = @(this.ForJson(Model.Mods ?? Array.Empty<ModModel>()));
             var enableBeta = @this.ForJson(hasBeta);
             smapi.modList(data, enableBeta);
         });

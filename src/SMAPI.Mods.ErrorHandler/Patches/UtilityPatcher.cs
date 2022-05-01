@@ -33,7 +33,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         /// <param name="delimiter">The delimiter by which to split the text description.</param>
         /// <param name="__exception">The exception thrown by the wrapped method, if any.</param>
         /// <returns>Returns the exception to throw, if any.</returns>
-        private static Exception Finalize_GetItemFromStandardTextDescription(string description, char delimiter, ref Exception __exception)
+        private static Exception? Finalize_GetItemFromStandardTextDescription(string description, char delimiter, ref Exception? __exception)
         {
             return __exception != null
                 ? new FormatException($"Failed to parse item text description \"{description}\" with delimiter \"{delimiter}\".", __exception)

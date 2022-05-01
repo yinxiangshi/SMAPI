@@ -12,7 +12,7 @@ namespace StardewModdingAPI.Internal
         *********/
         /// <summary>Get a string representation of an exception suitable for writing to the error log.</summary>
         /// <param name="exception">The error to summarize.</param>
-        public static string GetLogSummary(this Exception exception)
+        public static string GetLogSummary(this Exception? exception)
         {
             try
             {
@@ -25,7 +25,7 @@ namespace StardewModdingAPI.Internal
 
                     case ReflectionTypeLoadException ex:
                         string summary = ex.ToString();
-                        foreach (Exception childEx in ex.LoaderExceptions ?? new Exception[0])
+                        foreach (Exception? childEx in ex.LoaderExceptions)
                             summary += $"\n\n{childEx?.GetLogSummary()}";
                         message = summary;
                         break;
@@ -41,15 +41,6 @@ namespace StardewModdingAPI.Internal
             {
                 throw new InvalidOperationException($"Failed handling {exception?.GetType().FullName} (original message: {exception?.Message})", ex);
             }
-        }
-
-        /// <summary>Get the lowest exception in an exception stack.</summary>
-        /// <param name="exception">The exception from which to search.</param>
-        public static Exception GetInnermostException(this Exception exception)
-        {
-            while (exception.InnerException != null)
-                exception = exception.InnerException;
-            return exception;
         }
 
         /// <summary>Simplify common patterns in exception log messages that don't convey useful info.</summary>

@@ -47,6 +47,12 @@ copy all the settings, or you may cause bugs due to overridden changes in future
     "AggressiveMemoryOptimizations": false,
 
     /**
+     * Whether to use the experimental Pintail API proxying library, instead of the original
+     * proxying built into SMAPI itself.
+     */
+    "UsePintail": true,
+
+    /**
      * Whether to add a section to the 'mod issues' list for mods which directly use potentially
      * sensitive .NET APIs like file or shell access. Note that many mods do this legitimately as
      * part of their normal functionality, so these warnings are meaningless without further
@@ -68,11 +74,6 @@ copy all the settings, or you may cause bugs due to overridden changes in future
      * SMAPI's GitHub project name, used to perform update checks.
      */
     "GitHubProjectName": "Pathoschild/SMAPI",
-
-    /**
-     * Stardew64Installer's GitHub project name, used to perform update checks.
-     */
-    "Stardew64InstallerGitHubProjectName": "Steviegt6/Stardew64Installer",
 
     /**
      * The base URL for SMAPI's web API, used to perform update checks.

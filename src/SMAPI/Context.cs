@@ -14,16 +14,16 @@ namespace StardewModdingAPI
         ** Fields
         *********/
         /// <summary>Whether the player has loaded a save and the world has finished initializing.</summary>
-        private static readonly PerScreen<bool> IsWorldReadyForScreen = new PerScreen<bool>();
+        private static readonly PerScreen<bool> IsWorldReadyForScreen = new();
 
         /// <summary>The current stage in the game's loading process.</summary>
-        private static readonly PerScreen<LoadStage> LoadStageForScreen = new PerScreen<LoadStage>();
+        private static readonly PerScreen<LoadStage> LoadStageForScreen = new();
 
         /// <summary>Whether a player save has been loaded.</summary>
-        internal static bool IsSaveLoaded => Game1.hasLoadedGame && !(Game1.activeClickableMenu is TitleMenu);
+        internal static bool IsSaveLoaded => Game1.hasLoadedGame && Game1.activeClickableMenu is not TitleMenu;
 
         /// <summary>Whether the game is currently writing to the save file.</summary>
-        internal static bool IsSaving => Game1.activeClickableMenu is SaveGameMenu || Game1.activeClickableMenu is ShippingMenu; // saving is performed by SaveGameMenu, but it's wrapped by ShippingMenu on days when the player shipping something
+        internal static bool IsSaving => Game1.activeClickableMenu is SaveGameMenu or ShippingMenu; // saving is performed by SaveGameMenu, but it's wrapped by ShippingMenu on days when the player shipping something
 
         /// <summary>The active split-screen instance IDs.</summary>
         internal static readonly ISet<int> ActiveScreenIds = new HashSet<int>();
@@ -39,7 +39,7 @@ namespace StardewModdingAPI
         }
 
         /// <summary>Whether the in-game world is completely unloaded and not in the process of being loaded. The world may still exist in memory at this point, but should be ignored.</summary>
-        internal static bool IsWorldFullyUnloaded => Context.LoadStage == LoadStage.ReturningToTitle || Context.LoadStage == LoadStage.None;
+        internal static bool IsWorldFullyUnloaded => Context.LoadStage is LoadStage.ReturningToTitle or LoadStage.None;
 
 
         /*********
@@ -86,7 +86,7 @@ namespace StardewModdingAPI
         public static bool HasRemotePlayers => Context.IsMultiplayer && !Game1.hasLocalClientsOnly;
 
         /// <summary>Whether the current player is the main player. This is always true in single-player, and true when hosting in multiplayer.</summary>
-        public static bool IsMainPlayer => Game1.IsMasterGame && Context.ScreenId == 0 && !(TitleMenu.subMenu is FarmhandMenu);
+        public static bool IsMainPlayer => Game1.IsMasterGame && Context.ScreenId == 0 && TitleMenu.subMenu is not FarmhandMenu;
 
 
         /*********

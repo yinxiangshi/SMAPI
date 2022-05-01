@@ -21,13 +21,13 @@ namespace StardewModdingAPI.Framework.ContentManagers
         ** Public methods
         *********/
         /// <inheritdoc />
-        public GameContentManagerForAssetPropagation(string name, IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, ContentCoordinator coordinator, IMonitor monitor, Reflector reflection, Action<BaseContentManager> onDisposing, Action onLoadingFirstAsset, bool aggressiveMemoryOptimizations)
-            : base(name, serviceProvider, rootDirectory, currentCulture, coordinator, monitor, reflection, onDisposing, onLoadingFirstAsset, aggressiveMemoryOptimizations) { }
+        public GameContentManagerForAssetPropagation(string name, IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, ContentCoordinator coordinator, IMonitor monitor, Reflector reflection, Action<BaseContentManager> onDisposing, Action onLoadingFirstAsset, Action<BaseContentManager, IAssetName> onAssetLoaded, bool aggressiveMemoryOptimizations)
+            : base(name, serviceProvider, rootDirectory, currentCulture, coordinator, monitor, reflection, onDisposing, onLoadingFirstAsset, onAssetLoaded, aggressiveMemoryOptimizations) { }
 
         /// <inheritdoc />
-        public override T Load<T>(string assetName, LanguageCode language, bool useCache)
+        public override T LoadExact<T>(IAssetName assetName, bool useCache)
         {
-            T data = base.Load<T>(assetName, language, useCache);
+            T data = base.LoadExact<T>(assetName, useCache);
 
             if (data is Texture2D texture)
                 texture.Tag = this.Tag;
@@ -37,7 +37,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
 
         /// <summary>Get whether a texture was loaded by this content manager.</summary>
         /// <param name="texture">The texture to check.</param>
-        public bool IsResponsibleFor(Texture2D texture)
+        public bool IsResponsibleFor(Texture2D? texture)
         {
             return
                 texture?.Tag is string tag

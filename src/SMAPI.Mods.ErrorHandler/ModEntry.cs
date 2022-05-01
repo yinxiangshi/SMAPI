@@ -30,7 +30,6 @@ namespace StardewModdingAPI.Mods.ErrorHandler
             // apply patches
             HarmonyPatcher.Apply(this.ModManifest.UniqueID, this.Monitor,
                 new DialoguePatcher(monitorForGame, this.Helper.Reflection),
-                new DictionaryPatcher(this.Helper.Reflection),
                 new EventPatcher(monitorForGame),
                 new GameLocationPatcher(monitorForGame),
                 new IClickableMenuPatcher(),
@@ -58,7 +57,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler
         /// <summary>The method invoked when a save is loaded.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="e">The event arguments.</param>
-        private void OnSaveLoaded(object sender, SaveLoadedEventArgs e)
+        private void OnSaveLoaded(object? sender, SaveLoadedEventArgs e)
         {
             // show in-game warning for removed save content
             if (this.IsSaveContentRemoved)
@@ -81,7 +80,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler
             MethodInfo getMonitorForGame = coreType.GetMethod("GetMonitorForGame")
                 ?? throw new InvalidOperationException("Can't access the SMAPI's 'GetMonitorForGame' method. This mod may not work correctly.");
 
-            return (IMonitor)getMonitorForGame.Invoke(core, new object[0]) ?? this.Monitor;
+            return (IMonitor?)getMonitorForGame.Invoke(core, Array.Empty<object>()) ?? this.Monitor;
         }
     }
 }

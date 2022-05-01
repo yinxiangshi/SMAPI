@@ -412,8 +412,12 @@ The NuGet package is generated automatically in `StardewModdingAPI.ModBuildConfi
 when you compile it.
 
 ## Release notes
-## Upcoming release
+## 4.0.1
+Released 14 April 2022.
+
 * Added detection for Xbox app game folders.
+* Fixed "_conflicts between different versions of Microsoft.Win32.Registry_" warnings in recent SMAPI versions.
+* Internal refactoring.
 
 ## 4.0.0
 Released 30 November 2021.

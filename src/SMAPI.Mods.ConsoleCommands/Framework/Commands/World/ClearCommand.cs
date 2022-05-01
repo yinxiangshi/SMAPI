@@ -1,5 +1,7 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Microsoft.Xna.Framework;
 using StardewValley;
 using StardewValley.Locations;
 using StardewValley.Objects;
@@ -9,6 +11,7 @@ using SObject = StardewValley.Object;
 namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
 {
     /// <summary>A command which clears in-game objects.</summary>
+    [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "Loaded using reflection")]
     internal class ClearCommand : ConsoleCommand
     {
         /*********
@@ -49,13 +52,13 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
             }
 
             // parse arguments
-            if (!args.TryGet(0, "location", out string locationName, required: true))
+            if (!args.TryGet(0, "location", out string? locationName, required: true))
                 return;
-            if (!args.TryGet(1, "object type", out string type, required: true, oneOf: this.ValidTypes))
+            if (!args.TryGet(1, "object type", out string? type, required: true, oneOf: this.ValidTypes))
                 return;
 
             // get target location
-            GameLocation location = Game1.locations.FirstOrDefault(p => p.Name != null && p.Name.Equals(locationName, StringComparison.OrdinalIgnoreCase));
+            GameLocation? location = Game1.locations.FirstOrDefault(p => p.Name != null && p.Name.Equals(locationName, StringComparison.OrdinalIgnoreCase));
             if (location == null && locationName == "current")
                 location = Game1.currentLocation;
             if (location == null)
@@ -92,11 +95,10 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
 
                         removed +=
                             this.RemoveObjects(location, obj =>
-                                !(obj is Chest)
+                                obj is not Chest
                                 && (
-                                    obj.Name == "Weeds"
-                                    || obj.Name == "Stone"
-                                    || (obj.ParentSheetIndex == 294 || obj.ParentSheetIndex == 295)
+                                    obj.Name is "Weeds" or "Stone"
+                                    || obj.ParentSheetIndex is 294 or 295
                                 )
                             )
                             + this.RemoveResourceClumps(location, clump => this.DebrisClumps.Contains(clump.parentSheetIndex.Value));
@@ -114,7 +116,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
 
                 case "furniture":
                     {
-                        int removed = this.RemoveFurniture(location, furniture => true);
+                        int removed = this.RemoveFurniture(location, _ => true);
                         monitor.Log($"Done! Removed {removed} entities from {location.Name}.", LogLevel.Info);
                         break;
                     }
@@ -138,11 +140,11 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
                     {
                         bool everything = type == "everything";
                         int removed =
-                            this.RemoveFurniture(location, p => true)
-                            + this.RemoveObjects(location, p => true)
-                            + this.RemoveTerrainFeatures(location, p => true)
-                            + this.RemoveLargeTerrainFeatures(location, p => everything || !(p is Bush bush) || bush.isDestroyable(location, p.currentTileLocation))
-                            + this.RemoveResourceClumps(location, p => true);
+                            this.RemoveFurniture(location, _ => true)
+                            + this.RemoveObjects(location, _ => true)
+                            + this.RemoveTerrainFeatures(location, _ => true)
+                            + this.RemoveLargeTerrainFeatures(location, p => everything || p is not Bush bush || bush.isDestroyable(location, p.currentTileLocation))
+                            + this.RemoveResourceClumps(location, _ => true);
                         monitor.Log($"Done! Removed {removed} entities from {location.Name}.", LogLevel.Info);
                         break;
                     }
@@ -165,11 +167,11 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
         {
             int removed = 0;
 
-            foreach (var pair in location.Objects.Pairs.ToArray())
+            foreach ((Vector2 tile, SObject? obj) in location.Objects.Pairs.ToArray())
             {
-                if (shouldRemove(pair.Value))
+                if (shouldRemove(obj))
                 {
-                    location.Objects.Remove(pair.Key);
+                    location.Objects.Remove(tile);
                     removed++;
                 }
             }
@@ -185,11 +187,11 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
         {
             int removed = 0;
 
-            foreach (var pair in location.terrainFeatures.Pairs.ToArray())
+            foreach ((Vector2 tile, TerrainFeature? feature) in location.terrainFeatures.Pairs.ToArray())
             {
-                if (shouldRemove(pair.Value))
+                if (shouldRemove(feature))
                 {
-                    location.terrainFeatures.Remove(pair.Key);
+                    location.terrainFeatures.Remove(tile);
                     removed++;
                 }
             }
@@ -225,7 +227,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
         {
             int removed = 0;
 
-            foreach (var clump in location.resourceClumps.Where(shouldRemove).ToArray())
+            foreach (ResourceClump clump in location.resourceClumps.Where(shouldRemove).ToArray())
             {
                 location.resourceClumps.Remove(clump);
                 removed++;

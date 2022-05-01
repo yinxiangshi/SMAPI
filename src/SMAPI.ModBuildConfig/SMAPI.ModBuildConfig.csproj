@@ -5,11 +5,12 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
 
     <!--NuGet package-->
     <PackageId>Pathoschild.Stardew.ModBuildConfig</PackageId>
     <Title>Build package for SMAPI mods</Title>
-    <Version>4.0.0</Version>
+    <Version>4.0.1</Version>
     <Authors>Pathoschild</Authors>
     <Description>Automates the build configuration for crossplatform Stardew Valley SMAPI mods. For SMAPI 3.13.0 or later.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -24,6 +25,12 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="16.10" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+
+    <!--
+      This is imported through Microsoft.Build.Utilities.Core. When installed by a mod, NuGet
+      otherwise imports version 4.3.0 instead of 5.0.0, which conflicts with SMAPI's version.
+    -->
+    <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>

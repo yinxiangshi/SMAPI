@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
@@ -21,7 +22,7 @@ namespace StardewModdingAPI.Framework.Input
         private GamePadState? State;
 
         /// <summary>The current button states.</summary>
-        private readonly IDictionary<SButton, ButtonState> ButtonStates;
+        private readonly IDictionary<SButton, ButtonState>? ButtonStates;
 
         /// <summary>The left trigger value.</summary>
         private float LeftTrigger;
@@ -40,6 +41,7 @@ namespace StardewModdingAPI.Framework.Input
         ** Accessors
         *********/
         /// <summary>Whether the gamepad is currently connected.</summary>
+        [MemberNotNullWhen(true, nameof(GamePadStateBuilder.ButtonStates))]
         public bool IsConnected { get; }
 
 
@@ -85,8 +87,7 @@ namespace StardewModdingAPI.Framework.Input
             this.RightStickPos = sticks.Right;
         }
 
-        /// <summary>Override the states for a set of buttons.</summary>
-        /// <param name="overrides">The button state overrides.</param>
+        /// <inheritdoc />
         public GamePadStateBuilder OverrideButtons(IDictionary<SButton, SButtonState> overrides)
         {
             if (!this.IsConnected)
@@ -104,10 +105,10 @@ namespace StardewModdingAPI.Framework.Input
                         this.LeftStickPos.Y = isDown ? 1 : 0;
                         break;
                     case SButton.LeftThumbstickDown:
-                        this.LeftStickPos.Y = isDown ? 1 : 0;
+                        this.LeftStickPos.Y = isDown ? -1 : 0;
                         break;
                     case SButton.LeftThumbstickLeft:
-                        this.LeftStickPos.X = isDown ? 1 : 0;
+                        this.LeftStickPos.X = isDown ? -1 : 0;
                         break;
                     case SButton.LeftThumbstickRight:
                         this.LeftStickPos.X = isDown ? 1 : 0;
@@ -118,10 +119,10 @@ namespace StardewModdingAPI.Framework.Input
                         this.RightStickPos.Y = isDown ? 1 : 0;
                         break;
                     case SButton.RightThumbstickDown:
-                        this.RightStickPos.Y = isDown ? 1 : 0;
+                        this.RightStickPos.Y = isDown ? -1 : 0;
                         break;
                     case SButton.RightThumbstickLeft:
-                        this.RightStickPos.X = isDown ? 1 : 0;
+                        this.RightStickPos.X = isDown ? -1 : 0;
                         break;
                     case SButton.RightThumbstickRight:
                         this.RightStickPos.X = isDown ? 1 : 0;
@@ -151,7 +152,7 @@ namespace StardewModdingAPI.Framework.Input
             return this;
         }
 
-        /// <summary>Get the currently pressed buttons.</summary>
+        /// <inheritdoc />
         public IEnumerable<SButton> GetPressedButtons()
         {
             if (!this.IsConnected)
@@ -191,7 +192,7 @@ namespace StardewModdingAPI.Framework.Input
             }
         }
 
-        /// <summary>Get the equivalent state.</summary>
+        /// <inheritdoc />
         public GamePadState GetState()
         {
             this.State ??= new GamePadState(
@@ -212,6 +213,9 @@ namespace StardewModdingAPI.Framework.Input
         /// <summary>Get the pressed gamepad buttons.</summary>
         private IEnumerable<Buttons> GetPressedGamePadButtons()
         {
+            if (!this.IsConnected)
+                yield break;
+
             foreach (var pair in this.ButtonStates)
             {
                 if (pair.Value == ButtonState.Pressed && pair.Key.TryGetController(out Buttons button))

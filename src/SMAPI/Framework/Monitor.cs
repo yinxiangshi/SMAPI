@@ -92,7 +92,7 @@ namespace StardewModdingAPI.Framework
         public void VerboseLog(string message)
         {
             if (this.IsVerbose)
-                this.Log(message, LogLevel.Trace);
+                this.Log(message);
         }
 
         /// <summary>Write a newline to the console and log file.</summary>

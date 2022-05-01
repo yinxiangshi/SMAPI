@@ -25,21 +25,12 @@ namespace StardewModdingAPI.Toolkit.Serialization.Converters
             return objectType == typeof(T) || Nullable.GetUnderlyingType(objectType) == typeof(T);
         }
 
-        /// <summary>Writes the JSON representation of the object.</summary>
-        /// <param name="writer">The JSON writer.</param>
-        /// <param name="value">The value.</param>
-        /// <param name="serializer">The calling serializer.</param>
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-        {
-            throw new InvalidOperationException("This converter does not write JSON.");
-        }
-
         /// <summary>Reads the JSON representation of the object.</summary>
         /// <param name="reader">The JSON reader.</param>
         /// <param name="objectType">The object type.</param>
         /// <param name="existingValue">The object being read.</param>
         /// <param name="serializer">The calling serializer.</param>
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
         {
             string path = reader.Path;
             switch (reader.TokenType)
@@ -56,6 +47,15 @@ namespace StardewModdingAPI.Toolkit.Serialization.Converters
                 default:
                     throw new SParseException($"Can't parse {typeof(T).Name} from {reader.TokenType} node (path: {reader.Path}).");
             }
+        }
+
+        /// <summary>Writes the JSON representation of the object.</summary>
+        /// <param name="writer">The JSON writer.</param>
+        /// <param name="value">The value.</param>
+        /// <param name="serializer">The calling serializer.</param>
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+        {
+            throw new InvalidOperationException("This converter does not write JSON.");
         }
 
 

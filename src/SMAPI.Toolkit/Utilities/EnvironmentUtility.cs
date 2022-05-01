@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics.CodeAnalysis;
 using StardewModdingAPI.Toolkit.Framework;
 
 namespace StardewModdingAPI.Toolkit.Utilities
@@ -34,7 +33,6 @@ namespace StardewModdingAPI.Toolkit.Utilities
 
         /// <summary>Get the human-readable OS name and version.</summary>
         /// <param name="platform">The current platform.</param>
-        [SuppressMessage("ReSharper", "EmptyGeneralCatchClause", Justification = "Error suppressed deliberately to fallback to default behaviour.")]
         public static string GetFriendlyPlatformName(Platform platform)
         {
             return LowLevelEnvironmentUtility.GetFriendlyPlatformName(platform.ToString());

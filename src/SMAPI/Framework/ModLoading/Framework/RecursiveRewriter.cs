@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -8,6 +9,7 @@ using Mono.Collections.Generic;
 namespace StardewModdingAPI.Framework.ModLoading.Framework
 {
     /// <summary>Handles recursively rewriting loaded assembly code.</summary>
+    [SuppressMessage("ReSharper", "AccessToModifiedClosure", Justification = "Rewrite callbacks are invoked immediately.")]
     internal class RecursiveRewriter
     {
         /*********
@@ -75,7 +77,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
             {
                 changed |= this.RewriteModuleImpl(this.Module);
 
-                foreach (var type in types)
+                foreach (TypeDefinition type in types)
                     changed |= this.RewriteTypeDefinition(type);
             }
             catch (Exception ex)
@@ -127,9 +129,10 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
                     ILProcessor cil = method.Body.GetILProcessor();
                     Collection<Instruction> instructions = cil.Body.Instructions;
                     bool addedInstructions = false;
+                    // ReSharper disable once ForCanBeConvertedToForeach -- deliberate to allow changing the collection
                     for (int i = 0; i < instructions.Count; i++)
                     {
-                        var instruction = instructions[i];
+                        Instruction instruction = instructions[i];
                         if (instruction.OpCode.Code == Code.Nop)
                             continue;
 
@@ -172,7 +175,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
             bool rewritten = false;
 
             // field reference
-            FieldReference fieldRef = RewriteHelper.AsFieldReference(instruction);
+            FieldReference? fieldRef = RewriteHelper.AsFieldReference(instruction);
             if (fieldRef != null)
             {
                 rewritten |= this.RewriteTypeReference(fieldRef.DeclaringType, newType => fieldRef.DeclaringType = newType);
@@ -180,7 +183,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
             }
 
             // method reference
-            MethodReference methodRef = RewriteHelper.AsMethodReference(instruction);
+            MethodReference? methodRef = RewriteHelper.AsMethodReference(instruction);
             if (methodRef != null)
                 this.RewriteMethodReference(methodRef);
 
@@ -210,7 +213,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
             });
             rewritten |= this.RewriteTypeReference(methodRef.ReturnType, newType => methodRef.ReturnType = newType);
 
-            foreach (var parameter in methodRef.Parameters)
+            foreach (ParameterDefinition parameter in methodRef.Parameters)
                 rewritten |= this.RewriteTypeReference(parameter.ParameterType, newType => parameter.ParameterType = newType);
 
             if (methodRef is GenericInstanceMethod genericRef)
@@ -262,7 +265,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
                 bool curChanged = false;
 
                 // attribute type
-                TypeReference newAttrType = null;
+                TypeReference? newAttrType = null;
                 rewritten |= this.RewriteTypeReference(attribute.AttributeType, newType =>
                 {
                     newAttrType = newType;
@@ -287,9 +290,9 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
                 if (curChanged)
                 {
                     // get constructor
-                    MethodDefinition constructor = (newAttrType ?? attribute.AttributeType)
+                    MethodDefinition? constructor = (newAttrType ?? attribute.AttributeType)
                         .Resolve()
-                        .Methods
+                        ?.Methods
                         .Where(method => method.IsConstructor)
                         .FirstOrDefault(ctor => RewriteHelper.HasMatchingSignature(ctor, attribute.Constructor));
                     if (constructor == null)
@@ -299,9 +302,9 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
                     var newAttr = new CustomAttribute(this.Module.ImportReference(constructor));
                     for (int i = 0; i < argTypes.Length; i++)
                         newAttr.ConstructorArguments.Add(new CustomAttributeArgument(argTypes[i], attribute.ConstructorArguments[i].Value));
-                    foreach (var prop in attribute.Properties)
+                    foreach (CustomAttributeNamedArgument prop in attribute.Properties)
                         newAttr.Properties.Add(new CustomAttributeNamedArgument(prop.Name, prop.Argument));
-                    foreach (var field in attribute.Fields)
+                    foreach (CustomAttributeNamedArgument field in attribute.Fields)
                         newAttr.Fields.Add(new CustomAttributeNamedArgument(field.Name, field.Argument));
 
                     // swap attribute

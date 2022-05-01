@@ -2,11 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Toolkit.Utilities;
 using StardewValley;
 using xTile;
+using xTile.Dimensions;
 using xTile.Layers;
 using xTile.Tiles;
+using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace StardewModdingAPI.Framework.Content
 {
@@ -14,16 +17,27 @@ namespace StardewModdingAPI.Framework.Content
     internal class AssetDataForMap : AssetData<Map>, IAssetDataForMap
     {
         /*********
+        ** Fields
+        *********/
+        /// <summary>Simplifies access to private code.</summary>
+        private readonly Reflector Reflection;
+
+
+        /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="locale">The content's locale code, if the content is localized.</param>
-        /// <param name="assetName">The normalized asset name being read.</param>
+        /// <param name="assetName">The asset name being read.</param>
         /// <param name="data">The content data being read.</param>
         /// <param name="getNormalizedPath">Normalizes an asset key to match the cache key.</param>
         /// <param name="onDataReplaced">A callback to invoke when the data is replaced (if any).</param>
-        public AssetDataForMap(string locale, string assetName, Map data, Func<string, string> getNormalizedPath, Action<Map> onDataReplaced)
-            : base(locale, assetName, data, getNormalizedPath, onDataReplaced) { }
+        /// <param name="reflection">Simplifies access to private code.</param>
+        public AssetDataForMap(string? locale, IAssetName assetName, Map data, Func<string, string> getNormalizedPath, Action<Map> onDataReplaced, Reflector reflection)
+            : base(locale, assetName, data, getNormalizedPath, onDataReplaced)
+        {
+            this.Reflection = reflection;
+        }
 
         /// <inheritdoc />
         /// <remarks>Derived from <see cref="GameLocation.ApplyMapOverride(Map,string,Rectangle?,Rectangle?)"/> with a few changes:
@@ -85,8 +99,15 @@ namespace StardewModdingAPI.Framework.Content
             }
 
             // get target layers
-            IDictionary<Layer, Layer> sourceToTargetLayers = source.Layers.ToDictionary(p => p, p => target.GetLayer(p.Id));
-            HashSet<Layer> orphanedTargetLayers = new HashSet<Layer>(target.Layers.Except(sourceToTargetLayers.Values));
+            Dictionary<Layer, Layer> sourceToTargetLayers =
+                (
+                    from sourceLayer in source.Layers
+                    let targetLayer = target.GetLayer(sourceLayer.Id)
+                    where targetLayer != null
+                    select (sourceLayer, targetLayer)
+                )
+                .ToDictionary(p => p.sourceLayer, p => p.targetLayer);
+            HashSet<Layer> orphanedTargetLayers = new(target.Layers.Except(sourceToTargetLayers.Values));
 
             // apply tiles
             bool replaceAll = patchMode == PatchMapMode.Replace;
@@ -96,8 +117,8 @@ namespace StardewModdingAPI.Framework.Content
                 for (int y = 0; y < sourceArea.Value.Height; y++)
                 {
                     // calculate tile positions
-                    Point sourcePos = new Point(sourceArea.Value.X + x, sourceArea.Value.Y + y);
-                    Point targetPos = new Point(targetArea.Value.X + x, targetArea.Value.Y + y);
+                    Point sourcePos = new(sourceArea.Value.X + x, sourceArea.Value.Y + y);
+                    Point targetPos = new(targetArea.Value.X + x, targetArea.Value.Y + y);
 
                     // replace tiles on target-only layers
                     if (replaceAll)
@@ -110,8 +131,7 @@ namespace StardewModdingAPI.Framework.Content
                     foreach (Layer sourceLayer in source.Layers)
                     {
                         // get layer
-                        Layer targetLayer = sourceToTargetLayers[sourceLayer];
-                        if (targetLayer == null)
+                        if (!sourceToTargetLayers.TryGetValue(sourceLayer, out Layer? targetLayer))
                         {
                             target.AddLayer(targetLayer = new Layer(sourceLayer.Id, target, target.Layers[0].LayerSize, Layer.m_tileSize));
                             sourceToTargetLayers[sourceLayer] = target.GetLayer(sourceLayer.Id);
@@ -121,11 +141,13 @@ namespace StardewModdingAPI.Framework.Content
                         targetLayer.Properties.CopyFrom(sourceLayer.Properties);
 
                         // create new tile
-                        Tile sourceTile = sourceLayer.Tiles[sourcePos.X, sourcePos.Y];
-                        Tile newTile = sourceTile != null
-                            ? this.CreateTile(sourceTile, targetLayer, tilesheetMap[sourceTile.TileSheet])
-                            : null;
-                        newTile?.Properties.CopyFrom(sourceTile.Properties);
+                        Tile? sourceTile = sourceLayer.Tiles[sourcePos.X, sourcePos.Y];
+                        Tile? newTile = null;
+                        if (sourceTile != null)
+                        {
+                            newTile = this.CreateTile(sourceTile, targetLayer, tilesheetMap[sourceTile.TileSheet]);
+                            newTile?.Properties.CopyFrom(sourceTile.Properties);
+                        }
 
                         // replace tile
                         if (newTile != null || replaceByLayer || replaceAll)
@@ -133,6 +155,43 @@ namespace StardewModdingAPI.Framework.Content
                     }
                 }
             }
+        }
+
+        /// <inheritdoc />
+        public bool ExtendMap(int minWidth = 0, int minHeight = 0)
+        {
+            bool resized = false;
+            Map map = this.Data;
+
+            // resize layers
+            foreach (Layer layer in map.Layers)
+            {
+                // check if resize needed
+                if (layer.LayerWidth >= minWidth && layer.LayerHeight >= minHeight)
+                    continue;
+                resized = true;
+
+                // build new tile matrix
+                int width = Math.Max(minWidth, layer.LayerWidth);
+                int height = Math.Max(minHeight, layer.LayerHeight);
+                Tile[,] tiles = new Tile[width, height];
+                for (int x = 0; x < layer.LayerWidth; x++)
+                {
+                    for (int y = 0; y < layer.LayerHeight; y++)
+                        tiles[x, y] = layer.Tiles[x, y];
+                }
+
+                // update fields
+                this.Reflection.GetField<Tile[,]>(layer, "m_tiles").SetValue(tiles);
+                this.Reflection.GetField<TileArray>(layer, "m_tileArray").SetValue(new TileArray(layer, tiles));
+                this.Reflection.GetField<Size>(layer, "m_layerSize").SetValue(new Size(width, height));
+            }
+
+            // resize map
+            if (resized)
+                this.Reflection.GetMethod(map, "UpdateDisplaySize").Invoke();
+
+            return resized;
         }
 
 
@@ -143,11 +202,11 @@ namespace StardewModdingAPI.Framework.Content
         /// <param name="sourceTile">The source tile to copy.</param>
         /// <param name="targetLayer">The target layer.</param>
         /// <param name="targetSheet">The target tilesheet.</param>
-        private Tile CreateTile(Tile sourceTile, Layer targetLayer, TileSheet targetSheet)
+        private Tile? CreateTile(Tile sourceTile, Layer targetLayer, TileSheet targetSheet)
         {
             switch (sourceTile)
             {
-                case StaticTile _:
+                case StaticTile:
                     return new StaticTile(targetLayer, targetSheet, sourceTile.BlendMode, sourceTile.TileIndex);
 
                 case AnimatedTile animatedTile:
@@ -168,7 +227,7 @@ namespace StardewModdingAPI.Framework.Content
         }
         /// <summary>Normalize a map tilesheet path for comparison. This value should *not* be used as the actual tilesheet path.</summary>
         /// <param name="path">The path to normalize.</param>
-        private string NormalizeTilesheetPathForComparison(string path)
+        private string NormalizeTilesheetPathForComparison(string? path)
         {
             if (string.IsNullOrWhiteSpace(path))
                 return string.Empty;

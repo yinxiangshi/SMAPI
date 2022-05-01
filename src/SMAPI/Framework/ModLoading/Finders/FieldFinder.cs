@@ -49,7 +49,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
         {
             if (this.FieldNames.Any())
             {
-                FieldReference fieldRef = RewriteHelper.AsFieldReference(instruction);
+                FieldReference? fieldRef = RewriteHelper.AsFieldReference(instruction);
                 if (fieldRef != null && fieldRef.DeclaringType.FullName == this.FullTypeName && this.FieldNames.Contains(fieldRef.Name))
                 {
                     this.FieldNames.Remove(fieldRef.Name);

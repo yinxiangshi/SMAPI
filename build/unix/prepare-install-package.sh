@@ -9,7 +9,7 @@
 
 
 ##########
-## Constants
+## Fetch values
 ##########
 # paths
 gamePath="/home/pathoschild/Stardew Valley"
@@ -20,6 +20,13 @@ buildConfig="Release"
 folders=("linux" "macOS" "windows")
 declare -A runtimes=(["linux"]="linux-x64" ["macOS"]="osx-x64" ["windows"]="win-x64")
 declare -A msBuildPlatformNames=(["linux"]="Unix" ["macOS"]="OSX" ["windows"]="Windows_NT")
+
+# version number
+version="$1"
+if [ $# -eq 0 ]; then
+    echo "SMAPI release version (like '4.0.0'):"
+    read version
+fi
 
 
 ##########
@@ -42,6 +49,7 @@ echo ""
 ##########
 ## Compile files
 ##########
+. ${0%/*}/set-smapi-version.sh "$version"
 for folder in ${folders[@]}; do
     runtime=${runtimes[$folder]}
     msbuildPlatformName=${msBuildPlatformNames[$folder]}
@@ -126,7 +134,7 @@ for folder in ${folders[@]}; do
     cp -r "$smapiBin/i18n" "$bundlePath/smapi-internal"
 
     # bundle smapi-internal
-    for name in "0Harmony.dll" "0Harmony.xml" "Mono.Cecil.dll" "Mono.Cecil.Mdb.dll" "Mono.Cecil.Pdb.dll" "MonoMod.Common.dll" "Newtonsoft.Json.dll" "TMXTile.dll" "SMAPI.Toolkit.dll" "SMAPI.Toolkit.pdb" "SMAPI.Toolkit.xml" "SMAPI.Toolkit.CoreInterfaces.dll" "SMAPI.Toolkit.CoreInterfaces.pdb" "SMAPI.Toolkit.CoreInterfaces.xml"; do
+    for name in "0Harmony.dll" "0Harmony.xml" "Mono.Cecil.dll" "Mono.Cecil.Mdb.dll" "Mono.Cecil.Pdb.dll" "MonoMod.Common.dll" "Newtonsoft.Json.dll" "Pintail.dll" "TMXTile.dll" "SMAPI.Toolkit.dll" "SMAPI.Toolkit.pdb" "SMAPI.Toolkit.xml" "SMAPI.Toolkit.CoreInterfaces.dll" "SMAPI.Toolkit.CoreInterfaces.pdb" "SMAPI.Toolkit.CoreInterfaces.xml"; do
         cp "$smapiBin/$name" "$bundlePath/smapi-internal"
     done
 
@@ -190,13 +198,6 @@ done
 ##########
 ## Create release zips
 ##########
-# get version number
-version="$1"
-if [ $# -eq 0 ]; then
-    echo "SMAPI release version (like '4.0.0'):"
-    read version
-fi
-
 # rename folders
 mv "$packagePath" "bin/SMAPI $version installer"
 mv "$packageDevPath" "bin/SMAPI $version installer for developers"

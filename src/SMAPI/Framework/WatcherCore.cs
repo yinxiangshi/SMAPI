@@ -17,7 +17,7 @@ namespace StardewModdingAPI.Framework
         ** Fields
         *********/
         /// <summary>The underlying watchers for convenience. These are accessible individually as separate properties.</summary>
-        private readonly List<IWatcher> Watchers = new List<IWatcher>();
+        private readonly List<IWatcher> Watchers = new();
 
 
         /*********
@@ -27,7 +27,7 @@ namespace StardewModdingAPI.Framework
         public readonly IValueWatcher<Point> WindowSizeWatcher;
 
         /// <summary>Tracks changes to the current player.</summary>
-        public PlayerTracker CurrentPlayerTracker;
+        public PlayerTracker? CurrentPlayerTracker;
 
         /// <summary>Tracks changes to the time of day (in 24-hour military format).</summary>
         public readonly IValueWatcher<int> TimeWatcher;

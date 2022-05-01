@@ -2,6 +2,7 @@ using System;
 using System.Reflection;
 using StardewModdingAPI.Internal;
 
+#pragma warning disable CS0618 // obsolete asset interceptors deliberately supported here
 namespace StardewModdingAPI.Framework.Content
 {
     /// <summary>A wrapper for <see cref="IAssetEditor"/> and <see cref="IAssetLoader"/> for internal cache invalidation.</summary>
@@ -36,7 +37,7 @@ namespace StardewModdingAPI.Framework.Content
             this.Instance = instance ?? throw new ArgumentNullException(nameof(instance));
             this.WasAdded = wasAdded;
 
-            if (!(instance is IAssetEditor) && !(instance is IAssetLoader))
+            if (instance is not (IAssetEditor or IAssetLoader))
                 throw new InvalidCastException($"The provided {nameof(instance)} value must be an {nameof(IAssetEditor)} or {nameof(IAssetLoader)} instance.");
         }
 
@@ -44,11 +45,11 @@ namespace StardewModdingAPI.Framework.Content
         /// <param name="asset">Basic metadata about the asset being loaded.</param>
         public bool CanIntercept(IAssetInfo asset)
         {
-            MethodInfo canIntercept = this.GetType().GetMethod(nameof(this.CanInterceptImpl), BindingFlags.Instance | BindingFlags.NonPublic);
+            MethodInfo? canIntercept = this.GetType().GetMethod(nameof(this.CanInterceptImpl), BindingFlags.Instance | BindingFlags.NonPublic);
             if (canIntercept == null)
                 throw new InvalidOperationException($"SMAPI couldn't access the {nameof(AssetInterceptorChange)}.{nameof(this.CanInterceptImpl)} implementation.");
 
-            return (bool)canIntercept.MakeGenericMethod(asset.DataType).Invoke(this, new object[] { asset });
+            return (bool)canIntercept.MakeGenericMethod(asset.DataType).Invoke(this, new object[] { asset })!;
         }
 
 
@@ -70,7 +71,7 @@ namespace StardewModdingAPI.Framework.Content
                 }
                 catch (Exception ex)
                 {
-                    this.Mod.LogAsMod($"Mod failed when checking whether it could edit asset '{asset.AssetName}'. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
+                    this.Mod.LogAsMod($"Mod failed when checking whether it could edit asset '{asset.Name}'. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
                 }
             }
 
@@ -84,7 +85,7 @@ namespace StardewModdingAPI.Framework.Content
                 }
                 catch (Exception ex)
                 {
-                    this.Mod.LogAsMod($"Mod failed when checking whether it could load asset '{asset.AssetName}'. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
+                    this.Mod.LogAsMod($"Mod failed when checking whether it could load asset '{asset.Name}'. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
                 }
             }
 

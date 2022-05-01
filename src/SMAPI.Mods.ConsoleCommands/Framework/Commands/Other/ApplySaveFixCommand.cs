@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using StardewValley;
 
 namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
 {
     /// <summary>A command which runs one of the game's save migrations.</summary>
+    [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "Loaded using reflection")]
     internal class ApplySaveFixCommand : ConsoleCommand
     {
         /*********
@@ -21,7 +23,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Other
         public override void Handle(IMonitor monitor, string command, ArgumentParser args)
         {
             // get fix ID
-            if (!args.TryGet(0, "fix_id", out string rawFixId, required: false))
+            if (!args.TryGet(0, "fix_id", out string? rawFixId, required: false))
             {
                 monitor.Log("Invalid usage. Type 'help apply_save_fix' for details.", LogLevel.Error);
                 return;

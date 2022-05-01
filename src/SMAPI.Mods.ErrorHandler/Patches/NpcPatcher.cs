@@ -18,7 +18,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         ** Fields
         *********/
         /// <summary>Writes messages to the console and log file on behalf of the game.</summary>
-        private static IMonitor MonitorForGame;
+        private static IMonitor MonitorForGame = null!;
 
 
         /*********
@@ -54,7 +54,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         /// <param name="__result">The return value of the original method.</param>
         /// <param name="__exception">The exception thrown by the wrapped method, if any.</param>
         /// <returns>Returns the exception to throw, if any.</returns>
-        private static Exception Finalize_CurrentDialogue(NPC __instance, ref Stack<Dialogue> __result, Exception __exception)
+        private static Exception? Finalize_CurrentDialogue(NPC __instance, ref Stack<Dialogue> __result, Exception? __exception)
         {
             if (__exception == null)
                 return null;
@@ -71,7 +71,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.Patches
         /// <param name="__result">The patched method's return value.</param>
         /// <param name="__exception">The exception thrown by the wrapped method, if any.</param>
         /// <returns>Returns the exception to throw, if any.</returns>
-        private static Exception Finalize_ParseMasterSchedule(string rawData, NPC __instance, ref Dictionary<int, SchedulePathDescription> __result, Exception __exception)
+        private static Exception? Finalize_ParseMasterSchedule(string rawData, NPC __instance, ref Dictionary<int, SchedulePathDescription> __result, Exception? __exception)
         {
             if (__exception != null)
             {

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -31,7 +32,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction)
         {
             // get method ref
-            MethodReference methodRef = RewriteHelper.AsMethodReference(instruction);
+            MethodReference? methodRef = RewriteHelper.AsMethodReference(instruction);
             if (methodRef == null || !this.ShouldValidate(methodRef.DeclaringType))
                 return false;
 
@@ -40,13 +41,13 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
                 return false;
 
             // get type
-            var type = methodRef.DeclaringType.Resolve();
+            TypeDefinition? type = methodRef.DeclaringType.Resolve();
             if (type == null)
                 return false;
 
             // get method definition
-            MethodDefinition method = null;
-            foreach (var match in type.Methods.Where(p => p.Name == methodRef.Name))
+            MethodDefinition? method = null;
+            foreach (MethodDefinition match in type.Methods.Where(p => p.Name == methodRef.Name))
             {
                 // reference matches initial parameters of definition
                 if (methodRef.Parameters.Count >= match.Parameters.Count || !this.InitialParametersMatch(methodRef, match))
@@ -70,7 +71,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
                 return false; // SMAPI needs to load the value onto the stack before the method call, but the optional parameter type wasn't recognized
 
             // rewrite method reference
-            foreach (Instruction loadInstruction in loadInstructions)
+            foreach (Instruction? loadInstruction in loadInstructions)
                 cil.InsertBefore(instruction, loadInstruction);
             instruction.Operand = module.ImportReference(method);
 
@@ -84,7 +85,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         *********/
         /// <summary>Whether references to the given type should be validated.</summary>
         /// <param name="type">The type reference.</param>
-        private bool ShouldValidate(TypeReference type)
+        private bool ShouldValidate([NotNullWhen(true)] TypeReference? type)
         {
             return type != null && this.RewriteReferencesToAssemblies.Contains(type.Scope.Name);
         }

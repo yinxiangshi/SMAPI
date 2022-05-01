@@ -1,4 +1,4 @@
-namespace StardewModdingAPI.Framework
+namespace StardewModdingAPI.Framework.Deprecations
 {
     /// <summary>A deprecation warning for a mod.</summary>
     internal class DeprecationWarning
@@ -6,8 +6,11 @@ namespace StardewModdingAPI.Framework
         /*********
         ** Accessors
         *********/
-        /// <summary>The affected mod's display name.</summary>
-        public string ModName { get; }
+        /// <summary>The affected mod.</summary>
+        public IModMetadata? Mod { get; }
+
+        /// <summary>Get the display name for the affected mod.</summary>
+        public string ModName => this.Mod?.DisplayName ?? "<unknown mod>";
 
         /// <summary>A noun phrase describing what is deprecated.</summary>
         public string NounPhrase { get; }
@@ -19,25 +22,30 @@ namespace StardewModdingAPI.Framework
         public DeprecationLevel Level { get; }
 
         /// <summary>The stack trace when the deprecation warning was raised.</summary>
-        public string StackTrace { get; }
+        public ImmutableStackTrace StackTrace { get; }
+
+        /// <summary>Whether to log a stack trace showing where the deprecated code is in the mod.</summary>
+        public bool LogStackTrace { get; }
 
 
         /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="modName">The affected mod's display name.</param>
+        /// <param name="mod">The affected mod.</param>
         /// <param name="nounPhrase">A noun phrase describing what is deprecated.</param>
         /// <param name="version">The SMAPI version which deprecated it.</param>
         /// <param name="level">The deprecation level for the affected code.</param>
         /// <param name="stackTrace">The stack trace when the deprecation warning was raised.</param>
-        public DeprecationWarning(string modName, string nounPhrase, string version, DeprecationLevel level, string stackTrace)
+        /// <param name="logStackTrace">Whether to log a stack trace showing where the deprecated code is in the mod.</param>
+        public DeprecationWarning(IModMetadata? mod, string nounPhrase, string version, DeprecationLevel level, ImmutableStackTrace stackTrace, bool logStackTrace)
         {
-            this.ModName = modName;
+            this.Mod = mod;
             this.NounPhrase = nounPhrase;
             this.Version = version;
             this.Level = level;
             this.StackTrace = stackTrace;
+            this.LogStackTrace = logStackTrace;
         }
     }
 }

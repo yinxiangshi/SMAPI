@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
@@ -18,7 +19,7 @@ namespace StardewModdingAPI.Framework.StateTracking
         ** Fields
         *********/
         /// <summary>The underlying watchers.</summary>
-        private readonly List<IWatcher> Watchers = new List<IWatcher>();
+        private readonly List<IWatcher> Watchers = new();
 
 
         /*********
@@ -84,7 +85,7 @@ namespace StardewModdingAPI.Framework.StateTracking
                 this.FurnitureWatcher
             });
 
-            this.UpdateChestWatcherList(added: location.Objects.Pairs, removed: new KeyValuePair<Vector2, SObject>[0]);
+            this.UpdateChestWatcherList(added: location.Objects.Pairs, removed: Array.Empty<KeyValuePair<Vector2, SObject>>());
         }
 
         /// <summary>Update the current value if needed.</summary>
@@ -129,20 +130,20 @@ namespace StardewModdingAPI.Framework.StateTracking
         private void UpdateChestWatcherList(IEnumerable<KeyValuePair<Vector2, SObject>> added, IEnumerable<KeyValuePair<Vector2, SObject>> removed)
         {
             // remove unused watchers
-            foreach (KeyValuePair<Vector2, SObject> pair in removed)
+            foreach ((Vector2 tile, SObject? obj) in removed)
             {
-                if (pair.Value is Chest && this.ChestWatchers.TryGetValue(pair.Key, out ChestTracker watcher))
+                if (obj is Chest && this.ChestWatchers.TryGetValue(tile, out ChestTracker? watcher))
                 {
                     watcher.Dispose();
-                    this.ChestWatchers.Remove(pair.Key);
+                    this.ChestWatchers.Remove(tile);
                 }
             }
 
             // add new watchers
-            foreach (KeyValuePair<Vector2, SObject> pair in added)
+            foreach ((Vector2 tile, SObject? obj) in added)
             {
-                if (pair.Value is Chest chest && !this.ChestWatchers.ContainsKey(pair.Key))
-                    this.ChestWatchers.Add(pair.Key, new ChestTracker(chest));
+                if (obj is Chest chest && !this.ChestWatchers.ContainsKey(tile))
+                    this.ChestWatchers.Add(tile, new ChestTracker(chest));
             }
         }
     }

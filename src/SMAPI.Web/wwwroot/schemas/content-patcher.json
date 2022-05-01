@@ -14,9 +14,9 @@
             "title": "Format version",
             "description": "The format version. You should always use the latest version to enable the latest features, avoid obsolete behavior, and reduce load times.",
             "type": "string",
-            "const": "1.24.0",
+            "const": "1.25.0",
             "@errorMessages": {
-                "const": "Incorrect value '@value'. You should always use the latest format version (currently 1.24.0) to enable the latest features, avoid obsolete behavior, and reduce load times."
+                "const": "Incorrect value '@value'. You should always use the latest format version (currently 1.25.0) to enable the latest features, avoid obsolete behavior, and reduce load times."
             }
         },
         "ConfigSchema": {
@@ -159,6 +159,14 @@
                 "additionalProperties": false
             }
         },
+        "AliasTokenNames": {
+            "title": "Alias token names",
+            "description": "Defines optional alternate name for existing tokens. This only affects your content pack, and you can use both the alias name and the original token name. This is mostly useful for custom tokens provided by other mods, which often have longer names. Each entry key is the alias name, and the value is the original token name.",
+            "type": "object",
+            "additionalProperties": {
+                "type": "string"
+            }
+        },
         "Changes": {
             "title": "Changes",
             "description": "The changes you want to make. Each entry is called a patch, and describes a specific action to perform: replace this file, copy this image into the file, etc. You can list any number of patches.",
@@ -186,22 +194,6 @@
                         "title": "Patch log name",
                         "description": "A name for this patch shown in log messages. This is very useful for understanding errors; if not specified, will default to a name like 'entry #14 (EditImage Animals/Dinosaurs)'.",
                         "type": "string"
-                    },
-                    "Enabled": {
-                        "title": "Enabled",
-                        "description": "Whether to apply this patch. Default true. This field does not allow tokens.",
-                        "anyOf": [
-                            {
-                                "type": "boolean"
-                            },
-                            {
-                                "type": "string",
-                                "enum": [ "true", "false" ]
-                            }
-                        ],
-                        "@errorMessages": {
-                            "anyOf": "Invalid value; must be true, false, or a single token which evaluates to true or false."
-                        }
                     },
                     "Update": {
                         "title": "Update",
@@ -240,6 +232,14 @@
                         "title": "Destination area",
                         "description": "The part of the target image to replace. Defaults to the FromArea size starting from the top-left corner.",
                         "$ref": "#/definitions/Rectangle"
+                    },
+                    "TargetField": {
+                        "title": "Target field",
+                        "description": "The path to the field within the value to set as the root scope. See 'target field' in the EditData documentation for more info. This field supports tokens.",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
                     },
                     "Fields": {
                         "title": "Fields",
@@ -408,7 +408,6 @@
                             "propertyNames": {
                                 "enum": [
                                     "Action",
-                                    "Enabled",
                                     "FromFile",
                                     "LogName",
                                     "Target",
@@ -438,7 +437,6 @@
                             "propertyNames": {
                                 "enum": [
                                     "Action",
-                                    "Enabled",
                                     "FromFile",
                                     "LogName",
                                     "Target",
@@ -462,12 +460,12 @@
                             "propertyNames": {
                                 "enum": [
                                     "Action",
-                                    "Enabled",
                                     "LogName",
                                     "Target",
                                     "Update",
                                     "When",
 
+                                    "TargetField",
                                     "Entries",
                                     "Fields",
                                     "MoveEntries",
@@ -504,7 +502,6 @@
                             "propertyNames": {
                                 "enum": [
                                     "Action",
-                                    "Enabled",
                                     "FromFile",
                                     "LogName",
                                     "Target",
@@ -533,7 +530,6 @@
                             "propertyNames": {
                                 "enum": [
                                     "Action",
-                                    "Enabled",
                                     "FromFile",
                                     "LogName",
                                     "Update",

@@ -30,7 +30,7 @@ namespace StardewModdingAPI.Framework.Commands
         {
             SearchResult[] matches = this.FilterPatches(args).OrderBy(p => p.MethodName).ToArray();
 
-            StringBuilder result = new StringBuilder();
+            StringBuilder result = new();
 
             if (!matches.Any())
                 result.AppendLine("No current patches match your search.");
@@ -71,9 +71,9 @@ namespace StardewModdingAPI.Framework.Commands
         private IEnumerable<SearchResult> FilterPatches(string[] searchTerms)
         {
             bool hasSearch = searchTerms.Any();
-            bool IsMatch(string target) => !hasSearch || searchTerms.Any(search => target != null && target.IndexOf(search, StringComparison.OrdinalIgnoreCase) > -1);
+            bool IsMatch(string? target) => !hasSearch || searchTerms.Any(search => target != null && target.IndexOf(search, StringComparison.OrdinalIgnoreCase) > -1);
 
-            foreach (var patch in this.GetAllPatches())
+            foreach (SearchResult patch in this.GetAllPatches())
             {
                 // matches entire patch
                 if (IsMatch(patch.MethodDescription))
@@ -83,10 +83,10 @@ namespace StardewModdingAPI.Framework.Commands
                 }
 
                 // matches individual patchers
-                foreach (var pair in patch.PatchTypesByOwner.ToArray())
+                foreach ((string patcherId, ISet<PatchType> patchTypes) in patch.PatchTypesByOwner.ToArray())
                 {
-                    if (!IsMatch(pair.Key) && !pair.Value.Any(type => IsMatch(type.ToString())))
-                        patch.PatchTypesByOwner.Remove(pair.Key);
+                    if (!IsMatch(patcherId) && !patchTypes.Any(type => IsMatch(type.ToString())))
+                        patch.PatchTypesByOwner.Remove(patcherId);
                 }
 
                 if (patch.PatchTypesByOwner.Any())
@@ -112,13 +112,13 @@ namespace StardewModdingAPI.Framework.Commands
 
                 // get patch types by owner
                 var typesByOwner = new Dictionary<string, ISet<PatchType>>();
-                foreach (var group in patchGroups)
+                foreach ((PatchType type, IReadOnlyCollection<Patch> patches) in patchGroups)
                 {
-                    foreach (var patch in group.Value)
+                    foreach (Patch patch in patches)
                     {
-                        if (!typesByOwner.TryGetValue(patch.owner, out ISet<PatchType> patchTypes))
+                        if (!typesByOwner.TryGetValue(patch.owner, out ISet<PatchType>? patchTypes))
                             typesByOwner[patch.owner] = patchTypes = new HashSet<PatchType>();
-                        patchTypes.Add(group.Key);
+                        patchTypes.Add(type);
                     }
                 }
 

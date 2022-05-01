@@ -10,6 +10,7 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
     /// <typeparam name="TSerialDict">The serializable dictionary type that can store the keys and values.</typeparam>
     /// <typeparam name="TSelf">The net field instance type.</typeparam>
     internal class NetDictionaryWatcher<TKey, TValue, TField, TSerialDict, TSelf> : BaseDisposableWatcher, IDictionaryWatcher<TKey, TValue>
+        where TKey : notnull
         where TField : class, INetObject<INetSerializable>, new()
         where TSerialDict : IDictionary<TKey, TValue>, new()
         where TSelf : NetDictionary<TKey, TValue, TField, TSerialDict, TSelf>

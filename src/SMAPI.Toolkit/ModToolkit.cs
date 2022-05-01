@@ -22,7 +22,7 @@ namespace StardewModdingAPI.Toolkit
         private readonly string UserAgent;
 
         /// <summary>Maps vendor keys (like <c>Nexus</c>) to their mod URL template (where <c>{0}</c> is the mod ID). This doesn't affect update checks, which defer to the remote web API.</summary>
-        private readonly IDictionary<ModSiteKey, string> VendorModUrls = new Dictionary<ModSiteKey, string>()
+        private readonly Dictionary<ModSiteKey, string> VendorModUrls = new()
         {
             [ModSiteKey.Chucklefish] = "https://community.playstarbound.com/resources/{0}",
             [ModSiteKey.GitHub] = "https://github.com/{0}/releases",
@@ -34,7 +34,7 @@ namespace StardewModdingAPI.Toolkit
         ** Accessors
         *********/
         /// <summary>Encapsulates SMAPI's JSON parsing.</summary>
-        public JsonHelper JsonHelper { get; } = new JsonHelper();
+        public JsonHelper JsonHelper { get; } = new();
 
 
         /*********
@@ -43,7 +43,7 @@ namespace StardewModdingAPI.Toolkit
         /// <summary>Construct an instance.</summary>
         public ModToolkit()
         {
-            ISemanticVersion version = new SemanticVersion(this.GetType().Assembly.GetName().Version);
+            ISemanticVersion version = new SemanticVersion(this.GetType().Assembly.GetName().Version!);
             this.UserAgent = $"SMAPI Mod Handler Toolkit/{version}";
         }
 
@@ -57,7 +57,7 @@ namespace StardewModdingAPI.Toolkit
         /// <summary>Extract mod metadata from the wiki compatibility list.</summary>
         public async Task<WikiModList> GetWikiCompatibilityListAsync()
         {
-            var client = new WikiClient(this.UserAgent);
+            WikiClient client = new(this.UserAgent);
             return await client.FetchModsAsync();
         }
 
@@ -87,13 +87,13 @@ namespace StardewModdingAPI.Toolkit
 
         /// <summary>Get an update URL for an update key (if valid).</summary>
         /// <param name="updateKey">The update key.</param>
-        public string GetUpdateUrl(string updateKey)
+        public string? GetUpdateUrl(string updateKey)
         {
             UpdateKey parsed = UpdateKey.Parse(updateKey);
             if (!parsed.LooksValid)
                 return null;
 
-            if (this.VendorModUrls.TryGetValue(parsed.Site, out string urlTemplate))
+            if (this.VendorModUrls.TryGetValue(parsed.Site, out string? urlTemplate))
                 return string.Format(urlTemplate, parsed.ID);
 
             return null;

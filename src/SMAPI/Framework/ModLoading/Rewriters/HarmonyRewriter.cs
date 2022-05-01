@@ -34,7 +34,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         public override bool Handle(ModuleDefinition module, TypeReference type, Action<TypeReference> replaceWith)
         {
             // detect Harmony
-            if (!(type.Scope is AssemblyNameReference scope) || scope.Name != "0Harmony")
+            if (type.Scope is not AssemblyNameReference scope || scope.Name != "0Harmony")
                 return false;
 
             // rewrite Harmony 1.x type to Harmony 2.0 type
@@ -57,7 +57,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
             if (this.ShouldRewrite)
             {
                 // rewrite Harmony 1.x methods to Harmony 2.0
-                MethodReference methodRef = RewriteHelper.AsMethodReference(instruction);
+                MethodReference? methodRef = RewriteHelper.AsMethodReference(instruction);
                 if (this.TryRewriteMethodsToFacade(module, methodRef))
                 {
                     this.OnChanged();
@@ -65,7 +65,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
                 }
 
                 // rewrite renamed fields
-                FieldReference fieldRef = RewriteHelper.AsFieldReference(instruction);
+                FieldReference? fieldRef = RewriteHelper.AsFieldReference(instruction);
                 if (fieldRef != null)
                 {
                     if (fieldRef.DeclaringType.FullName == "HarmonyLib.HarmonyMethod" && fieldRef.Name == "prioritiy")
@@ -93,13 +93,13 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         /// <summary>Rewrite methods to use Harmony facades if needed.</summary>
         /// <param name="module">The assembly module containing the method reference.</param>
         /// <param name="methodRef">The method reference to map.</param>
-        private bool TryRewriteMethodsToFacade(ModuleDefinition module, MethodReference methodRef)
+        private bool TryRewriteMethodsToFacade(ModuleDefinition module, MethodReference? methodRef)
         {
             if (!this.ReplacedTypes)
                 return false; // not Harmony (or already using Harmony 2.0)
 
             // get facade type
-            Type toType = methodRef?.DeclaringType.FullName switch
+            Type? toType = methodRef?.DeclaringType.FullName switch
             {
                 "HarmonyLib.Harmony" => typeof(HarmonyInstanceFacade),
                 "HarmonyLib.AccessTools" => typeof(AccessToolsFacade),
@@ -110,9 +110,9 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
                 return false;
 
             // map if there's a matching method
-            if (RewriteHelper.HasMatchingSignature(toType, methodRef))
+            if (RewriteHelper.HasMatchingSignature(toType, methodRef!))
             {
-                methodRef.DeclaringType = module.ImportReference(toType);
+                methodRef!.DeclaringType = module.ImportReference(toType);
                 return true;
             }
 
@@ -137,7 +137,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         {
             string fullName = type.FullName.Replace("Harmony.", "HarmonyLib.");
             string targetName = typeof(Harmony).AssemblyQualifiedName!.Replace(typeof(Harmony).FullName!, fullName);
-            return Type.GetType(targetName, throwOnError: true);
+            return Type.GetType(targetName, throwOnError: true)!;
         }
     }
 }

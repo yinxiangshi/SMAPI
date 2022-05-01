@@ -36,6 +36,7 @@ namespace StardewModdingAPI.Framework.ModLoading
 
         /// <summary>Resolve an assembly reference.</summary>
         /// <param name="name">The assembly name.</param>
+        /// <exception cref="AssemblyResolutionException">The assembly can't be resolved.</exception>
         public override AssemblyDefinition Resolve(AssemblyNameReference name)
         {
             return this.ResolveName(name.Name) ?? base.Resolve(name);
@@ -44,6 +45,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <summary>Resolve an assembly reference.</summary>
         /// <param name="name">The assembly name.</param>
         /// <param name="parameters">The assembly reader parameters.</param>
+        /// <exception cref="AssemblyResolutionException">The assembly can't be resolved.</exception>
         public override AssemblyDefinition Resolve(AssemblyNameReference name, ReaderParameters parameters)
         {
             return this.ResolveName(name.Name) ?? base.Resolve(name, parameters);
@@ -55,9 +57,9 @@ namespace StardewModdingAPI.Framework.ModLoading
         *********/
         /// <summary>Resolve a known assembly definition based on its short or full name.</summary>
         /// <param name="name">The assembly's short or full name.</param>
-        private AssemblyDefinition ResolveName(string name)
+        private AssemblyDefinition? ResolveName(string name)
         {
-            return this.Lookup.TryGetValue(name, out AssemblyDefinition match)
+            return this.Lookup.TryGetValue(name, out AssemblyDefinition? match)
                 ? match
                 : null;
         }

@@ -1,19 +1,19 @@
 #
 #
 # This is the PowerShell equivalent of ../unix/prepare-install-package.sh, *except* that it doesn't
-# set Linux permissions, create the install.dat files, or create the final zip. Due to limitations
-# in PowerShell, the final changes are handled by the windows/finalize-install-package.sh file in
-# WSL.
+# set Linux permissions, create the install.dat files, or create the final zip (unless you specify
+# --windows-only). Due to limitations in PowerShell, the final changes are handled by the
+# windows/finalize-install-package.sh file in WSL.
 #
 # When making changes, make sure to update ../unix/prepare-install-package.ps1 too.
 #
 #
 
+. "$PSScriptRoot/lib/in-place-regex.ps1"
 
-. "$PSScriptRoot\lib\in-place-regex.ps1"
 
 ##########
-## Constants
+## Fetch values
 ##########
 # paths
 $gamePath = "C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley"
@@ -24,6 +24,23 @@ $buildConfig = "Release"
 $folders = "linux", "macOS", "windows"
 $runtimes = @{ linux = "linux-x64"; macOS = "osx-x64"; windows = "win-x64" }
 $msBuildPlatformNames = @{ linux = "Unix"; macOS = "OSX"; windows = "Windows_NT" }
+
+# version number
+$version = $args[0]
+if (!$version) {
+    $version = Read-Host "SMAPI release version (like '4.0.0')"
+}
+
+# Windows-only build
+$windowsOnly = $false
+foreach ($arg in $args) {
+    if ($arg -eq "--windows-only") {
+        $windowsOnly = $true
+        $folders = "windows"
+        $runtimes = @{ windows = "win-x64" }
+        $msBuildPlatformNames = @{ windows = "Windows_NT" }
+    }
+}
 
 
 ##########
@@ -48,7 +65,8 @@ echo ""
 ##########
 ## Compile files
 ##########
-ForEach ($folder in $folders) {
+. "$PSScriptRoot/set-smapi-version.ps1" "$version"
+foreach ($folder in $folders) {
     $runtime = $runtimes[$folder]
     $msbuildPlatformName = $msBuildPlatformNames[$folder]
 
@@ -92,6 +110,10 @@ foreach ($folder in $folders) {
 
 # copy base installer files
 foreach ($name in @("install on Linux.sh", "install on macOS.command", "install on Windows.bat", "README.txt")) {
+    if ($windowsOnly -and ($name -eq "install on Linux.sh" -or $name -eq "install on macOS.command")) {
+        continue;
+    }
+
     cp "$installAssets/$name" "$packagePath"
 }
 
@@ -132,7 +154,7 @@ foreach ($folder in $folders) {
     cp -Recurse "$smapiBin/i18n" "$bundlePath/smapi-internal"
 
     # bundle smapi-internal
-    foreach ($name in @("0Harmony.dll", "0Harmony.xml", "Mono.Cecil.dll", "Mono.Cecil.Mdb.dll", "Mono.Cecil.Pdb.dll", "MonoMod.Common.dll", "Newtonsoft.Json.dll", "TMXTile.dll", "SMAPI.Toolkit.dll", "SMAPI.Toolkit.pdb", "SMAPI.Toolkit.xml", "SMAPI.Toolkit.CoreInterfaces.dll", "SMAPI.Toolkit.CoreInterfaces.pdb", "SMAPI.Toolkit.CoreInterfaces.xml")) {
+    foreach ($name in @("0Harmony.dll", "0Harmony.xml", "Mono.Cecil.dll", "Mono.Cecil.Mdb.dll", "Mono.Cecil.Pdb.dll", "MonoMod.Common.dll", "Newtonsoft.Json.dll", "Pintail.dll", "TMXTile.dll", "SMAPI.Toolkit.dll", "SMAPI.Toolkit.pdb", "SMAPI.Toolkit.xml", "SMAPI.Toolkit.CoreInterfaces.dll", "SMAPI.Toolkit.CoreInterfaces.pdb", "SMAPI.Toolkit.CoreInterfaces.xml")) {
         cp "$smapiBin/$name" "$bundlePath/smapi-internal"
     }
 
@@ -184,34 +206,32 @@ foreach ($folder in $folders) {
     # disable developer mode in main package
     In-Place-Regex -Path "$packagePath/internal/$folder/bundle/smapi-internal/config.json" -Search "`"DeveloperMode`": true" -Replace "`"DeveloperMode`": false"
 
-    # DISABLED: will be handled by Linux script
     # convert bundle folder into final 'install.dat' files
-    #foreach ($path in @("$packagePath/internal/$folder", "$packageDevPath/internal/$folder"))
-    #{
-    #    Compress-Archive -Path "$path/bundle/*" -CompressionLevel Optimal -DestinationPath "$path/install.zip"
-    #    mv "$path/install.zip" "$path/install.dat"
-    #    rm -Recurse -Force "$path/bundle"
-    #}
+    if ($windowsOnly)
+    {
+        foreach ($path in @("$packagePath/internal/$folder", "$packageDevPath/internal/$folder"))
+        {
+            Compress-Archive -Path "$path/bundle/*" -CompressionLevel Optimal -DestinationPath "$path/install.zip"
+            mv "$path/install.zip" "$path/install.dat"
+            rm -Recurse -Force "$path/bundle"
+        }
+    }
 }
 
 
 ###########
 ### Create release zips
 ###########
-# get version number
-$version = $args[0]
-if (!$version) {
-    $version = Read-Host "SMAPI release version (like '4.0.0')"
-}
-
 # rename folders
 mv "$packagePath" "bin/SMAPI $version installer"
 mv "$packageDevPath" "bin/SMAPI $version installer for developers"
 
-# DISABLED: will be handled by Linux script
-## package files
-#Compress-Archive -Path "bin/SMAPI $version installer" -DestinationPath "bin/SMAPI $version installer.zip" -CompressionLevel Optimal
-#Compress-Archive -Path "bin/SMAPI $version installer for developers" -DestinationPath "bin/SMAPI $version installer for developers.zip" -CompressionLevel Optimal
+# package files
+if ($windowsOnly)
+{
+    Compress-Archive -Path "bin/SMAPI $version installer" -DestinationPath "bin/SMAPI $version installer.zip" -CompressionLevel Optimal
+    Compress-Archive -Path "bin/SMAPI $version installer for developers" -DestinationPath "bin/SMAPI $version installer for developers.zip" -CompressionLevel Optimal
+}
 
 echo ""
 echo "Done! See docs/technical/smapi.md to create the release zips."

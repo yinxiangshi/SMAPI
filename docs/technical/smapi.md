@@ -33,23 +33,27 @@ argument | purpose
 `--uninstall` | Preselects the uninstall action, skipping the prompt asking what the user wants to do.
 `--game-path "path"` | Specifies the full path to the folder containing the Stardew Valley executable, skipping automatic detection and any prompt to choose a path. If the path is not valid, the installer displays an error.
 
-SMAPI itself recognises two arguments **on Windows only**, but these are intended for internal use
+SMAPI itself recognises five arguments **on Windows only**, but these are intended for internal use
 or testing and may change without warning. On Linux/macOS, see _environment variables_ below.
 
 argument | purpose
 -------- | -------
-`--no-terminal` | SMAPI won't write anything to the console window. (Messages will still be written to the log file.)
+`--developer-mode`<br />`--developer-mode-off` | Enable or disable features intended for mod developers. Currently this only makes `TRACE`-level messages appear in the console.
+`--no-terminal` | The SMAPI launcher won't try to open a terminal window, and SMAPI won't log anything to the console. (Messages will still be written to the log file.)
+`--use-current-shell` | The SMAPI launcher won't try to open a terminal window, but SMAPI will still log to the console. (Messages will still be written to the log file.)
 `--mods-path` | The path to search for mods, if not the standard `Mods` folder. This can be a path relative to the game folder (like `--mods-path "Mods (test)"`) or an absolute path.
 
 ### Environment variables
-The above SMAPI arguments don't work on Linux/macOS due to the way the game launcher works. You can
-set temporary environment variables instead. For example:
+The above SMAPI arguments may not work on Linux/macOS due to the way the game launcher works. You
+can set temporary environment variables instead. For example:
 > SMAPI_MODS_PATH="Mods (multiplayer)" /path/to/StardewValley
 
 environment variable | purpose
 -------------------- | -------
-`SMAPI_NO_TERMINAL` | Equivalent to `--no-terminal` above.
+`SMAPI_DEVELOPER_MODE` | Equivalent to `--developer-mode` and `--developer-mode-off` above. The value must be `true` or `false`.
 `SMAPI_MODS_PATH` | Equivalent to `--mods-path` above.
+`SMAPI_NO_TERMINAL` | Equivalent to `--no-terminal` above.
+`SMAPI_USE_CURRENT_SHELL` | Equivalent to `--use-current-shell` above.
 
 ### Compile flags
 SMAPI uses a small number of conditional compilation constants, which you can set by editing the
@@ -79,7 +83,7 @@ folder before compiling.
 ## Prepare a release
 ### On any platform
 **⚠ Ideally we'd have one set of instructions for all platforms. The instructions in this section
-will produce a fully functional release for all supported platfrms, _except_ that the application
+will produce a fully functional release for all supported platforms, _except_ that the application
 icon for SMAPI on Windows will disappear due to [.NET runtime bug
 3828](https://github.com/dotnet/runtime/issues/3828). Until that's fixed, see the _[on
 Windows](#on-windows)_ section below to create a build that retains the icon.**
@@ -116,17 +120,16 @@ Windows](#on-windows)_ section below to create a build that retains the icon.**
 2. Launch the game through the Steam UI.
 
 ### Prepare the release
-1. Run `build/unix/set-smapi-version.sh` to set the SMAPI version. Make sure you use a [semantic
-   version](https://semver.org). Recommended format:
+1. Run `build/unix/prepare-install-package.sh VERSION_HERE` to create the release package in the
+   root `bin` folder.
+
+   Make sure you use a [semantic version](https://semver.org). Recommended format:
 
    build type | format                   | example
    :--------- | :----------------------- | :------
    dev build  | `<version>-alpha.<date>` | `4.0.0-alpha.20251230`
    prerelease | `<version>-beta.<date>`  | `4.0.0-beta.20251230`
    release    | `<version>`              | `4.0.0`
-
-2. Run `build/unix/prepare-install-package.sh` to create the release package in the root `bin`
-   folder.
 
 ### On Windows
 #### First-time setup
@@ -143,8 +146,10 @@ Windows](#on-windows)_ section below to create a build that retains the icon.**
    ```
 
 ### Prepare the release
-1. Run `build/windows/set-smapi-version.ps1` in PowerShell to set the SMAPI version. Make sure you
-   use a [semantic version](https://semver.org). Recommended format:
+1. Run `build/windows/prepare-install-package.ps1 VERSION_HERE` in PowerShell to create the release
+   package folders in the root `bin` folder.
+
+   Make sure you use a [semantic version](https://semver.org). Recommended format:
 
    build type | format                   | example
    :--------- | :----------------------- | :------
@@ -152,17 +157,17 @@ Windows](#on-windows)_ section below to create a build that retains the icon.**
    prerelease | `<version>-beta.<date>`  | `4.0.0-beta.20251230`
    release    | `<version>`              | `4.0.0`
 
-2. Run `build/windows/prepare-install-package.ps1` in PowerShell to create the release package
-   folders in the root `bin` folder.
-
-3. Launch WSL and run this script:
+2. Launch WSL and run this script:
    ```bash
-   # edit to match the build created in steps 1-2
+   # edit to match the build created in steps 1
    # In WSL, `/mnt/c/example` accesses `C:\example` on the Windows filesystem.
    version="4.0.0"
    binFolder="/mnt/e/source/_Stardew/SMAPI/bin"
    build/windows/finalize-install-package.sh "$version" "$binFolder"
    ```
+
+Note: to prepare a test Windows-only build, you can pass `--windows-only` in the first step and
+skip the second one.
 
 ## Release notes
 See [release notes](../release-notes.md).

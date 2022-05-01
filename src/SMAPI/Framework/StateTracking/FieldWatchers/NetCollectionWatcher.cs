@@ -15,10 +15,10 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
         private readonly NetCollection<TValue> Field;
 
         /// <summary>The pairs added since the last reset.</summary>
-        private readonly List<TValue> AddedImpl = new List<TValue>();
+        private readonly List<TValue> AddedImpl = new();
 
         /// <summary>The pairs removed since the last reset.</summary>
-        private readonly List<TValue> RemovedImpl = new List<TValue>();
+        private readonly List<TValue> RemovedImpl = new();
 
 
         /*********

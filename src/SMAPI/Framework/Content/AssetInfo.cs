@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
+using StardewModdingAPI.Framework.Deprecations;
 
 namespace StardewModdingAPI.Framework.Content
 {
@@ -17,10 +18,35 @@ namespace StardewModdingAPI.Framework.Content
         ** Accessors
         *********/
         /// <inheritdoc />
-        public string Locale { get; }
+        public string? Locale { get; }
 
         /// <inheritdoc />
-        public string AssetName { get; }
+        public IAssetName Name { get; }
+
+        /// <inheritdoc />
+        public IAssetName NameWithoutLocale { get; }
+
+        /// <inheritdoc />
+        [Obsolete($"Use {nameof(AssetInfo.Name)} or {nameof(AssetInfo.NameWithoutLocale)} instead. This property will be removed in SMAPI 4.0.0.")]
+        public string AssetName
+        {
+            get
+            {
+                SCore.DeprecationManager.Warn(
+                    source: SCore.DeprecationManager.GetModFromStack(),
+                    nounPhrase: $"{nameof(IAssetInfo)}.{nameof(IAssetInfo.AssetName)}",
+                    version: "3.14.0",
+                    severity: DeprecationLevel.Notice,
+                    unlessStackIncludes: new[]
+                    {
+                        $"{typeof(AssetInterceptorChange).FullName}.{nameof(AssetInterceptorChange.CanIntercept)}",
+                        $"{typeof(ContentCoordinator).FullName}.{nameof(ContentCoordinator.GetAssetOperations)}"
+                    }
+                );
+
+                return this.NameWithoutLocale.Name;
+            }
+        }
 
         /// <inheritdoc />
         public Type DataType { get; }
@@ -31,22 +57,36 @@ namespace StardewModdingAPI.Framework.Content
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="locale">The content's locale code, if the content is localized.</param>
-        /// <param name="assetName">The normalized asset name being read.</param>
+        /// <param name="assetName">The asset name being read.</param>
         /// <param name="type">The content type being read.</param>
         /// <param name="getNormalizedPath">Normalizes an asset key to match the cache key.</param>
-        public AssetInfo(string locale, string assetName, Type type, Func<string, string> getNormalizedPath)
+        public AssetInfo(string? locale, IAssetName assetName, Type type, Func<string, string> getNormalizedPath)
         {
             this.Locale = locale;
-            this.AssetName = assetName;
+            this.Name = assetName;
+            this.NameWithoutLocale = assetName.GetBaseAssetName();
             this.DataType = type;
             this.GetNormalizedPath = getNormalizedPath;
         }
 
         /// <inheritdoc />
+        [Obsolete($"Use {nameof(Name)}.{nameof(IAssetName.IsEquivalentTo)} or {nameof(AssetInfo.NameWithoutLocale)}.{nameof(IAssetName.IsEquivalentTo)} instead. This method will be removed in SMAPI 4.0.0.")]
         public bool AssetNameEquals(string path)
         {
-            path = this.GetNormalizedPath(path);
-            return this.AssetName.Equals(path, StringComparison.OrdinalIgnoreCase);
+            SCore.DeprecationManager.Warn(
+                source: SCore.DeprecationManager.GetModFromStack(),
+                nounPhrase: $"{nameof(IAssetInfo)}.{nameof(IAssetInfo.AssetNameEquals)}",
+                version: "3.14.0",
+                severity: DeprecationLevel.Notice,
+                unlessStackIncludes: new[]
+                {
+                    $"{typeof(AssetInterceptorChange).FullName}.{nameof(AssetInterceptorChange.CanIntercept)}",
+                    $"{typeof(ContentCoordinator).FullName}.{nameof(ContentCoordinator.GetAssetOperations)}"
+                }
+            );
+
+
+            return this.NameWithoutLocale.IsEquivalentTo(path);
         }
 
 
@@ -75,7 +115,7 @@ namespace StardewModdingAPI.Framework.Content
                 return "string";
 
             // default
-            return type.FullName;
+            return type.FullName!;
         }
     }
 }

@@ -1,6 +1,75 @@
 ← [README](README.md)
 
 # Release notes
+## 3.14.0
+Released 01 May 2022 for Stardew Valley 1.5.6 or later. See [release highlights](https://www.patreon.com/posts/65265507).
+
+### For players
+This is a big update, but existing mods should all work fine. If the latest version of a mod breaks in SMAPI 3.14, please report it [on the SMAPI mod page](https://www.nexusmods.com/stardewvalley/mods/2400?tab=posts).
+
+* Improvements:
+  * SMAPI now ignores dot-prefixed files when searching for mod folders (thanks to Nuztalgia!).
+  * On Linux, SMAPI now fixes many case-sensitive mod path issues automatically.
+  * On Linux/macOS, added `--use-current-shell` [command-line argument](technical/smapi.md#command-line-arguments) to avoid opening a separate terminal window.
+  * Improved performance in some cases.
+  * Improved translations. Thanks to ChulkyBow (updated Ukrainian)!
+  * Dropped update checks for the unofficial 64-bit patcher (obsolete since SMAPI 3.12.6).
+* Fixes:
+  * Fixed some movie theater textures not translated when loaded through SMAPI (specifically assets with the `_international` suffix).
+  * Fixed the warning text when a mod causes an asset load conflict with itself.
+  * Fixed `--no-terminal` [command-line argument](technical/smapi.md#command-line-arguments) on Linux/macOS still opening a terminal window, even if nothing is logged to it (thanks to Ryhon0!).
+  * Fixed `player_add` console command not handling journal scraps and secret notes correctly.
+  * Fixed `set_farm_type` console command not updating warps.
+* For the web UI:
+  * Improved log parser UI (thanks to KhloeLeclair!):
+    * Added pagination for big logs.
+    * Added search box to filter the log.
+    * Added option to show/hide content packs in the mod list.
+    * Added jump links in the sidebar.
+    * The filter options now stick to the top of the screen when scrolling.
+    * Rewrote rendering to improve performance.
+
+### For mod authors
+This is a big release that includes the new features planned for SMAPI 4.0.0.
+
+For C# mod authors: your mods should still work fine in SMAPI 3.14.0. However you should review the [migration to SMAPI 4.0](https://stardewvalleywiki.com/Modding:Migrate_to_SMAPI_4.0) guide and update your mods when possible. Deprecated code will be removed when SMAPI 4.0.0 releases later this year (no sooner than August 2022), and break any mods which haven't updated by that time. You can update affected mods now, there's no need to wait for 4.0.0.
+
+For content pack authors: SMAPI 3.14.0 and 4.0.0 don't affect content packs. They should work fine as long as
+the C# mod that loads them is updated.
+
+* Major changes:
+  * Added [content events](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Events#Content), which will replace `IAssetEditor` and `IAssetLoader` in SMAPI 4.0.0.  
+    _These include new features not supported by the old API like load conflict resolution, edit priority, and content pack labels. They also support new cases like easily detecting when an asset has changed, and avoid data corruption issues in some edge cases._
+  * Added [nullable reference type annotations](https://stardewvalleywiki.com/Modding:Migrate_to_SMAPI_4.0#Nullable_reference_type_annotations) for all APIs.
+  * Added [`helper.GameContent` and `helper.ModContent`](https://stardewvalleywiki.com/Modding:Migrate_to_SMAPI_4.0#Content_loading_API), which will replace `helper.Content` in SMAPI 4.0.0.
+  * Improved [mod-provided API](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Integrations#Mod-provided_APIs) proxying (thanks to Shockah!).  
+    _This adds support for custom interfaces in return values or input arguments, custom enums if their values match, generic methods, and more. This is an internal change, you don't need to do anything different in your mod code._
+  * Mod files loaded through SMAPI APIs (including `helper.Content.Load`) are now case-insensitive, even on Linux.
+  * Enabled deprecation notices for all deprecated APIs. These will only be shown in `TRACE` logs for at least a month after SMAPI 3.14.0 releases.
+* Other improvements:
+  * Added `IAssetDataForImage.ExtendMap` to resize maps in asset editors.
+  * Added `IContentPack.ModContent` property to manage content pack assets.
+  * Added `Constants.ContentPath` to get the full path to the game's `Content` folder.
+  * Added `IAssetName` fields to the info received by `IAssetEditor`, `IAssetLoader`, and content event methods.  
+    _This adds methods for working with asset names, parsed locales, etc._
+  * Added `helper.Content.ParseAssetName` to get an `IAssetName` for an arbitrary asset key.
+  * Added [command-line arguments](technical/smapi.md#command-line-arguments) to toggle developer mode (thanks to Tondorian!).
+  * If an asset is loaded multiple times in the same tick, `IAssetLoader.CanLoad` and `IAssetEditor.CanEdit` are now cached unless invalidated by `helper.Content.InvalidateCache`.
+  * The `ISemanticVersion` comparison methods (`CompareTo`, `IsBetween`, `IsNewerThan`, and `IsOlderThan`) now allow null values. A null version is always considered older than any non-null version per [best practices](https://docs.microsoft.com/en-us/dotnet/api/system.icomparable-1.compareto#remarks).
+  * Deprecation notices now show a shorter stack trace in most cases, so it's clearer where the deprecated code is in the mod.
+* Fixes:
+  * Fixed the `SDate` constructor being case-sensitive.
+  * Fixed support for using locale codes from custom languages in asset names (e.g. `Data/Achievements.eo-EU`).
+  * Fixed issue where suppressing `[Left|Right]Thumbstick[Down|Left]` keys would suppress the opposite direction instead.
+  * Fixed null handling in various edge cases.
+* For the web UI:
+  * Updated the JSON validator/schema for Content Patcher 1.25.0.
+  * Added `data-*` attributes to the log parser page for external tools.
+  * Fixed JSON validator showing incorrect error for update keys without a subkey.
+
+### For SMAPI contributors
+* You no longer need a Nexus API key to launch the `SMAPI.Web` project locally.
+
 ## 3.13.4
 Released 16 January 2022 for Stardew Valley 1.5.6 or later.
 
@@ -56,7 +125,7 @@ Released 30 November 2021 for Stardew Valley 1.5.5 or later.
   * Fixed installer failing on Windows when run from the game folder.
 
 ## 3.13.0
-Released 30 November 2021 for Stardew Valley 1.5.5 or later.
+Released 30 November 2021 for Stardew Valley 1.5.5 or later. See [release highlights](https://www.patreon.com/posts/59348226).
 
 * For players:
   * Updated for Stardew Valley 1.5.5.

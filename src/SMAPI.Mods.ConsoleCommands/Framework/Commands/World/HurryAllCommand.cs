@@ -1,9 +1,11 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using StardewValley;
 
 namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.World
 {
     /// <summary>A command which immediately warps all NPCs to their scheduled positions. To hurry a single NPC, see <c>debug hurry npc-name</c> instead.</summary>
+    [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "Loaded using reflection")]
     internal class HurryAllCommand : ConsoleCommand
     {
         /*********

@@ -1,4 +1,5 @@
 using System;
+using StardewModdingAPI.Framework.Deprecations;
 
 namespace StardewModdingAPI.Framework.ModHelpers
 {
@@ -8,9 +9,6 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /*********
         ** Fields
         *********/
-        /// <summary>The mod using this instance.</summary>
-        private readonly IModMetadata Mod;
-
         /// <summary>Manages console commands.</summary>
         private readonly CommandManager CommandManager;
 
@@ -22,9 +20,8 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <param name="mod">The mod using this instance.</param>
         /// <param name="commandManager">Manages console commands.</param>
         public CommandHelper(IModMetadata mod, CommandManager commandManager)
-            : base(mod?.Manifest?.UniqueID ?? "SMAPI")
+            : base(mod)
         {
-            this.Mod = mod;
             this.CommandManager = commandManager;
         }
 
@@ -40,7 +37,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         public bool Trigger(string name, string[] arguments)
         {
             SCore.DeprecationManager.Warn(
-                source: SCore.DeprecationManager.GetSourceName(this.ModID),
+                source: SCore.DeprecationManager.GetMod(this.ModID),
                 nounPhrase: $"{nameof(IModHelper)}.{nameof(IModHelper.ConsoleCommands)}.{nameof(ICommandHelper.Trigger)}",
                 version: "3.8.1",
                 severity: DeprecationLevel.Notice

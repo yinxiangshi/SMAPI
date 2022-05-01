@@ -17,7 +17,7 @@ namespace StardewModdingAPI.Framework.ModLoading.RewriteFacades
         /*********
         ** Public methods
         *********/
-        public static ConstructorInfo DeclaredConstructor(Type type, Type[] parameters = null)
+        public static ConstructorInfo DeclaredConstructor(Type type, Type[]? parameters = null)
         {
             // Harmony 1.x matched both static and instance constructors
             return
@@ -25,7 +25,7 @@ namespace StardewModdingAPI.Framework.ModLoading.RewriteFacades
                 ?? AccessTools.DeclaredConstructor(type, parameters, searchForStatic: true);
         }
 
-        public static ConstructorInfo Constructor(Type type, Type[] parameters = null)
+        public static ConstructorInfo Constructor(Type type, Type[]? parameters = null)
         {
             // Harmony 1.x matched both static and instance constructors
             return

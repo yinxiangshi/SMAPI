@@ -6,9 +6,40 @@
 # move to script's directory
 cd "$(dirname "$0")" || exit $?
 
-# change to true to skip opening a terminal
+# Whether to avoid opening a separate terminal window, and avoid logging anything to the console.
 # This isn't recommended since you won't see errors, warnings, and update alerts.
 SKIP_TERMINAL=false
+
+# Whether to avoid opening a separate terminal, but still send the usual log output to the console.
+USE_CURRENT_SHELL=false
+
+
+##########
+## Read environment variables
+##########
+if [ "$SMAPI_NO_TERMINAL" == "true" ]; then
+    SKIP_TERMINAL=true
+fi
+if [ "$SMAPI_USE_CURRENT_SHELL" == "true" ]; then
+    USE_CURRENT_SHELL=true
+fi
+
+
+##########
+## Read command-line arguments
+##########
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        --skip-terminal ) SKIP_TERMINAL=true; shift ;;
+        --use-current-shell ) USE_CURRENT_SHELL=true; shift ;;
+        -- ) shift; break ;;
+        * ) shift ;;
+    esac
+done
+
+if [ "$SKIP_TERMINAL" == "true" ]; then
+    USE_CURRENT_SHELL=true
+fi
 
 
 ##########
@@ -18,21 +49,13 @@ SKIP_TERMINAL=false
 # Besides letting the player see errors/warnings/alerts in the console, this is also needed because
 # Steam messes with the PATH.
 if [ "$(uname)" == "Darwin" ]; then
-    if [ ! -t 1 ]; then # https://stackoverflow.com/q/911168/262123
-        # sanity check to make sure we don't have an infinite loop of opening windows
-        for argument in "$@"; do
-            if [ "$argument" == "--no-reopen-terminal" ]; then
-                SKIP_TERMINAL=true
-                break
-            fi
-        done
-
+    if [ ! -t 1 ]; then # not open in Terminal (https://stackoverflow.com/q/911168/262123)
         # reopen in Terminal if needed
         # https://stackoverflow.com/a/29511052/262123
-        if [ "$SKIP_TERMINAL" == "false" ]; then
+        if [ "$USE_CURRENT_SHELL" == "false" ]; then
             echo "Reopening in the Terminal app..."
             echo '#!/bin/sh' > /tmp/open-smapi-terminal.sh
-            echo "\"$0\" $@ --no-reopen-terminal" >> /tmp/open-smapi-terminal.sh
+            echo "\"$0\" $@ --use-current-shell" >> /tmp/open-smapi-terminal.sh
             chmod +x /tmp/open-smapi-terminal.sh
             cat /tmp/open-smapi-terminal.sh
             open -W -a Terminal /tmp/open-smapi-terminal.sh
@@ -68,7 +91,7 @@ else
     export LAUNCH_FILE
 
     # run in terminal
-    if [ "$SKIP_TERMINAL" == "false" ]; then
+    if [ "$USE_CURRENT_SHELL" == "false" ]; then
         # select terminal (prefer xterm for best compatibility, then known supported terminals)
         for terminal in xterm gnome-terminal kitty terminator xfce4-terminal konsole terminal termite alacritty mate-terminal x-terminal-emulator; do
             if command -v "$terminal" 2>/dev/null; then
@@ -131,7 +154,9 @@ else
         fi
 
     # explicitly run without terminal
-    else
+    elif [ "$SKIP_TERMINAL" == "true" ]; then
         exec $LAUNCH_FILE --no-terminal "$@"
+    else
+        exec $LAUNCH_FILE "$@"
     fi
 fi

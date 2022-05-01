@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Contracts;
 using System.Linq;
-using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Toolkit.Utilities;
-using StardewValley;
 
 namespace StardewModdingAPI.Framework.Content
 {
@@ -40,11 +39,10 @@ namespace StardewModdingAPI.Framework.Content
         ** Constructor
         ****/
         /// <summary>Construct an instance.</summary>
-        /// <param name="contentManager">The underlying content manager whose cache to manage.</param>
-        /// <param name="reflection">Simplifies access to private game code.</param>
-        public ContentCache(LocalizedContentManager contentManager, Reflector reflection)
+        /// <param name="loadedAssets">The asset cache for the underlying content manager.</param>
+        public ContentCache(Dictionary<string, object> loadedAssets)
         {
-            this.Cache = reflection.GetField<Dictionary<string, object>>(contentManager, "loadedAssets").GetValue();
+            this.Cache = loadedAssets;
         }
 
         /****
@@ -64,7 +62,8 @@ namespace StardewModdingAPI.Framework.Content
         /// <summary>Normalize path separators in an asset name.</summary>
         /// <param name="path">The file path to normalize.</param>
         [Pure]
-        public string NormalizePathSeparators(string path)
+        [return: NotNullIfNotNull("path")]
+        public string? NormalizePathSeparators(string? path)
         {
             return PathUtilities.NormalizeAssetName(path);
         }
@@ -77,7 +76,7 @@ namespace StardewModdingAPI.Framework.Content
         {
             key = this.NormalizePathSeparators(key);
             return key.EndsWith(".xnb", StringComparison.OrdinalIgnoreCase)
-                ? key.Substring(0, key.Length - 4)
+                ? key[..^4]
                 : key;
         }
 
@@ -91,7 +90,7 @@ namespace StardewModdingAPI.Framework.Content
         public bool Remove(string key, bool dispose)
         {
             // get entry
-            if (!this.Cache.TryGetValue(key, out object value))
+            if (!this.Cache.TryGetValue(key, out object? value))
                 return false;
 
             // dispose & remove entry

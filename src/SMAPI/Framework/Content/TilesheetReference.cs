@@ -1,4 +1,3 @@
-using System.Numerics;
 using xTile.Dimensions;
 
 namespace StardewModdingAPI.Framework.Content

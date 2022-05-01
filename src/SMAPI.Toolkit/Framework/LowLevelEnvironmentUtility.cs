@@ -57,11 +57,13 @@ namespace StardewModdingAPI.Toolkit.Framework
 #if SMAPI_FOR_WINDOWS
             try
             {
-                return new ManagementObjectSearcher("SELECT Caption FROM Win32_OperatingSystem")
+                string? result = new ManagementObjectSearcher("SELECT Caption FROM Win32_OperatingSystem")
                     .Get()
                     .Cast<ManagementObject>()
                     .Select(entry => entry.GetPropertyValue("Caption").ToString())
                     .FirstOrDefault();
+
+                return result ?? "Windows";
             }
             catch { }
 #endif
@@ -98,7 +100,7 @@ namespace StardewModdingAPI.Toolkit.Framework
         /// </remarks>
         private static bool IsRunningAndroid()
         {
-            using Process process = new Process
+            using Process process = new()
             {
                 StartInfo =
                 {
@@ -135,7 +137,7 @@ namespace StardewModdingAPI.Toolkit.Framework
                 buffer = Marshal.AllocHGlobal(8192);
                 if (LowLevelEnvironmentUtility.uname(buffer) == 0)
                 {
-                    string os = Marshal.PtrToStringAnsi(buffer);
+                    string? os = Marshal.PtrToStringAnsi(buffer);
                     return os == "Darwin";
                 }
                 return false;

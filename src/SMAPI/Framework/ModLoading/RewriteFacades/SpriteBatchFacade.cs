@@ -18,7 +18,8 @@ namespace StardewModdingAPI.Framework.ModLoading.RewriteFacades
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        public SpriteBatchFacade(GraphicsDevice graphicsDevice) : base(graphicsDevice) { }
+        public SpriteBatchFacade(GraphicsDevice graphicsDevice)
+            : base(graphicsDevice) { }
 
 
         /****

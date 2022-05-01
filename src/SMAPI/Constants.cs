@@ -6,6 +6,7 @@ using System.Reflection;
 using Mono.Cecil;
 using StardewModdingAPI.Enums;
 using StardewModdingAPI.Framework;
+using StardewModdingAPI.Framework.Deprecations;
 using StardewModdingAPI.Framework.ModLoading;
 using StardewModdingAPI.Toolkit.Framework;
 using StardewModdingAPI.Toolkit.Utilities;
@@ -31,10 +32,10 @@ namespace StardewModdingAPI
         ** Accessors
         *********/
         /// <summary>The path to the game folder.</summary>
-        public static string ExecutionPath { get; } = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        public static string GamePath { get; } = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
 
         /// <summary>The absolute path to the folder containing SMAPI's internal files.</summary>
-        public static readonly string InternalFilesPath = Path.Combine(EarlyConstants.ExecutionPath, "smapi-internal");
+        public static readonly string InternalFilesPath = Path.Combine(EarlyConstants.GamePath, "smapi-internal");
 
         /// <summary>The target game platform.</summary>
         internal static GamePlatform Platform { get; } = (GamePlatform)Enum.Parse(typeof(GamePlatform), LowLevelEnvironmentUtility.DetectPlatform());
@@ -49,7 +50,7 @@ namespace StardewModdingAPI
         internal static int? LogScreenId { get; set; }
 
         /// <summary>SMAPI's current raw semantic version.</summary>
-        internal static string RawApiVersion = "3.13.4";
+        internal static string RawApiVersion = "3.14.0";
     }
 
     /// <summary>Contains SMAPI's constants and assumptions.</summary>
@@ -67,8 +68,8 @@ namespace StardewModdingAPI
         /// <summary>The minimum supported version of Stardew Valley.</summary>
         public static ISemanticVersion MinimumGameVersion { get; } = new GameVersion("1.5.6");
 
-        /// <summary>The maximum supported version of Stardew Valley.</summary>
-        public static ISemanticVersion MaximumGameVersion { get; } = null;
+        /// <summary>The maximum supported version of Stardew Valley, if any.</summary>
+        public static ISemanticVersion? MaximumGameVersion { get; } = null;
 
         /// <summary>The target game platform.</summary>
         public static GamePlatform TargetPlatform { get; } = EarlyConstants.Platform;
@@ -77,7 +78,27 @@ namespace StardewModdingAPI
         public static GameFramework GameFramework { get; } = EarlyConstants.GameFramework;
 
         /// <summary>The path to the game folder.</summary>
-        public static string ExecutionPath { get; } = EarlyConstants.ExecutionPath;
+        [Obsolete($"Use {nameof(Constants)}.{nameof(GamePath)} instead. This property will be removed in SMAPI 4.0.0.")]
+        public static string ExecutionPath
+        {
+            get
+            {
+                SCore.DeprecationManager.Warn(
+                    source: SCore.DeprecationManager.GetModFromStack(),
+                    nounPhrase: $"{nameof(Constants)}.{nameof(Constants.ExecutionPath)}",
+                    version: "3.14.0",
+                    severity: DeprecationLevel.Notice
+                );
+
+                return Constants.GamePath;
+            }
+        }
+
+        /// <summary>The path to the game folder.</summary>
+        public static string GamePath { get; } = EarlyConstants.GamePath;
+
+        /// <summary>The path to the game's <c>Content</c> folder.</summary>
+        public static string ContentPath { get; } = Constants.GetContentFolderPath();
 
         /// <summary>The directory path containing Stardew Valley's app data.</summary>
         public static string DataPath { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley");
@@ -89,10 +110,10 @@ namespace StardewModdingAPI
         public static string SavesPath { get; } = Path.Combine(Constants.DataPath, "Saves");
 
         /// <summary>The name of the current save folder (if save info is available, regardless of whether the save file exists yet).</summary>
-        public static string SaveFolderName => Constants.GetSaveFolderName();
+        public static string? SaveFolderName => Constants.GetSaveFolderName();
 
         /// <summary>The absolute path to the current save folder (if save info is available and the save file exists).</summary>
-        public static string CurrentSavePath => Constants.GetSaveFolderPathIfExists();
+        public static string? CurrentSavePath => Constants.GetSaveFolderPathIfExists();
 
         /****
         ** Internal
@@ -139,19 +160,16 @@ namespace StardewModdingAPI
         internal static string UpdateMarker => Path.Combine(Constants.InternalFilesPath, "StardewModdingAPI.update.marker");
 
         /// <summary>The default full path to search for mods.</summary>
-        internal static string DefaultModsPath { get; } = Path.Combine(Constants.ExecutionPath, "Mods");
+        internal static string DefaultModsPath { get; } = Path.Combine(Constants.GamePath, "Mods");
 
         /// <summary>The actual full path to search for mods.</summary>
-        internal static string ModsPath { get; set; }
+        internal static string ModsPath { get; set; } = null!; // initialized early during SMAPI startup
 
         /// <summary>The game's current semantic version.</summary>
         internal static ISemanticVersion GameVersion { get; } = new GameVersion(Game1.version);
 
         /// <summary>The target game platform as a SMAPI toolkit constant.</summary>
         internal static Platform Platform { get; } = (Platform)Constants.TargetPlatform;
-
-        /// <summary>The language code for non-translated mod assets.</summary>
-        internal static LocalizedContentManager.LanguageCode DefaultLanguage { get; } = LocalizedContentManager.LanguageCode.en;
 
 
         /*********
@@ -160,7 +178,7 @@ namespace StardewModdingAPI
         /// <summary>Get the SMAPI version to recommend for an older game version, if any.</summary>
         /// <param name="version">The game version to search.</param>
         /// <returns>Returns the compatible SMAPI version, or <c>null</c> if none was found.</returns>
-        internal static ISemanticVersion GetCompatibleApiVersion(ISemanticVersion version)
+        internal static ISemanticVersion? GetCompatibleApiVersion(ISemanticVersion version)
         {
             // This covers all officially supported public game updates. It might seem like version
             // ranges would be better, but the given SMAPI versions may not be compatible with
@@ -222,7 +240,7 @@ namespace StardewModdingAPI
         internal static void ConfigureAssemblyResolver(AssemblyDefinitionResolver resolver)
         {
             // add search paths
-            resolver.AddSearchDirectory(Constants.ExecutionPath);
+            resolver.AddSearchDirectory(Constants.GamePath);
             resolver.AddSearchDirectory(Constants.InternalFilesPath);
 
             // add SMAPI explicitly
@@ -274,42 +292,66 @@ namespace StardewModdingAPI
             return new PlatformAssemblyMap(targetPlatform, removeAssemblyReferences.ToArray(), targetAssemblies.ToArray());
         }
 
-        /// <summary>Get whether the game assembly was patched by Stardew64Installer.</summary>
-        /// <param name="version">The version of Stardew64Installer which was applied to the game assembly, if any.</param>
-        internal static bool IsPatchedByStardew64Installer(out ISemanticVersion version)
-        {
-            PropertyInfo property = typeof(Game1).GetProperty("Stardew64InstallerVersion");
-            if (property == null)
-            {
-                version = null;
-                return false;
-            }
-
-            version = new SemanticVersion((string)property.GetValue(null));
-            return true;
-        }
-
 
         /*********
         ** Private methods
         *********/
+        /// <summary>Get the absolute path to the game's <c>Content</c> folder.</summary>
+        private static string GetContentFolderPath()
+        {
+            //
+            // We can't use Path.Combine(Constants.GamePath, Game1.content.RootDirectory) here,
+            // since Game1.content isn't initialized until later in the game startup.
+            //
+
+            string gamePath = EarlyConstants.GamePath;
+
+            // most platforms
+            if (EarlyConstants.Platform != GamePlatform.Mac)
+                return Path.Combine(gamePath, "Content");
+
+            // macOS
+            string[] paths = new[]
+                {
+                    // GOG
+                    // - game:    Stardew Valley.app/Contents/MacOS
+                    // - content: Stardew Valley.app/Resources/Content
+                    "../../Resources/Content",
+
+                    // Steam
+                    // - game:    StardewValley/Contents/MacOS
+                    // - content: StardewValley/Contents/Resources/Content
+                    "../Resources/Content"
+                }
+                .Select(path => Path.GetFullPath(Path.Combine(gamePath, path)))
+                .ToArray();
+
+            foreach (string path in paths)
+            {
+                if (Directory.Exists(path))
+                    return path;
+            }
+
+            return paths.Last();
+        }
+
         /// <summary>Get the name of the save folder, if any.</summary>
-        private static string GetSaveFolderName()
+        private static string? GetSaveFolderName()
         {
             return Constants.GetSaveFolder()?.Name;
         }
 
-        /// <summary>Get the path to the current save folder, if any.</summary>
-        private static string GetSaveFolderPathIfExists()
+        /// <summary>Get the absolute path to the current save folder, if any.</summary>
+        private static string? GetSaveFolderPathIfExists()
         {
-            DirectoryInfo saveFolder = Constants.GetSaveFolder();
+            DirectoryInfo? saveFolder = Constants.GetSaveFolder();
             return saveFolder?.Exists == true
                 ? saveFolder.FullName
                 : null;
         }
 
         /// <summary>Get the current save folder, if any.</summary>
-        private static DirectoryInfo GetSaveFolder()
+        private static DirectoryInfo? GetSaveFolder()
         {
             // save not available
             if (Context.LoadStage == LoadStage.None)
@@ -322,7 +364,7 @@ namespace StardewModdingAPI
                 : Game1.uniqueIDForThisGame;
 
             // get best match (accounting for rare case where folder name isn't sanitized)
-            DirectoryInfo folder = null;
+            DirectoryInfo? folder = null;
             foreach (string saveName in new[] { rawSaveName, new string(rawSaveName.Where(char.IsLetterOrDigit).ToArray()) })
             {
                 try

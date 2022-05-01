@@ -7,9 +7,9 @@ namespace StardewModdingAPI.Web.Framework.ConfigModels
         ** Accessors
         *********/
         /// <summary>A message to show below the download button (e.g. for details on downloading a beta version), in Markdown format.</summary>
-        public string OtherBlurb { get; set; }
+        public string? OtherBlurb { get; set; }
 
         /// <summary>A list of supports to credit on the main page, in Markdown format.</summary>
-        public string SupporterList { get; set; }
+        public string? SupporterList { get; set; }
     }
 }
