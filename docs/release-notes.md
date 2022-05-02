@@ -1,6 +1,10 @@
 ← [README](README.md)
 
 # Release notes
+## Upcoming release
+* For players:
+  * Updated compatibility list.
+
 ## 3.14.0
 Released 01 May 2022 for Stardew Valley 1.5.6 or later. See [release highlights](https://www.patreon.com/posts/65265507).
 

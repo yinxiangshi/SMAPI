@@ -168,6 +168,15 @@
         },
 
         /*********
+        ** Broke in SMAPI 3.14.0
+        *********/
+        "Dynamic Game Assets": {
+            "ID": "spacechase0.DynamicGameAssets",
+            "~1.4.1 | Status": "AssumeBroken",
+            "~1.4.1 | StatusReasonDetails": "causes runtime errors fixed in Dynamic Game Assets 1.4.2"
+        },
+
+        /*********
         ** Broke in SDV 1.5.5
         *********/
         "Animated Portrait Framework": {
