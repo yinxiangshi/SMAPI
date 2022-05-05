@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using StardewModdingAPI.Framework.ContentManagers;
 using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Internal;
 using StardewModdingAPI.Toolkit.Utilities;
@@ -33,17 +32,11 @@ namespace StardewModdingAPI.Metadata
         /// <summary>The main content manager through which to reload assets.</summary>
         private readonly LocalizedContentManager MainContentManager;
 
-        /// <summary>An internal content manager used only for asset propagation. See remarks on <see cref="GameContentManagerForAssetPropagation"/>.</summary>
-        private readonly GameContentManagerForAssetPropagation DisposableContentManager;
-
         /// <summary>Writes messages to the console.</summary>
         private readonly IMonitor Monitor;
 
         /// <summary>Simplifies access to private game code.</summary>
         private readonly Reflector Reflection;
-
-        /// <summary>Whether to enable more aggressive memory optimizations.</summary>
-        private readonly bool AggressiveMemoryOptimizations;
 
         /// <summary>Parse a raw asset name.</summary>
         private readonly Func<string, IAssetName> ParseAssetName;
@@ -67,18 +60,14 @@ namespace StardewModdingAPI.Metadata
         *********/
         /// <summary>Initialize the core asset data.</summary>
         /// <param name="mainContent">The main content manager through which to reload assets.</param>
-        /// <param name="disposableContent">An internal content manager used only for asset propagation.</param>
         /// <param name="monitor">Writes messages to the console.</param>
         /// <param name="reflection">Simplifies access to private code.</param>
-        /// <param name="aggressiveMemoryOptimizations">Whether to enable more aggressive memory optimizations.</param>
         /// <param name="parseAssetName">Parse a raw asset name.</param>
-        public CoreAssetPropagator(LocalizedContentManager mainContent, GameContentManagerForAssetPropagation disposableContent, IMonitor monitor, Reflector reflection, bool aggressiveMemoryOptimizations, Func<string, IAssetName> parseAssetName)
+        public CoreAssetPropagator(LocalizedContentManager mainContent, IMonitor monitor, Reflector reflection, Func<string, IAssetName> parseAssetName)
         {
             this.MainContentManager = mainContent;
-            this.DisposableContentManager = disposableContent;
             this.Monitor = monitor;
             this.Reflection = reflection;
-            this.AggressiveMemoryOptimizations = aggressiveMemoryOptimizations;
             this.ParseAssetName = parseAssetName;
         }
 
@@ -230,7 +219,7 @@ namespace StardewModdingAPI.Metadata
                 ** Buildings
                 ****/
                 case "buildings/houses": // Farm
-                    Farm.houseTextures = this.LoadAndDisposeIfNeeded(Farm.houseTextures, key);
+                    Farm.houseTextures = this.LoadTexture(key);
                     return true;
 
                 case "buildings/houses_paintmask": // Farm
@@ -247,7 +236,7 @@ namespace StardewModdingAPI.Metadata
                 ** Content\Characters\Farmer
                 ****/
                 case "characters/farmer/accessories": // Game1.LoadContent
-                    FarmerRenderer.accessoriesTexture = this.LoadAndDisposeIfNeeded(FarmerRenderer.accessoriesTexture, key);
+                    FarmerRenderer.accessoriesTexture = this.LoadTexture(key);
                     return true;
 
                 case "characters/farmer/farmer_base": // Farmer
@@ -257,19 +246,19 @@ namespace StardewModdingAPI.Metadata
                     return !ignoreWorld && this.ReloadPlayerSprites(assetName);
 
                 case "characters/farmer/hairstyles": // Game1.LoadContent
-                    FarmerRenderer.hairStylesTexture = this.LoadAndDisposeIfNeeded(FarmerRenderer.hairStylesTexture, key);
+                    FarmerRenderer.hairStylesTexture = this.LoadTexture(key);
                     return true;
 
                 case "characters/farmer/hats": // Game1.LoadContent
-                    FarmerRenderer.hatsTexture = this.LoadAndDisposeIfNeeded(FarmerRenderer.hatsTexture, key);
+                    FarmerRenderer.hatsTexture = this.LoadTexture(key);
                     return true;
 
                 case "characters/farmer/pants": // Game1.LoadContent
-                    FarmerRenderer.pantsTexture = this.LoadAndDisposeIfNeeded(FarmerRenderer.pantsTexture, key);
+                    FarmerRenderer.pantsTexture = this.LoadTexture(key);
                     return true;
 
                 case "characters/farmer/shirts": // Game1.LoadContent
-                    FarmerRenderer.shirtsTexture = this.LoadAndDisposeIfNeeded(FarmerRenderer.shirtsTexture, key);
+                    FarmerRenderer.shirtsTexture = this.LoadTexture(key);
                     return true;
 
                 /****
@@ -905,9 +894,6 @@ namespace StardewModdingAPI.Metadata
             GameLocation location = locationInfo.Location;
             Vector2? playerPos = Game1.player?.Position;
 
-            if (this.AggressiveMemoryOptimizations)
-                location.map.DisposeTileSheets(Game1.mapDisplayDevice);
-
             // reload map
             location.interiorDoors.Clear(); // prevent errors when doors try to update tiles which no longer exist
             location.reloadMap();
@@ -973,7 +959,7 @@ namespace StardewModdingAPI.Metadata
             // update sprite
             foreach (var target in characters)
             {
-                target.Npc.Sprite.spriteTexture = this.LoadAndDisposeIfNeeded(target.Npc.Sprite.spriteTexture, target.AssetName.BaseName);
+                target.Npc.Sprite.spriteTexture = this.LoadTexture(target.AssetName.BaseName);
                 propagated[target.AssetName] = true;
             }
         }
@@ -1012,7 +998,7 @@ namespace StardewModdingAPI.Metadata
             // update portrait
             foreach (var target in characters)
             {
-                target.Npc.Portrait = this.LoadAndDisposeIfNeeded(target.Npc.Portrait, target.AssetName.BaseName);
+                target.Npc.Portrait = this.LoadTexture(target.AssetName.BaseName);
                 propagated[target.AssetName] = true;
             }
         }
@@ -1284,25 +1270,10 @@ namespace StardewModdingAPI.Metadata
                 : Array.Empty<string>();
         }
 
-        /// <summary>Load a texture, and dispose the old one if <see cref="AggressiveMemoryOptimizations"/> is enabled and it's different from the new instance.</summary>
-        /// <param name="oldTexture">The previous texture to dispose.</param>
+        /// <summary>Load a texture from the main content manager.</summary>
         /// <param name="key">The asset key to load.</param>
-        private Texture2D LoadAndDisposeIfNeeded(Texture2D? oldTexture, string key)
+        private Texture2D LoadTexture(string key)
         {
-            // if aggressive memory optimizations are enabled, load the asset from the disposable
-            // content manager and dispose the old instance if needed.
-            if (this.AggressiveMemoryOptimizations)
-            {
-                GameContentManagerForAssetPropagation content = this.DisposableContentManager;
-
-                Texture2D newTexture = content.Load<Texture2D>(key);
-                if (oldTexture?.IsDisposed == false && !object.ReferenceEquals(oldTexture, newTexture) && content.IsResponsibleFor(oldTexture))
-                    oldTexture.Dispose();
-
-                return newTexture;
-            }
-
-            // else just (re)load it from the main content manager
             return this.MainContentManager.Load<Texture2D>(key);
         }
 

@@ -11,7 +11,6 @@ using StardewModdingAPI.Framework.Content;
 using StardewModdingAPI.Framework.Exceptions;
 using StardewModdingAPI.Framework.Reflection;
 using StardewValley;
-using xTile;
 
 namespace StardewModdingAPI.Framework.ContentManagers
 {
@@ -32,9 +31,6 @@ namespace StardewModdingAPI.Framework.ContentManagers
 
         /// <summary>Simplifies access to private code.</summary>
         protected readonly Reflector Reflection;
-
-        /// <summary>Whether to enable more aggressive memory optimizations.</summary>
-        protected readonly bool AggressiveMemoryOptimizations;
 
         /// <summary>Whether to automatically try resolving keys to a localized form if available.</summary>
         protected bool TryLocalizeKeys = true;
@@ -82,8 +78,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <param name="reflection">Simplifies access to private code.</param>
         /// <param name="onDisposing">A callback to invoke when the content manager is being disposed.</param>
         /// <param name="isNamespaced">Whether this content manager handles managed asset keys (e.g. to load assets from a mod folder).</param>
-        /// <param name="aggressiveMemoryOptimizations">Whether to enable more aggressive memory optimizations.</param>
-        protected BaseContentManager(string name, IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, ContentCoordinator coordinator, IMonitor monitor, Reflector reflection, Action<BaseContentManager> onDisposing, bool isNamespaced, bool aggressiveMemoryOptimizations)
+        protected BaseContentManager(string name, IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, ContentCoordinator coordinator, IMonitor monitor, Reflector reflection, Action<BaseContentManager> onDisposing, bool isNamespaced)
             : base(serviceProvider, rootDirectory, currentCulture)
         {
             // init
@@ -95,7 +90,6 @@ namespace StardewModdingAPI.Framework.ContentManagers
             this.Reflection = reflection;
             this.OnDisposing = onDisposing;
             this.IsNamespaced = isNamespaced;
-            this.AggressiveMemoryOptimizations = aggressiveMemoryOptimizations;
 
             // get asset data
             this.BaseDisposableReferences = reflection.GetField<List<IDisposable>?>(this, "disposableAssets").GetValue()
@@ -231,14 +225,6 @@ namespace StardewModdingAPI.Framework.ContentManagers
                     removeAssets[baseAssetName] = asset;
                     remove = true;
                 }
-
-                // dispose if safe
-                if (remove && this.AggressiveMemoryOptimizations)
-                {
-                    if (asset is Map map)
-                        map.DisposeTileSheets(Game1.mapDisplayDevice);
-                }
-
                 return remove;
             }, dispose);
 

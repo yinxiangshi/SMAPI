@@ -1253,7 +1253,6 @@ namespace StardewModdingAPI.Framework
                     onLoadingFirstAsset: this.InitializeBeforeFirstAssetLoaded,
                     onAssetLoaded: this.OnAssetLoaded,
                     onAssetsInvalidated: this.OnAssetsInvalidated,
-                    aggressiveMemoryOptimizations: this.Settings.AggressiveMemoryOptimizations,
                     getFilePathLookup: this.GetFilePathLookup,
                     requestAssetOperations: this.RequestAssetOperations
                 );

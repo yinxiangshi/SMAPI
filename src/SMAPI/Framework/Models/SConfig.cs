@@ -22,7 +22,6 @@ namespace StardewModdingAPI.Framework.Models
             [nameof(VerboseLogging)] = false,
             [nameof(LogNetworkTraffic)] = false,
             [nameof(RewriteMods)] = true,
-            [nameof(AggressiveMemoryOptimizations)] = false,
             [nameof(UsePintail)] = true,
             [nameof(UseCaseInsensitivePaths)] = false
         };
@@ -63,9 +62,6 @@ namespace StardewModdingAPI.Framework.Models
         /// <summary>Whether SMAPI should rewrite mods for compatibility.</summary>
         public bool RewriteMods { get; }
 
-        /// <summary>Whether to enable more aggressive memory optimizations.</summary>
-        public bool AggressiveMemoryOptimizations { get; }
-
         /// <summary>Whether to use the experimental Pintail API proxying library, instead of the original proxying built into SMAPI itself.</summary>
         public bool UsePintail { get; }
 
@@ -94,13 +90,12 @@ namespace StardewModdingAPI.Framework.Models
         /// <param name="webApiBaseUrl">The base URL for SMAPI's web API, used to perform update checks.</param>
         /// <param name="verboseLogging">Whether SMAPI should log more information about the game context.</param>
         /// <param name="rewriteMods">Whether SMAPI should rewrite mods for compatibility.</param>
-        /// <param name="aggressiveMemoryOptimizations">Whether to enable more aggressive memory optimizations.</param>
         /// <param name="usePintail">Whether to use the experimental Pintail API proxying library, instead of the original proxying built into SMAPI itself.</param>
         /// <param name="useCaseInsensitivePaths">>Whether to make SMAPI file APIs case-insensitive, even on Linux.</param>
         /// <param name="logNetworkTraffic">Whether SMAPI should log network traffic.</param>
         /// <param name="consoleColors">The colors to use for text written to the SMAPI console.</param>
         /// <param name="suppressUpdateChecks">The mod IDs SMAPI should ignore when performing update checks or validating update keys.</param>
-        public SConfig(bool developerMode, bool checkForUpdates, bool? paranoidWarnings, bool? useBetaChannel, string gitHubProjectName, string webApiBaseUrl, bool verboseLogging, bool? rewriteMods, bool? aggressiveMemoryOptimizations, bool? usePintail, bool? useCaseInsensitivePaths, bool logNetworkTraffic, ColorSchemeConfig consoleColors, string[]? suppressUpdateChecks)
+        public SConfig(bool developerMode, bool checkForUpdates, bool? paranoidWarnings, bool? useBetaChannel, string gitHubProjectName, string webApiBaseUrl, bool verboseLogging, bool? rewriteMods, bool? usePintail, bool? useCaseInsensitivePaths, bool logNetworkTraffic, ColorSchemeConfig consoleColors, string[]? suppressUpdateChecks)
         {
             this.DeveloperMode = developerMode;
             this.CheckForUpdates = checkForUpdates;
@@ -110,7 +105,6 @@ namespace StardewModdingAPI.Framework.Models
             this.WebApiBaseUrl = webApiBaseUrl;
             this.VerboseLogging = verboseLogging;
             this.RewriteMods = rewriteMods ?? (bool)SConfig.DefaultValues[nameof(SConfig.RewriteMods)];
-            this.AggressiveMemoryOptimizations = aggressiveMemoryOptimizations ?? (bool)SConfig.DefaultValues[nameof(SConfig.AggressiveMemoryOptimizations)];
             this.UsePintail = usePintail ?? (bool)SConfig.DefaultValues[nameof(SConfig.UsePintail)];
             this.UseCaseInsensitivePaths = useCaseInsensitivePaths ?? (bool)SConfig.DefaultValues[nameof(SConfig.UseCaseInsensitivePaths)];
             this.LogNetworkTraffic = logNetworkTraffic;

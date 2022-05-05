@@ -40,13 +40,6 @@ copy all the settings, or you may cause bugs due to overridden changes in future
     "RewriteMods": true,
 
     /**
-     * Whether to enable more aggressive memory optimizations.
-     * If you get frequent 'OutOfMemoryException' errors, you can try enabling this to reduce their
-     * frequency. This may cause crashes for farmhands in multiplayer.
-     */
-    "AggressiveMemoryOptimizations": false,
-
-    /**
      * Whether to make SMAPI file APIs case-insensitive, even on Linux.
      * This is experimental, and the initial implementation may impact load times.
      */

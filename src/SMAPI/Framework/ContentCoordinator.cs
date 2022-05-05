@@ -32,9 +32,6 @@ namespace StardewModdingAPI.Framework
         /// <summary>An asset key prefix for assets from SMAPI mod folders.</summary>
         private readonly string ManagedPrefix = "SMAPI";
 
-        /// <summary>Whether to enable more aggressive memory optimizations.</summary>
-        private readonly bool AggressiveMemoryOptimizations;
-
         /// <summary>Get a file path lookup for the given directory.</summary>
         private readonly Func<string, IFilePathLookup> GetFilePathLookup;
 
@@ -118,13 +115,11 @@ namespace StardewModdingAPI.Framework
         /// <param name="jsonHelper">Encapsulates SMAPI's JSON file parsing.</param>
         /// <param name="onLoadingFirstAsset">A callback to invoke the first time *any* game content manager loads an asset.</param>
         /// <param name="onAssetLoaded">A callback to invoke when an asset is fully loaded.</param>
-        /// <param name="aggressiveMemoryOptimizations">Whether to enable more aggressive memory optimizations.</param>
         /// <param name="getFilePathLookup">Get a file path lookup for the given directory.</param>
         /// <param name="onAssetsInvalidated">A callback to invoke when any asset names have been invalidated from the cache.</param>
         /// <param name="requestAssetOperations">Get the load/edit operations to apply to an asset by querying registered <see cref="IContentEvents.AssetRequested"/> event handlers.</param>
-        public ContentCoordinator(IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, IMonitor monitor, Reflector reflection, JsonHelper jsonHelper, Action onLoadingFirstAsset, Action<BaseContentManager, IAssetName> onAssetLoaded, bool aggressiveMemoryOptimizations, Func<string, IFilePathLookup> getFilePathLookup, Action<IList<IAssetName>> onAssetsInvalidated, Func<IAssetInfo, IList<AssetOperationGroup>> requestAssetOperations)
+        public ContentCoordinator(IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, IMonitor monitor, Reflector reflection, JsonHelper jsonHelper, Action onLoadingFirstAsset, Action<BaseContentManager, IAssetName> onAssetLoaded, Func<string, IFilePathLookup> getFilePathLookup, Action<IList<IAssetName>> onAssetsInvalidated, Func<IAssetInfo, IList<AssetOperationGroup>> requestAssetOperations)
         {
-            this.AggressiveMemoryOptimizations = aggressiveMemoryOptimizations;
             this.GetFilePathLookup = getFilePathLookup;
             this.Monitor = monitor ?? throw new ArgumentNullException(nameof(monitor));
             this.Reflection = reflection;
@@ -145,26 +140,11 @@ namespace StardewModdingAPI.Framework
                     reflection: reflection,
                     onDisposing: this.OnDisposing,
                     onLoadingFirstAsset: onLoadingFirstAsset,
-                    onAssetLoaded: onAssetLoaded,
-                    aggressiveMemoryOptimizations: aggressiveMemoryOptimizations
+                    onAssetLoaded: onAssetLoaded
                 )
             );
-            var contentManagerForAssetPropagation = new GameContentManagerForAssetPropagation(
-                name: nameof(GameContentManagerForAssetPropagation),
-                serviceProvider: serviceProvider,
-                rootDirectory: rootDirectory,
-                currentCulture: currentCulture,
-                coordinator: this,
-                monitor: monitor,
-                reflection: reflection,
-                onDisposing: this.OnDisposing,
-                onLoadingFirstAsset: onLoadingFirstAsset,
-                onAssetLoaded: onAssetLoaded,
-                aggressiveMemoryOptimizations: aggressiveMemoryOptimizations
-            );
-            this.ContentManagers.Add(contentManagerForAssetPropagation);
             this.VanillaContentManager = new LocalizedContentManager(serviceProvider, rootDirectory);
-            this.CoreAssets = new CoreAssetPropagator(this.MainContentManager, contentManagerForAssetPropagation, this.Monitor, reflection, aggressiveMemoryOptimizations, name => this.ParseAssetName(name, allowLocales: true));
+            this.CoreAssets = new CoreAssetPropagator(this.MainContentManager, this.Monitor, reflection, name => this.ParseAssetName(name, allowLocales: true));
             this.LocaleCodes = new Lazy<Dictionary<string, LocalizedContentManager.LanguageCode>>(() => this.GetLocaleCodes(customLanguages: Enumerable.Empty<ModLanguage>()));
         }
 
@@ -184,8 +164,7 @@ namespace StardewModdingAPI.Framework
                     reflection: this.Reflection,
                     onDisposing: this.OnDisposing,
                     onLoadingFirstAsset: this.OnLoadingFirstAsset,
-                    onAssetLoaded: this.OnAssetLoaded,
-                    aggressiveMemoryOptimizations: this.AggressiveMemoryOptimizations
+                    onAssetLoaded: this.OnAssetLoaded
                 );
                 this.ContentManagers.Add(manager);
                 return manager;
@@ -213,7 +192,6 @@ namespace StardewModdingAPI.Framework
                     reflection: this.Reflection,
                     jsonHelper: this.JsonHelper,
                     onDisposing: this.OnDisposing,
-                    aggressiveMemoryOptimizations: this.AggressiveMemoryOptimizations,
                     relativePathLookup: this.GetFilePathLookup(rootDirectory)
                 );
                 this.ContentManagers.Add(manager);

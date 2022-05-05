@@ -3,8 +3,10 @@
 # Release notes
 ## Upcoming release
 * For players:
-  * Case-insensitive file paths (introduced in 3.14.0) are now disabled by default.  
-    _You can enable them via `smapi-internal/config.json` if needed. These will be re-enabled in a later version after reworking them to reduce performance impact._
+  * Disabled case-insensitive file paths (introduced in 3.14.0) by default.  
+    _You can enable them by editing `smapi-internal/config.json` if needed. They'll be re-enabled in a later version after they're reworked to reduce performance impact._
+  * Removed experimental 'aggressive memory optimizations' option.  
+    _This was disabled by default and is no longer needed in most cases. Memory usage will be better reduced by reworked asset propagation in the upcoming SMAPI 4.0.0._
   * Updated compatibility list.
 
 ## 3.14.0
