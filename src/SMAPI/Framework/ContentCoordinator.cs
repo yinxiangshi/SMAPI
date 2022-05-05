@@ -16,6 +16,7 @@ using StardewModdingAPI.Internal;
 using StardewModdingAPI.Metadata;
 using StardewModdingAPI.Toolkit.Serialization;
 using StardewModdingAPI.Toolkit.Utilities;
+using StardewModdingAPI.Toolkit.Utilities.PathLookups;
 using StardewValley;
 using StardewValley.GameData;
 using xTile;
@@ -33,6 +34,9 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>Whether to enable more aggressive memory optimizations.</summary>
         private readonly bool AggressiveMemoryOptimizations;
+
+        /// <summary>Get a file path lookup for the given directory.</summary>
+        private readonly Func<string, IFilePathLookup> GetFilePathLookup;
 
         /// <summary>Encapsulates monitoring and logging.</summary>
         private readonly IMonitor Monitor;
@@ -115,11 +119,13 @@ namespace StardewModdingAPI.Framework
         /// <param name="onLoadingFirstAsset">A callback to invoke the first time *any* game content manager loads an asset.</param>
         /// <param name="onAssetLoaded">A callback to invoke when an asset is fully loaded.</param>
         /// <param name="aggressiveMemoryOptimizations">Whether to enable more aggressive memory optimizations.</param>
+        /// <param name="getFilePathLookup">Get a file path lookup for the given directory.</param>
         /// <param name="onAssetsInvalidated">A callback to invoke when any asset names have been invalidated from the cache.</param>
         /// <param name="requestAssetOperations">Get the load/edit operations to apply to an asset by querying registered <see cref="IContentEvents.AssetRequested"/> event handlers.</param>
-        public ContentCoordinator(IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, IMonitor monitor, Reflector reflection, JsonHelper jsonHelper, Action onLoadingFirstAsset, Action<BaseContentManager, IAssetName> onAssetLoaded, bool aggressiveMemoryOptimizations, Action<IList<IAssetName>> onAssetsInvalidated, Func<IAssetInfo, IList<AssetOperationGroup>> requestAssetOperations)
+        public ContentCoordinator(IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, IMonitor monitor, Reflector reflection, JsonHelper jsonHelper, Action onLoadingFirstAsset, Action<BaseContentManager, IAssetName> onAssetLoaded, bool aggressiveMemoryOptimizations, Func<string, IFilePathLookup> getFilePathLookup, Action<IList<IAssetName>> onAssetsInvalidated, Func<IAssetInfo, IList<AssetOperationGroup>> requestAssetOperations)
         {
             this.AggressiveMemoryOptimizations = aggressiveMemoryOptimizations;
+            this.GetFilePathLookup = getFilePathLookup;
             this.Monitor = monitor ?? throw new ArgumentNullException(nameof(monitor));
             this.Reflection = reflection;
             this.JsonHelper = jsonHelper;
@@ -208,7 +214,7 @@ namespace StardewModdingAPI.Framework
                     jsonHelper: this.JsonHelper,
                     onDisposing: this.OnDisposing,
                     aggressiveMemoryOptimizations: this.AggressiveMemoryOptimizations,
-                    relativePathCache: CaseInsensitivePathLookup.GetCachedFor(rootDirectory)
+                    relativePathLookup: this.GetFilePathLookup(rootDirectory)
                 );
                 this.ContentManagers.Add(manager);
                 return manager;

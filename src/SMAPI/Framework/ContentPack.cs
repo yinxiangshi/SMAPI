@@ -3,6 +3,7 @@ using System.IO;
 using StardewModdingAPI.Framework.ModHelpers;
 using StardewModdingAPI.Toolkit.Serialization;
 using StardewModdingAPI.Toolkit.Utilities;
+using StardewModdingAPI.Toolkit.Utilities.PathLookups;
 
 namespace StardewModdingAPI.Framework
 {
@@ -15,8 +16,8 @@ namespace StardewModdingAPI.Framework
         /// <summary>Encapsulates SMAPI's JSON file parsing.</summary>
         private readonly JsonHelper JsonHelper;
 
-        /// <summary>A case-insensitive lookup of relative paths within the <see cref="DirectoryPath"/>.</summary>
-        private readonly CaseInsensitivePathLookup RelativePathCache;
+        /// <summary>A lookup for relative paths within the <see cref="DirectoryPath"/>.</summary>
+        private readonly IFilePathLookup RelativePathCache;
 
 
         /*********
@@ -47,8 +48,8 @@ namespace StardewModdingAPI.Framework
         /// <param name="content">Provides an API for loading content assets from the content pack's folder.</param>
         /// <param name="translation">Provides translations stored in the content pack's <c>i18n</c> folder.</param>
         /// <param name="jsonHelper">Encapsulates SMAPI's JSON file parsing.</param>
-        /// <param name="relativePathCache">A case-insensitive lookup of relative paths within the <paramref name="directoryPath"/>.</param>
-        public ContentPack(string directoryPath, IManifest manifest, IModContentHelper content, TranslationHelper translation, JsonHelper jsonHelper, CaseInsensitivePathLookup relativePathCache)
+        /// <param name="relativePathCache">A lookup for relative paths within the <paramref name="directoryPath"/>.</param>
+        public ContentPack(string directoryPath, IManifest manifest, IModContentHelper content, TranslationHelper translation, JsonHelper jsonHelper, IFilePathLookup relativePathCache)
         {
             this.DirectoryPath = directoryPath;
             this.Manifest = manifest;

@@ -3,6 +3,8 @@
 # Release notes
 ## Upcoming release
 * For players:
+  * Case-insensitive file paths (introduced in 3.14.0) are now disabled by default.  
+    _You can enable them via `smapi-internal/config.json` if needed. These will be re-enabled in a later version after reworking them to reduce performance impact._
   * Updated compatibility list.
 
 ## 3.14.0

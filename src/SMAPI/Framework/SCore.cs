@@ -43,6 +43,7 @@ using StardewModdingAPI.Toolkit.Framework.Clients.WebApi;
 using StardewModdingAPI.Toolkit.Framework.ModData;
 using StardewModdingAPI.Toolkit.Serialization;
 using StardewModdingAPI.Toolkit.Utilities;
+using StardewModdingAPI.Toolkit.Utilities.PathLookups;
 using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.Menus;
@@ -396,7 +397,7 @@ namespace StardewModdingAPI.Framework
                 }
 
                 // load manifests
-                IModMetadata[] mods = resolver.ReadManifests(toolkit, this.ModsPath, modDatabase).ToArray();
+                IModMetadata[] mods = resolver.ReadManifests(toolkit, this.ModsPath, modDatabase, useCaseInsensitiveFilePaths: this.Settings.UseCaseInsensitivePaths).ToArray();
 
                 // filter out ignored mods
                 foreach (IModMetadata mod in mods.Where(p => p.IsIgnored))
@@ -404,7 +405,7 @@ namespace StardewModdingAPI.Framework
                 mods = mods.Where(p => !p.IsIgnored).ToArray();
 
                 // load mods
-                resolver.ValidateManifests(mods, Constants.ApiVersion, toolkit.GetUpdateUrl);
+                resolver.ValidateManifests(mods, Constants.ApiVersion, toolkit.GetUpdateUrl, getFilePathLookup: this.GetFilePathLookup);
                 mods = resolver.ProcessDependencies(mods, modDatabase).ToArray();
                 this.LoadMods(mods, this.Toolkit.JsonHelper, this.ContentCore, modDatabase);
 
@@ -1253,6 +1254,7 @@ namespace StardewModdingAPI.Framework
                     onAssetLoaded: this.OnAssetLoaded,
                     onAssetsInvalidated: this.OnAssetsInvalidated,
                     aggressiveMemoryOptimizations: this.Settings.AggressiveMemoryOptimizations,
+                    getFilePathLookup: this.GetFilePathLookup,
                     requestAssetOperations: this.RequestAssetOperations
                 );
                 if (this.ContentCore.Language != this.Translator.LocaleEnum)
@@ -1753,7 +1755,7 @@ namespace StardewModdingAPI.Framework
             if (mod.IsContentPack)
             {
                 IMonitor monitor = this.LogManager.GetMonitor(mod.DisplayName);
-                CaseInsensitivePathLookup relativePathCache = CaseInsensitivePathLookup.GetCachedFor(mod.DirectoryPath);
+                IFilePathLookup relativePathCache = this.GetFilePathLookup(mod.DirectoryPath);
                 GameContentHelper gameContentHelper = new(this.ContentCore, mod, mod.DisplayName, monitor, this.Reflection);
                 IModContentHelper modContentHelper = new ModContentHelper(this.ContentCore, mod.DirectoryPath, mod, mod.DisplayName, gameContentHelper.GetUnderlyingContentManager(), relativePathCache, this.Reflection);
                 TranslationHelper translationHelper = new(mod, contentCore.GetLocale(), contentCore.Language);
@@ -1772,7 +1774,7 @@ namespace StardewModdingAPI.Framework
                 // get mod info
                 string assemblyPath = Path.Combine(
                     mod.DirectoryPath,
-                    CaseInsensitivePathLookup.GetCachedFor(mod.DirectoryPath).GetFilePath(manifest.EntryDll!)
+                    this.GetFilePathLookup(mod.DirectoryPath).GetFilePath(manifest.EntryDll!)
                 );
 
                 // load mod
@@ -1838,7 +1840,7 @@ namespace StardewModdingAPI.Framework
                         {
                             IMonitor packMonitor = this.LogManager.GetMonitor(packManifest.Name);
 
-                            CaseInsensitivePathLookup relativePathCache = CaseInsensitivePathLookup.GetCachedFor(packDirPath);
+                            IFilePathLookup relativePathCache = this.GetFilePathLookup(packDirPath);
 
                             GameContentHelper gameContentHelper = new(contentCore, mod, packManifest.Name, packMonitor, this.Reflection);
                             IModContentHelper packContentHelper = new ModContentHelper(contentCore, packDirPath, mod, packManifest.Name, gameContentHelper.GetUnderlyingContentManager(), relativePathCache, this.Reflection);
@@ -1852,12 +1854,12 @@ namespace StardewModdingAPI.Framework
 
                         IModEvents events = new ModEvents(mod, this.EventManager);
                         ICommandHelper commandHelper = new CommandHelper(mod, this.CommandManager);
-                        CaseInsensitivePathLookup relativePathCache = CaseInsensitivePathLookup.GetCachedFor(mod.DirectoryPath);
+                        IFilePathLookup relativePathLookup = this.GetFilePathLookup(mod.DirectoryPath);
 #pragma warning disable CS0612 // deprecated code
                         ContentHelper contentHelper = new(contentCore, mod.DirectoryPath, mod, monitor, this.Reflection);
 #pragma warning restore CS0612
                         GameContentHelper gameContentHelper = new(contentCore, mod, mod.DisplayName, monitor, this.Reflection);
-                        IModContentHelper modContentHelper = new ModContentHelper(contentCore, mod.DirectoryPath, mod, mod.DisplayName, gameContentHelper.GetUnderlyingContentManager(), relativePathCache, this.Reflection);
+                        IModContentHelper modContentHelper = new ModContentHelper(contentCore, mod.DirectoryPath, mod, mod.DisplayName, gameContentHelper.GetUnderlyingContentManager(), relativePathLookup, this.Reflection);
                         IContentPackHelper contentPackHelper = new ContentPackHelper(mod, new Lazy<IContentPack[]>(GetContentPacks), CreateFakeContentPack);
                         IDataHelper dataHelper = new DataHelper(mod, mod.DirectoryPath, jsonHelper);
                         IReflectionHelper reflectionHelper = new ReflectionHelper(mod, mod.DisplayName, this.Reflection);
@@ -2033,6 +2035,15 @@ namespace StardewModdingAPI.Framework
             }
 
             return translations;
+        }
+
+        /// <summary>Get a file path lookup for the given directory.</summary>
+        /// <param name="rootDirectory">The root path to scan.</param>
+        private IFilePathLookup GetFilePathLookup(string rootDirectory)
+        {
+            return this.Settings.UseCaseInsensitivePaths
+                ? CaseInsensitivePathLookup.GetCachedFor(rootDirectory)
+                : MinimalPathLookup.Instance;
         }
 
         /// <summary>Get the map display device which applies SMAPI features like tile rotation to loaded maps.</summary>

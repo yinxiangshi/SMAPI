@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace StardewModdingAPI.Toolkit.Utilities
+namespace StardewModdingAPI.Toolkit.Utilities.PathLookups
 {
-    /// <summary>Provides an API for case-insensitive relative path lookups within a root directory.</summary>
-    internal class CaseInsensitivePathLookup
+    /// <summary>An API for case-insensitive relative path lookups within a root directory.</summary>
+    internal class CaseInsensitivePathLookup : IFilePathLookup
     {
         /*********
         ** Fields
@@ -32,24 +32,19 @@ namespace StardewModdingAPI.Toolkit.Utilities
             this.RelativePathCache = new(() => this.GetRelativePathCache(searchOption));
         }
 
-        /// <summary>Get the exact capitalization for a given relative file path.</summary>
-        /// <param name="relativePath">The relative path.</param>
-        /// <remarks>Returns the resolved path in file path format, else the normalized <paramref name="relativePath"/>.</remarks>
+        /// <inheritdoc />
         public string GetFilePath(string relativePath)
         {
             return this.GetImpl(PathUtilities.NormalizePath(relativePath));
         }
 
-        /// <summary>Get the exact capitalization for a given asset name.</summary>
-        /// <param name="relativePath">The relative path.</param>
-        /// <remarks>Returns the resolved path in asset name format, else the normalized <paramref name="relativePath"/>.</remarks>
+        /// <inheritdoc />
         public string GetAssetName(string relativePath)
         {
             return this.GetImpl(PathUtilities.NormalizeAssetName(relativePath));
         }
 
-        /// <summary>Add a relative path that was just created by a SMAPI API.</summary>
-        /// <param name="relativePath">The relative path. This must already be normalized in asset name or file path format.</param>
+        /// <inheritdoc />
         public void Add(string relativePath)
         {
             // skip if cache isn't created yet (no need to add files manually in that case)

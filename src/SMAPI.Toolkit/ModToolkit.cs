@@ -72,17 +72,19 @@ namespace StardewModdingAPI.Toolkit
 
         /// <summary>Extract information about all mods in the given folder.</summary>
         /// <param name="rootPath">The root folder containing mods.</param>
-        public IEnumerable<ModFolder> GetModFolders(string rootPath)
+        /// <param name="useCaseInsensitiveFilePaths">Whether to match file paths case-insensitively, even on Linux.</param>
+        public IEnumerable<ModFolder> GetModFolders(string rootPath, bool useCaseInsensitiveFilePaths)
         {
-            return new ModScanner(this.JsonHelper).GetModFolders(rootPath);
+            return new ModScanner(this.JsonHelper).GetModFolders(rootPath, useCaseInsensitiveFilePaths);
         }
 
         /// <summary>Extract information about all mods in the given folder.</summary>
         /// <param name="rootPath">The root folder containing mods. Only the <paramref name="modPath"/> will be searched, but this field allows it to be treated as a potential mod folder of its own.</param>
         /// <param name="modPath">The mod path to search.</param>
-        public IEnumerable<ModFolder> GetModFolders(string rootPath, string modPath)
+        /// <param name="useCaseInsensitiveFilePaths">Whether to match file paths case-insensitively, even on Linux.</param>
+        public IEnumerable<ModFolder> GetModFolders(string rootPath, string modPath, bool useCaseInsensitiveFilePaths)
         {
-            return new ModScanner(this.JsonHelper).GetModFolders(rootPath, modPath);
+            return new ModScanner(this.JsonHelper).GetModFolders(rootPath, modPath, useCaseInsensitiveFilePaths);
         }
 
         /// <summary>Get an update URL for an update key (if valid).</summary>

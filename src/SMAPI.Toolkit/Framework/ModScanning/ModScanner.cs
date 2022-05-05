@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using StardewModdingAPI.Toolkit.Serialization;
 using StardewModdingAPI.Toolkit.Serialization.Models;
-using StardewModdingAPI.Toolkit.Utilities;
+using StardewModdingAPI.Toolkit.Utilities.PathLookups;
 
 namespace StardewModdingAPI.Toolkit.Framework.ModScanning
 {
@@ -95,19 +95,20 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
 
         /// <summary>Extract information about all mods in the given folder.</summary>
         /// <param name="rootPath">The root folder containing mods.</param>
-        public IEnumerable<ModFolder> GetModFolders(string rootPath)
+        /// <param name="useCaseInsensitiveFilePaths">Whether to match file paths case-insensitively, even on Linux.</param>
+        public IEnumerable<ModFolder> GetModFolders(string rootPath, bool useCaseInsensitiveFilePaths)
         {
             DirectoryInfo root = new(rootPath);
-            return this.GetModFolders(root, root);
+            return this.GetModFolders(root, root, useCaseInsensitiveFilePaths);
         }
 
         /// <summary>Extract information about all mods in the given folder.</summary>
         /// <param name="rootPath">The root folder containing mods. Only the <paramref name="modPath"/> will be searched, but this field allows it to be treated as a potential mod folder of its own.</param>
         /// <param name="modPath">The mod path to search.</param>
-        // /// <param name="tryConsolidateMod">If the folder contains multiple XNB mods, treat them as subfolders of a single mod. This is useful when reading a single mod archive, as opposed to a mods folder.</param>
-        public IEnumerable<ModFolder> GetModFolders(string rootPath, string modPath)
+        /// <param name="useCaseInsensitiveFilePaths">Whether to match file paths case-insensitively, even on Linux.</param>
+        public IEnumerable<ModFolder> GetModFolders(string rootPath, string modPath, bool useCaseInsensitiveFilePaths)
         {
-            return this.GetModFolders(root: new DirectoryInfo(rootPath), folder: new DirectoryInfo(modPath));
+            return this.GetModFolders(root: new DirectoryInfo(rootPath), folder: new DirectoryInfo(modPath), useCaseInsensitiveFilePaths: useCaseInsensitiveFilePaths);
         }
 
         /// <summary>Extract information from a mod folder.</summary>
@@ -195,7 +196,8 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
         /// <summary>Recursively extract information about all mods in the given folder.</summary>
         /// <param name="root">The root mod folder.</param>
         /// <param name="folder">The folder to search for mods.</param>
-        private IEnumerable<ModFolder> GetModFolders(DirectoryInfo root, DirectoryInfo folder)
+        /// <param name="useCaseInsensitiveFilePaths">Whether to match file paths case-insensitively, even on Linux.</param>
+        private IEnumerable<ModFolder> GetModFolders(DirectoryInfo root, DirectoryInfo folder, bool useCaseInsensitiveFilePaths)
         {
             bool isRoot = folder.FullName == root.FullName;
 
@@ -214,7 +216,7 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
             // find mods in subfolders
             if (this.IsModSearchFolder(root, folder))
             {
-                IEnumerable<ModFolder> subfolders = folder.EnumerateDirectories().SelectMany(sub => this.GetModFolders(root, sub));
+                IEnumerable<ModFolder> subfolders = folder.EnumerateDirectories().SelectMany(sub => this.GetModFolders(root, sub, useCaseInsensitiveFilePaths));
                 if (!isRoot)
                     subfolders = this.TryConsolidate(root, folder, subfolders.ToArray());
                 foreach (ModFolder subfolder in subfolders)

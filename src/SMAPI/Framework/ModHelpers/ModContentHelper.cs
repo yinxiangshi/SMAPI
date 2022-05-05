@@ -4,7 +4,7 @@ using StardewModdingAPI.Framework.Content;
 using StardewModdingAPI.Framework.ContentManagers;
 using StardewModdingAPI.Framework.Exceptions;
 using StardewModdingAPI.Framework.Reflection;
-using StardewModdingAPI.Toolkit.Utilities;
+using StardewModdingAPI.Toolkit.Utilities.PathLookups;
 
 namespace StardewModdingAPI.Framework.ModHelpers
 {
@@ -23,8 +23,8 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <summary>The friendly mod name for use in errors.</summary>
         private readonly string ModName;
 
-        /// <summary>A case-insensitive lookup of relative paths within the <see cref="ContentManager.RootDirectory"/>.</summary>
-        private readonly CaseInsensitivePathLookup RelativePathCache;
+        /// <summary>A lookup for relative paths within the <see cref="ContentManager.RootDirectory"/>.</summary>
+        private readonly IFilePathLookup RelativePathLookup;
 
         /// <summary>Simplifies access to private code.</summary>
         private readonly Reflector Reflection;
@@ -39,9 +39,9 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <param name="mod">The mod using this instance.</param>
         /// <param name="modName">The friendly mod name for use in errors.</param>
         /// <param name="gameContentManager">The game content manager used for map tilesheets not provided by the mod.</param>
-        /// <param name="relativePathCache">A case-insensitive lookup of relative paths within the <paramref name="relativePathCache"/>.</param>
+        /// <param name="relativePathLookup">A lookup for relative paths within the <paramref name="relativePathLookup"/>.</param>
         /// <param name="reflection">Simplifies access to private code.</param>
-        public ModContentHelper(ContentCoordinator contentCore, string modFolderPath, IModMetadata mod, string modName, IContentManager gameContentManager, CaseInsensitivePathLookup relativePathCache, Reflector reflection)
+        public ModContentHelper(ContentCoordinator contentCore, string modFolderPath, IModMetadata mod, string modName, IContentManager gameContentManager, IFilePathLookup relativePathLookup, Reflector reflection)
             : base(mod)
         {
             string managedAssetPrefix = contentCore.GetManagedAssetPrefix(mod.Manifest.UniqueID);
@@ -49,7 +49,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
             this.ContentCore = contentCore;
             this.ModContentManager = contentCore.CreateModContentManager(managedAssetPrefix, modName, modFolderPath, gameContentManager);
             this.ModName = modName;
-            this.RelativePathCache = relativePathCache;
+            this.RelativePathLookup = relativePathLookup;
             this.Reflection = reflection;
         }
 
@@ -57,7 +57,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         public T Load<T>(string relativePath)
             where T : notnull
         {
-            relativePath = this.RelativePathCache.GetAssetName(relativePath);
+            relativePath = this.RelativePathLookup.GetAssetName(relativePath);
 
             IAssetName assetName = this.ContentCore.ParseAssetName(relativePath, allowLocales: false);
 
@@ -74,7 +74,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <inheritdoc />
         public IAssetName GetInternalAssetName(string relativePath)
         {
-            relativePath = this.RelativePathCache.GetAssetName(relativePath);
+            relativePath = this.RelativePathLookup.GetAssetName(relativePath);
             return this.ModContentManager.GetInternalAssetKey(relativePath);
         }
 
@@ -86,7 +86,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
                 throw new ArgumentNullException(nameof(data), "Can't get a patch helper for a null value.");
 
             relativePath = relativePath != null
-                ? this.RelativePathCache.GetAssetName(relativePath)
+                ? this.RelativePathLookup.GetAssetName(relativePath)
                 : $"temp/{Guid.NewGuid():N}";
 
             return new AssetDataForObject(
