@@ -7,6 +7,7 @@
     _You can enable them by editing `smapi-internal/config.json` if needed. They'll be re-enabled in a later version after they're reworked to reduce performance impact._
   * Removed experimental 'aggressive memory optimizations' option.  
     _This was disabled by default and is no longer needed in most cases. Memory usage will be better reduced by reworked asset propagation in the upcoming SMAPI 4.0.0._
+  * Fixed 'content file was not found' error when the game tries to load unlocalized text from a localizable mod data asset.
   * Updated compatibility list.
 
 ## 3.14.0
