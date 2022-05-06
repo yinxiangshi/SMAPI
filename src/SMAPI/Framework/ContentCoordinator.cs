@@ -83,11 +83,11 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>A cache of asset operation groups created for legacy <see cref="IAssetLoader"/> implementations.</summary>
         [Obsolete]
-        private readonly Dictionary<IAssetLoader, AssetOperationGroup> LegacyLoaderCache = new(ReferenceEqualityComparer.Instance);
+        private readonly Dictionary<IAssetLoader, Dictionary<Type, AssetOperationGroup>> LegacyLoaderCache = new(ReferenceEqualityComparer.Instance);
 
         /// <summary>A cache of asset operation groups created for legacy <see cref="IAssetEditor"/> implementations.</summary>
         [Obsolete]
-        private readonly Dictionary<IAssetEditor, AssetOperationGroup> LegacyEditorCache = new(ReferenceEqualityComparer.Instance);
+        private readonly Dictionary<IAssetEditor, Dictionary<Type, AssetOperationGroup>> LegacyEditorCache = new(ReferenceEqualityComparer.Instance);
 
 
         /*********
@@ -606,9 +606,11 @@ namespace StardewModdingAPI.Framework
                 }
 
                 // add operation
-                if (!this.LegacyLoaderCache.TryGetValue(loader.Data, out AssetOperationGroup? group))
-                {
-                    this.LegacyLoaderCache[loader.Data] = group = new AssetOperationGroup(
+                yield return this.GetOrCreateLegacyOperationGroup(
+                    cache: this.LegacyLoaderCache,
+                    editor: loader.Data,
+                    dataType: info.DataType,
+                    createGroup: () => new AssetOperationGroup(
                         mod: loader.Mod,
                         loadOperations: new[]
                         {
@@ -622,10 +624,8 @@ namespace StardewModdingAPI.Framework
                             )
                         },
                         editOperations: Array.Empty<AssetEditOperation>()
-                    );
-                }
-
-                yield return group;
+                    )
+                );
             }
 
             // legacy edit operations
@@ -665,9 +665,11 @@ namespace StardewModdingAPI.Framework
                 };
 
                 // add operation
-                if (!this.LegacyEditorCache.TryGetValue(editor.Data, out AssetOperationGroup? group))
-                {
-                    this.LegacyEditorCache[editor.Data] = group = new AssetOperationGroup(
+                yield return this.GetOrCreateLegacyOperationGroup(
+                    cache: this.LegacyEditorCache,
+                    editor: editor.Data,
+                    dataType: info.DataType,
+                    createGroup: () => new AssetOperationGroup(
                         mod: editor.Mod,
                         loadOperations: Array.Empty<AssetLoadOperation>(),
                         editOperations: new[]
@@ -681,12 +683,28 @@ namespace StardewModdingAPI.Framework
                                 )
                             )
                         }
-                    );
-                }
-
-                yield return group;
+                    )
+                );
             }
 #pragma warning restore CS0612, CS0618
+        }
+
+        /// <summary>Get a cached asset operation group for a legacy <see cref="IAssetLoader"/> or <see cref="IAssetEditor"/> instance, creating it if needed.</summary>
+        /// <typeparam name="TInterceptor">The editor type (one of <see cref="IAssetLoader"/> or <see cref="IAssetEditor"/>).</typeparam>
+        /// <param name="cache">The cached operation groups for the interceptor type.</param>
+        /// <param name="editor">The legacy asset interceptor.</param>
+        /// <param name="dataType">The asset data type.</param>
+        /// <param name="createGroup">Create the asset operation group if it's not cached yet.</param>
+        private AssetOperationGroup GetOrCreateLegacyOperationGroup<TInterceptor>(Dictionary<TInterceptor, Dictionary<Type, AssetOperationGroup>> cache, TInterceptor editor, Type dataType, Func<AssetOperationGroup> createGroup)
+            where TInterceptor : class
+        {
+            if (!cache.TryGetValue(editor, out Dictionary<Type, AssetOperationGroup>? cacheByType))
+                cache[editor] = cacheByType = new Dictionary<Type, AssetOperationGroup>();
+
+            if (!cacheByType.TryGetValue(dataType, out AssetOperationGroup? group))
+                cacheByType[dataType] = group = createGroup();
+
+            return group;
         }
 
         /// <summary>Get an asset info compatible with legacy <see cref="IAssetLoader"/> and <see cref="IAssetEditor"/> instances, which always expect the base name.</summary>
