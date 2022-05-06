@@ -81,6 +81,14 @@ namespace StardewModdingAPI.Framework
         /// <summary>The cached asset load/edit operations to apply, indexed by asset name.</summary>
         private readonly TickCacheDictionary<IAssetName, AssetOperationGroup[]> AssetOperationsByKey = new();
 
+        /// <summary>A cache of asset operation groups created for legacy <see cref="IAssetLoader"/> implementations.</summary>
+        [Obsolete]
+        private readonly Dictionary<IAssetLoader, AssetOperationGroup> LegacyLoaderCache = new(ReferenceEqualityComparer.Instance);
+
+        /// <summary>A cache of asset operation groups created for legacy <see cref="IAssetEditor"/> implementations.</summary>
+        [Obsolete]
+        private readonly Dictionary<IAssetEditor, AssetOperationGroup> LegacyEditorCache = new(ReferenceEqualityComparer.Instance);
+
 
         /*********
         ** Accessors
@@ -598,21 +606,26 @@ namespace StardewModdingAPI.Framework
                 }
 
                 // add operation
-                yield return new AssetOperationGroup(
-                    mod: loader.Mod,
-                    loadOperations: new[]
-                    {
-                        new AssetLoadOperation(
-                            mod: loader.Mod,
-                            priority: AssetLoadPriority.Exclusive,
-                            onBehalfOf: null,
-                            getData: assetInfo => loader.Data.Load<T>(
-                                this.GetLegacyAssetInfo(assetInfo)
+                if (!this.LegacyLoaderCache.TryGetValue(loader.Data, out AssetOperationGroup? group))
+                {
+                    this.LegacyLoaderCache[loader.Data] = group = new AssetOperationGroup(
+                        mod: loader.Mod,
+                        loadOperations: new[]
+                        {
+                            new AssetLoadOperation(
+                                mod: loader.Mod,
+                                priority: AssetLoadPriority.Exclusive,
+                                onBehalfOf: null,
+                                getData: assetInfo => loader.Data.Load<T>(
+                                    this.GetLegacyAssetInfo(assetInfo)
+                                )
                             )
-                        )
-                    },
-                    editOperations: Array.Empty<AssetEditOperation>()
-                );
+                        },
+                        editOperations: Array.Empty<AssetEditOperation>()
+                    );
+                }
+
+                yield return group;
             }
 
             // legacy edit operations
@@ -652,21 +665,26 @@ namespace StardewModdingAPI.Framework
                 };
 
                 // add operation
-                yield return new AssetOperationGroup(
-                    mod: editor.Mod,
-                    loadOperations: Array.Empty<AssetLoadOperation>(),
-                    editOperations: new[]
-                    {
-                        new AssetEditOperation(
-                            mod: editor.Mod,
-                            priority: priority,
-                            onBehalfOf: null,
-                            applyEdit: assetData => editor.Data.Edit<T>(
-                                this.GetLegacyAssetData(assetData)
+                if (!this.LegacyEditorCache.TryGetValue(editor.Data, out AssetOperationGroup? group))
+                {
+                    this.LegacyEditorCache[editor.Data] = group = new AssetOperationGroup(
+                        mod: editor.Mod,
+                        loadOperations: Array.Empty<AssetLoadOperation>(),
+                        editOperations: new[]
+                        {
+                            new AssetEditOperation(
+                                mod: editor.Mod,
+                                priority: priority,
+                                onBehalfOf: null,
+                                applyEdit: assetData => editor.Data.Edit<T>(
+                                    this.GetLegacyAssetData(assetData)
+                                )
                             )
-                        )
-                    }
-                );
+                        }
+                    );
+                }
+
+                yield return group;
             }
 #pragma warning restore CS0612, CS0618
         }
