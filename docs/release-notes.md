@@ -8,6 +8,7 @@
   * Removed experimental 'aggressive memory optimizations' option.  
     _This was disabled by default and is no longer needed in most cases. Memory usage will be better reduced by reworked asset propagation in the upcoming SMAPI 4.0.0._
   * Fixed 'content file was not found' error when the game tries to load unlocalized text from a localizable mod data asset.
+  * Fixed error reading empty JSON files. These are now treated as if they didn't exist like before 3.14.0.
   * Updated compatibility list.
 
 ## 3.14.0

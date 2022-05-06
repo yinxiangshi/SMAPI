@@ -9,6 +9,7 @@ using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework.Events;
 using StardewModdingAPI.Framework.Networking;
 using StardewModdingAPI.Framework.Reflection;
+using StardewModdingAPI.Internal;
 using StardewModdingAPI.Toolkit.Serialization;
 using StardewModdingAPI.Utilities;
 using StardewValley;
@@ -489,8 +490,8 @@ namespace StardewModdingAPI.Framework
         private RemoteContextModel? ReadContext(BinaryReader reader)
         {
             string data = reader.ReadString();
-            RemoteContextModel model = this.JsonHelper.Deserialize<RemoteContextModel>(data);
-            return model.ApiVersion != null
+            RemoteContextModel? model = this.JsonHelper.Deserialize<RemoteContextModel>(data);
+            return model?.ApiVersion != null
                 ? model
                 : null; // no data available for vanilla players
         }
@@ -499,12 +500,30 @@ namespace StardewModdingAPI.Framework
         /// <param name="message">The raw message to parse.</param>
         private void ReceiveModMessage(IncomingMessage message)
         {
-            // parse message
+            // read message JSON
             string json = message.Reader.ReadString();
-            ModMessageModel model = this.JsonHelper.Deserialize<ModMessageModel>(json);
-            HashSet<long> playerIDs = new HashSet<long>(model.ToPlayerIDs ?? this.GetKnownPlayerIDs());
             if (this.LogNetworkTraffic)
                 this.Monitor.Log($"Received message: {json}.");
+
+            // deserialize model
+            ModMessageModel? model;
+            try
+            {
+                model = this.JsonHelper.Deserialize<ModMessageModel>(json);
+                if (model is null)
+                {
+                    this.Monitor.Log($"Received invalid mod message from {message.FarmerID}.\nRaw message data: {json}");
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                this.Monitor.Log($"Received invalid mod message from {message.FarmerID}.\nRaw message data: {json}\nError details: {ex.GetLogSummary()}");
+                return;
+            }
+
+            // get player IDs
+            HashSet<long> playerIDs = new HashSet<long>(model.ToPlayerIDs ?? this.GetKnownPlayerIDs());
 
             // notify local mods
             if (playerIDs.Contains(Game1.player.UniqueMultiplayerID))
