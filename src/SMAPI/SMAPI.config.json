@@ -40,11 +40,10 @@ copy all the settings, or you may cause bugs due to overridden changes in future
     "RewriteMods": true,
 
     /**
-     * Whether to enable more aggressive memory optimizations.
-     * If you get frequent 'OutOfMemoryException' errors, you can try enabling this to reduce their
-     * frequency. This may cause crashes for farmhands in multiplayer.
+     * Whether to make SMAPI file APIs case-insensitive, even on Linux.
+     * This is experimental, and the initial implementation may impact load times.
      */
-    "AggressiveMemoryOptimizations": false,
+    "UseCaseInsensitivePaths": false,
 
     /**
      * Whether to use the experimental Pintail API proxying library, instead of the original

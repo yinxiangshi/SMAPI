@@ -1,6 +1,19 @@
 ← [README](README.md)
 
 # Release notes
+## 3.14.1
+Released 06 May 2022 for Stardew Valley 1.5.6 or later.
+
+* For players:
+  * Improved performance for mods still using the previous content API.
+  * Disabled case-insensitive file paths (introduced in 3.14.0) by default.  
+    _You can enable them by editing `smapi-internal/config.json` if needed. They'll be re-enabled in an upcoming version after they're reworked a bit._
+  * Removed experimental 'aggressive memory optimizations' option.  
+    _This was disabled by default and is no longer needed in most cases. Memory usage will be better reduced by reworked asset propagation in the upcoming SMAPI 4.0.0._
+  * Fixed 'content file was not found' error when the game tries to load unlocalized text from a localizable mod data asset in 3.14.0.
+  * Fixed error reading empty JSON files. These are now treated as if they didn't exist (matching pre-3.14.0 behavior).
+  * Updated compatibility list.
+
 ## 3.14.0
 Released 01 May 2022 for Stardew Valley 1.5.6 or later. See [release highlights](https://www.patreon.com/posts/65265507).
 

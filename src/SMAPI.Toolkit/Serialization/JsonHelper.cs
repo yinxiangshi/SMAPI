@@ -108,12 +108,11 @@ namespace StardewModdingAPI.Toolkit.Serialization
         /// <summary>Deserialize JSON text if possible.</summary>
         /// <typeparam name="TModel">The model type.</typeparam>
         /// <param name="json">The raw JSON text.</param>
-        public TModel Deserialize<TModel>(string json)
+        public TModel? Deserialize<TModel>(string json)
         {
             try
             {
-                return JsonConvert.DeserializeObject<TModel>(json, this.JsonSettings)
-                    ?? throw new InvalidOperationException($"Couldn't deserialize model type '{typeof(TModel)}' from empty or null JSON.");
+                return JsonConvert.DeserializeObject<TModel>(json, this.JsonSettings);
             }
             catch (JsonReaderException)
             {

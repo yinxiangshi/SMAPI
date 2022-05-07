@@ -16,6 +16,7 @@ using StardewModdingAPI.Internal;
 using StardewModdingAPI.Metadata;
 using StardewModdingAPI.Toolkit.Serialization;
 using StardewModdingAPI.Toolkit.Utilities;
+using StardewModdingAPI.Toolkit.Utilities.PathLookups;
 using StardewValley;
 using StardewValley.GameData;
 using xTile;
@@ -31,8 +32,8 @@ namespace StardewModdingAPI.Framework
         /// <summary>An asset key prefix for assets from SMAPI mod folders.</summary>
         private readonly string ManagedPrefix = "SMAPI";
 
-        /// <summary>Whether to enable more aggressive memory optimizations.</summary>
-        private readonly bool AggressiveMemoryOptimizations;
+        /// <summary>Get a file path lookup for the given directory.</summary>
+        private readonly Func<string, IFilePathLookup> GetFilePathLookup;
 
         /// <summary>Encapsulates monitoring and logging.</summary>
         private readonly IMonitor Monitor;
@@ -80,6 +81,14 @@ namespace StardewModdingAPI.Framework
         /// <summary>The cached asset load/edit operations to apply, indexed by asset name.</summary>
         private readonly TickCacheDictionary<IAssetName, AssetOperationGroup[]> AssetOperationsByKey = new();
 
+        /// <summary>A cache of asset operation groups created for legacy <see cref="IAssetLoader"/> implementations.</summary>
+        [Obsolete]
+        private readonly Dictionary<IAssetLoader, Dictionary<Type, AssetOperationGroup>> LegacyLoaderCache = new(ReferenceEqualityComparer.Instance);
+
+        /// <summary>A cache of asset operation groups created for legacy <see cref="IAssetEditor"/> implementations.</summary>
+        [Obsolete]
+        private readonly Dictionary<IAssetEditor, Dictionary<Type, AssetOperationGroup>> LegacyEditorCache = new(ReferenceEqualityComparer.Instance);
+
 
         /*********
         ** Accessors
@@ -114,12 +123,12 @@ namespace StardewModdingAPI.Framework
         /// <param name="jsonHelper">Encapsulates SMAPI's JSON file parsing.</param>
         /// <param name="onLoadingFirstAsset">A callback to invoke the first time *any* game content manager loads an asset.</param>
         /// <param name="onAssetLoaded">A callback to invoke when an asset is fully loaded.</param>
-        /// <param name="aggressiveMemoryOptimizations">Whether to enable more aggressive memory optimizations.</param>
+        /// <param name="getFilePathLookup">Get a file path lookup for the given directory.</param>
         /// <param name="onAssetsInvalidated">A callback to invoke when any asset names have been invalidated from the cache.</param>
         /// <param name="requestAssetOperations">Get the load/edit operations to apply to an asset by querying registered <see cref="IContentEvents.AssetRequested"/> event handlers.</param>
-        public ContentCoordinator(IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, IMonitor monitor, Reflector reflection, JsonHelper jsonHelper, Action onLoadingFirstAsset, Action<BaseContentManager, IAssetName> onAssetLoaded, bool aggressiveMemoryOptimizations, Action<IList<IAssetName>> onAssetsInvalidated, Func<IAssetInfo, IList<AssetOperationGroup>> requestAssetOperations)
+        public ContentCoordinator(IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, IMonitor monitor, Reflector reflection, JsonHelper jsonHelper, Action onLoadingFirstAsset, Action<BaseContentManager, IAssetName> onAssetLoaded, Func<string, IFilePathLookup> getFilePathLookup, Action<IList<IAssetName>> onAssetsInvalidated, Func<IAssetInfo, IList<AssetOperationGroup>> requestAssetOperations)
         {
-            this.AggressiveMemoryOptimizations = aggressiveMemoryOptimizations;
+            this.GetFilePathLookup = getFilePathLookup;
             this.Monitor = monitor ?? throw new ArgumentNullException(nameof(monitor));
             this.Reflection = reflection;
             this.JsonHelper = jsonHelper;
@@ -139,26 +148,11 @@ namespace StardewModdingAPI.Framework
                     reflection: reflection,
                     onDisposing: this.OnDisposing,
                     onLoadingFirstAsset: onLoadingFirstAsset,
-                    onAssetLoaded: onAssetLoaded,
-                    aggressiveMemoryOptimizations: aggressiveMemoryOptimizations
+                    onAssetLoaded: onAssetLoaded
                 )
             );
-            var contentManagerForAssetPropagation = new GameContentManagerForAssetPropagation(
-                name: nameof(GameContentManagerForAssetPropagation),
-                serviceProvider: serviceProvider,
-                rootDirectory: rootDirectory,
-                currentCulture: currentCulture,
-                coordinator: this,
-                monitor: monitor,
-                reflection: reflection,
-                onDisposing: this.OnDisposing,
-                onLoadingFirstAsset: onLoadingFirstAsset,
-                onAssetLoaded: onAssetLoaded,
-                aggressiveMemoryOptimizations: aggressiveMemoryOptimizations
-            );
-            this.ContentManagers.Add(contentManagerForAssetPropagation);
             this.VanillaContentManager = new LocalizedContentManager(serviceProvider, rootDirectory);
-            this.CoreAssets = new CoreAssetPropagator(this.MainContentManager, contentManagerForAssetPropagation, this.Monitor, reflection, aggressiveMemoryOptimizations, name => this.ParseAssetName(name, allowLocales: true));
+            this.CoreAssets = new CoreAssetPropagator(this.MainContentManager, this.Monitor, reflection, name => this.ParseAssetName(name, allowLocales: true));
             this.LocaleCodes = new Lazy<Dictionary<string, LocalizedContentManager.LanguageCode>>(() => this.GetLocaleCodes(customLanguages: Enumerable.Empty<ModLanguage>()));
         }
 
@@ -178,8 +172,7 @@ namespace StardewModdingAPI.Framework
                     reflection: this.Reflection,
                     onDisposing: this.OnDisposing,
                     onLoadingFirstAsset: this.OnLoadingFirstAsset,
-                    onAssetLoaded: this.OnAssetLoaded,
-                    aggressiveMemoryOptimizations: this.AggressiveMemoryOptimizations
+                    onAssetLoaded: this.OnAssetLoaded
                 );
                 this.ContentManagers.Add(manager);
                 return manager;
@@ -207,8 +200,7 @@ namespace StardewModdingAPI.Framework
                     reflection: this.Reflection,
                     jsonHelper: this.JsonHelper,
                     onDisposing: this.OnDisposing,
-                    aggressiveMemoryOptimizations: this.AggressiveMemoryOptimizations,
-                    relativePathCache: CaseInsensitivePathLookup.GetCachedFor(rootDirectory)
+                    relativePathLookup: this.GetFilePathLookup(rootDirectory)
                 );
                 this.ContentManagers.Add(manager);
                 return manager;
@@ -614,20 +606,25 @@ namespace StardewModdingAPI.Framework
                 }
 
                 // add operation
-                yield return new AssetOperationGroup(
-                    mod: loader.Mod,
-                    loadOperations: new[]
-                    {
-                        new AssetLoadOperation(
-                            mod: loader.Mod,
-                            priority: AssetLoadPriority.Exclusive,
-                            onBehalfOf: null,
-                            getData: assetInfo => loader.Data.Load<T>(
-                                this.GetLegacyAssetInfo(assetInfo)
+                yield return this.GetOrCreateLegacyOperationGroup(
+                    cache: this.LegacyLoaderCache,
+                    editor: loader.Data,
+                    dataType: info.DataType,
+                    createGroup: () => new AssetOperationGroup(
+                        mod: loader.Mod,
+                        loadOperations: new[]
+                        {
+                            new AssetLoadOperation(
+                                mod: loader.Mod,
+                                priority: AssetLoadPriority.Exclusive,
+                                onBehalfOf: null,
+                                getData: assetInfo => loader.Data.Load<T>(
+                                    this.GetLegacyAssetInfo(assetInfo)
+                                )
                             )
-                        )
-                    },
-                    editOperations: Array.Empty<AssetEditOperation>()
+                        },
+                        editOperations: Array.Empty<AssetEditOperation>()
+                    )
                 );
             }
 
@@ -668,23 +665,46 @@ namespace StardewModdingAPI.Framework
                 };
 
                 // add operation
-                yield return new AssetOperationGroup(
-                    mod: editor.Mod,
-                    loadOperations: Array.Empty<AssetLoadOperation>(),
-                    editOperations: new[]
-                    {
-                        new AssetEditOperation(
-                            mod: editor.Mod,
-                            priority: priority,
-                            onBehalfOf: null,
-                            applyEdit: assetData => editor.Data.Edit<T>(
-                                this.GetLegacyAssetData(assetData)
+                yield return this.GetOrCreateLegacyOperationGroup(
+                    cache: this.LegacyEditorCache,
+                    editor: editor.Data,
+                    dataType: info.DataType,
+                    createGroup: () => new AssetOperationGroup(
+                        mod: editor.Mod,
+                        loadOperations: Array.Empty<AssetLoadOperation>(),
+                        editOperations: new[]
+                        {
+                            new AssetEditOperation(
+                                mod: editor.Mod,
+                                priority: priority,
+                                onBehalfOf: null,
+                                applyEdit: assetData => editor.Data.Edit<T>(
+                                    this.GetLegacyAssetData(assetData)
+                                )
                             )
-                        )
-                    }
+                        }
+                    )
                 );
             }
 #pragma warning restore CS0612, CS0618
+        }
+
+        /// <summary>Get a cached asset operation group for a legacy <see cref="IAssetLoader"/> or <see cref="IAssetEditor"/> instance, creating it if needed.</summary>
+        /// <typeparam name="TInterceptor">The editor type (one of <see cref="IAssetLoader"/> or <see cref="IAssetEditor"/>).</typeparam>
+        /// <param name="cache">The cached operation groups for the interceptor type.</param>
+        /// <param name="editor">The legacy asset interceptor.</param>
+        /// <param name="dataType">The asset data type.</param>
+        /// <param name="createGroup">Create the asset operation group if it's not cached yet.</param>
+        private AssetOperationGroup GetOrCreateLegacyOperationGroup<TInterceptor>(Dictionary<TInterceptor, Dictionary<Type, AssetOperationGroup>> cache, TInterceptor editor, Type dataType, Func<AssetOperationGroup> createGroup)
+            where TInterceptor : class
+        {
+            if (!cache.TryGetValue(editor, out Dictionary<Type, AssetOperationGroup>? cacheByType))
+                cache[editor] = cacheByType = new Dictionary<Type, AssetOperationGroup>();
+
+            if (!cacheByType.TryGetValue(dataType, out AssetOperationGroup? group))
+                cacheByType[dataType] = group = createGroup();
+
+            return group;
         }
 
         /// <summary>Get an asset info compatible with legacy <see cref="IAssetLoader"/> and <see cref="IAssetEditor"/> instances, which always expect the base name.</summary>

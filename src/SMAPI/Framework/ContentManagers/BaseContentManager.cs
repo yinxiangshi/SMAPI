@@ -11,7 +11,6 @@ using StardewModdingAPI.Framework.Content;
 using StardewModdingAPI.Framework.Exceptions;
 using StardewModdingAPI.Framework.Reflection;
 using StardewValley;
-using xTile;
 
 namespace StardewModdingAPI.Framework.ContentManagers
 {
@@ -32,9 +31,6 @@ namespace StardewModdingAPI.Framework.ContentManagers
 
         /// <summary>Simplifies access to private code.</summary>
         protected readonly Reflector Reflection;
-
-        /// <summary>Whether to enable more aggressive memory optimizations.</summary>
-        protected readonly bool AggressiveMemoryOptimizations;
 
         /// <summary>Whether to automatically try resolving keys to a localized form if available.</summary>
         protected bool TryLocalizeKeys = true;
@@ -82,8 +78,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <param name="reflection">Simplifies access to private code.</param>
         /// <param name="onDisposing">A callback to invoke when the content manager is being disposed.</param>
         /// <param name="isNamespaced">Whether this content manager handles managed asset keys (e.g. to load assets from a mod folder).</param>
-        /// <param name="aggressiveMemoryOptimizations">Whether to enable more aggressive memory optimizations.</param>
-        protected BaseContentManager(string name, IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, ContentCoordinator coordinator, IMonitor monitor, Reflector reflection, Action<BaseContentManager> onDisposing, bool isNamespaced, bool aggressiveMemoryOptimizations)
+        protected BaseContentManager(string name, IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, ContentCoordinator coordinator, IMonitor monitor, Reflector reflection, Action<BaseContentManager> onDisposing, bool isNamespaced)
             : base(serviceProvider, rootDirectory, currentCulture)
         {
             // init
@@ -95,7 +90,6 @@ namespace StardewModdingAPI.Framework.ContentManagers
             this.Reflection = reflection;
             this.OnDisposing = onDisposing;
             this.IsNamespaced = isNamespaced;
-            this.AggressiveMemoryOptimizations = aggressiveMemoryOptimizations;
 
             // get asset data
             this.BaseDisposableReferences = reflection.GetField<List<IDisposable>?>(this, "disposableAssets").GetValue()
@@ -114,6 +108,26 @@ namespace StardewModdingAPI.Framework.ContentManagers
         public sealed override T LoadBase<T>(string assetName)
         {
             return this.Load<T>(assetName, LanguageCode.en);
+        }
+
+        /// <inheritdoc />
+        [SuppressMessage("ReSharper", "ConditionIsAlwaysTrueOrFalse", Justification = "Copied as-is from game code")]
+        public sealed override string LoadBaseString(string path)
+        {
+            try
+            {
+                // copied as-is from LocalizedContentManager.LoadBaseString
+                // This is only changed to call this.Load instead of base.Load, to support mod assets
+                this.ParseStringPath(path, out string assetName, out string key);
+                Dictionary<string, string> strings = this.Load<Dictionary<string, string>>(assetName, LanguageCode.en);
+                return strings != null && strings.ContainsKey(key)
+                    ? this.GetString(strings, key)
+                    : path;
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Failed loading string path '{path}' from '{this.Name}'.", ex);
+            }
         }
 
         /// <inheritdoc />
@@ -231,14 +245,6 @@ namespace StardewModdingAPI.Framework.ContentManagers
                     removeAssets[baseAssetName] = asset;
                     remove = true;
                 }
-
-                // dispose if safe
-                if (remove && this.AggressiveMemoryOptimizations)
-                {
-                    if (asset is Map map)
-                        map.DisposeTileSheets(Game1.mapDisplayDevice);
-                }
-
                 return remove;
             }, dispose);
 
@@ -345,5 +351,34 @@ namespace StardewModdingAPI.Framework.ContentManagers
             // avoid hard disposable references; see remarks on the field
             this.BaseDisposableReferences.Clear();
         }
+
+        /****
+        ** Private methods copied from the game code
+        ****/
+#pragma warning disable CS1574 // <see cref /> can't be resolved: the reference is valid but private
+        /// <summary>Parse a string path like <c>assetName:key</c>.</summary>
+        /// <param name="path">The string path.</param>
+        /// <param name="assetName">The extracted asset name.</param>
+        /// <param name="key">The extracted entry key.</param>
+        /// <exception cref="ContentLoadException">The string path is not in a valid format.</exception>
+        /// <remarks>This is copied as-is from <see cref="LocalizedContentManager.parseStringPath"/>.</remarks>
+        private void ParseStringPath(string path, out string assetName, out string key)
+        {
+            int length = path.IndexOf(':');
+            assetName = length != -1 ? path.Substring(0, length) : throw new ContentLoadException("Unable to parse string path: " + path);
+            key = path.Substring(length + 1, path.Length - length - 1);
+        }
+
+        /// <summary>Get a string value from a dictionary asset.</summary>
+        /// <param name="strings">The asset to read.</param>
+        /// <param name="key">The string key to find.</param>
+        /// <remarks>This is copied as-is from <see cref="LocalizedContentManager.GetString"/>.</remarks>
+        private string GetString(Dictionary<string, string> strings, string key)
+        {
+            return strings.TryGetValue(key + ".desktop", out string? str)
+                ? str
+                : strings[key];
+        }
+#pragma warning restore CS1574
     }
 }

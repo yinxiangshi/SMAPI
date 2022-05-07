@@ -435,8 +435,8 @@ namespace StardewModdingApi.Installer
                     {
                         this.PrintDebug("Adding bundled mods...");
 
-                        ModFolder[] targetMods = toolkit.GetModFolders(paths.ModsPath).ToArray();
-                        foreach (ModFolder sourceMod in toolkit.GetModFolders(bundledModsDir.FullName))
+                        ModFolder[] targetMods = toolkit.GetModFolders(paths.ModsPath, useCaseInsensitiveFilePaths: true).ToArray();
+                        foreach (ModFolder sourceMod in toolkit.GetModFolders(bundledModsDir.FullName, useCaseInsensitiveFilePaths: true))
                         {
                             // validate source mod
                             if (sourceMod.Manifest == null)

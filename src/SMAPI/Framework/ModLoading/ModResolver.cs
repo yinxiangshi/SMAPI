@@ -9,6 +9,7 @@ using StardewModdingAPI.Toolkit.Framework.ModScanning;
 using StardewModdingAPI.Toolkit.Framework.UpdateData;
 using StardewModdingAPI.Toolkit.Serialization.Models;
 using StardewModdingAPI.Toolkit.Utilities;
+using StardewModdingAPI.Toolkit.Utilities.PathLookups;
 
 namespace StardewModdingAPI.Framework.ModLoading
 {
@@ -22,10 +23,11 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <param name="toolkit">The mod toolkit.</param>
         /// <param name="rootPath">The root path to search for mods.</param>
         /// <param name="modDatabase">Handles access to SMAPI's internal mod metadata list.</param>
+        /// <param name="useCaseInsensitiveFilePaths">Whether to match file paths case-insensitively, even on Linux.</param>
         /// <returns>Returns the manifests by relative folder.</returns>
-        public IEnumerable<IModMetadata> ReadManifests(ModToolkit toolkit, string rootPath, ModDatabase modDatabase)
+        public IEnumerable<IModMetadata> ReadManifests(ModToolkit toolkit, string rootPath, ModDatabase modDatabase, bool useCaseInsensitiveFilePaths)
         {
-            foreach (ModFolder folder in toolkit.GetModFolders(rootPath))
+            foreach (ModFolder folder in toolkit.GetModFolders(rootPath, useCaseInsensitiveFilePaths))
             {
                 Manifest? manifest = folder.Manifest;
 
@@ -56,10 +58,11 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <param name="mods">The mod manifests to validate.</param>
         /// <param name="apiVersion">The current SMAPI version.</param>
         /// <param name="getUpdateUrl">Get an update URL for an update key (if valid).</param>
+        /// <param name="getFilePathLookup">Get a file path lookup for the given directory.</param>
         /// <param name="validateFilesExist">Whether to validate that files referenced in the manifest (like <see cref="IManifest.EntryDll"/>) exist on disk. This can be disabled to only validate the manifest itself.</param>
         [SuppressMessage("ReSharper", "ConstantConditionalAccessQualifier", Justification = "Manifest values may be null before they're validated.")]
         [SuppressMessage("ReSharper", "ConditionIsAlwaysTrueOrFalse", Justification = "Manifest values may be null before they're validated.")]
-        public void ValidateManifests(IEnumerable<IModMetadata> mods, ISemanticVersion apiVersion, Func<string, string?> getUpdateUrl, bool validateFilesExist = true)
+        public void ValidateManifests(IEnumerable<IModMetadata> mods, ISemanticVersion apiVersion, Func<string, string?> getUpdateUrl, Func<string, IFilePathLookup> getFilePathLookup, bool validateFilesExist = true)
         {
             mods = mods.ToArray();
 
@@ -144,7 +147,8 @@ namespace StardewModdingAPI.Framework.ModLoading
                         // file doesn't exist
                         if (validateFilesExist)
                         {
-                            string fileName = CaseInsensitivePathLookup.GetCachedFor(mod.DirectoryPath).GetFilePath(mod.Manifest.EntryDll!);
+                            IFilePathLookup pathLookup = getFilePathLookup(mod.DirectoryPath);
+                            string fileName = pathLookup.GetFilePath(mod.Manifest.EntryDll!);
                             if (!File.Exists(Path.Combine(mod.DirectoryPath, fileName)))
                             {
                                 mod.SetStatus(ModMetadataStatus.Failed, ModFailReason.InvalidManifest, $"its DLL '{mod.Manifest.EntryDll}' doesn't exist.");

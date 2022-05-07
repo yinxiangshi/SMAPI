@@ -10,6 +10,7 @@ using StardewModdingAPI.Framework.Exceptions;
 using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Toolkit.Serialization;
 using StardewModdingAPI.Toolkit.Utilities;
+using StardewModdingAPI.Toolkit.Utilities.PathLookups;
 using StardewValley;
 using xTile;
 using xTile.Format;
@@ -32,8 +33,8 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <summary>The game content manager used for map tilesheets not provided by the mod.</summary>
         private readonly IContentManager GameContentManager;
 
-        /// <summary>A case-insensitive lookup of relative paths within the <see cref="ContentManager.RootDirectory"/>.</summary>
-        private readonly CaseInsensitivePathLookup RelativePathCache;
+        /// <summary>A lookup for relative paths within the <see cref="ContentManager.RootDirectory"/>.</summary>
+        private readonly IFilePathLookup RelativePathLookup;
 
         /// <summary>If a map tilesheet's image source has no file extensions, the file extensions to check for in the local mod folder.</summary>
         private readonly string[] LocalTilesheetExtensions = { ".png", ".xnb" };
@@ -54,13 +55,12 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <param name="reflection">Simplifies access to private code.</param>
         /// <param name="jsonHelper">Encapsulates SMAPI's JSON file parsing.</param>
         /// <param name="onDisposing">A callback to invoke when the content manager is being disposed.</param>
-        /// <param name="aggressiveMemoryOptimizations">Whether to enable more aggressive memory optimizations.</param>
-        /// <param name="relativePathCache">A case-insensitive lookup of relative paths within the <paramref name="rootDirectory"/>.</param>
-        public ModContentManager(string name, IContentManager gameContentManager, IServiceProvider serviceProvider, string modName, string rootDirectory, CultureInfo currentCulture, ContentCoordinator coordinator, IMonitor monitor, Reflector reflection, JsonHelper jsonHelper, Action<BaseContentManager> onDisposing, bool aggressiveMemoryOptimizations, CaseInsensitivePathLookup relativePathCache)
-            : base(name, serviceProvider, rootDirectory, currentCulture, coordinator, monitor, reflection, onDisposing, isNamespaced: true, aggressiveMemoryOptimizations: aggressiveMemoryOptimizations)
+        /// <param name="relativePathLookup">A lookup for relative paths within the <paramref name="rootDirectory"/>.</param>
+        public ModContentManager(string name, IContentManager gameContentManager, IServiceProvider serviceProvider, string modName, string rootDirectory, CultureInfo currentCulture, ContentCoordinator coordinator, IMonitor monitor, Reflector reflection, JsonHelper jsonHelper, Action<BaseContentManager> onDisposing, IFilePathLookup relativePathLookup)
+            : base(name, serviceProvider, rootDirectory, currentCulture, coordinator, monitor, reflection, onDisposing, isNamespaced: true)
         {
             this.GameContentManager = gameContentManager;
-            this.RelativePathCache = relativePathCache;
+            this.RelativePathLookup = relativePathLookup;
             this.JsonHelper = jsonHelper;
             this.ModName = modName;
 
@@ -257,7 +257,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
         private FileInfo GetModFile(string path)
         {
             // map to case-insensitive path if needed
-            path = this.RelativePathCache.GetFilePath(path);
+            path = this.RelativePathLookup.GetFilePath(path);
 
             // try exact match
             FileInfo file = new(Path.Combine(this.FullRootDirectory, path));
