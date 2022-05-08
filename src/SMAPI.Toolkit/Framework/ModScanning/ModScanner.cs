@@ -114,10 +114,11 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
         /// <summary>Extract information from a mod folder.</summary>
         /// <param name="root">The root folder containing mods.</param>
         /// <param name="searchFolder">The folder to search for a mod.</param>
-        public ModFolder ReadFolder(DirectoryInfo root, DirectoryInfo searchFolder)
+        /// <param name="useCaseInsensitiveFilePaths">Whether to match file paths case-insensitively, even on Linux.</param>
+        public ModFolder ReadFolder(DirectoryInfo root, DirectoryInfo searchFolder, bool useCaseInsensitiveFilePaths)
         {
             // find manifest.json
-            FileInfo? manifestFile = this.FindManifest(searchFolder);
+            FileInfo? manifestFile = this.FindManifest(searchFolder, useCaseInsensitiveFilePaths);
 
             // set appropriate invalid-mod error
             if (manifestFile == null)
@@ -225,7 +226,7 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
 
             // treat as mod folder
             else
-                yield return this.ReadFolder(root, folder);
+                yield return this.ReadFolder(root, folder, useCaseInsensitiveFilePaths);
         }
 
         /// <summary>Consolidate adjacent folders into one mod folder, if possible.</summary>
@@ -250,7 +251,8 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
 
         /// <summary>Find the manifest for a mod folder.</summary>
         /// <param name="folder">The folder to search.</param>
-        private FileInfo? FindManifest(DirectoryInfo folder)
+        /// <param name="useCaseInsensitiveFilePaths">Whether to match file paths case-insensitively, even on Linux.</param>
+        private FileInfo? FindManifest(DirectoryInfo folder, bool useCaseInsensitiveFilePaths)
         {
             // check for conventional manifest in current folder
             const string defaultName = "manifest.json";
@@ -259,14 +261,14 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
                 return file;
 
             // check for manifest with incorrect capitalization
+            if (useCaseInsensitiveFilePaths)
             {
-                CaseInsensitivePathLookup pathLookup = new(folder.FullName, SearchOption.TopDirectoryOnly); // don't use GetCachedFor, since we only need it temporarily
-                string realName = pathLookup.GetFilePath(defaultName);
-                if (realName != defaultName)
-                    file = new(Path.Combine(folder.FullName, realName));
+                CaseInsensitiveFileLookup fileLookup = new(folder.FullName, SearchOption.TopDirectoryOnly); // don't use GetCachedFor, since we only need it temporarily
+                file = fileLookup.GetFile(defaultName);
+                return file.Exists
+                    ? file
+                    : null;
             }
-            if (file.Exists)
-                return file;
 
             // not found
             return null;

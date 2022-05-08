@@ -2,6 +2,8 @@
 
 # Release notes
 ## Upcoming release
+* For players:
+  * Improved performance of case-insensitive file paths.
 * For mod authors:
   * Dynamic content packs created via `helper.ContentPacks.CreateTemporary` or `CreateFake` are now listed in the log file.
   * Fixed assets loaded through a fake content pack not working correctly since 3.14.0.

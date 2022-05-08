@@ -405,7 +405,7 @@ namespace StardewModdingAPI.Framework
                 mods = mods.Where(p => !p.IsIgnored).ToArray();
 
                 // load mods
-                resolver.ValidateManifests(mods, Constants.ApiVersion, toolkit.GetUpdateUrl, getFilePathLookup: this.GetFilePathLookup);
+                resolver.ValidateManifests(mods, Constants.ApiVersion, toolkit.GetUpdateUrl, getFileLookup: this.GetFileLookup);
                 mods = resolver.ProcessDependencies(mods, modDatabase).ToArray();
                 this.LoadMods(mods, this.Toolkit.JsonHelper, this.ContentCore, modDatabase);
 
@@ -1253,7 +1253,7 @@ namespace StardewModdingAPI.Framework
                     onLoadingFirstAsset: this.InitializeBeforeFirstAssetLoaded,
                     onAssetLoaded: this.OnAssetLoaded,
                     onAssetsInvalidated: this.OnAssetsInvalidated,
-                    getFilePathLookup: this.GetFilePathLookup,
+                    getFileLookup: this.GetFileLookup,
                     requestAssetOperations: this.RequestAssetOperations
                 );
                 if (this.ContentCore.Language != this.Translator.LocaleEnum)
@@ -1754,11 +1754,11 @@ namespace StardewModdingAPI.Framework
             if (mod.IsContentPack)
             {
                 IMonitor monitor = this.LogManager.GetMonitor(mod.DisplayName);
-                IFilePathLookup relativePathCache = this.GetFilePathLookup(mod.DirectoryPath);
+                IFileLookup fileLookup = this.GetFileLookup(mod.DirectoryPath);
                 GameContentHelper gameContentHelper = new(this.ContentCore, mod, mod.DisplayName, monitor, this.Reflection);
-                IModContentHelper modContentHelper = new ModContentHelper(this.ContentCore, mod.DirectoryPath, mod, mod.DisplayName, gameContentHelper.GetUnderlyingContentManager(), relativePathCache, this.Reflection);
+                IModContentHelper modContentHelper = new ModContentHelper(this.ContentCore, mod.DirectoryPath, mod, mod.DisplayName, gameContentHelper.GetUnderlyingContentManager(), this.Reflection);
                 TranslationHelper translationHelper = new(mod, contentCore.GetLocale(), contentCore.Language);
-                IContentPack contentPack = new ContentPack(mod.DirectoryPath, manifest, modContentHelper, translationHelper, jsonHelper, relativePathCache);
+                IContentPack contentPack = new ContentPack(mod.DirectoryPath, manifest, modContentHelper, translationHelper, jsonHelper, fileLookup);
                 mod.SetMod(contentPack, monitor, translationHelper);
                 this.ModRegistry.Add(mod);
 
@@ -1771,16 +1771,13 @@ namespace StardewModdingAPI.Framework
             else
             {
                 // get mod info
-                string assemblyPath = Path.Combine(
-                    mod.DirectoryPath,
-                    this.GetFilePathLookup(mod.DirectoryPath).GetFilePath(manifest.EntryDll!)
-                );
+                FileInfo assemblyFile = this.GetFileLookup(mod.DirectoryPath).GetFile(manifest.EntryDll!);
 
                 // load mod
                 Assembly modAssembly;
                 try
                 {
-                    modAssembly = assemblyLoader.Load(mod, assemblyPath, assumeCompatible: mod.DataRecord?.Status == ModStatus.AssumeCompatible);
+                    modAssembly = assemblyLoader.Load(mod, assemblyFile, assumeCompatible: mod.DataRecord?.Status == ModStatus.AssumeCompatible);
                     this.ModRegistry.TrackAssemblies(mod, modAssembly);
                 }
                 catch (IncompatibleInstructionException) // details already in trace logs
@@ -1799,7 +1796,7 @@ namespace StardewModdingAPI.Framework
                 catch (Exception ex)
                 {
                     errorReasonPhrase = "its DLL couldn't be loaded.";
-                    if (ex is BadImageFormatException && !EnvironmentUtility.Is64BitAssembly(assemblyPath))
+                    if (ex is BadImageFormatException && !EnvironmentUtility.Is64BitAssembly(assemblyFile.FullName))
                         errorReasonPhrase = "it needs to be updated for 64-bit mode.";
 
                     errorDetails = $"Error: {ex.GetLogSummary()}";
@@ -1837,12 +1834,11 @@ namespace StardewModdingAPI.Framework
                     {
                         IModEvents events = new ModEvents(mod, this.EventManager);
                         ICommandHelper commandHelper = new CommandHelper(mod, this.CommandManager);
-                        IFilePathLookup relativePathLookup = this.GetFilePathLookup(mod.DirectoryPath);
 #pragma warning disable CS0612 // deprecated code
                         ContentHelper contentHelper = new(contentCore, mod.DirectoryPath, mod, monitor, this.Reflection);
 #pragma warning restore CS0612
                         GameContentHelper gameContentHelper = new(contentCore, mod, mod.DisplayName, monitor, this.Reflection);
-                        IModContentHelper modContentHelper = new ModContentHelper(contentCore, mod.DirectoryPath, mod, mod.DisplayName, gameContentHelper.GetUnderlyingContentManager(), relativePathLookup, this.Reflection);
+                        IModContentHelper modContentHelper = new ModContentHelper(contentCore, mod.DirectoryPath, mod, mod.DisplayName, gameContentHelper.GetUnderlyingContentManager(), this.Reflection);
                         IContentPackHelper contentPackHelper = new ContentPackHelper(
                             mod: mod,
                             contentPacks: new Lazy<IContentPack[]>(GetContentPacks),
@@ -1896,13 +1892,13 @@ namespace StardewModdingAPI.Framework
 
             // create mod helpers
             IMonitor packMonitor = this.LogManager.GetMonitor(packManifest.Name);
-            IFilePathLookup relativePathCache = this.GetFilePathLookup(packDirPath);
             GameContentHelper gameContentHelper = new(contentCore, fakeMod, packManifest.Name, packMonitor, this.Reflection);
-            IModContentHelper packContentHelper = new ModContentHelper(contentCore, packDirPath, fakeMod, packManifest.Name, gameContentHelper.GetUnderlyingContentManager(), relativePathCache, this.Reflection);
+            IModContentHelper packContentHelper = new ModContentHelper(contentCore, packDirPath, fakeMod, packManifest.Name, gameContentHelper.GetUnderlyingContentManager(), this.Reflection);
             TranslationHelper packTranslationHelper = new(fakeMod, contentCore.GetLocale(), contentCore.Language);
 
             // add content pack
-            ContentPack contentPack = new(packDirPath, packManifest, packContentHelper, packTranslationHelper, this.Toolkit.JsonHelper, relativePathCache);
+            IFileLookup fileLookup = this.GetFileLookup(packDirPath);
+            ContentPack contentPack = new(packDirPath, packManifest, packContentHelper, packTranslationHelper, this.Toolkit.JsonHelper, fileLookup);
             this.ReloadTranslationsForTemporaryContentPack(parentMod, contentPack);
             parentMod.FakeContentPacks.Add(new WeakReference<ContentPack>(contentPack));
 
@@ -2061,13 +2057,13 @@ namespace StardewModdingAPI.Framework
             return translations;
         }
 
-        /// <summary>Get a file path lookup for the given directory.</summary>
+        /// <summary>Get a file lookup for the given directory.</summary>
         /// <param name="rootDirectory">The root path to scan.</param>
-        private IFilePathLookup GetFilePathLookup(string rootDirectory)
+        private IFileLookup GetFileLookup(string rootDirectory)
         {
             return this.Settings.UseCaseInsensitivePaths
-                ? CaseInsensitivePathLookup.GetCachedFor(rootDirectory)
-                : MinimalPathLookup.Instance;
+                ? CaseInsensitiveFileLookup.GetCachedFor(rootDirectory)
+                : MinimalFileLookup.GetCachedFor(rootDirectory);
         }
 
         /// <summary>Get the map display device which applies SMAPI features like tile rotation to loaded maps.</summary>

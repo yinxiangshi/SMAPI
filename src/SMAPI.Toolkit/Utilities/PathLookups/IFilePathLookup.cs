@@ -1,20 +1,16 @@
+using System.IO;
+
 namespace StardewModdingAPI.Toolkit.Utilities.PathLookups
 {
-    /// <summary>An API for relative path lookups within a root directory.</summary>
-    internal interface IFilePathLookup
+    /// <summary>An API for file lookups within a root directory.</summary>
+    internal interface IFileLookup
     {
-        /// <summary>Get the actual path for a given relative file path.</summary>
+        /// <summary>Get the file for a given relative file path, if it exists.</summary>
         /// <param name="relativePath">The relative path.</param>
-        /// <remarks>Returns the resolved path in file path format, else the normalized <paramref name="relativePath"/>.</remarks>
-        string GetFilePath(string relativePath);
-
-        /// <summary>Get the actual path for a given asset name.</summary>
-        /// <param name="relativePath">The relative path.</param>
-        /// <remarks>Returns the resolved path in asset name format, else the normalized <paramref name="relativePath"/>.</remarks>
-        string GetAssetName(string relativePath);
+        FileInfo GetFile(string relativePath);
 
         /// <summary>Add a relative path that was just created by a SMAPI API.</summary>
-        /// <param name="relativePath">The relative path. This must already be normalized in asset name or file path format.</param>
+        /// <param name="relativePath">The relative path.</param>
         void Add(string relativePath);
     }
 }

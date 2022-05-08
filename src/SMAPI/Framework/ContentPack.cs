@@ -16,8 +16,8 @@ namespace StardewModdingAPI.Framework
         /// <summary>Encapsulates SMAPI's JSON file parsing.</summary>
         private readonly JsonHelper JsonHelper;
 
-        /// <summary>A lookup for relative paths within the <see cref="DirectoryPath"/>.</summary>
-        private readonly IFilePathLookup RelativePathCache;
+        /// <summary>A lookup for files within the <see cref="DirectoryPath"/>.</summary>
+        private readonly IFileLookup FileLookup;
 
 
         /*********
@@ -48,15 +48,15 @@ namespace StardewModdingAPI.Framework
         /// <param name="content">Provides an API for loading content assets from the content pack's folder.</param>
         /// <param name="translation">Provides translations stored in the content pack's <c>i18n</c> folder.</param>
         /// <param name="jsonHelper">Encapsulates SMAPI's JSON file parsing.</param>
-        /// <param name="relativePathCache">A lookup for relative paths within the <paramref name="directoryPath"/>.</param>
-        public ContentPack(string directoryPath, IManifest manifest, IModContentHelper content, TranslationHelper translation, JsonHelper jsonHelper, IFilePathLookup relativePathCache)
+        /// <param name="fileLookup">A lookup for files within the <paramref name="directoryPath"/>.</param>
+        public ContentPack(string directoryPath, IManifest manifest, IModContentHelper content, TranslationHelper translation, JsonHelper jsonHelper, IFileLookup fileLookup)
         {
             this.DirectoryPath = directoryPath;
             this.Manifest = manifest;
             this.ModContent = content;
             this.TranslationImpl = translation;
             this.JsonHelper = jsonHelper;
-            this.RelativePathCache = relativePathCache;
+            this.FileLookup = fileLookup;
         }
 
         /// <inheritdoc />
@@ -83,10 +83,17 @@ namespace StardewModdingAPI.Framework
         {
             path = PathUtilities.NormalizePath(path);
 
-            FileInfo file = this.GetFile(path, out path);
+            FileInfo file = this.GetFile(path);
+            bool didExist = file.Exists;
+
             this.JsonHelper.WriteJsonFile(file.FullName, data);
 
-            this.RelativePathCache.Add(path);
+            if (!didExist)
+            {
+                this.FileLookup.Add(
+                    Path.GetRelativePath(this.DirectoryPath, file.FullName)
+                );
+            }
         }
 
         /// <inheritdoc />
@@ -112,20 +119,10 @@ namespace StardewModdingAPI.Framework
         /// <param name="relativePath">The normalized file path relative to the content pack directory.</param>
         private FileInfo GetFile(string relativePath)
         {
-            return this.GetFile(relativePath, out _);
-        }
-
-        /// <summary>Get the underlying file info.</summary>
-        /// <param name="relativePath">The normalized file path relative to the content pack directory.</param>
-        /// <param name="actualRelativePath">The relative path after case-insensitive matching.</param>
-        private FileInfo GetFile(string relativePath, out string actualRelativePath)
-        {
             if (!PathUtilities.IsSafeRelativePath(relativePath))
                 throw new InvalidOperationException($"You must call {nameof(IContentPack)} methods with a relative path.");
 
-            actualRelativePath = this.RelativePathCache.GetFilePath(relativePath);
-
-            return new FileInfo(Path.Combine(this.DirectoryPath, actualRelativePath));
+            return this.FileLookup.GetFile(relativePath);
         }
     }
 }
