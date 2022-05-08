@@ -1,6 +1,10 @@
 ← [README](README.md)
 
 # Release notes
+## Upcoming release
+* For mod authors:
+  * Fixed assets loaded through a fake content pack not working correctly since 3.14.0.
+
 ## 3.14.1
 Released 06 May 2022 for Stardew Valley 1.5.6 or later.
 
