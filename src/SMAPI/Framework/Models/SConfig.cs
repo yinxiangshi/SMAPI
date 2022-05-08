@@ -23,8 +23,8 @@ namespace StardewModdingAPI.Framework.Models
             [nameof(VerboseLogging)] = false,
             [nameof(LogNetworkTraffic)] = false,
             [nameof(RewriteMods)] = true,
-            [nameof(UsePintail)] = Constants.Platform is Platform.Android or Platform.Linux,
-            [nameof(UseCaseInsensitivePaths)] = false
+            [nameof(UsePintail)] = true,
+            [nameof(UseCaseInsensitivePaths)] = Constants.Platform is Platform.Android or Platform.Linux
         };
 
         /// <summary>The default values for <see cref="SuppressUpdateChecks"/>, to log changes if different.</summary>
