@@ -96,19 +96,19 @@ namespace StardewModdingAPI.Framework.Models
         /// <param name="logNetworkTraffic">Whether SMAPI should log network traffic.</param>
         /// <param name="consoleColors">The colors to use for text written to the SMAPI console.</param>
         /// <param name="suppressUpdateChecks">The mod IDs SMAPI should ignore when performing update checks or validating update keys.</param>
-        public SConfig(bool developerMode, bool checkForUpdates, bool? paranoidWarnings, bool? useBetaChannel, string gitHubProjectName, string webApiBaseUrl, bool verboseLogging, bool? rewriteMods, bool? usePintail, bool? useCaseInsensitivePaths, bool logNetworkTraffic, ColorSchemeConfig consoleColors, string[]? suppressUpdateChecks)
+        public SConfig(bool developerMode, bool? checkForUpdates, bool? paranoidWarnings, bool? useBetaChannel, string gitHubProjectName, string webApiBaseUrl, bool? verboseLogging, bool? rewriteMods, bool? usePintail, bool? useCaseInsensitivePaths, bool? logNetworkTraffic, ColorSchemeConfig consoleColors, string[]? suppressUpdateChecks)
         {
             this.DeveloperMode = developerMode;
-            this.CheckForUpdates = checkForUpdates;
-            this.ParanoidWarnings = paranoidWarnings ?? (bool)SConfig.DefaultValues[nameof(SConfig.ParanoidWarnings)];
-            this.UseBetaChannel = useBetaChannel ?? (bool)SConfig.DefaultValues[nameof(SConfig.UseBetaChannel)];
+            this.CheckForUpdates = checkForUpdates ?? (bool)SConfig.DefaultValues[nameof(this.CheckForUpdates)];
+            this.ParanoidWarnings = paranoidWarnings ?? (bool)SConfig.DefaultValues[nameof(this.ParanoidWarnings)];
+            this.UseBetaChannel = useBetaChannel ?? (bool)SConfig.DefaultValues[nameof(this.UseBetaChannel)];
             this.GitHubProjectName = gitHubProjectName;
             this.WebApiBaseUrl = webApiBaseUrl;
-            this.VerboseLogging = verboseLogging;
-            this.RewriteMods = rewriteMods ?? (bool)SConfig.DefaultValues[nameof(SConfig.RewriteMods)];
-            this.UsePintail = usePintail ?? (bool)SConfig.DefaultValues[nameof(SConfig.UsePintail)];
-            this.UseCaseInsensitivePaths = useCaseInsensitivePaths ?? (bool)SConfig.DefaultValues[nameof(SConfig.UseCaseInsensitivePaths)];
-            this.LogNetworkTraffic = logNetworkTraffic;
+            this.VerboseLogging = verboseLogging ?? (bool)SConfig.DefaultValues[nameof(this.VerboseLogging)];
+            this.RewriteMods = rewriteMods ?? (bool)SConfig.DefaultValues[nameof(this.RewriteMods)];
+            this.UsePintail = usePintail ?? (bool)SConfig.DefaultValues[nameof(this.UsePintail)];
+            this.UseCaseInsensitivePaths = useCaseInsensitivePaths ?? (bool)SConfig.DefaultValues[nameof(this.UseCaseInsensitivePaths)];
+            this.LogNetworkTraffic = logNetworkTraffic ?? (bool)SConfig.DefaultValues[nameof(this.LogNetworkTraffic)];
             this.ConsoleColors = consoleColors;
             this.SuppressUpdateChecks = suppressUpdateChecks ?? Array.Empty<string>();
         }

@@ -40,9 +40,9 @@ copy all the settings, or you may cause bugs due to overridden changes in future
     "RewriteMods": true,
 
     /**
-     * Whether to make SMAPI file APIs case-insensitive, even on Linux.
+     * Whether to make SMAPI file APIs case-insensitive (even if the filesystem is case-sensitive).
      *
-     * When this is commented out, it'll be true on Android or Linux, and false otherwise.
+     * If null, it's only enabled on Android and Linux.
      */
     "UseCaseInsensitivePaths": null,
 
@@ -58,17 +58,16 @@ copy all the settings, or you may cause bugs due to overridden changes in future
      * part of their normal functionality, so these warnings are meaningless without further
      * investigation.
      *
-     * When this is commented out, it'll be true for local debug builds and false otherwise.
+     * If null, it's only enabled for local debug builds.
      */
-    //"ParanoidWarnings": true,
+    "ParanoidWarnings": null,
 
     /**
      * Whether SMAPI should show newer beta versions as an available update.
      *
-     * When this is commented out, it'll be true if the current SMAPI version is beta, and false
-     * otherwise.
+     * If null, it's only enabled if the current SMAPI version is beta.
      */
-    //"UseBetaChannel": true,
+    "UseBetaChannel": null,
 
     /**
      * SMAPI's GitHub project name, used to perform update checks.
