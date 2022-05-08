@@ -79,14 +79,14 @@ namespace StardewModdingAPI.Framework
         private Lazy<Dictionary<string, LocalizedContentManager.LanguageCode>> LocaleCodes;
 
         /// <summary>The cached asset load/edit operations to apply, indexed by asset name.</summary>
-        private readonly TickCacheDictionary<IAssetName, AssetOperationGroup[]> AssetOperationsByKey = new();
+        private readonly TickCacheDictionary<IAssetName, IList<AssetOperationGroup>> AssetOperationsByKey = new();
 
         /// <summary>A cache of asset operation groups created for legacy <see cref="IAssetLoader"/> implementations.</summary>
-        [Obsolete]
+        [Obsolete("This only exists to support legacy code and will be removed in SMAPI 4.0.0.")]
         private readonly Dictionary<IAssetLoader, Dictionary<Type, AssetOperationGroup>> LegacyLoaderCache = new(ReferenceEqualityComparer.Instance);
 
         /// <summary>A cache of asset operation groups created for legacy <see cref="IAssetEditor"/> implementations.</summary>
-        [Obsolete]
+        [Obsolete("This only exists to support legacy code and will be removed in SMAPI 4.0.0.")]
         private readonly Dictionary<IAssetEditor, Dictionary<Type, AssetOperationGroup>> LegacyEditorCache = new(ReferenceEqualityComparer.Instance);
 
 
@@ -100,11 +100,11 @@ namespace StardewModdingAPI.Framework
         public LocalizedContentManager.LanguageCode Language => this.MainContentManager.Language;
 
         /// <summary>Interceptors which provide the initial versions of matching assets.</summary>
-        [Obsolete]
+        [Obsolete("This only exists to support legacy code and will be removed in SMAPI 4.0.0.")]
         public IList<ModLinked<IAssetLoader>> Loaders { get; } = new List<ModLinked<IAssetLoader>>();
 
         /// <summary>Interceptors which edit matching assets after they're loaded.</summary>
-        [Obsolete]
+        [Obsolete("This only exists to support legacy code and will be removed in SMAPI 4.0.0.")]
         public IList<ModLinked<IAssetEditor>> Editors { get; } = new List<ModLinked<IAssetEditor>>();
 
         /// <summary>The absolute path to the <see cref="ContentManager.RootDirectory"/>.</summary>
@@ -449,12 +449,16 @@ namespace StardewModdingAPI.Framework
         /// <summary>Get the asset load and edit operations to apply to a given asset if it's (re)loaded now.</summary>
         /// <typeparam name="T">The asset type.</typeparam>
         /// <param name="info">The asset info to load or edit.</param>
-        public IEnumerable<AssetOperationGroup> GetAssetOperations<T>(IAssetInfo info)
+        public IList<AssetOperationGroup> GetAssetOperations<T>(IAssetInfo info)
             where T : notnull
         {
             return this.AssetOperationsByKey.GetOrSet(
                 info.Name,
-                () => this.GetAssetOperationsWithoutCache<T>(info).ToArray()
+#pragma warning disable CS0612, CS0618 // deprecated code
+                () => this.Editors.Count > 0 || this.Loaders.Count > 0
+                    ? this.GetAssetOperationsIncludingLegacyWithoutCache<T>(info).ToArray()
+#pragma warning restore CS0612, CS0618
+                    : this.RequestAssetOperations(info)
             );
         }
 
@@ -580,7 +584,8 @@ namespace StardewModdingAPI.Framework
         /// <summary>Get the asset load and edit operations to apply to a given asset if it's (re)loaded now, ignoring the <see cref="AssetOperationsByKey"/> cache.</summary>
         /// <typeparam name="T">The asset type.</typeparam>
         /// <param name="info">The asset info to load or edit.</param>
-        private IEnumerable<AssetOperationGroup> GetAssetOperationsWithoutCache<T>(IAssetInfo info)
+        [Obsolete("This only exists to support legacy code and will be removed in SMAPI 4.0.0.")]
+        private IEnumerable<AssetOperationGroup> GetAssetOperationsIncludingLegacyWithoutCache<T>(IAssetInfo info)
             where T : notnull
         {
             IAssetInfo legacyInfo = this.GetLegacyAssetInfo(info);
@@ -590,7 +595,6 @@ namespace StardewModdingAPI.Framework
                 yield return group;
 
             // legacy load operations
-#pragma warning disable CS0612, CS0618 // deprecated code
             foreach (ModLinked<IAssetLoader> loader in this.Loaders)
             {
                 // check if loader applies
@@ -686,7 +690,6 @@ namespace StardewModdingAPI.Framework
                     )
                 );
             }
-#pragma warning restore CS0612, CS0618
         }
 
         /// <summary>Get a cached asset operation group for a legacy <see cref="IAssetLoader"/> or <see cref="IAssetEditor"/> instance, creating it if needed.</summary>

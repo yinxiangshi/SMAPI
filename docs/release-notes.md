@@ -6,6 +6,7 @@
   * Enabled case-insensitive file paths by default for Android and Linux players.  
     _This was temporarily disabled in SMAPI 3.14.1. This is no longer enabled by default for macOS and Windows players._
   * Improved performance of case-insensitive file paths.
+  * Internal optimizations.
 * For mod authors:
   * Dynamic content packs created via `helper.ContentPacks.CreateTemporary` or `CreateFake` are now listed in the log file.
   * Fixed assets loaded through a fake content pack not working correctly since 3.14.0.
