@@ -33,7 +33,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         }
 
         /// <inheritdoc />
-        [Obsolete]
+        [Obsolete("Use mod-provided APIs to integrate with mods instead. This method will be removed in SMAPI 4.0.0.")]
         public bool Trigger(string name, string[] arguments)
         {
             SCore.DeprecationManager.Warn(

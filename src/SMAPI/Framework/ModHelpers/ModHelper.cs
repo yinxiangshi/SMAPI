@@ -13,7 +13,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         ** Fields
         *********/
         /// <summary>The backing field for <see cref="Content"/>.</summary>
-        [Obsolete]
+        [Obsolete("This only exists to support legacy code and will be removed in SMAPI 4.0.0.")]
         private readonly ContentHelper ContentImpl;
 
 
@@ -27,7 +27,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         public IModEvents Events { get; }
 
         /// <inheritdoc />
-        [Obsolete]
+        [Obsolete($"Use {nameof(IGameContentHelper)} or {nameof(IModContentHelper)} instead.")]
         public IContentHelper Content
         {
             get
@@ -128,7 +128,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         }
 
         /// <summary>Get the underlying instance for <see cref="IContentHelper"/>.</summary>
-        [Obsolete]
+        [Obsolete("This only exists to support legacy code and will be removed in SMAPI 4.0.0.")]
         public ContentHelper GetLegacyContentHelper()
         {
             return this.ContentImpl;
