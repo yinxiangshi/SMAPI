@@ -1846,7 +1846,7 @@ namespace StardewModdingAPI.Framework
                         IContentPackHelper contentPackHelper = new ContentPackHelper(
                             mod: mod,
                             contentPacks: new Lazy<IContentPack[]>(GetContentPacks),
-                            createContentPack: (dirPath, manifest) => this.CreateFakeContentPack(dirPath, manifest, contentCore, mod)
+                            createContentPack: (dirPath, fakeManifest) => this.CreateFakeContentPack(dirPath, fakeManifest, contentCore, mod)
                         );
                         IDataHelper dataHelper = new DataHelper(mod, mod.DirectoryPath, jsonHelper);
                         IReflectionHelper reflectionHelper = new ReflectionHelper(mod, mod.DisplayName, this.Reflection);
@@ -1883,8 +1883,10 @@ namespace StardewModdingAPI.Framework
         /// <param name="parentMod">The mod for which the content pack is being created.</param>
         private IContentPack CreateFakeContentPack(string packDirPath, IManifest packManifest, ContentCoordinator contentCore, IModMetadata parentMod)
         {
+            // create fake mod info
+            string relativePath = Path.GetRelativePath(Constants.ModsPath, packDirPath);
             IModMetadata fakeMod = new ModMetadata(
-                displayName: $"{parentMod.DisplayName} (fake content pack: {Path.GetRelativePath(Constants.ModsPath, packDirPath)})",
+                displayName: packManifest.Name,
                 directoryPath: packDirPath,
                 rootPath: Constants.ModsPath,
                 manifest: packManifest,
@@ -1892,16 +1894,22 @@ namespace StardewModdingAPI.Framework
                 isIgnored: false
             );
 
+            // create mod helpers
             IMonitor packMonitor = this.LogManager.GetMonitor(packManifest.Name);
             IFilePathLookup relativePathCache = this.GetFilePathLookup(packDirPath);
-
             GameContentHelper gameContentHelper = new(contentCore, fakeMod, packManifest.Name, packMonitor, this.Reflection);
             IModContentHelper packContentHelper = new ModContentHelper(contentCore, packDirPath, fakeMod, packManifest.Name, gameContentHelper.GetUnderlyingContentManager(), relativePathCache, this.Reflection);
             TranslationHelper packTranslationHelper = new(fakeMod, contentCore.GetLocale(), contentCore.Language);
 
+            // add content pack
             ContentPack contentPack = new(packDirPath, packManifest, packContentHelper, packTranslationHelper, this.Toolkit.JsonHelper, relativePathCache);
             this.ReloadTranslationsForTemporaryContentPack(parentMod, contentPack);
             parentMod.FakeContentPacks.Add(new WeakReference<ContentPack>(contentPack));
+
+            // log change
+            string pathLabel = packDirPath.Contains("..") ? packDirPath : relativePath;
+            this.Monitor.Log($"{parentMod.DisplayName} created dynamic content pack '{packManifest.Name}' (unique ID: {packManifest.UniqueID}{(packManifest.Name.Contains(pathLabel) ? "" : $", path: {pathLabel}")}).");
+
             return contentPack;
         }
 
