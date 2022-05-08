@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using StardewModdingAPI.Internal.ConsoleWriting;
+using StardewModdingAPI.Toolkit.Utilities;
 
 namespace StardewModdingAPI.Framework.Models
 {
@@ -22,7 +23,7 @@ namespace StardewModdingAPI.Framework.Models
             [nameof(VerboseLogging)] = false,
             [nameof(LogNetworkTraffic)] = false,
             [nameof(RewriteMods)] = true,
-            [nameof(UsePintail)] = true,
+            [nameof(UsePintail)] = Constants.Platform is Platform.Android or Platform.Linux,
             [nameof(UseCaseInsensitivePaths)] = false
         };
 

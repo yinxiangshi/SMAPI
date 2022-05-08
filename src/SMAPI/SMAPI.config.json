@@ -41,9 +41,10 @@ copy all the settings, or you may cause bugs due to overridden changes in future
 
     /**
      * Whether to make SMAPI file APIs case-insensitive, even on Linux.
-     * This is experimental, and the initial implementation may impact load times.
+     *
+     * When this is commented out, it'll be true on Android or Linux, and false otherwise.
      */
-    "UseCaseInsensitivePaths": false,
+    "UseCaseInsensitivePaths": null,
 
     /**
      * Whether to use the experimental Pintail API proxying library, instead of the original
