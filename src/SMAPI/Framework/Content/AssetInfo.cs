@@ -13,6 +13,9 @@ namespace StardewModdingAPI.Framework.Content
         /// <summary>Normalizes an asset key to match the cache key.</summary>
         protected readonly Func<string, string> GetNormalizedPath;
 
+        /// <summary>The backing field for <see cref="NameWithoutLocale"/>.</summary>
+        private IAssetName? NameWithoutLocaleImpl;
+
 
         /*********
         ** Accessors
@@ -24,7 +27,7 @@ namespace StardewModdingAPI.Framework.Content
         public IAssetName Name { get; }
 
         /// <inheritdoc />
-        public IAssetName NameWithoutLocale { get; }
+        public IAssetName NameWithoutLocale => this.NameWithoutLocaleImpl ??= this.Name.GetBaseAssetName();
 
         /// <inheritdoc />
         [Obsolete($"Use {nameof(AssetInfo.Name)} or {nameof(AssetInfo.NameWithoutLocale)} instead. This property will be removed in SMAPI 4.0.0.")]
@@ -64,7 +67,6 @@ namespace StardewModdingAPI.Framework.Content
         {
             this.Locale = locale;
             this.Name = assetName;
-            this.NameWithoutLocale = assetName.GetBaseAssetName();
             this.DataType = type;
             this.GetNormalizedPath = getNormalizedPath;
         }

@@ -19,19 +19,22 @@ namespace StardewModdingAPI.Events
         /// <summary>Get the mod metadata for a content pack, if it's a valid content pack for the mod.</summary>
         private readonly Func<IModMetadata, string?, string, IModMetadata?> GetOnBehalfOf;
 
+        /// <summary>The asset info being requested.</summary>
+        private readonly IAssetInfo AssetInfo;
+
 
         /*********
         ** Accessors
         *********/
         /// <summary>The name of the asset being requested.</summary>
-        public IAssetName Name { get; }
+        public IAssetName Name => this.AssetInfo.Name;
 
         /// <summary>The <see cref="Name"/> with any locale codes stripped.</summary>
         /// <remarks>For example, if <see cref="Name"/> contains a locale like <c>Data/Bundles.fr-FR</c>, this will be the name without locale like <c>Data/Bundles</c>. If the name has no locale, this field is equivalent.</remarks>
-        public IAssetName NameWithoutLocale { get; }
+        public IAssetName NameWithoutLocale => this.AssetInfo.NameWithoutLocale;
 
         /// <summary>The requested data type.</summary>
-        public Type DataType { get; }
+        public Type DataType => this.AssetInfo.DataType;
 
         /// <summary>The load operations requested by the event handler.</summary>
         internal IList<AssetLoadOperation> LoadOperations { get; } = new List<AssetLoadOperation>();
@@ -45,16 +48,12 @@ namespace StardewModdingAPI.Events
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="mod">The mod handling the event.</param>
-        /// <param name="name">The name of the asset being requested.</param>
-        /// <param name="dataType">The requested data type.</param>
-        /// <param name="nameWithoutLocale">The <paramref name="name"/> with any locale codes stripped.</param>
+        /// <param name="assetInfo">The asset info being requested.</param>
         /// <param name="getOnBehalfOf">Get the mod metadata for a content pack, if it's a valid content pack for the mod.</param>
-        internal AssetRequestedEventArgs(IModMetadata mod, IAssetName name, IAssetName nameWithoutLocale, Type dataType, Func<IModMetadata, string?, string, IModMetadata?> getOnBehalfOf)
+        internal AssetRequestedEventArgs(IModMetadata mod, IAssetInfo assetInfo, Func<IModMetadata, string?, string, IModMetadata?> getOnBehalfOf)
         {
             this.Mod = mod;
-            this.Name = name;
-            this.NameWithoutLocale = nameWithoutLocale;
-            this.DataType = dataType;
+            this.AssetInfo = assetInfo;
             this.GetOnBehalfOf = getOnBehalfOf;
         }
 
