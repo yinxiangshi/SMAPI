@@ -72,10 +72,10 @@ namespace StardewModdingAPI.Events
         {
             this.LoadOperations.Add(
                 new AssetLoadOperation(
-                    mod: this.Mod,
-                    priority: priority,
-                    onBehalfOf: this.GetOnBehalfOf(this.Mod, onBehalfOf, "load assets"),
-                    getData: _ => load()
+                    Mod: this.Mod,
+                    OnBehalfOf: this.GetOnBehalfOf(this.Mod, onBehalfOf, "load assets"),
+                    Priority: priority,
+                    GetData: _ => load()
                 )
             );
         }
@@ -96,10 +96,10 @@ namespace StardewModdingAPI.Events
         {
             this.LoadOperations.Add(
                 new AssetLoadOperation(
-                    mod: this.Mod,
-                    priority: priority,
-                    onBehalfOf: null,
-                    _ => this.Mod.Mod!.Helper.ModContent.Load<TAsset>(relativePath)
+                    Mod: this.Mod,
+                    OnBehalfOf: null,
+                    Priority: priority,
+                    GetData: _ => this.Mod.Mod!.Helper.ModContent.Load<TAsset>(relativePath)
                 )
             );
         }
@@ -119,10 +119,10 @@ namespace StardewModdingAPI.Events
         {
             this.EditOperations.Add(
                 new AssetEditOperation(
-                    mod: this.Mod,
-                    priority: priority,
-                    onBehalfOf: this.GetOnBehalfOf(this.Mod, onBehalfOf, "edit assets"),
-                    apply
+                    Mod: this.Mod,
+                    Priority: priority,
+                    OnBehalfOf: this.GetOnBehalfOf(this.Mod, onBehalfOf, "edit assets"),
+                    ApplyEdit: apply
                 )
             );
         }

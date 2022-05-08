@@ -615,19 +615,19 @@ namespace StardewModdingAPI.Framework
                     editor: loader.Data,
                     dataType: info.DataType,
                     createGroup: () => new AssetOperationGroup(
-                        mod: loader.Mod,
-                        loadOperations: new[]
+                        Mod: loader.Mod,
+                        LoadOperations: new[]
                         {
                             new AssetLoadOperation(
-                                mod: loader.Mod,
-                                priority: AssetLoadPriority.Exclusive,
-                                onBehalfOf: null,
-                                getData: assetInfo => loader.Data.Load<T>(
+                                Mod: loader.Mod,
+                                OnBehalfOf: null,
+                                Priority: AssetLoadPriority.Exclusive,
+                                GetData: assetInfo => loader.Data.Load<T>(
                                     this.GetLegacyAssetInfo(assetInfo)
                                 )
                             )
                         },
-                        editOperations: Array.Empty<AssetEditOperation>()
+                        EditOperations: Array.Empty<AssetEditOperation>()
                     )
                 );
             }
@@ -674,15 +674,15 @@ namespace StardewModdingAPI.Framework
                     editor: editor.Data,
                     dataType: info.DataType,
                     createGroup: () => new AssetOperationGroup(
-                        mod: editor.Mod,
-                        loadOperations: Array.Empty<AssetLoadOperation>(),
-                        editOperations: new[]
+                        Mod: editor.Mod,
+                        LoadOperations: Array.Empty<AssetLoadOperation>(),
+                        EditOperations: new[]
                         {
                             new AssetEditOperation(
-                                mod: editor.Mod,
-                                priority: priority,
-                                onBehalfOf: null,
-                                applyEdit: assetData => editor.Data.Edit<T>(
+                                Mod: editor.Mod,
+                                OnBehalfOf: null,
+                                Priority: priority,
+                                ApplyEdit: assetData => editor.Data.Edit<T>(
                                     this.GetLegacyAssetData(assetData)
                                 )
                             )
