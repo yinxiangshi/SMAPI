@@ -1,6 +1,10 @@
 ← [README](README.md)
 
 # Release notes
+## Upcoming release
+* For the web UI:
+  * Updated the JSON validator/schema for Content Patcher 1.26.0.
+
 ## 3.14.2
 Released 08 May 2022 for Stardew Valley 1.5.6 or later.
 
