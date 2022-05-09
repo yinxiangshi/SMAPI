@@ -15,7 +15,7 @@ using StardewValley;
 namespace StardewModdingAPI.Framework.ModHelpers
 {
     /// <summary>Provides an API for loading content assets.</summary>
-    [Obsolete]
+    [Obsolete($"Use {nameof(IMod.Helper)}.{nameof(IModHelper.GameContent)} or {nameof(IMod.Helper)}.{nameof(IModHelper.ModContent)} instead. This interface will be removed in SMAPI 4.0.0.")]
     internal class ContentHelper : BaseHelper, IContentHelper
     {
         /*********

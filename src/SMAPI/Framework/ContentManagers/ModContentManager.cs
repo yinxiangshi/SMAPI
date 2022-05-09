@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -33,11 +34,11 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <summary>The game content manager used for map tilesheets not provided by the mod.</summary>
         private readonly IContentManager GameContentManager;
 
-        /// <summary>A lookup for relative paths within the <see cref="ContentManager.RootDirectory"/>.</summary>
-        private readonly IFilePathLookup RelativePathLookup;
+        /// <summary>A lookup for files within the <see cref="ContentManager.RootDirectory"/>.</summary>
+        private readonly IFileLookup FileLookup;
 
         /// <summary>If a map tilesheet's image source has no file extensions, the file extensions to check for in the local mod folder.</summary>
-        private readonly string[] LocalTilesheetExtensions = { ".png", ".xnb" };
+        private static readonly HashSet<string> LocalTilesheetExtensions = new(StringComparer.OrdinalIgnoreCase) { ".png", ".xnb" };
 
 
         /*********
@@ -55,12 +56,12 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <param name="reflection">Simplifies access to private code.</param>
         /// <param name="jsonHelper">Encapsulates SMAPI's JSON file parsing.</param>
         /// <param name="onDisposing">A callback to invoke when the content manager is being disposed.</param>
-        /// <param name="relativePathLookup">A lookup for relative paths within the <paramref name="rootDirectory"/>.</param>
-        public ModContentManager(string name, IContentManager gameContentManager, IServiceProvider serviceProvider, string modName, string rootDirectory, CultureInfo currentCulture, ContentCoordinator coordinator, IMonitor monitor, Reflector reflection, JsonHelper jsonHelper, Action<BaseContentManager> onDisposing, IFilePathLookup relativePathLookup)
+        /// <param name="fileLookup">A lookup for files within the <paramref name="rootDirectory"/>.</param>
+        public ModContentManager(string name, IContentManager gameContentManager, IServiceProvider serviceProvider, string modName, string rootDirectory, CultureInfo currentCulture, ContentCoordinator coordinator, IMonitor monitor, Reflector reflection, JsonHelper jsonHelper, Action<BaseContentManager> onDisposing, IFileLookup fileLookup)
             : base(name, serviceProvider, rootDirectory, currentCulture, coordinator, monitor, reflection, onDisposing, isNamespaced: true)
         {
             this.GameContentManager = gameContentManager;
-            this.RelativePathLookup = relativePathLookup;
+            this.FileLookup = fileLookup;
             this.JsonHelper = jsonHelper;
             this.ModName = modName;
 
@@ -73,7 +74,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             if (base.DoesAssetExist<T>(assetName))
                 return true;
 
-            FileInfo file = this.GetModFile(assetName.Name);
+            FileInfo file = this.GetModFile<T>(assetName.Name);
             return file.Exists;
         }
 
@@ -103,7 +104,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             try
             {
                 // get file
-                FileInfo file = this.GetModFile(assetName.Name);
+                FileInfo file = this.GetModFile<T>(assetName.Name);
                 if (!file.Exists)
                     throw this.GetLoadError(assetName, "the specified path doesn't exist.");
 
@@ -139,9 +140,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <exception cref="ArgumentException">The <paramref name="key"/> is empty or contains invalid characters.</exception>
         public IAssetName GetInternalAssetKey(string key)
         {
-            FileInfo file = this.GetModFile(key);
-            string relativePath = Path.GetRelativePath(this.RootDirectory, file.FullName);
-            string internalKey = Path.Combine(this.Name, relativePath);
+            string internalKey = Path.Combine(this.Name, PathUtilities.NormalizeAssetName(key));
 
             return this.Coordinator.ParseAssetName(internalKey, allowLocales: false);
         }
@@ -253,19 +252,17 @@ namespace StardewModdingAPI.Framework.ContentManagers
         }
 
         /// <summary>Get a file from the mod folder.</summary>
+        /// <typeparam name="T">The expected asset type.</typeparam>
         /// <param name="path">The asset path relative to the content folder.</param>
-        private FileInfo GetModFile(string path)
+        private FileInfo GetModFile<T>(string path)
         {
-            // map to case-insensitive path if needed
-            path = this.RelativePathLookup.GetFilePath(path);
+            // get exact file
+            FileInfo file = this.FileLookup.GetFile(path);
 
-            // try exact match
-            FileInfo file = new(Path.Combine(this.FullRootDirectory, path));
-
-            // try with default extension
-            if (!file.Exists)
+            // try with default image extensions
+            if (!file.Exists && typeof(Texture2D).IsAssignableFrom(typeof(T)) && !ModContentManager.LocalTilesheetExtensions.Contains(file.Extension))
             {
-                foreach (string extension in this.LocalTilesheetExtensions)
+                foreach (string extension in ModContentManager.LocalTilesheetExtensions)
                 {
                     FileInfo result = new(file.FullName + extension);
                     if (result.Exists)
@@ -385,7 +382,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             // get relative to map file
             {
                 string localKey = Path.Combine(modRelativeMapFolder, relativePath);
-                if (this.GetModFile(localKey).Exists)
+                if (this.GetModFile<Texture2D>(localKey).Exists)
                 {
                     assetName = this.GetInternalAssetKey(localKey);
                     return true;

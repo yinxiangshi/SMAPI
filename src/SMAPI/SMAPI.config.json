@@ -40,10 +40,11 @@ copy all the settings, or you may cause bugs due to overridden changes in future
     "RewriteMods": true,
 
     /**
-     * Whether to make SMAPI file APIs case-insensitive, even on Linux.
-     * This is experimental, and the initial implementation may impact load times.
+     * Whether to make SMAPI file APIs case-insensitive (even if the filesystem is case-sensitive).
+     *
+     * If null, it's only enabled on Android and Linux.
      */
-    "UseCaseInsensitivePaths": false,
+    "UseCaseInsensitivePaths": null,
 
     /**
      * Whether to use the experimental Pintail API proxying library, instead of the original
@@ -57,17 +58,16 @@ copy all the settings, or you may cause bugs due to overridden changes in future
      * part of their normal functionality, so these warnings are meaningless without further
      * investigation.
      *
-     * When this is commented out, it'll be true for local debug builds and false otherwise.
+     * If null, it's only enabled for local debug builds.
      */
-    //"ParanoidWarnings": true,
+    "ParanoidWarnings": null,
 
     /**
      * Whether SMAPI should show newer beta versions as an available update.
      *
-     * When this is commented out, it'll be true if the current SMAPI version is beta, and false
-     * otherwise.
+     * If null, it's only enabled if the current SMAPI version is beta.
      */
-    //"UseBetaChannel": true,
+    "UseBetaChannel": null,
 
     /**
      * SMAPI's GitHub project name, used to perform update checks.

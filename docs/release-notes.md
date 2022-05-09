@@ -1,6 +1,17 @@
 ← [README](README.md)
 
 # Release notes
+## 3.14.2
+Released 08 May 2022 for Stardew Valley 1.5.6 or later.
+
+* For players:
+  * Enabled case-insensitive file paths by default for Android and Linux players.  
+    _This was temporarily disabled in SMAPI 3.14.1, and will remain disabled by default on macOS and Windows since their filesystems are already case-insensitive._
+  * Various performance improvements.
+* For mod authors:
+  * Dynamic content packs created via `helper.ContentPacks.CreateTemporary` or `CreateFake` are now listed in the log file.
+  * Fixed assets loaded through a fake content pack not working correctly since 3.14.0.
+
 ## 3.14.1
 Released 06 May 2022 for Stardew Valley 1.5.6 or later.
 

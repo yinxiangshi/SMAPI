@@ -58,11 +58,11 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <param name="mods">The mod manifests to validate.</param>
         /// <param name="apiVersion">The current SMAPI version.</param>
         /// <param name="getUpdateUrl">Get an update URL for an update key (if valid).</param>
-        /// <param name="getFilePathLookup">Get a file path lookup for the given directory.</param>
+        /// <param name="getFileLookup">Get a file lookup for the given directory.</param>
         /// <param name="validateFilesExist">Whether to validate that files referenced in the manifest (like <see cref="IManifest.EntryDll"/>) exist on disk. This can be disabled to only validate the manifest itself.</param>
         [SuppressMessage("ReSharper", "ConstantConditionalAccessQualifier", Justification = "Manifest values may be null before they're validated.")]
         [SuppressMessage("ReSharper", "ConditionIsAlwaysTrueOrFalse", Justification = "Manifest values may be null before they're validated.")]
-        public void ValidateManifests(IEnumerable<IModMetadata> mods, ISemanticVersion apiVersion, Func<string, string?> getUpdateUrl, Func<string, IFilePathLookup> getFilePathLookup, bool validateFilesExist = true)
+        public void ValidateManifests(IEnumerable<IModMetadata> mods, ISemanticVersion apiVersion, Func<string, string?> getUpdateUrl, Func<string, IFileLookup> getFileLookup, bool validateFilesExist = true)
         {
             mods = mods.ToArray();
 
@@ -147,9 +147,9 @@ namespace StardewModdingAPI.Framework.ModLoading
                         // file doesn't exist
                         if (validateFilesExist)
                         {
-                            IFilePathLookup pathLookup = getFilePathLookup(mod.DirectoryPath);
-                            string fileName = pathLookup.GetFilePath(mod.Manifest.EntryDll!);
-                            if (!File.Exists(Path.Combine(mod.DirectoryPath, fileName)))
+                            IFileLookup pathLookup = getFileLookup(mod.DirectoryPath);
+                            FileInfo file = pathLookup.GetFile(mod.Manifest.EntryDll!);
+                            if (!file.Exists)
                             {
                                 mod.SetStatus(ModMetadataStatus.Failed, ModFailReason.InvalidManifest, $"its DLL '{mod.Manifest.EntryDll}' doesn't exist.");
                                 continue;

@@ -85,11 +85,11 @@ namespace StardewModdingAPI.Framework.ModLoading
 
         /// <summary>Preprocess and load an assembly.</summary>
         /// <param name="mod">The mod for which the assembly is being loaded.</param>
-        /// <param name="assemblyPath">The assembly file path.</param>
+        /// <param name="assemblyFile">The assembly file.</param>
         /// <param name="assumeCompatible">Assume the mod is compatible, even if incompatible code is detected.</param>
         /// <returns>Returns the rewrite metadata for the preprocessed assembly.</returns>
         /// <exception cref="IncompatibleInstructionException">An incompatible CIL instruction was found while rewriting the assembly.</exception>
-        public Assembly Load(IModMetadata mod, string assemblyPath, bool assumeCompatible)
+        public Assembly Load(IModMetadata mod, FileInfo assemblyFile, bool assumeCompatible)
         {
             // get referenced local assemblies
             AssemblyParseResult[] assemblies;
@@ -100,19 +100,19 @@ namespace StardewModdingAPI.Framework.ModLoading
                     where name != null
                     select name
                 );
-                assemblies = this.GetReferencedLocalAssemblies(new FileInfo(assemblyPath), visitedAssemblyNames, this.AssemblyDefinitionResolver).ToArray();
+                assemblies = this.GetReferencedLocalAssemblies(assemblyFile, visitedAssemblyNames, this.AssemblyDefinitionResolver).ToArray();
             }
 
             // validate load
             if (!assemblies.Any() || assemblies[0].Status == AssemblyLoadStatus.Failed)
             {
-                throw new SAssemblyLoadFailedException(!File.Exists(assemblyPath)
-                    ? $"Could not load '{assemblyPath}' because it doesn't exist."
-                    : $"Could not load '{assemblyPath}'."
+                throw new SAssemblyLoadFailedException(!assemblyFile.Exists
+                    ? $"Could not load '{assemblyFile.FullName}' because it doesn't exist."
+                    : $"Could not load '{assemblyFile.FullName}'."
                 );
             }
             if (assemblies.Last().Status == AssemblyLoadStatus.AlreadyLoaded) // mod assembly is last in dependency order
-                throw new SAssemblyLoadFailedException($"Could not load '{assemblyPath}' because it was already loaded. Do you have two copies of this mod?");
+                throw new SAssemblyLoadFailedException($"Could not load '{assemblyFile.FullName}' because it was already loaded. Do you have two copies of this mod?");
 
             // rewrite & load assemblies in leaf-to-root order
             bool oneAssembly = assemblies.Length == 1;
