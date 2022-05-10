@@ -2,6 +2,9 @@
 
 # Release notes
 ## Upcoming release
+* For mod authors:
+  * Fixed asset propagation for player sprites not fully updating recolor masks in some cases.
+
 * For the web UI:
   * Updated the JSON validator/schema for Content Patcher 1.26.0.
 
