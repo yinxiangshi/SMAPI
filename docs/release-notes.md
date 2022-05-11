@@ -2,6 +2,9 @@
 
 # Release notes
 ## Upcoming release
+* For players:
+  * Further improved performance in some cases.
+
 * For mod authors:
   * Fixed error when loading a `.xnb` file through the old content API without the file extension.
   * Fixed asset propagation for player sprites not fully updating recolor masks in some cases.

@@ -20,14 +20,17 @@ namespace StardewModdingAPI.Framework.Events
         /// <summary>The underlying event handlers.</summary>
         private readonly List<ManagedEventHandler<TEventArgs>> Handlers = new();
 
-        /// <summary>A cached snapshot of <see cref="Handlers"/>, or <c>null</c> to rebuild it next raise.</summary>
+        /// <summary>A cached snapshot of the <see cref="Handlers"/> sorted by event priority, or <c>null</c> to rebuild it next raise.</summary>
         private ManagedEventHandler<TEventArgs>[]? CachedHandlers = Array.Empty<ManagedEventHandler<TEventArgs>>();
 
         /// <summary>The total number of event handlers registered for this events, regardless of whether they're still registered.</summary>
         private int RegistrationIndex;
 
-        /// <summary>Whether new handlers were added since the last raise.</summary>
-        private bool HasNewHandlers;
+        /// <summary>Whether handlers were removed since the last raise.</summary>
+        private bool HasRemovedHandlers;
+
+        /// <summary>Whether any of the handlers have a custom priority.</summary>
+        private bool HasPriorities;
 
 
         /*********
@@ -67,7 +70,7 @@ namespace StardewModdingAPI.Framework.Events
 
                 this.Handlers.Add(managedHandler);
                 this.CachedHandlers = null;
-                this.HasNewHandlers = true;
+                this.HasPriorities |= priority != EventPriority.Normal;
             }
         }
 
@@ -85,6 +88,7 @@ namespace StardewModdingAPI.Framework.Events
 
                     this.Handlers.RemoveAt(i);
                     this.CachedHandlers = null;
+                    this.HasRemovedHandlers = true;
                     break;
                 }
             }
@@ -92,10 +96,24 @@ namespace StardewModdingAPI.Framework.Events
 
         /// <summary>Raise the event and notify all handlers.</summary>
         /// <param name="args">The event arguments to pass.</param>
-        /// <param name="match">A lambda which returns true if the event should be raised for the given mod.</param>
-        public void Raise(TEventArgs args, Func<IModMetadata, bool>? match = null)
+        public void Raise(TEventArgs args)
         {
-            this.Raise((_, invoke) => invoke(args), match);
+            // skip if no handlers
+            if (this.Handlers.Count == 0)
+                return;
+
+            // raise event
+            foreach (ManagedEventHandler<TEventArgs> handler in this.GetHandlers())
+            {
+                try
+                {
+                    handler.Handler(null, args);
+                }
+                catch (Exception ex)
+                {
+                    this.LogError(handler, ex);
+                }
+            }
         }
 
         /// <summary>Raise the event and notify all handlers.</summary>
@@ -107,31 +125,15 @@ namespace StardewModdingAPI.Framework.Events
             if (this.Handlers.Count == 0)
                 return;
 
-            // update cached data
-            // (This is debounced here to avoid repeatedly sorting when handlers are added/removed,
-            // and keeping a separate cached list allows changes during enumeration.)
-            var handlers = this.CachedHandlers; // iterate local copy in case a mod adds/removes a handler while handling the event, which will set this field to null
-            if (handlers == null)
-            {
-                lock (this.Handlers)
-                {
-                    if (this.HasNewHandlers && this.Handlers.Any(p => p.Priority != EventPriority.Normal))
-                        this.Handlers.Sort();
-
-                    this.CachedHandlers = handlers = this.Handlers.ToArray();
-                    this.HasNewHandlers = false;
-                }
-            }
-
             // raise event
-            foreach (ManagedEventHandler<TEventArgs> handler in handlers)
+            foreach (ManagedEventHandler<TEventArgs> handler in this.GetHandlers())
             {
                 if (match != null && !match(handler.SourceMod))
                     continue;
 
                 try
                 {
-                    invoke(handler.SourceMod, args => handler.Handler.Invoke(null, args));
+                    invoke(handler.SourceMod, args => handler.Handler(null, args));
                 }
                 catch (Exception ex)
                 {
@@ -147,9 +149,36 @@ namespace StardewModdingAPI.Framework.Events
         /// <summary>Log an exception from an event handler.</summary>
         /// <param name="handler">The event handler instance.</param>
         /// <param name="ex">The exception that was raised.</param>
-        protected void LogError(ManagedEventHandler<TEventArgs> handler, Exception ex)
+        private void LogError(ManagedEventHandler<TEventArgs> handler, Exception ex)
         {
             handler.SourceMod.LogAsMod($"This mod failed in the {this.EventName} event. Technical details: \n{ex.GetLogSummary()}", LogLevel.Error);
+        }
+
+        /// <summary>Get cached copy of the sorted handlers to invoke.</summary>
+        /// <remarks>This returns the handlers sorted by priority, and allows iterating the list even if a mod adds/removes handlers while handling it. This is debounced when requested to avoid repeatedly sorting when handlers are added/removed.</remarks>
+        private ManagedEventHandler<TEventArgs>[] GetHandlers()
+        {
+            ManagedEventHandler<TEventArgs>[]? handlers = this.CachedHandlers;
+
+            if (handlers == null)
+            {
+                lock (this.Handlers)
+                {
+                    // recheck priorities
+                    if (this.HasRemovedHandlers)
+                        this.HasPriorities = this.Handlers.Any(p => p.Priority != EventPriority.Normal);
+
+                    // sort by priority if needed
+                    if (this.HasPriorities)
+                        this.Handlers.Sort();
+
+                    // update cache
+                    this.CachedHandlers = handlers = this.Handlers.ToArray();
+                    this.HasRemovedHandlers = false;
+                }
+            }
+
+            return handlers;
         }
     }
 }

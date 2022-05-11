@@ -1231,7 +1231,8 @@ namespace StardewModdingAPI.Framework
                 modIDs.Remove(message.FromModID); // don't send a broadcast back to the sender
 
             // raise events
-            this.EventManager.ModMessageReceived.Raise(new ModMessageReceivedEventArgs(message, this.Toolkit.JsonHelper), mod => modIDs.Contains(mod.Manifest.UniqueID));
+            var args = new ModMessageReceivedEventArgs(message, this.Toolkit.JsonHelper);
+            this.EventManager.ModMessageReceived.Raise((_, invoke) => invoke(args), mod => modIDs.Contains(mod.Manifest.UniqueID));
         }
 
         /// <summary>Constructor a content manager to read game content files.</summary>
