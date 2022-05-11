@@ -577,6 +577,7 @@ namespace StardewModdingAPI.Framework
         private void OnPlayerInstanceUpdating(SGame instance, GameTime gameTime, Action runUpdate)
         {
             EventManager events = this.EventManager;
+            bool verbose = this.Monitor.IsVerbose;
 
             try
             {
@@ -804,7 +805,7 @@ namespace StardewModdingAPI.Framework
                     // since the game adds & removes its own handler on the fly.
                     if (state.WindowSize.IsChanged)
                     {
-                        if (this.Monitor.IsVerbose)
+                        if (verbose)
                             this.Monitor.Log($"Events: window size changed to {state.WindowSize.New}.");
 
                         events.WindowResized.Raise(new WindowResizedEventArgs(state.WindowSize.Old, state.WindowSize.New));
@@ -828,7 +829,7 @@ namespace StardewModdingAPI.Framework
                             // raise mouse wheel scrolled
                             if (state.MouseWheelScroll.IsChanged)
                             {
-                                if (this.Monitor.IsVerbose)
+                                if (verbose)
                                     this.Monitor.Log($"Events: mouse wheel scrolled to {state.MouseWheelScroll.New}.");
                                 events.MouseWheelScrolled.Raise(new MouseWheelScrolledEventArgs(cursor, state.MouseWheelScroll.Old, state.MouseWheelScroll.New));
                             }
@@ -845,14 +846,14 @@ namespace StardewModdingAPI.Framework
 
                                     if (status == SButtonState.Pressed)
                                     {
-                                        if (this.Monitor.IsVerbose)
+                                        if (verbose)
                                             this.Monitor.Log($"Events: button {button} pressed.");
 
                                         events.ButtonPressed.Raise(new ButtonPressedEventArgs(button, cursor, inputState));
                                     }
                                     else if (status == SButtonState.Released)
                                     {
-                                        if (this.Monitor.IsVerbose)
+                                        if (verbose)
                                             this.Monitor.Log($"Events: button {button} released.");
 
                                         events.ButtonReleased.Raise(new ButtonReleasedEventArgs(button, cursor, inputState));
@@ -870,7 +871,7 @@ namespace StardewModdingAPI.Framework
                         var was = state.ActiveMenu.Old;
                         var now = state.ActiveMenu.New;
 
-                        if (this.Monitor.IsVerbose)
+                        if (verbose)
                             this.Monitor.Log($"Context: menu changed from {was?.GetType().FullName ?? "none"} to {now?.GetType().FullName ?? "none"}.");
 
                         // raise menu events
@@ -885,12 +886,12 @@ namespace StardewModdingAPI.Framework
                         bool raiseWorldEvents = !state.SaveID.IsChanged; // don't report changes from unloaded => loaded
 
                         // location list changes
-                        if (state.Locations.LocationList.IsChanged && (events.LocationListChanged.HasListeners() || this.Monitor.IsVerbose))
+                        if (state.Locations.LocationList.IsChanged && (events.LocationListChanged.HasListeners() || verbose))
                         {
                             var added = state.Locations.LocationList.Added.ToArray();
                             var removed = state.Locations.LocationList.Removed.ToArray();
 
-                            if (this.Monitor.IsVerbose)
+                            if (verbose)
                             {
                                 string addedText = added.Any() ? string.Join(", ", added.Select(p => p.Name)) : "none";
                                 string removedText = removed.Any() ? string.Join(", ", removed.Select(p => p.Name)) : "none";
@@ -960,7 +961,7 @@ namespace StardewModdingAPI.Framework
                             // raise current location changed
                             if (playerState.Location.IsChanged)
                             {
-                                if (this.Monitor.IsVerbose)
+                                if (verbose)
                                     this.Monitor.Log($"Context: set location to {playerState.Location.New}.");
 
                                 events.Warped.Raise(new WarpedEventArgs(player, playerState.Location.Old!, playerState.Location.New!));
@@ -972,7 +973,7 @@ namespace StardewModdingAPI.Framework
                                 if (!value.IsChanged)
                                     continue;
 
-                                if (this.Monitor.IsVerbose)
+                                if (verbose)
                                     this.Monitor.Log($"Events: player skill '{skill}' changed from {value.Old} to {value.New}.");
 
                                 events.LevelChanged.Raise(new LevelChangedEventArgs(player, skill, value.Old, value.New));
@@ -983,7 +984,7 @@ namespace StardewModdingAPI.Framework
                             {
                                 SnapshotItemListDiff inventory = playerState.Inventory;
 
-                                if (this.Monitor.IsVerbose)
+                                if (verbose)
                                     this.Monitor.Log("Events: player inventory changed.");
                                 events.InventoryChanged.Raise(new InventoryChangedEventArgs(player, added: inventory.Added, removed: inventory.Removed, quantityChanged: inventory.QuantityChanged));
                             }
