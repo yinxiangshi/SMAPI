@@ -94,7 +94,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
                 if (this.Coordinator.TryParseManagedAssetKey(assetName.Name, out string? contentManagerID, out IAssetName? relativePath))
                 {
                     if (contentManagerID != this.Name)
-                        throw this.GetLoadError(assetName, "can't load a different mod's managed asset key through this mod content manager.");
+                        throw this.GetLoadError(assetName, ContentLoadErrorType.AccessDenied, "can't load a different mod's managed asset key through this mod content manager.");
                     assetName = relativePath;
                 }
             }
@@ -106,7 +106,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
                 // get file
                 FileInfo file = this.GetModFile<T>(assetName.Name);
                 if (!file.Exists)
-                    throw this.GetLoadError(assetName, "the specified path doesn't exist.");
+                    throw this.GetLoadError(assetName, ContentLoadErrorType.AssetDoesNotExist, "the specified path doesn't exist.");
 
                 // load content
                 asset = file.Extension.ToLower() switch
@@ -121,7 +121,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             }
             catch (Exception ex) when (ex is not SContentLoadException)
             {
-                throw this.GetLoadError(assetName, "an unexpected occurred.", ex);
+                throw this.GetLoadError(assetName, ContentLoadErrorType.Other, "an unexpected occurred.", ex);
             }
 
             // track & return asset
@@ -157,7 +157,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
         {
             // validate
             if (!typeof(T).IsAssignableFrom(typeof(XmlSource)))
-                throw this.GetLoadError(assetName, $"can't read file with extension '{file.Extension}' as type '{typeof(T)}'; must be type '{typeof(XmlSource)}'.");
+                throw this.GetLoadError(assetName, ContentLoadErrorType.InvalidData, $"can't read file with extension '{file.Extension}' as type '{typeof(T)}'; must be type '{typeof(XmlSource)}'.");
 
             // load
             string source = File.ReadAllText(file.FullName);
@@ -171,7 +171,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
         private T LoadDataFile<T>(IAssetName assetName, FileInfo file)
         {
             if (!this.JsonHelper.ReadJsonFileIfExists(file.FullName, out T? asset))
-                throw this.GetLoadError(assetName, "the JSON file is invalid."); // should never happen since we check for file existence before calling this method
+                throw this.GetLoadError(assetName, ContentLoadErrorType.InvalidData, "the JSON file is invalid."); // should never happen since we check for file existence before calling this method
 
             return asset;
         }
@@ -184,7 +184,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
         {
             // validate
             if (typeof(T) != typeof(Texture2D))
-                throw this.GetLoadError(assetName, $"can't read file with extension '{file.Extension}' as type '{typeof(T)}'; must be type '{typeof(Texture2D)}'.");
+                throw this.GetLoadError(assetName, ContentLoadErrorType.InvalidData, $"can't read file with extension '{file.Extension}' as type '{typeof(T)}'; must be type '{typeof(Texture2D)}'.");
 
             // load
             using FileStream stream = File.OpenRead(file.FullName);
@@ -201,7 +201,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
         {
             // validate
             if (typeof(T) != typeof(Map))
-                throw this.GetLoadError(assetName, $"can't read file with extension '{file.Extension}' as type '{typeof(T)}'; must be type '{typeof(Map)}'.");
+                throw this.GetLoadError(assetName, ContentLoadErrorType.InvalidData, $"can't read file with extension '{file.Extension}' as type '{typeof(T)}'; must be type '{typeof(Map)}'.");
 
             // load
             FormatManager formatManager = FormatManager.Instance;
@@ -239,16 +239,17 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <param name="file">The file to load.</param>
         private T HandleUnknownFileType<T>(IAssetName assetName, FileInfo file)
         {
-            throw this.GetLoadError(assetName, $"unknown file extension '{file.Extension}'; must be one of '.fnt', '.json', '.png', '.tbin', '.tmx', or '.xnb'.");
+            throw this.GetLoadError(assetName, ContentLoadErrorType.InvalidName, $"unknown file extension '{file.Extension}'; must be one of '.fnt', '.json', '.png', '.tbin', '.tmx', or '.xnb'.");
         }
 
         /// <summary>Get an error which indicates that an asset couldn't be loaded.</summary>
+        /// <param name="errorType">Why loading an asset through the content pipeline failed.</param>
         /// <param name="assetName">The asset name that failed to load.</param>
         /// <param name="reasonPhrase">The reason the file couldn't be loaded.</param>
         /// <param name="exception">The underlying exception, if applicable.</param>
-        private SContentLoadException GetLoadError(IAssetName assetName, string reasonPhrase, Exception? exception = null)
+        private SContentLoadException GetLoadError(IAssetName assetName, ContentLoadErrorType errorType, string reasonPhrase, Exception? exception = null)
         {
-            return new($"Failed loading asset '{assetName}' from {this.Name}: {reasonPhrase}", exception);
+            return new(errorType, $"Failed loading asset '{assetName}' from {this.Name}: {reasonPhrase}", exception);
         }
 
         /// <summary>Get a file from the mod folder.</summary>
@@ -328,13 +329,13 @@ namespace StardewModdingAPI.Framework.ContentManagers
                 // validate tilesheet path
                 string errorPrefix = $"{this.ModName} loaded map '{relativeMapPath}' with invalid tilesheet path '{imageSource}'.";
                 if (Path.IsPathRooted(imageSource) || PathUtilities.GetSegments(imageSource).Contains(".."))
-                    throw new SContentLoadException($"{errorPrefix} Tilesheet paths must be a relative path without directory climbing (../).");
+                    throw new SContentLoadException(ContentLoadErrorType.InvalidData, $"{errorPrefix} Tilesheet paths must be a relative path without directory climbing (../).");
 
                 // load best match
                 try
                 {
                     if (!this.TryGetTilesheetAssetName(relativeMapFolder, imageSource, out IAssetName? assetName, out string? error))
-                        throw new SContentLoadException($"{errorPrefix} {error}");
+                        throw new SContentLoadException(ContentLoadErrorType.InvalidData, $"{errorPrefix} {error}");
 
                     if (assetName is not null)
                     {
@@ -346,7 +347,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
                 }
                 catch (Exception ex) when (ex is not SContentLoadException)
                 {
-                    throw new SContentLoadException($"{errorPrefix} The tilesheet couldn't be loaded.", ex);
+                    throw new SContentLoadException(ContentLoadErrorType.InvalidData, $"{errorPrefix} The tilesheet couldn't be loaded.", ex);
                 }
             }
         }

@@ -135,12 +135,12 @@ namespace StardewModdingAPI.Framework.ModHelpers
                         return this.ModContentManager.LoadExact<T>(assetName, useCache: false);
 
                     default:
-                        throw new SContentLoadException($"{this.Mod.DisplayName} failed loading content asset '{key}' from {source}: unknown content source '{source}'.");
+                        throw new SContentLoadException(ContentLoadErrorType.Other, $"{this.Mod.DisplayName} failed loading content asset '{key}' from {source}: unknown content source '{source}'.");
                 }
             }
             catch (Exception ex) when (ex is not SContentLoadException)
             {
-                throw new SContentLoadException($"{this.Mod.DisplayName} failed loading content asset '{key}' from {source}.", ex);
+                throw new SContentLoadException(ContentLoadErrorType.Other, $"{this.Mod.DisplayName} failed loading content asset '{key}' from {source}.", ex);
             }
         }
 

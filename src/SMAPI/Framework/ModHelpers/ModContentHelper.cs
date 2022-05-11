@@ -58,7 +58,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
             }
             catch (Exception ex) when (ex is not SContentLoadException)
             {
-                throw new SContentLoadException($"{this.ModName} failed loading content asset '{relativePath}' from its mod folder.", ex);
+                throw new SContentLoadException(ContentLoadErrorType.Other, $"{this.ModName} failed loading content asset '{relativePath}' from its mod folder.", ex);
             }
         }
 

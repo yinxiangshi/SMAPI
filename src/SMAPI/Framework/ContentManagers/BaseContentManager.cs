@@ -198,9 +198,9 @@ namespace StardewModdingAPI.Framework.ContentManagers
             // NOTE: the game checks for ContentLoadException to handle invalid keys, so avoid
             // throwing other types like ArgumentException here.
             if (string.IsNullOrWhiteSpace(assetName))
-                throw new SContentLoadException("The asset key or local path is empty.");
+                throw new SContentLoadException(ContentLoadErrorType.InvalidName, "The asset key or local path is empty.");
             if (assetName.Intersect(Path.GetInvalidPathChars()).Any())
-                throw new SContentLoadException("The asset key or local path contains invalid characters.");
+                throw new SContentLoadException(ContentLoadErrorType.InvalidName, "The asset key or local path contains invalid characters.");
 
             return this.Cache.NormalizeKey(assetName);
         }
