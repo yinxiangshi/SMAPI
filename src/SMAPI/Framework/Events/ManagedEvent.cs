@@ -118,8 +118,7 @@ namespace StardewModdingAPI.Framework.Events
 
         /// <summary>Raise the event and notify all handlers.</summary>
         /// <param name="invoke">Invoke an event handler. This receives the mod which registered the handler, and should invoke the callback with the event arguments to pass it.</param>
-        /// <param name="match">A lambda which returns true if the event should be raised for the given mod.</param>
-        public void Raise(Action<IModMetadata, Action<TEventArgs>> invoke, Func<IModMetadata, bool>? match = null)
+        public void Raise(Action<IModMetadata, Action<TEventArgs>> invoke)
         {
             // skip if no handlers
             if (this.Handlers.Count == 0)
@@ -128,9 +127,6 @@ namespace StardewModdingAPI.Framework.Events
             // raise event
             foreach (ManagedEventHandler<TEventArgs> handler in this.GetHandlers())
             {
-                if (match != null && !match(handler.SourceMod))
-                    continue;
-
                 try
                 {
                     invoke(handler.SourceMod, args => handler.Handler(null, args));
