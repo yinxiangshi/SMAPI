@@ -235,7 +235,8 @@ namespace StardewModdingAPI.Framework
                         }
 
                         // raise event
-                        this.EventManager.PeerContextReceived.Raise(new PeerContextReceivedEventArgs(newPeer));
+                        if (this.EventManager.PeerContextReceived.HasListeners)
+                            this.EventManager.PeerContextReceived.Raise(new PeerContextReceivedEventArgs(newPeer));
                     }
                     break;
 
@@ -259,7 +260,8 @@ namespace StardewModdingAPI.Framework
                     resume();
 
                     // raise event
-                    this.EventManager.PeerConnected.Raise(new PeerConnectedEventArgs(this.Peers[message.FarmerID]));
+                    if (this.EventManager.PeerConnected.HasListeners)
+                        this.EventManager.PeerConnected.Raise(new PeerConnectedEventArgs(this.Peers[message.FarmerID]));
                     break;
 
                 // handle mod message
@@ -370,7 +372,9 @@ namespace StardewModdingAPI.Framework
                 {
                     this.Monitor.Log($"Player quit: {playerID}");
                     this.Peers.Remove(playerID);
-                    this.EventManager.PeerDisconnected.Raise(new PeerDisconnectedEventArgs(peer));
+
+                    if (this.EventManager.PeerDisconnected.HasListeners)
+                        this.EventManager.PeerDisconnected.Raise(new PeerDisconnectedEventArgs(peer));
                 }
             }
 
@@ -481,7 +485,7 @@ namespace StardewModdingAPI.Framework
                 this.HostPeer = peer;
 
             // raise event
-            if (raiseEvent)
+            if (raiseEvent && this.EventManager.PeerContextReceived.HasListeners)
                 this.EventManager.PeerContextReceived.Raise(new PeerContextReceivedEventArgs(peer));
         }
 

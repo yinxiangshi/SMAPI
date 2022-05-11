@@ -64,7 +64,8 @@ namespace StardewModdingAPI.Framework
         /// <param name="event">The event to raise.</param>
         public static void RaiseEmpty<TEventArgs>(this ManagedEvent<TEventArgs> @event) where TEventArgs : new()
         {
-            @event.Raise(Singleton<TEventArgs>.Instance);
+            if (@event.HasListeners)
+                @event.Raise(Singleton<TEventArgs>.Instance);
         }
 
         /****
