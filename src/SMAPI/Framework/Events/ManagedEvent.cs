@@ -39,6 +39,9 @@ namespace StardewModdingAPI.Framework.Events
         /// <inheritdoc />
         public string EventName { get; }
 
+        /// <inheritdoc />
+        public bool HasListeners { get; private set; }
+
 
         /*********
         ** Public methods
@@ -50,12 +53,6 @@ namespace StardewModdingAPI.Framework.Events
         {
             this.EventName = eventName;
             this.ModRegistry = modRegistry;
-        }
-
-        /// <summary>Get whether anything is listening to the event.</summary>
-        public bool HasListeners()
-        {
-            return this.Handlers.Count > 0;
         }
 
         /// <summary>Add an event handler.</summary>
@@ -70,6 +67,7 @@ namespace StardewModdingAPI.Framework.Events
 
                 this.Handlers.Add(managedHandler);
                 this.CachedHandlers = null;
+                this.HasListeners = true;
                 this.HasPriorities |= priority != EventPriority.Normal;
             }
         }
@@ -88,6 +86,7 @@ namespace StardewModdingAPI.Framework.Events
 
                     this.Handlers.RemoveAt(i);
                     this.CachedHandlers = null;
+                    this.HasListeners = this.Handlers.Count != 0;
                     this.HasRemovedHandlers = true;
                     break;
                 }

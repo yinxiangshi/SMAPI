@@ -886,7 +886,7 @@ namespace StardewModdingAPI.Framework
                         bool raiseWorldEvents = !state.SaveID.IsChanged; // don't report changes from unloaded => loaded
 
                         // location list changes
-                        if (state.Locations.LocationList.IsChanged && (events.LocationListChanged.HasListeners() || verbose))
+                        if (state.Locations.LocationList.IsChanged && (events.LocationListChanged.HasListeners || verbose))
                         {
                             var added = state.Locations.LocationList.Added.ToArray();
                             var removed = state.Locations.LocationList.Removed.ToArray();
@@ -929,7 +929,7 @@ namespace StardewModdingAPI.Framework
                                     events.ObjectListChanged.Raise(new ObjectListChangedEventArgs(location, locState.Objects.Added, locState.Objects.Removed));
 
                                 // chest items changed
-                                if (events.ChestInventoryChanged.HasListeners())
+                                if (events.ChestInventoryChanged.HasListeners)
                                 {
                                     foreach (var pair in locState.ChestItems)
                                     {
@@ -1077,7 +1077,7 @@ namespace StardewModdingAPI.Framework
             }
 
             // raise event
-            if (this.EventManager.LocaleChanged.HasListeners())
+            if (this.EventManager.LocaleChanged.HasListeners)
             {
                 this.EventManager.LocaleChanged.Raise(
                     new LocaleChangedEventArgs(
@@ -1140,7 +1140,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="assetName">The asset name that was loaded.</param>
         private void OnAssetLoaded(IContentManager contentManager, IAssetName assetName)
         {
-            if (this.EventManager.AssetReady.HasListeners())
+            if (this.EventManager.AssetReady.HasListeners)
                 this.EventManager.AssetReady.Raise(new AssetReadyEventArgs(assetName, assetName.GetBaseAssetName()));
         }
 
@@ -1148,7 +1148,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="assetNames">The invalidated asset names.</param>
         private void OnAssetsInvalidated(IList<IAssetName> assetNames)
         {
-            if (this.EventManager.AssetsInvalidated.HasListeners())
+            if (this.EventManager.AssetsInvalidated.HasListeners)
                 this.EventManager.AssetsInvalidated.Raise(new AssetsInvalidatedEventArgs(assetNames, assetNames.Select(p => p.GetBaseAssetName())));
         }
 

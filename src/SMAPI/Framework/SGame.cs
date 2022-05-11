@@ -353,7 +353,7 @@ namespace StardewModdingAPI.Framework
             }
             if (Game1.currentMinigame != null)
             {
-                if (events.Rendering.HasListeners())
+                if (events.Rendering.HasListeners)
                 {
                     Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
                     events.Rendering.RaiseEmpty();
@@ -372,7 +372,7 @@ namespace StardewModdingAPI.Framework
                 Game1.PushUIMode();
                 this.drawOverlays(Game1.spriteBatch);
                 Game1.PopUIMode();
-                if (events.Rendered.HasListeners())
+                if (events.Rendered.HasListeners)
                 {
                     Game1.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null);
                     events.Rendered.RaiseEmpty();
