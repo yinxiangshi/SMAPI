@@ -36,9 +36,6 @@ namespace StardewModdingAPI.Framework.Events
         /// <inheritdoc />
         public string EventName { get; }
 
-        /// <inheritdoc />
-        public bool IsPerformanceCritical { get; }
-
 
         /*********
         ** Public methods
@@ -46,12 +43,10 @@ namespace StardewModdingAPI.Framework.Events
         /// <summary>Construct an instance.</summary>
         /// <param name="eventName">A human-readable name for the event.</param>
         /// <param name="modRegistry">The mod registry with which to identify mods.</param>
-        /// <param name="isPerformanceCritical">Whether the event is typically called at least once per second.</param>
-        public ManagedEvent(string eventName, ModRegistry modRegistry, bool isPerformanceCritical = false)
+        public ManagedEvent(string eventName, ModRegistry modRegistry)
         {
             this.EventName = eventName;
             this.ModRegistry = modRegistry;
-            this.IsPerformanceCritical = isPerformanceCritical;
         }
 
         /// <summary>Get whether anything is listening to the event.</summary>
