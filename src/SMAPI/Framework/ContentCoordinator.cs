@@ -57,7 +57,7 @@ namespace StardewModdingAPI.Framework
         private readonly Action<IList<IAssetName>> OnAssetsInvalidated;
 
         /// <summary>Get the load/edit operations to apply to an asset by querying registered <see cref="IContentEvents.AssetRequested"/> event handlers.</summary>
-        private readonly Func<IAssetInfo, IList<AssetOperationGroup>> RequestAssetOperations;
+        private readonly Func<IAssetInfo, AssetOperationGroup?> RequestAssetOperations;
 
         /// <summary>The loaded content managers (including the <see cref="MainContentManager"/>).</summary>
         private readonly List<IContentManager> ContentManagers = new();
@@ -79,15 +79,15 @@ namespace StardewModdingAPI.Framework
         private Lazy<Dictionary<string, LocalizedContentManager.LanguageCode>> LocaleCodes;
 
         /// <summary>The cached asset load/edit operations to apply, indexed by asset name.</summary>
-        private readonly TickCacheDictionary<IAssetName, IList<AssetOperationGroup>> AssetOperationsByKey = new();
+        private readonly TickCacheDictionary<IAssetName, AssetOperationGroup?> AssetOperationsByKey = new();
 
         /// <summary>A cache of asset operation groups created for legacy <see cref="IAssetLoader"/> implementations.</summary>
         [Obsolete("This only exists to support legacy code and will be removed in SMAPI 4.0.0.")]
-        private readonly Dictionary<IAssetLoader, Dictionary<Type, AssetOperationGroup>> LegacyLoaderCache = new(ReferenceEqualityComparer.Instance);
+        private readonly Dictionary<IAssetLoader, Dictionary<Type, AssetLoadOperation>> LegacyLoaderCache = new(ReferenceEqualityComparer.Instance);
 
         /// <summary>A cache of asset operation groups created for legacy <see cref="IAssetEditor"/> implementations.</summary>
         [Obsolete("This only exists to support legacy code and will be removed in SMAPI 4.0.0.")]
-        private readonly Dictionary<IAssetEditor, Dictionary<Type, AssetOperationGroup>> LegacyEditorCache = new(ReferenceEqualityComparer.Instance);
+        private readonly Dictionary<IAssetEditor, Dictionary<Type, AssetEditOperation>> LegacyEditorCache = new(ReferenceEqualityComparer.Instance);
 
 
         /*********
@@ -126,7 +126,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="getFileLookup">Get a file lookup for the given directory.</param>
         /// <param name="onAssetsInvalidated">A callback to invoke when any asset names have been invalidated from the cache.</param>
         /// <param name="requestAssetOperations">Get the load/edit operations to apply to an asset by querying registered <see cref="IContentEvents.AssetRequested"/> event handlers.</param>
-        public ContentCoordinator(IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, IMonitor monitor, Reflector reflection, JsonHelper jsonHelper, Action onLoadingFirstAsset, Action<BaseContentManager, IAssetName> onAssetLoaded, Func<string, IFileLookup> getFileLookup, Action<IList<IAssetName>> onAssetsInvalidated, Func<IAssetInfo, IList<AssetOperationGroup>> requestAssetOperations)
+        public ContentCoordinator(IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, IMonitor monitor, Reflector reflection, JsonHelper jsonHelper, Action onLoadingFirstAsset, Action<BaseContentManager, IAssetName> onAssetLoaded, Func<string, IFileLookup> getFileLookup, Action<IList<IAssetName>> onAssetsInvalidated, Func<IAssetInfo, AssetOperationGroup?> requestAssetOperations)
         {
             this.GetFileLookup = getFileLookup;
             this.Monitor = monitor ?? throw new ArgumentNullException(nameof(monitor));
@@ -449,16 +449,12 @@ namespace StardewModdingAPI.Framework
         /// <summary>Get the asset load and edit operations to apply to a given asset if it's (re)loaded now.</summary>
         /// <typeparam name="T">The asset type.</typeparam>
         /// <param name="info">The asset info to load or edit.</param>
-        public IList<AssetOperationGroup> GetAssetOperations<T>(IAssetInfo info)
+        public AssetOperationGroup? GetAssetOperations<T>(IAssetInfo info)
             where T : notnull
         {
             return this.AssetOperationsByKey.GetOrSet(
                 info.Name,
-#pragma warning disable CS0612, CS0618 // deprecated code
-                () => this.Editors.Count > 0 || this.Loaders.Count > 0
-                    ? this.GetAssetOperationsIncludingLegacyWithoutCache<T>(info).ToArray()
-#pragma warning restore CS0612, CS0618
-                    : this.RequestAssetOperations(info)
+                () => this.GetAssetOperationsWithoutCache<T>(info)
             );
         }
 
@@ -584,41 +580,40 @@ namespace StardewModdingAPI.Framework
         /// <summary>Get the asset load and edit operations to apply to a given asset if it's (re)loaded now, ignoring the <see cref="AssetOperationsByKey"/> cache.</summary>
         /// <typeparam name="T">The asset type.</typeparam>
         /// <param name="info">The asset info to load or edit.</param>
-        [Obsolete("This only exists to support legacy code and will be removed in SMAPI 4.0.0.")]
-        private IEnumerable<AssetOperationGroup> GetAssetOperationsIncludingLegacyWithoutCache<T>(IAssetInfo info)
+        private AssetOperationGroup? GetAssetOperationsWithoutCache<T>(IAssetInfo info)
             where T : notnull
         {
-            IAssetInfo legacyInfo = this.GetLegacyAssetInfo(info);
-
             // new content API
-            foreach (AssetOperationGroup group in this.RequestAssetOperations(info))
-                yield return group;
+            AssetOperationGroup? group = this.RequestAssetOperations(info);
 
             // legacy load operations
-            foreach (ModLinked<IAssetLoader> loader in this.Loaders)
+#pragma warning disable CS0612, CS0618 // deprecated code
+            if (this.Editors.Count > 0 || this.Loaders.Count > 0)
             {
-                // check if loader applies
-                try
-                {
-                    if (!loader.Data.CanLoad<T>(legacyInfo))
-                        continue;
-                }
-                catch (Exception ex)
-                {
-                    loader.Mod.LogAsMod($"Mod failed when checking whether it could load asset '{legacyInfo.Name}', and will be ignored. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
-                    continue;
-                }
+                IAssetInfo legacyInfo = this.GetLegacyAssetInfo(info);
 
-                // add operation
-                yield return this.GetOrCreateLegacyOperationGroup(
-                    cache: this.LegacyLoaderCache,
-                    editor: loader.Data,
-                    dataType: info.DataType,
-                    createGroup: () => new AssetOperationGroup(
-                        Mod: loader.Mod,
-                        LoadOperations: new[]
-                        {
-                            new AssetLoadOperation(
+                foreach (ModLinked<IAssetLoader> loader in this.Loaders)
+                {
+                    // check if loader applies
+                    try
+                    {
+                        if (!loader.Data.CanLoad<T>(legacyInfo))
+                            continue;
+                    }
+                    catch (Exception ex)
+                    {
+                        loader.Mod.LogAsMod($"Mod failed when checking whether it could load asset '{legacyInfo.Name}', and will be ignored. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
+                        continue;
+                    }
+
+                    // add operation
+                    group ??= new AssetOperationGroup(new List<AssetLoadOperation>(), new List<AssetEditOperation>());
+                    group.LoadOperations.Add(
+                        this.GetOrCreateLegacyOperation(
+                            cache: this.LegacyLoaderCache,
+                            editor: loader.Data,
+                            dataType: info.DataType,
+                            create: () => new AssetLoadOperation(
                                 Mod: loader.Mod,
                                 OnBehalfOf: null,
                                 Priority: AssetLoadPriority.Exclusive,
@@ -626,59 +621,54 @@ namespace StardewModdingAPI.Framework
                                     this.GetLegacyAssetInfo(assetInfo)
                                 )
                             )
-                        },
-                        EditOperations: Array.Empty<AssetEditOperation>()
-                    )
-                );
-            }
+                        )
+                    );
+                }
 
-            // legacy edit operations
-            foreach (var editor in this.Editors)
-            {
-                // check if editor applies
-                try
+                // legacy edit operations
+                foreach (var editor in this.Editors)
                 {
-                    if (!editor.Data.CanEdit<T>(legacyInfo))
+                    // check if editor applies
+                    try
+                    {
+                        if (!editor.Data.CanEdit<T>(legacyInfo))
+                            continue;
+                    }
+                    catch (Exception ex)
+                    {
+                        editor.Mod.LogAsMod($"Mod crashed when checking whether it could edit asset '{legacyInfo.Name}', and will be ignored. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
                         continue;
-                }
-                catch (Exception ex)
-                {
-                    editor.Mod.LogAsMod($"Mod crashed when checking whether it could edit asset '{legacyInfo.Name}', and will be ignored. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
-                    continue;
-                }
+                    }
 
-                // HACK
-                //
-                // If two editors have the same priority, they're applied in registration order (so
-                // whichever was registered first is applied first). Mods often depend on this
-                // behavior, like Json Assets registering its interceptors before Content Patcher.
-                //
-                // Unfortunately the old & new content APIs have separate lists, so new-API
-                // interceptors always ran before old-API interceptors with the same priority,
-                // regardless of the registration order *between* APIs. Since the new API works in
-                // a fundamentally different way (i.e. loads/edits are defined on asset request
-                // instead of by registering a global 'editor' or 'loader' class), there's no way
-                // to track registration order between them.
-                //
-                // Until we drop the old content API in SMAPI 4.0.0, this sets the priority for
-                // specific legacy editors to maintain compatibility.
-                AssetEditPriority priority = editor.Data.GetType().FullName switch
-                {
-                    "JsonAssets.Framework.ContentInjector1" => AssetEditPriority.Default - 1, // must be applied before Content Patcher
-                    _ => AssetEditPriority.Default
-                };
+                    // HACK
+                    //
+                    // If two editors have the same priority, they're applied in registration order (so
+                    // whichever was registered first is applied first). Mods often depend on this
+                    // behavior, like Json Assets registering its interceptors before Content Patcher.
+                    //
+                    // Unfortunately the old & new content APIs have separate lists, so new-API
+                    // interceptors always ran before old-API interceptors with the same priority,
+                    // regardless of the registration order *between* APIs. Since the new API works in
+                    // a fundamentally different way (i.e. loads/edits are defined on asset request
+                    // instead of by registering a global 'editor' or 'loader' class), there's no way
+                    // to track registration order between them.
+                    //
+                    // Until we drop the old content API in SMAPI 4.0.0, this sets the priority for
+                    // specific legacy editors to maintain compatibility.
+                    AssetEditPriority priority = editor.Data.GetType().FullName switch
+                    {
+                        "JsonAssets.Framework.ContentInjector1" => AssetEditPriority.Default - 1, // must be applied before Content Patcher
+                        _ => AssetEditPriority.Default
+                    };
 
-                // add operation
-                yield return this.GetOrCreateLegacyOperationGroup(
-                    cache: this.LegacyEditorCache,
-                    editor: editor.Data,
-                    dataType: info.DataType,
-                    createGroup: () => new AssetOperationGroup(
-                        Mod: editor.Mod,
-                        LoadOperations: Array.Empty<AssetLoadOperation>(),
-                        EditOperations: new[]
-                        {
-                            new AssetEditOperation(
+                    // add operation
+                    group ??= new AssetOperationGroup(new List<AssetLoadOperation>(), new List<AssetEditOperation>());
+                    group.EditOperations.Add(
+                        this.GetOrCreateLegacyOperation(
+                            cache: this.LegacyEditorCache,
+                            editor: editor.Data,
+                            dataType: info.DataType,
+                            create: () => new AssetEditOperation(
                                 Mod: editor.Mod,
                                 OnBehalfOf: null,
                                 Priority: priority,
@@ -686,28 +676,32 @@ namespace StardewModdingAPI.Framework
                                     this.GetLegacyAssetData(assetData)
                                 )
                             )
-                        }
-                    )
-                );
+                        )
+                    );
+                }
             }
+#pragma warning restore CS0612, CS0618
+
+            return group;
         }
 
         /// <summary>Get a cached asset operation group for a legacy <see cref="IAssetLoader"/> or <see cref="IAssetEditor"/> instance, creating it if needed.</summary>
         /// <typeparam name="TInterceptor">The editor type (one of <see cref="IAssetLoader"/> or <see cref="IAssetEditor"/>).</typeparam>
+        /// <typeparam name="TOperation">The operation model type.</typeparam>
         /// <param name="cache">The cached operation groups for the interceptor type.</param>
         /// <param name="editor">The legacy asset interceptor.</param>
         /// <param name="dataType">The asset data type.</param>
-        /// <param name="createGroup">Create the asset operation group if it's not cached yet.</param>
-        private AssetOperationGroup GetOrCreateLegacyOperationGroup<TInterceptor>(Dictionary<TInterceptor, Dictionary<Type, AssetOperationGroup>> cache, TInterceptor editor, Type dataType, Func<AssetOperationGroup> createGroup)
+        /// <param name="create">Create the asset operation group if it's not cached yet.</param>
+        private TOperation GetOrCreateLegacyOperation<TInterceptor, TOperation>(Dictionary<TInterceptor, Dictionary<Type, TOperation>> cache, TInterceptor editor, Type dataType, Func<TOperation> create)
             where TInterceptor : class
         {
-            if (!cache.TryGetValue(editor, out Dictionary<Type, AssetOperationGroup>? cacheByType))
-                cache[editor] = cacheByType = new Dictionary<Type, AssetOperationGroup>();
+            if (!cache.TryGetValue(editor, out Dictionary<Type, TOperation>? cacheByType))
+                cache[editor] = cacheByType = new Dictionary<Type, TOperation>();
 
-            if (!cacheByType.TryGetValue(dataType, out AssetOperationGroup? group))
-                cacheByType[dataType] = group = createGroup();
+            if (!cacheByType.TryGetValue(dataType, out TOperation? operation))
+                cacheByType[dataType] = operation = create();
 
-            return group;
+            return operation;
         }
 
         /// <summary>Get an asset info compatible with legacy <see cref="IAssetLoader"/> and <see cref="IAssetEditor"/> instances, which always expect the base name.</summary>

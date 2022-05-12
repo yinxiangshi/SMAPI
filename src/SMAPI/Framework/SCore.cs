@@ -47,6 +47,7 @@ using StardewModdingAPI.Toolkit.Utilities.PathLookups;
 using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.Menus;
+using StardewValley.Objects;
 using xTile.Display;
 using LanguageCode = StardewValley.LocalizedContentManager.LanguageCode;
 using MiniMonoModHotfix = MonoMod.Utils.MiniMonoModHotfix;
@@ -577,6 +578,7 @@ namespace StardewModdingAPI.Framework
         private void OnPlayerInstanceUpdating(SGame instance, GameTime gameTime, Action runUpdate)
         {
             EventManager events = this.EventManager;
+            bool verbose = this.Monitor.IsVerbose;
 
             try
             {
@@ -804,10 +806,11 @@ namespace StardewModdingAPI.Framework
                     // since the game adds & removes its own handler on the fly.
                     if (state.WindowSize.IsChanged)
                     {
-                        if (this.Monitor.IsVerbose)
+                        if (verbose)
                             this.Monitor.Log($"Events: window size changed to {state.WindowSize.New}.");
 
-                        events.WindowResized.Raise(new WindowResizedEventArgs(state.WindowSize.Old, state.WindowSize.New));
+                        if (events.WindowResized.HasListeners)
+                            events.WindowResized.Raise(new WindowResizedEventArgs(state.WindowSize.Old, state.WindowSize.New));
                     }
 
                     /*********
@@ -822,40 +825,50 @@ namespace StardewModdingAPI.Framework
                             ICursorPosition cursor = instance.Input.CursorPosition;
 
                             // raise cursor moved event
-                            if (state.Cursor.IsChanged)
+                            if (state.Cursor.IsChanged && events.CursorMoved.HasListeners)
                                 events.CursorMoved.Raise(new CursorMovedEventArgs(state.Cursor.Old!, state.Cursor.New!));
 
                             // raise mouse wheel scrolled
                             if (state.MouseWheelScroll.IsChanged)
                             {
-                                if (this.Monitor.IsVerbose)
+                                if (verbose)
                                     this.Monitor.Log($"Events: mouse wheel scrolled to {state.MouseWheelScroll.New}.");
-                                events.MouseWheelScrolled.Raise(new MouseWheelScrolledEventArgs(cursor, state.MouseWheelScroll.Old, state.MouseWheelScroll.New));
+
+                                if (events.MouseWheelScrolled.HasListeners)
+                                    events.MouseWheelScrolled.Raise(new MouseWheelScrolledEventArgs(cursor, state.MouseWheelScroll.Old, state.MouseWheelScroll.New));
                             }
 
                             // raise input button events
                             if (inputState.ButtonStates.Count > 0)
                             {
-                                events.ButtonsChanged.Raise(new ButtonsChangedEventArgs(cursor, inputState));
+                                if (events.ButtonsChanged.HasListeners)
+                                    events.ButtonsChanged.Raise(new ButtonsChangedEventArgs(cursor, inputState));
 
-                                foreach (var pair in inputState.ButtonStates)
+                                bool raisePressed = events.ButtonPressed.HasListeners;
+                                bool raiseReleased = events.ButtonReleased.HasListeners;
+
+                                if (verbose || raisePressed || raiseReleased)
                                 {
-                                    SButton button = pair.Key;
-                                    SButtonState status = pair.Value;
-
-                                    if (status == SButtonState.Pressed)
+                                    foreach ((SButton button, SButtonState status) in inputState.ButtonStates)
                                     {
-                                        if (this.Monitor.IsVerbose)
-                                            this.Monitor.Log($"Events: button {button} pressed.");
+                                        switch (status)
+                                        {
+                                            case SButtonState.Pressed:
+                                                if (verbose)
+                                                    this.Monitor.Log($"Events: button {button} pressed.");
 
-                                        events.ButtonPressed.Raise(new ButtonPressedEventArgs(button, cursor, inputState));
-                                    }
-                                    else if (status == SButtonState.Released)
-                                    {
-                                        if (this.Monitor.IsVerbose)
-                                            this.Monitor.Log($"Events: button {button} released.");
+                                                if (raisePressed)
+                                                    events.ButtonPressed.Raise(new ButtonPressedEventArgs(button, cursor, inputState));
+                                                break;
 
-                                        events.ButtonReleased.Raise(new ButtonReleasedEventArgs(button, cursor, inputState));
+                                            case SButtonState.Released:
+                                                if (verbose)
+                                                    this.Monitor.Log($"Events: button {button} released.");
+
+                                                if (raiseReleased)
+                                                    events.ButtonReleased.Raise(new ButtonReleasedEventArgs(button, cursor, inputState));
+                                                break;
+                                        }
                                     }
                                 }
                             }
@@ -867,14 +880,15 @@ namespace StardewModdingAPI.Framework
                     *********/
                     if (state.ActiveMenu.IsChanged)
                     {
-                        var was = state.ActiveMenu.Old;
-                        var now = state.ActiveMenu.New;
+                        IClickableMenu? was = state.ActiveMenu.Old;
+                        IClickableMenu? now = state.ActiveMenu.New;
 
-                        if (this.Monitor.IsVerbose)
+                        if (verbose)
                             this.Monitor.Log($"Context: menu changed from {was?.GetType().FullName ?? "none"} to {now?.GetType().FullName ?? "none"}.");
 
                         // raise menu events
-                        events.MenuChanged.Raise(new MenuChangedEventArgs(was, now));
+                        if (events.MenuChanged.HasListeners)
+                            events.MenuChanged.Raise(new MenuChangedEventArgs(was, now));
                     }
 
                     /*********
@@ -885,19 +899,20 @@ namespace StardewModdingAPI.Framework
                         bool raiseWorldEvents = !state.SaveID.IsChanged; // don't report changes from unloaded => loaded
 
                         // location list changes
-                        if (state.Locations.LocationList.IsChanged && (events.LocationListChanged.HasListeners() || this.Monitor.IsVerbose))
+                        if (state.Locations.LocationList.IsChanged && (events.LocationListChanged.HasListeners || verbose))
                         {
                             var added = state.Locations.LocationList.Added.ToArray();
                             var removed = state.Locations.LocationList.Removed.ToArray();
 
-                            if (this.Monitor.IsVerbose)
+                            if (verbose)
                             {
                                 string addedText = added.Any() ? string.Join(", ", added.Select(p => p.Name)) : "none";
                                 string removedText = removed.Any() ? string.Join(", ", removed.Select(p => p.Name)) : "none";
                                 this.Monitor.Log($"Context: location list changed (added {addedText}; removed {removedText}).");
                             }
 
-                            events.LocationListChanged.Raise(new LocationListChangedEventArgs(added, removed));
+                            if (events.LocationListChanged.HasListeners)
+                                events.LocationListChanged.Raise(new LocationListChangedEventArgs(added, removed));
                         }
 
                         // raise location contents changed
@@ -905,51 +920,54 @@ namespace StardewModdingAPI.Framework
                         {
                             foreach (LocationSnapshot locState in state.Locations.Locations)
                             {
-                                var location = locState.Location;
+                                GameLocation location = locState.Location;
 
                                 // buildings changed
-                                if (locState.Buildings.IsChanged)
+                                if (locState.Buildings.IsChanged && events.BuildingListChanged.HasListeners)
                                     events.BuildingListChanged.Raise(new BuildingListChangedEventArgs(location, locState.Buildings.Added, locState.Buildings.Removed));
 
                                 // debris changed
-                                if (locState.Debris.IsChanged)
+                                if (locState.Debris.IsChanged && events.DebrisListChanged.HasListeners)
                                     events.DebrisListChanged.Raise(new DebrisListChangedEventArgs(location, locState.Debris.Added, locState.Debris.Removed));
 
                                 // large terrain features changed
-                                if (locState.LargeTerrainFeatures.IsChanged)
+                                if (locState.LargeTerrainFeatures.IsChanged && events.LargeTerrainFeatureListChanged.HasListeners)
                                     events.LargeTerrainFeatureListChanged.Raise(new LargeTerrainFeatureListChangedEventArgs(location, locState.LargeTerrainFeatures.Added, locState.LargeTerrainFeatures.Removed));
 
                                 // NPCs changed
-                                if (locState.Npcs.IsChanged)
+                                if (locState.Npcs.IsChanged && events.NpcListChanged.HasListeners)
                                     events.NpcListChanged.Raise(new NpcListChangedEventArgs(location, locState.Npcs.Added, locState.Npcs.Removed));
 
                                 // objects changed
-                                if (locState.Objects.IsChanged)
+                                if (locState.Objects.IsChanged && events.ObjectListChanged.HasListeners)
                                     events.ObjectListChanged.Raise(new ObjectListChangedEventArgs(location, locState.Objects.Added, locState.Objects.Removed));
 
                                 // chest items changed
-                                if (events.ChestInventoryChanged.HasListeners())
+                                if (events.ChestInventoryChanged.HasListeners)
                                 {
-                                    foreach (var pair in locState.ChestItems)
-                                    {
-                                        SnapshotItemListDiff diff = pair.Value;
-                                        events.ChestInventoryChanged.Raise(new ChestInventoryChangedEventArgs(pair.Key, location, added: diff.Added, removed: diff.Removed, quantityChanged: diff.QuantityChanged));
-                                    }
+                                    foreach ((Chest chest, SnapshotItemListDiff diff) in locState.ChestItems)
+                                        events.ChestInventoryChanged.Raise(new ChestInventoryChangedEventArgs(chest, location, added: diff.Added, removed: diff.Removed, quantityChanged: diff.QuantityChanged));
                                 }
 
                                 // terrain features changed
-                                if (locState.TerrainFeatures.IsChanged)
+                                if (locState.TerrainFeatures.IsChanged && events.TerrainFeatureListChanged.HasListeners)
                                     events.TerrainFeatureListChanged.Raise(new TerrainFeatureListChangedEventArgs(location, locState.TerrainFeatures.Added, locState.TerrainFeatures.Removed));
 
                                 // furniture changed
-                                if (locState.Furniture.IsChanged)
+                                if (locState.Furniture.IsChanged && events.FurnitureListChanged.HasListeners)
                                     events.FurnitureListChanged.Raise(new FurnitureListChangedEventArgs(location, locState.Furniture.Added, locState.Furniture.Removed));
                             }
                         }
 
                         // raise time changed
                         if (raiseWorldEvents && state.Time.IsChanged)
-                            events.TimeChanged.Raise(new TimeChangedEventArgs(state.Time.Old, state.Time.New));
+                        {
+                            if (verbose)
+                                this.Monitor.Log($"Context: time changed to {state.Time.New}.");
+
+                            if (events.TimeChanged.HasListeners)
+                                events.TimeChanged.Raise(new TimeChangedEventArgs(state.Time.Old, state.Time.New));
+                        }
 
                         // raise player events
                         if (raiseWorldEvents)
@@ -960,32 +978,41 @@ namespace StardewModdingAPI.Framework
                             // raise current location changed
                             if (playerState.Location.IsChanged)
                             {
-                                if (this.Monitor.IsVerbose)
+                                if (verbose)
                                     this.Monitor.Log($"Context: set location to {playerState.Location.New}.");
 
-                                events.Warped.Raise(new WarpedEventArgs(player, playerState.Location.Old!, playerState.Location.New!));
+                                if (events.Warped.HasListeners)
+                                    events.Warped.Raise(new WarpedEventArgs(player, playerState.Location.Old!, playerState.Location.New!));
                             }
 
                             // raise player leveled up a skill
-                            foreach ((SkillType skill, var value) in playerState.Skills)
+                            bool raiseLevelChanged = events.LevelChanged.HasListeners;
+                            if (verbose || raiseLevelChanged)
                             {
-                                if (!value.IsChanged)
-                                    continue;
+                                foreach ((SkillType skill, var value) in playerState.Skills)
+                                {
+                                    if (!value.IsChanged)
+                                        continue;
 
-                                if (this.Monitor.IsVerbose)
-                                    this.Monitor.Log($"Events: player skill '{skill}' changed from {value.Old} to {value.New}.");
+                                    if (verbose)
+                                        this.Monitor.Log($"Events: player skill '{skill}' changed from {value.Old} to {value.New}.");
 
-                                events.LevelChanged.Raise(new LevelChangedEventArgs(player, skill, value.Old, value.New));
+                                    if (raiseLevelChanged)
+                                        events.LevelChanged.Raise(new LevelChangedEventArgs(player, skill, value.Old, value.New));
+                                }
                             }
 
                             // raise player inventory changed
                             if (playerState.Inventory.IsChanged)
                             {
-                                SnapshotItemListDiff inventory = playerState.Inventory;
-
-                                if (this.Monitor.IsVerbose)
+                                if (verbose)
                                     this.Monitor.Log("Events: player inventory changed.");
-                                events.InventoryChanged.Raise(new InventoryChangedEventArgs(player, added: inventory.Added, removed: inventory.Removed, quantityChanged: inventory.QuantityChanged));
+
+                                if (events.InventoryChanged.HasListeners)
+                                {
+                                    SnapshotItemListDiff inventory = playerState.Inventory;
+                                    events.InventoryChanged.Raise(new InventoryChangedEventArgs(player, added: inventory.Added, removed: inventory.Removed, quantityChanged: inventory.QuantityChanged));
+                                }
                             }
                         }
                     }
@@ -997,7 +1024,9 @@ namespace StardewModdingAPI.Framework
                     if (instance.IsFirstTick && !Context.IsGameLaunched)
                     {
                         Context.IsGameLaunched = true;
-                        events.GameLaunched.Raise(new GameLaunchedEventArgs());
+
+                        if (events.GameLaunched.HasListeners)
+                            events.GameLaunched.Raise(new GameLaunchedEventArgs());
                     }
 
                     // preloaded
@@ -1076,7 +1105,7 @@ namespace StardewModdingAPI.Framework
             }
 
             // raise event
-            if (this.EventManager.LocaleChanged.HasListeners())
+            if (this.EventManager.LocaleChanged.HasListeners)
             {
                 this.EventManager.LocaleChanged.Raise(
                     new LocaleChangedEventArgs(
@@ -1123,9 +1152,11 @@ namespace StardewModdingAPI.Framework
             }
 
             // raise events
-            this.EventManager.LoadStageChanged.Raise(new LoadStageChangedEventArgs(oldStage, newStage));
+            EventManager events = this.EventManager;
+            if (events.LoadStageChanged.HasListeners)
+                events.LoadStageChanged.Raise(new LoadStageChangedEventArgs(oldStage, newStage));
             if (newStage == LoadStage.None)
-                this.EventManager.ReturnedToTitle.RaiseEmpty();
+                events.ReturnedToTitle.RaiseEmpty();
         }
 
         /// <summary>A callback invoked before <see cref="Game1.newDayAfterFade"/> runs.</summary>
@@ -1139,7 +1170,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="assetName">The asset name that was loaded.</param>
         private void OnAssetLoaded(IContentManager contentManager, IAssetName assetName)
         {
-            if (this.EventManager.AssetReady.HasListeners())
+            if (this.EventManager.AssetReady.HasListeners)
                 this.EventManager.AssetReady.Raise(new AssetReadyEventArgs(assetName, assetName.GetBaseAssetName()));
         }
 
@@ -1147,33 +1178,33 @@ namespace StardewModdingAPI.Framework
         /// <param name="assetNames">The invalidated asset names.</param>
         private void OnAssetsInvalidated(IList<IAssetName> assetNames)
         {
-            if (this.EventManager.AssetsInvalidated.HasListeners())
+            if (this.EventManager.AssetsInvalidated.HasListeners)
                 this.EventManager.AssetsInvalidated.Raise(new AssetsInvalidatedEventArgs(assetNames, assetNames.Select(p => p.GetBaseAssetName())));
         }
 
         /// <summary>Get the load/edit operations to apply to an asset by querying registered <see cref="IContentEvents.AssetRequested"/> event handlers.</summary>
         /// <param name="asset">The asset info being requested.</param>
-        private IList<AssetOperationGroup> RequestAssetOperations(IAssetInfo asset)
+        private AssetOperationGroup? RequestAssetOperations(IAssetInfo asset)
         {
-            List<AssetOperationGroup> operations = new();
+            // get event
+            var requestedEvent = this.EventManager.AssetRequested;
+            if (!requestedEvent.HasListeners)
+                return null;
 
-            this.EventManager.AssetRequested.Raise(
+            // raise event
+            AssetRequestedEventArgs args = new(asset, this.GetOnBehalfOfContentPack);
+            requestedEvent.Raise(
                 invoke: (mod, invoke) =>
                 {
-                    AssetRequestedEventArgs args = new(mod, asset, this.GetOnBehalfOfContentPack);
-
+                    args.SetMod(mod);
                     invoke(args);
-
-                    if (args.LoadOperations.Any() || args.EditOperations.Any())
-                    {
-                        operations.Add(
-                            new AssetOperationGroup(mod, args.LoadOperations.ToArray(), args.EditOperations.ToArray())
-                        );
-                    }
                 }
             );
 
-            return operations;
+            // collect operations
+            return args.LoadOperations.Count != 0 || args.EditOperations.Count != 0
+                ? new AssetOperationGroup(args.LoadOperations, args.EditOperations)
+                : null;
         }
 
         /// <summary>Get the mod metadata for a content pack whose ID matches <paramref name="id"/>, if it's a valid content pack for the given <paramref name="mod"/>.</summary>
@@ -1225,13 +1256,26 @@ namespace StardewModdingAPI.Framework
         /// <param name="message">The message to deliver to applicable mods.</param>
         private void OnModMessageReceived(ModMessageModel message)
         {
-            // get mod IDs to notify
-            HashSet<string> modIDs = new HashSet<string>(message.ToModIDs ?? this.ModRegistry.GetAll().Select(p => p.Manifest.UniqueID), StringComparer.OrdinalIgnoreCase);
-            if (message.FromPlayerID == Game1.player?.UniqueMultiplayerID)
-                modIDs.Remove(message.FromModID); // don't send a broadcast back to the sender
+            if (this.EventManager.ModMessageReceived.HasListeners)
+            {
+                // get mod IDs to notify
+                HashSet<string> modIDs = new(message.ToModIDs ?? this.ModRegistry.GetAll().Select(p => p.Manifest.UniqueID), StringComparer.OrdinalIgnoreCase);
+                if (message.FromPlayerID == Game1.player?.UniqueMultiplayerID)
+                    modIDs.Remove(message.FromModID); // don't send a broadcast back to the sender
 
-            // raise events
-            this.EventManager.ModMessageReceived.Raise(new ModMessageReceivedEventArgs(message, this.Toolkit.JsonHelper), mod => modIDs.Contains(mod.Manifest.UniqueID));
+                // raise events
+                ModMessageReceivedEventArgs? args = null;
+                this.EventManager.ModMessageReceived.Raise(
+                    invoke: (mod, invoke) =>
+                    {
+                        if (modIDs.Contains(mod.Manifest.UniqueID))
+                        {
+                            args ??= new(message, this.Toolkit.JsonHelper);
+                            invoke(args);
+                        }
+                    }
+                );
+            }
         }
 
         /// <summary>Constructor a content manager to read game content files.</summary>

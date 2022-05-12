@@ -1017,7 +1017,9 @@ namespace StardewModdingAPI.Metadata
 
             foreach (Farmer player in players)
             {
-                this.Reflection.GetField<Dictionary<string, Dictionary<int, List<int>>>?>(typeof(FarmerRenderer), "_recolorOffsets").GetValue()?.Remove(player.getTexture());
+                var recolorOffsets = this.Reflection.GetField<Dictionary<string, Dictionary<int, List<int>>>?>(typeof(FarmerRenderer), "_recolorOffsets").GetValue();
+                recolorOffsets?.Clear();
+
                 player.FarmerRenderer.MarkSpriteDirty();
             }
 

@@ -75,15 +75,19 @@ namespace StardewModdingAPI.Framework.ContentManagers
             // custom asset from a loader
             string locale = this.GetLocale();
             IAssetInfo info = new AssetInfo(locale, assetName, typeof(T), this.AssertAndNormalizeAssetName);
-            AssetLoadOperation[] loaders = this.GetLoaders<object>(info).ToArray();
-
-            if (!this.AssertMaxOneRequiredLoader(info, loaders, out string? error))
+            AssetOperationGroup? operations = this.Coordinator.GetAssetOperations<object>(info);
+            if (operations?.LoadOperations.Count > 0)
             {
-                this.Monitor.Log(error, LogLevel.Warn);
-                return false;
+                if (!this.AssertMaxOneRequiredLoader(info, operations.LoadOperations, out string? error))
+                {
+                    this.Monitor.Log(error, LogLevel.Warn);
+                    return false;
+                }
+
+                return true;
             }
 
-            return loaders.Any();
+            return false;
         }
 
         /// <inheritdoc />
@@ -121,10 +125,11 @@ namespace StardewModdingAPI.Framework.ContentManagers
                 data = this.AssetsBeingLoaded.Track(assetName.Name, () =>
                 {
                     IAssetInfo info = new AssetInfo(assetName.LocaleCode, assetName, typeof(T), this.AssertAndNormalizeAssetName);
+                    AssetOperationGroup? operations = this.Coordinator.GetAssetOperations<T>(info);
                     IAssetData asset =
-                        this.ApplyLoader<T>(info)
+                        this.ApplyLoader<T>(info, operations?.LoadOperations)
                         ?? new AssetDataForObject(info, this.RawLoad<T>(assetName, useCache), this.AssertAndNormalizeAssetName, this.Reflection);
-                    asset = this.ApplyEditors<T>(info, asset);
+                    asset = this.ApplyEditors<T>(info, asset, operations?.EditOperations);
                     return (T)asset.Data;
                 });
             }
@@ -149,25 +154,23 @@ namespace StardewModdingAPI.Framework.ContentManagers
         *********/
         /// <summary>Load the initial asset from the registered loaders.</summary>
         /// <param name="info">The basic asset metadata.</param>
+        /// <param name="loadOperations">The load operations to apply to the asset.</param>
         /// <returns>Returns the loaded asset metadata, or <c>null</c> if no loader matched.</returns>
-        private IAssetData? ApplyLoader<T>(IAssetInfo info)
+        private IAssetData? ApplyLoader<T>(IAssetInfo info, List<AssetLoadOperation>? loadOperations)
             where T : notnull
         {
             // find matching loader
-            AssetLoadOperation? loader;
+            AssetLoadOperation? loader = null;
+            if (loadOperations?.Count > 0)
             {
-                AssetLoadOperation[] loaders = this.GetLoaders<T>(info).OrderByDescending(p => p.Priority).ToArray();
-
-                if (!this.AssertMaxOneRequiredLoader(info, loaders, out string? error))
+                if (!this.AssertMaxOneRequiredLoader(info, loadOperations, out string? error))
                 {
                     this.Monitor.Log(error, LogLevel.Warn);
                     return null;
                 }
 
-                loader = loaders.FirstOrDefault();
+                loader = loadOperations.OrderByDescending(p => p.Priority).FirstOrDefault();
             }
-
-            // no loader found
             if (loader == null)
                 return null;
 
@@ -195,9 +198,13 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <typeparam name="T">The asset type.</typeparam>
         /// <param name="info">The basic asset metadata.</param>
         /// <param name="asset">The loaded asset.</param>
-        private IAssetData ApplyEditors<T>(IAssetInfo info, IAssetData asset)
+        /// <param name="editOperations">The edit operations to apply to the asset.</param>
+        private IAssetData ApplyEditors<T>(IAssetInfo info, IAssetData asset, List<AssetEditOperation>? editOperations)
             where T : notnull
         {
+            if (editOperations?.Count is not > 0)
+                return asset;
+
             IAssetData GetNewData(object data) => new AssetDataForObject(info, data, this.AssertAndNormalizeAssetName, this.Reflection);
 
             // special case: if the asset was loaded with a more general type like 'object', call editors with the actual type instead.
@@ -210,12 +217,12 @@ namespace StardewModdingAPI.Framework.ContentManagers
                     return (IAssetData)this.GetType()
                         .GetMethod(nameof(this.ApplyEditors), BindingFlags.NonPublic | BindingFlags.Instance)!
                         .MakeGenericMethod(actualType)
-                        .Invoke(this, new object[] { info, asset })!;
+                        .Invoke(this, new object[] { info, asset, editOperations })!;
                 }
             }
 
             // edit asset
-            AssetEditOperation[] editors = this.GetEditors<T>(info).OrderBy(p => p.Priority).ToArray();
+            AssetEditOperation[] editors = editOperations.OrderBy(p => p.Priority).ToArray();
             foreach (AssetEditOperation editor in editors)
             {
                 IModMetadata mod = editor.Mod;
@@ -250,34 +257,12 @@ namespace StardewModdingAPI.Framework.ContentManagers
             return asset;
         }
 
-        /// <summary>Get the asset loaders which handle an asset.</summary>
-        /// <typeparam name="T">The asset type.</typeparam>
-        /// <param name="info">The basic asset metadata.</param>
-        private IEnumerable<AssetLoadOperation> GetLoaders<T>(IAssetInfo info)
-            where T : notnull
-        {
-            return this.Coordinator
-                .GetAssetOperations<T>(info)
-                .SelectMany(p => p.LoadOperations);
-        }
-
-        /// <summary>Get the asset editors to apply to an asset.</summary>
-        /// <typeparam name="T">The asset type.</typeparam>
-        /// <param name="info">The basic asset metadata.</param>
-        private IEnumerable<AssetEditOperation> GetEditors<T>(IAssetInfo info)
-            where T : notnull
-        {
-            return this.Coordinator
-                .GetAssetOperations<T>(info)
-                .SelectMany(p => p.EditOperations);
-        }
-
         /// <summary>Assert that at most one loader will be applied to an asset.</summary>
         /// <param name="info">The basic asset metadata.</param>
         /// <param name="loaders">The asset loaders to apply.</param>
         /// <param name="error">The error message to show to the user, if the method returns false.</param>
         /// <returns>Returns true if only one loader will apply, else false.</returns>
-        private bool AssertMaxOneRequiredLoader(IAssetInfo info, AssetLoadOperation[] loaders, [NotNullWhen(false)] out string? error)
+        private bool AssertMaxOneRequiredLoader(IAssetInfo info, List<AssetLoadOperation> loaders, [NotNullWhen(false)] out string? error)
         {
             AssetLoadOperation[] required = loaders.Where(p => p.Priority == AssetLoadPriority.Exclusive).ToArray();
             if (required.Length <= 1)
@@ -295,7 +280,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
                 ? $"Multiple mods want to provide the '{info.Name}' asset: {string.Join(", ", loaderNames)}"
                 : $"The '{loaderNames[0]}' mod wants to provide the '{info.Name}' asset multiple times";
 
-            error = $"{errorPhrase}. An asset can't be loaded multiple times, so SMAPI will use the default asset instead. Uninstall one of the mods to fix this. (Message for modders: you should usually use {typeof(IAssetEditor)} instead to avoid conflicts.)";
+            error = $"{errorPhrase}. An asset can't be loaded multiple times, so SMAPI will use the default asset instead. Uninstall one of the mods to fix this. (Message for modders: you should avoid {nameof(AssetLoadPriority)}.{nameof(AssetLoadPriority.Exclusive)} and {nameof(IAssetLoader)} if possible to avoid conflicts.)";
             return false;
         }
 

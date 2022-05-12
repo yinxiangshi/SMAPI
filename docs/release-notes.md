@@ -1,6 +1,21 @@
 ← [README](README.md)
 
 # Release notes
+## 3.14.3
+Released 12 May 2022 for Stardew Valley 1.5.6 or later.
+
+* For players:
+  * Reduced in-game performance impact.
+
+* For mod authors:
+  * Refactored how event handling works under the hood, particularly the new content API. This should have no effect on mod usage.
+  * Verbose mode now logs the in-game time.
+  * Fixed error when loading a `.xnb` file through the old content API without the file extension.
+  * Fixed asset propagation for player sprites not fully updating recolor masks in some cases.
+
+* For the web UI:
+  * Updated the JSON validator/schema for Content Patcher 1.26.0.
+
 ## 3.14.2
 Released 08 May 2022 for Stardew Valley 1.5.6 or later.
 

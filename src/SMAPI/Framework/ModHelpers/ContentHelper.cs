@@ -132,15 +132,40 @@ namespace StardewModdingAPI.Framework.ModHelpers
                         return this.GameContentManager.LoadLocalized<T>(assetName, this.CurrentLocaleConstant, useCache: false);
 
                     case ContentSource.ModFolder:
-                        return this.ModContentManager.LoadExact<T>(assetName, useCache: false);
+                        try
+                        {
+                            return this.ModContentManager.LoadExact<T>(assetName, useCache: false);
+                        }
+                        catch (SContentLoadException ex) when (ex.ErrorType == ContentLoadErrorType.AssetDoesNotExist)
+                        {
+                            // legacy behavior: you can load a .xnb file without the file extension
+                            try
+                            {
+                                IAssetName newName = this.ContentCore.ParseAssetName(assetName.Name + ".xnb", allowLocales: false);
+                                if (this.ModContentManager.DoesAssetExist<T>(newName))
+                                {
+                                    T data = this.ModContentManager.LoadExact<T>(newName, useCache: false);
+                                    SCore.DeprecationManager.Warn(
+                                        this.Mod,
+                                        "loading XNB files from the mod folder without the .xnb file extension",
+                                        "3.14.0",
+                                        DeprecationLevel.Notice
+                                    );
+                                    return data;
+                                }
+                            }
+                            catch { /* legacy behavior failed, rethrow original error */ }
+
+                            throw;
+                        }
 
                     default:
-                        throw new SContentLoadException($"{this.Mod.DisplayName} failed loading content asset '{key}' from {source}: unknown content source '{source}'.");
+                        throw new SContentLoadException(ContentLoadErrorType.Other, $"{this.Mod.DisplayName} failed loading content asset '{key}' from {source}: unknown content source '{source}'.");
                 }
             }
             catch (Exception ex) when (ex is not SContentLoadException)
             {
-                throw new SContentLoadException($"{this.Mod.DisplayName} failed loading content asset '{key}' from {source}.", ex);
+                throw new SContentLoadException(ContentLoadErrorType.Other, $"{this.Mod.DisplayName} failed loading content asset '{key}' from {source}.", ex);
             }
         }
 
