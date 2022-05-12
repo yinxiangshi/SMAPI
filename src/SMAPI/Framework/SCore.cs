@@ -960,8 +960,14 @@ namespace StardewModdingAPI.Framework
                         }
 
                         // raise time changed
-                        if (raiseWorldEvents && state.Time.IsChanged && events.TimeChanged.HasListeners)
-                            events.TimeChanged.Raise(new TimeChangedEventArgs(state.Time.Old, state.Time.New));
+                        if (raiseWorldEvents && state.Time.IsChanged)
+                        {
+                            if (verbose)
+                                this.Monitor.Log($"Context: time changed to {state.Time.New}.");
+
+                            if (events.TimeChanged.HasListeners)
+                                events.TimeChanged.Raise(new TimeChangedEventArgs(state.Time.Old, state.Time.New));
+                        }
 
                         // raise player events
                         if (raiseWorldEvents)
