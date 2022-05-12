@@ -1178,35 +1178,27 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>Get the load/edit operations to apply to an asset by querying registered <see cref="IContentEvents.AssetRequested"/> event handlers.</summary>
         /// <param name="asset">The asset info being requested.</param>
-        private IList<AssetOperationGroup> RequestAssetOperations(IAssetInfo asset)
+        private AssetOperationGroup? RequestAssetOperations(IAssetInfo asset)
         {
             // get event
-            var @event = this.EventManager.AssetRequested;
-            if (!@event.HasListeners)
-                return Array.Empty<AssetOperationGroup>();
+            var requestedEvent = this.EventManager.AssetRequested;
+            if (!requestedEvent.HasListeners)
+                return null;
 
-            // get operations
-            List<AssetOperationGroup>? operations = null;
-            @event.Raise(
+            // raise event
+            AssetRequestedEventArgs args = new(asset, this.GetOnBehalfOfContentPack);
+            requestedEvent.Raise(
                 invoke: (mod, invoke) =>
                 {
-                    AssetRequestedEventArgs args = new(mod, asset, this.GetOnBehalfOfContentPack);
-
+                    args.SetMod(mod);
                     invoke(args);
-
-                    if (args.LoadOperations.Any() || args.EditOperations.Any())
-                    {
-                        operations ??= new();
-                        operations.Add(
-                            new AssetOperationGroup(mod, args.LoadOperations.ToArray(), args.EditOperations.ToArray())
-                        );
-                    }
                 }
             );
 
-            return operations != null
-                ? operations
-                : Array.Empty<AssetOperationGroup>();
+            // collect operations
+            return args.LoadOperations.Count != 0 || args.EditOperations.Count != 0
+                ? new AssetOperationGroup(args.LoadOperations, args.EditOperations)
+                : null;
         }
 
         /// <summary>Get the mod metadata for a content pack whose ID matches <paramref name="id"/>, if it's a valid content pack for the given <paramref name="mod"/>.</summary>

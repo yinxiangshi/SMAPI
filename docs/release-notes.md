@@ -3,9 +3,10 @@
 # Release notes
 ## Upcoming release
 * For players:
-  * Further improved performance in some cases.
+  * Reduced mods' in-game performance impact.
 
 * For mod authors:
+  * Refactored how event handling works under the hood, particularly the new content API. This should have no effect on mod usage.
   * Fixed error when loading a `.xnb` file through the old content API without the file extension.
   * Fixed asset propagation for player sprites not fully updating recolor masks in some cases.
 

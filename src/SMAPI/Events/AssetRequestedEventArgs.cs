@@ -14,7 +14,7 @@ namespace StardewModdingAPI.Events
         ** Fields
         *********/
         /// <summary>The mod handling the event.</summary>
-        private readonly IModMetadata Mod;
+        private IModMetadata? Mod;
 
         /// <summary>Get the mod metadata for a content pack, if it's a valid content pack for the mod.</summary>
         private readonly Func<IModMetadata, string?, string, IModMetadata?> GetOnBehalfOf;
@@ -37,24 +37,29 @@ namespace StardewModdingAPI.Events
         public Type DataType => this.AssetInfo.DataType;
 
         /// <summary>The load operations requested by the event handler.</summary>
-        internal IList<AssetLoadOperation> LoadOperations { get; } = new List<AssetLoadOperation>();
+        internal List<AssetLoadOperation> LoadOperations { get; } = new();
 
         /// <summary>The edit operations requested by the event handler.</summary>
-        internal IList<AssetEditOperation> EditOperations { get; } = new List<AssetEditOperation>();
+        internal List<AssetEditOperation> EditOperations { get; } = new();
 
 
         /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="mod">The mod handling the event.</param>
         /// <param name="assetInfo">The asset info being requested.</param>
         /// <param name="getOnBehalfOf">Get the mod metadata for a content pack, if it's a valid content pack for the mod.</param>
-        internal AssetRequestedEventArgs(IModMetadata mod, IAssetInfo assetInfo, Func<IModMetadata, string?, string, IModMetadata?> getOnBehalfOf)
+        internal AssetRequestedEventArgs(IAssetInfo assetInfo, Func<IModMetadata, string?, string, IModMetadata?> getOnBehalfOf)
         {
-            this.Mod = mod;
             this.AssetInfo = assetInfo;
             this.GetOnBehalfOf = getOnBehalfOf;
+        }
+
+        /// <summary>Set the mod handling the event.</summary>
+        /// <param name="mod">The mod handling the event.</param>
+        internal void SetMod(IModMetadata mod)
+        {
+            this.Mod = mod;
         }
 
         /// <summary>Provide the initial instance for the asset, instead of trying to load it from the game's <c>Content</c> folder.</summary>
@@ -70,10 +75,11 @@ namespace StardewModdingAPI.Events
         /// </remarks>
         public void LoadFrom(Func<object> load, AssetLoadPriority priority, string? onBehalfOf = null)
         {
+            IModMetadata mod = this.GetMod();
             this.LoadOperations.Add(
                 new AssetLoadOperation(
-                    Mod: this.Mod,
-                    OnBehalfOf: this.GetOnBehalfOf(this.Mod, onBehalfOf, "load assets"),
+                    Mod: mod,
+                    OnBehalfOf: this.GetOnBehalfOf(mod, onBehalfOf, "load assets"),
                     Priority: priority,
                     GetData: _ => load()
                 )
@@ -94,12 +100,13 @@ namespace StardewModdingAPI.Events
         public void LoadFromModFile<TAsset>(string relativePath, AssetLoadPriority priority)
             where TAsset : notnull
         {
+            IModMetadata mod = this.GetMod();
             this.LoadOperations.Add(
                 new AssetLoadOperation(
-                    Mod: this.Mod,
+                    Mod: mod,
                     OnBehalfOf: null,
                     Priority: priority,
-                    GetData: _ => this.Mod.Mod!.Helper.ModContent.Load<TAsset>(relativePath)
+                    GetData: _ => mod.Mod!.Helper.ModContent.Load<TAsset>(relativePath)
                 )
             );
         }
@@ -117,14 +124,26 @@ namespace StardewModdingAPI.Events
         /// </remarks>
         public void Edit(Action<IAssetData> apply, AssetEditPriority priority = AssetEditPriority.Default, string? onBehalfOf = null)
         {
+            IModMetadata mod = this.GetMod();
             this.EditOperations.Add(
                 new AssetEditOperation(
-                    Mod: this.Mod,
+                    Mod: mod,
                     Priority: priority,
-                    OnBehalfOf: this.GetOnBehalfOf(this.Mod, onBehalfOf, "edit assets"),
+                    OnBehalfOf: this.GetOnBehalfOf(mod, onBehalfOf, "edit assets"),
                     ApplyEdit: apply
                 )
             );
+        }
+
+
+        /*********
+        ** Private methods
+        *********/
+        /// <summary>Get the mod handling the event.</summary>
+        /// <exception cref="InvalidOperationException">This instance hasn't been initialized with the mod metadata yet.</exception>
+        private IModMetadata GetMod()
+        {
+            return this.Mod ?? throw new InvalidOperationException($"This {nameof(AssetRequestedEventArgs)} instance hasn't been initialized yet.");
         }
     }
 }
