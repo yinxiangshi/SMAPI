@@ -64,6 +64,7 @@ namespace StardewModdingAPI.Framework.Content
             // check edit
             if (this.Instance is IAssetEditor editor)
             {
+                Context.HeuristicModsRunningCode.Push(this.Mod);
                 try
                 {
                     if (editor.CanEdit<TAsset>(asset))
@@ -73,11 +74,16 @@ namespace StardewModdingAPI.Framework.Content
                 {
                     this.Mod.LogAsMod($"Mod failed when checking whether it could edit asset '{asset.Name}'. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
                 }
+                finally
+                {
+                    Context.HeuristicModsRunningCode.TryPop(out _);
+                }
             }
 
             // check load
             if (this.Instance is IAssetLoader loader)
             {
+                Context.HeuristicModsRunningCode.Push(this.Mod);
                 try
                 {
                     if (loader.CanLoad<TAsset>(asset))
@@ -86,6 +92,10 @@ namespace StardewModdingAPI.Framework.Content
                 catch (Exception ex)
                 {
                     this.Mod.LogAsMod($"Mod failed when checking whether it could load asset '{asset.Name}'. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
+                }
+                finally
+                {
+                    Context.HeuristicModsRunningCode.TryPop(out _);
                 }
             }
 

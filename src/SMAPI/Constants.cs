@@ -84,7 +84,7 @@ namespace StardewModdingAPI
             get
             {
                 SCore.DeprecationManager.Warn(
-                    source: SCore.DeprecationManager.GetModFromStack(),
+                    source: null,
                     nounPhrase: $"{nameof(Constants)}.{nameof(Constants.ExecutionPath)}",
                     version: "3.14.0",
                     severity: DeprecationLevel.Notice

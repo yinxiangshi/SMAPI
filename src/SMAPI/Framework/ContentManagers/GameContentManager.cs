@@ -177,6 +177,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             // fetch asset from loader
             IModMetadata mod = loader.Mod;
             T data;
+            Context.HeuristicModsRunningCode.Push(loader.Mod);
             try
             {
                 data = (T)loader.GetData(info);
@@ -186,6 +187,10 @@ namespace StardewModdingAPI.Framework.ContentManagers
             {
                 mod.LogAsMod($"Mod crashed when loading asset '{info.Name}'{this.GetOnBehalfOfLabel(loader.OnBehalfOf)}. SMAPI will use the default asset instead. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
                 return null;
+            }
+            finally
+            {
+                Context.HeuristicModsRunningCode.TryPop(out _);
             }
 
             // return matched asset
@@ -229,6 +234,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
 
                 // try edit
                 object prevAsset = asset.Data;
+                Context.HeuristicModsRunningCode.Push(editor.Mod);
                 try
                 {
                     editor.ApplyEdit(asset);
@@ -238,9 +244,13 @@ namespace StardewModdingAPI.Framework.ContentManagers
                 {
                     mod.LogAsMod($"Mod crashed when editing asset '{info.Name}'{this.GetOnBehalfOfLabel(editor.OnBehalfOf)}, which may cause errors in-game. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
                 }
+                finally
+                {
+                    Context.HeuristicModsRunningCode.TryPop(out _);
+                }
 
                 // validate edit
-                // ReSharper disable once ConditionIsAlwaysTrueOrFalse -- it's only guaranteed non-null after this method
+                // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract -- it's only guaranteed non-null after this method
                 if (asset.Data == null)
                 {
                     mod.LogAsMod($"Mod incorrectly set asset '{info.Name}'{this.GetOnBehalfOfLabel(editor.OnBehalfOf)} to a null value; ignoring override.", LogLevel.Warn);

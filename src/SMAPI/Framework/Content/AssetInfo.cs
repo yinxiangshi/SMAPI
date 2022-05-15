@@ -36,7 +36,7 @@ namespace StardewModdingAPI.Framework.Content
             get
             {
                 SCore.DeprecationManager.Warn(
-                    source: SCore.DeprecationManager.GetModFromStack(),
+                    source: null,
                     nounPhrase: $"{nameof(IAssetInfo)}.{nameof(IAssetInfo.AssetName)}",
                     version: "3.14.0",
                     severity: DeprecationLevel.Notice,
@@ -76,7 +76,7 @@ namespace StardewModdingAPI.Framework.Content
         public bool AssetNameEquals(string path)
         {
             SCore.DeprecationManager.Warn(
-                source: SCore.DeprecationManager.GetModFromStack(),
+                source: null,
                 nounPhrase: $"{nameof(IAssetInfo)}.{nameof(IAssetInfo.AssetNameEquals)}",
                 version: "3.14.0",
                 severity: DeprecationLevel.Notice,

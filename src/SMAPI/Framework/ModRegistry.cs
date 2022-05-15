@@ -99,14 +99,10 @@ namespace StardewModdingAPI.Framework
         }
 
         /// <summary>Get the mod metadata from the closest assembly registered as a source of deprecation warnings.</summary>
+        /// <param name="frames">The call stack to analyze.</param>
         /// <returns>Returns the mod's metadata, or <c>null</c> if no registered assemblies were found.</returns>
-        public IModMetadata? GetFromStack()
+        public IModMetadata? GetFromStack(StackFrame[] frames)
         {
-            // get stack frames
-            StackTrace stack = new();
-            StackFrame[] frames = stack.GetFrames();
-
-            // search stack for a source assembly
             foreach (StackFrame frame in frames)
             {
                 IModMetadata? mod = this.GetFrom(frame);
@@ -114,7 +110,6 @@ namespace StardewModdingAPI.Framework
                     return mod;
             }
 
-            // no known assembly found
             return null;
         }
     }

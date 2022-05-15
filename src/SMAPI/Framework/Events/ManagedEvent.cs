@@ -104,6 +104,8 @@ namespace StardewModdingAPI.Framework.Events
             // raise event
             foreach (ManagedEventHandler<TEventArgs> handler in this.GetHandlers())
             {
+                Context.HeuristicModsRunningCode.Push(handler.SourceMod);
+
                 try
                 {
                     handler.Handler(null, args);
@@ -111,6 +113,10 @@ namespace StardewModdingAPI.Framework.Events
                 catch (Exception ex)
                 {
                     this.LogError(handler, ex);
+                }
+                finally
+                {
+                    Context.HeuristicModsRunningCode.TryPop(out _);
                 }
             }
         }
@@ -126,6 +132,8 @@ namespace StardewModdingAPI.Framework.Events
             // raise event
             foreach (ManagedEventHandler<TEventArgs> handler in this.GetHandlers())
             {
+                Context.HeuristicModsRunningCode.Push(handler.SourceMod);
+
                 try
                 {
                     invoke(handler.SourceMod, args => handler.Handler(null, args));
@@ -133,6 +141,10 @@ namespace StardewModdingAPI.Framework.Events
                 catch (Exception ex)
                 {
                     this.LogError(handler, ex);
+                }
+                finally
+                {
+                    Context.HeuristicModsRunningCode.TryPop(out _);
                 }
             }
         }

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using StardewModdingAPI.Enums;
 using StardewModdingAPI.Events;
+using StardewModdingAPI.Framework;
 using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.Menus;
@@ -40,6 +41,10 @@ namespace StardewModdingAPI
 
         /// <summary>Whether the in-game world is completely unloaded and not in the process of being loaded. The world may still exist in memory at this point, but should be ignored.</summary>
         internal static bool IsWorldFullyUnloaded => Context.LoadStage is LoadStage.ReturningToTitle or LoadStage.None;
+
+        /// <summary>If SMAPI is currently waiting for mod code, the mods to which it belongs (with the most recent at the top of the stack).</summary>
+        /// <remarks><strong>This is heuristic only.</strong> It provides a quick way to identify the most likely mod for deprecation warnings, but it should be followed with a more accurate check if needed.</remarks>
+        internal static Stack<IModMetadata> HeuristicModsRunningCode { get; } = new();
 
 
         /*********

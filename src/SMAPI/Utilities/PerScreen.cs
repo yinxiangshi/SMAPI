@@ -97,7 +97,7 @@ namespace StardewModdingAPI.Utilities
                 if (!nullExpected)
                 {
                     SCore.DeprecationManager.Warn(
-                        SCore.DeprecationManager.GetModFromStack(),
+                        null,
                         $"calling the {nameof(PerScreen<T>)} constructor with null",
                         "3.14.0",
                         DeprecationLevel.Notice

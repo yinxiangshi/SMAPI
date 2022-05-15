@@ -37,13 +37,6 @@ namespace StardewModdingAPI.Framework.Deprecations
             this.ModRegistry = modRegistry;
         }
 
-        /// <summary>Get a mod for the closest assembly registered as a source of deprecation warnings.</summary>
-        /// <returns>Returns the source name, or <c>null</c> if no registered assemblies were found.</returns>
-        public IModMetadata? GetModFromStack()
-        {
-            return this.ModRegistry.GetFromStack();
-        }
-
         /// <summary>Get a mod from its unique ID.</summary>
         /// <param name="modId">The mod's unique ID.</param>
         public IModMetadata? GetMod(string modId)
@@ -52,7 +45,7 @@ namespace StardewModdingAPI.Framework.Deprecations
         }
 
         /// <summary>Log a deprecation warning.</summary>
-        /// <param name="source">The mod which used the deprecated code, if known.</param>
+        /// <param name="source">The mod which used the deprecated code, or <c>null</c> to get it heuristically. Note that getting it heuristically is very slow in some cases, and should be avoided if at all possible.</param>
         /// <param name="nounPhrase">A noun phrase describing what is deprecated.</param>
         /// <param name="version">The SMAPI version which deprecated it.</param>
         /// <param name="severity">How deprecated the code is.</param>
@@ -60,18 +53,38 @@ namespace StardewModdingAPI.Framework.Deprecations
         /// <param name="logStackTrace">Whether to log a stack trace showing where the deprecated code is in the mod.</param>
         public void Warn(IModMetadata? source, string nounPhrase, string version, DeprecationLevel severity, string[]? unlessStackIncludes = null, bool logStackTrace = true)
         {
+            // get heuristic source
+            // The call stack is usually the most reliable way to get the source if it's unknown. This is *very* slow
+            // though, especially before we check whether this is a duplicate warning. The initial cache check uses a
+            // quick heuristic method if at all possible to avoid that.
+            IModMetadata? heuristicSource = source;
+            ImmutableStackTrace? stack = null;
+            if (heuristicSource is null)
+                Context.HeuristicModsRunningCode.TryPeek(out heuristicSource);
+            if (heuristicSource is null)
+            {
+                stack = ImmutableStackTrace.Get(skipFrames: 1);
+                heuristicSource = this.ModRegistry.GetFromStack(stack.GetFrames());
+            }
+
             // skip if already warned
-            string cacheKey = $"{source?.DisplayName ?? "<unknown>"}::{nounPhrase}::{version}";
+            string cacheKey = $"{heuristicSource?.Manifest.UniqueID ?? "<unknown>"}::{nounPhrase}::{version}";
             if (this.LoggedDeprecations.Contains(cacheKey))
                 return;
+            this.LoggedDeprecations.Add(cacheKey);
 
-            // warn if valid
-            ImmutableStackTrace stack = ImmutableStackTrace.Get(skipFrames: 1);
-            if (!this.ShouldSuppress(stack, unlessStackIncludes))
+            // get more accurate source
+            if (stack is not null)
+                source ??= heuristicSource!;
+            else
             {
-                this.LoggedDeprecations.Add(cacheKey);
-                this.QueuedWarnings.Add(new DeprecationWarning(source, nounPhrase, version, severity, stack, logStackTrace));
+                stack ??= ImmutableStackTrace.Get(skipFrames: 1);
+                source ??= this.ModRegistry.GetFromStack(stack.GetFrames());
             }
+
+            // log unless suppressed
+            if (!this.ShouldSuppress(stack, unlessStackIncludes))
+                this.QueuedWarnings.Add(new DeprecationWarning(source, nounPhrase, version, severity, stack, logStackTrace));
         }
 
         /// <summary>A placeholder method used to track deprecated code for which a separate warning will be shown.</summary>

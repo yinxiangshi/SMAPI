@@ -2,6 +2,9 @@
 
 # Release notes
 ## Upcoming release
+* For players:
+  * Improved performance for mods using deprecated APIs.
+
 * For mod authors:
   * Removed warning for mods which use `dynamic`.  
     _This no longer causes errors on Linux/macOS after Stardew Valley 1.5.5._
