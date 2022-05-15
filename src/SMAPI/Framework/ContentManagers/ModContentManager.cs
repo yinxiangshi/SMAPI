@@ -121,7 +121,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             }
             catch (Exception ex) when (ex is not SContentLoadException)
             {
-                throw this.GetLoadError(assetName, ContentLoadErrorType.Other, "an unexpected occurred.", ex);
+                throw this.GetLoadError(assetName, ContentLoadErrorType.Other, "an unexpected error occurred.", ex);
             }
 
             // track & return asset
