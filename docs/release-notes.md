@@ -1,7 +1,9 @@
 ← [README](README.md)
 
 # Release notes
-## Upcoming release
+## 3.14.4
+Released 15 May 2022 for Stardew Valley 1.5.6 or later.
+
 * For players:
   * Improved performance for mods using deprecated APIs.
 
