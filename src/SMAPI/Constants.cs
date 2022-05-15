@@ -50,7 +50,7 @@ namespace StardewModdingAPI
         internal static int? LogScreenId { get; set; }
 
         /// <summary>SMAPI's current raw semantic version.</summary>
-        internal static string RawApiVersion = "3.14.3";
+        internal static string RawApiVersion = "3.14.4";
     }
 
     /// <summary>Contains SMAPI's constants and assumptions.</summary>
@@ -84,7 +84,7 @@ namespace StardewModdingAPI
             get
             {
                 SCore.DeprecationManager.Warn(
-                    source: SCore.DeprecationManager.GetModFromStack(),
+                    source: null,
                     nounPhrase: $"{nameof(Constants)}.{nameof(Constants.ExecutionPath)}",
                     version: "3.14.0",
                     severity: DeprecationLevel.Notice

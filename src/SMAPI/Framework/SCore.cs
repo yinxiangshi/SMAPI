@@ -1677,6 +1677,7 @@ namespace StardewModdingAPI.Framework
 #pragma warning restore CS0612, CS0618
 
                 // call entry method
+                Context.HeuristicModsRunningCode.Push(metadata);
                 try
                 {
                     IMod mod = metadata.Mod!;
@@ -1705,6 +1706,7 @@ namespace StardewModdingAPI.Framework
                 {
                     this.Monitor.Log($"Failed loading mod-provided API for {metadata.DisplayName}. Integrations with other mods may not work. Error: {ex.GetLogSummary()}", LogLevel.Error);
                 }
+                Context.HeuristicModsRunningCode.TryPop(out _);
             }
 
             // unlock mod integrations
@@ -1852,7 +1854,7 @@ namespace StardewModdingAPI.Framework
                 try
                 {
                     // get mod instance
-                    if (!this.TryLoadModEntry(modAssembly, out Mod? modEntry, out errorReasonPhrase))
+                    if (!this.TryLoadModEntry(mod, modAssembly, out Mod? modEntry, out errorReasonPhrase))
                     {
                         failReason = ModFailReason.LoadFailed;
                         return false;
@@ -1954,11 +1956,12 @@ namespace StardewModdingAPI.Framework
         }
 
         /// <summary>Load a mod's entry class.</summary>
+        /// <param name="metadata">The mod metadata whose entry class is being loaded.</param>
         /// <param name="modAssembly">The mod assembly.</param>
         /// <param name="mod">The loaded instance.</param>
         /// <param name="error">The error indicating why loading failed (if applicable).</param>
         /// <returns>Returns whether the mod entry class was successfully loaded.</returns>
-        private bool TryLoadModEntry(Assembly modAssembly, [NotNullWhen(true)] out Mod? mod, [NotNullWhen(false)] out string? error)
+        private bool TryLoadModEntry(IModMetadata metadata, Assembly modAssembly, [NotNullWhen(true)] out Mod? mod, [NotNullWhen(false)] out string? error)
         {
             mod = null;
 
@@ -1976,7 +1979,16 @@ namespace StardewModdingAPI.Framework
             }
 
             // get implementation
-            mod = (Mod?)modAssembly.CreateInstance(modEntries[0].ToString());
+            Context.HeuristicModsRunningCode.Push(metadata);
+            try
+            {
+                mod = (Mod?)modAssembly.CreateInstance(modEntries[0].ToString());
+            }
+            finally
+            {
+                Context.HeuristicModsRunningCode.TryPop(out _);
+            }
+
             if (mod == null)
             {
                 error = "its entry class couldn't be instantiated.";

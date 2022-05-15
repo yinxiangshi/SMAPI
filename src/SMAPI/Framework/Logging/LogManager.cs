@@ -511,11 +511,6 @@ namespace StardewModdingAPI.Framework.Logging
                     "These mods have no update keys in their manifest. SMAPI may not notify you about updates for these",
                     "mods. Consider notifying the mod authors about this problem."
                 );
-
-                // not crossplatform
-                this.LogModWarningGroup(modsWithWarnings, ModWarning.UsesDynamic, LogLevel.Debug, "Not crossplatform",
-                    "These mods use the 'dynamic' keyword, and won't work on Linux/macOS."
-                );
             }
         }
 

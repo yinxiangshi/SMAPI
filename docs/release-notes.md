@@ -1,6 +1,16 @@
 ← [README](README.md)
 
 # Release notes
+## 3.14.4
+Released 15 May 2022 for Stardew Valley 1.5.6 or later.
+
+* For players:
+  * Improved performance for mods using deprecated APIs.
+
+* For mod authors:
+  * Removed warning for mods which use `dynamic`.  
+    _This no longer causes errors on Linux/macOS after Stardew Valley 1.5.5._
+
 ## 3.14.3
 Released 12 May 2022 for Stardew Valley 1.5.6 or later.
 

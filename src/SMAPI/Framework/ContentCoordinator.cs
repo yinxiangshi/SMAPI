@@ -595,6 +595,7 @@ namespace StardewModdingAPI.Framework
                 foreach (ModLinked<IAssetLoader> loader in this.Loaders)
                 {
                     // check if loader applies
+                    Context.HeuristicModsRunningCode.Push(loader.Mod);
                     try
                     {
                         if (!loader.Data.CanLoad<T>(legacyInfo))
@@ -604,6 +605,10 @@ namespace StardewModdingAPI.Framework
                     {
                         loader.Mod.LogAsMod($"Mod failed when checking whether it could load asset '{legacyInfo.Name}', and will be ignored. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
                         continue;
+                    }
+                    finally
+                    {
+                        Context.HeuristicModsRunningCode.TryPop(out _);
                     }
 
                     // add operation
@@ -617,9 +622,7 @@ namespace StardewModdingAPI.Framework
                                 Mod: loader.Mod,
                                 OnBehalfOf: null,
                                 Priority: AssetLoadPriority.Exclusive,
-                                GetData: assetInfo => loader.Data.Load<T>(
-                                    this.GetLegacyAssetInfo(assetInfo)
-                                )
+                                GetData: assetInfo => loader.Data.Load<T>(this.GetLegacyAssetInfo(assetInfo))
                             )
                         )
                     );
@@ -629,6 +632,7 @@ namespace StardewModdingAPI.Framework
                 foreach (var editor in this.Editors)
                 {
                     // check if editor applies
+                    Context.HeuristicModsRunningCode.Push(editor.Mod);
                     try
                     {
                         if (!editor.Data.CanEdit<T>(legacyInfo))
@@ -638,6 +642,10 @@ namespace StardewModdingAPI.Framework
                     {
                         editor.Mod.LogAsMod($"Mod crashed when checking whether it could edit asset '{legacyInfo.Name}', and will be ignored. Error details:\n{ex.GetLogSummary()}", LogLevel.Error);
                         continue;
+                    }
+                    finally
+                    {
+                        Context.HeuristicModsRunningCode.TryPop(out _);
                     }
 
                     // HACK
@@ -672,9 +680,7 @@ namespace StardewModdingAPI.Framework
                                 Mod: editor.Mod,
                                 OnBehalfOf: null,
                                 Priority: priority,
-                                ApplyEdit: assetData => editor.Data.Edit<T>(
-                                    this.GetLegacyAssetData(assetData)
-                                )
+                                ApplyEdit: assetData => editor.Data.Edit<T>(this.GetLegacyAssetData(assetData))
                             )
                         )
                     );

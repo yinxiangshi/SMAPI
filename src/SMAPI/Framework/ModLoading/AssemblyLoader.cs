@@ -414,11 +414,6 @@ namespace StardewModdingAPI.Framework.ModLoading
                     mod.SetWarning(ModWarning.UsesUnvalidatedUpdateTick);
                     break;
 
-                case InstructionHandleResult.DetectedDynamic:
-                    template = $"{logPrefix}Detected 'dynamic' keyword ($phrase) in assembly {filename}.";
-                    mod.SetWarning(ModWarning.UsesDynamic);
-                    break;
-
                 case InstructionHandleResult.DetectedConsoleAccess:
                     template = $"{logPrefix}Detected direct console access ($phrase) in assembly {filename}.";
                     mod.SetWarning(ModWarning.AccessesConsole);

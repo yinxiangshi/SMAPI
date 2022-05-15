@@ -57,7 +57,7 @@ namespace StardewModdingAPI.Toolkit
         /// <summary>Extract mod metadata from the wiki compatibility list.</summary>
         public async Task<WikiModList> GetWikiCompatibilityListAsync()
         {
-            WikiClient client = new(this.UserAgent);
+            using WikiClient client = new(this.UserAgent);
             return await client.FetchModsAsync();
         }
 
