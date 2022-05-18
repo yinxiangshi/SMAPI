@@ -1,6 +1,10 @@
 ← [README](README.md)
 
 # Release notes
+## Upcoming release
+* For players:
+  * Fixed CurseForge update checks for the new CurseForge API.
+
 ## 3.14.4
 Released 15 May 2022 for Stardew Valley 1.5.6 or later.
 

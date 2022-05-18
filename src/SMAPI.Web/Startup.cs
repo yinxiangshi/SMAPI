@@ -111,7 +111,8 @@ namespace StardewModdingAPI.Web
 
                 services.AddSingleton<ICurseForgeClient>(new CurseForgeClient(
                     userAgent: userAgent,
-                    apiUrl: api.CurseForgeBaseUrl
+                    apiUrl: api.CurseForgeBaseUrl,
+                    apiKey: api.CurseForgeApiKey
                 ));
 
                 services.AddSingleton<IGitHubClient>(new GitHubClient(
