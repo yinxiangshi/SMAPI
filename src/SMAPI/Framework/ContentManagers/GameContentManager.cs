@@ -75,7 +75,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             // custom asset from a loader
             string locale = this.GetLocale();
             IAssetInfo info = new AssetInfo(locale, assetName, typeof(T), this.AssertAndNormalizeAssetName);
-            AssetOperationGroup? operations = this.Coordinator.GetAssetOperations<object>(info);
+            AssetOperationGroup? operations = this.Coordinator.GetAssetOperations<T>(info);
             if (operations?.LoadOperations.Count > 0)
             {
                 if (!this.AssertMaxOneRequiredLoader(info, operations.LoadOperations, out string? error))
