@@ -394,9 +394,14 @@ namespace StardewModdingAPI.Framework
                 // cached assets
                 foreach (IContentManager contentManager in this.ContentManagers)
                 {
-                    foreach ((string key, object asset) in contentManager.InvalidateCache((key, type) => predicate(contentManager, key, type), dispose))
+                    foreach ((string key, object asset) in contentManager.GetCachedAssets())
                     {
+                        if (!predicate(contentManager, key, asset.GetType()))
+                            continue;
+
                         AssetName assetName = this.ParseAssetName(key, allowLocales: true);
+                        contentManager.InvalidateCache(assetName, dispose);
+
                         if (!invalidatedAssets.ContainsKey(assetName))
                             invalidatedAssets[assetName] = asset.GetType();
                     }
