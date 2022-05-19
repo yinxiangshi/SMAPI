@@ -151,8 +151,23 @@ namespace StardewModdingAPI.Framework
                     onAssetLoaded: onAssetLoaded
                 )
             );
+
+            var contentManagerForAssetPropagation = new GameContentManagerForAssetPropagation(
+                name: nameof(GameContentManagerForAssetPropagation),
+                serviceProvider: serviceProvider,
+                rootDirectory: rootDirectory,
+                currentCulture: currentCulture,
+                coordinator: this,
+                monitor: monitor,
+                reflection: reflection,
+                onDisposing: this.OnDisposing,
+                onLoadingFirstAsset: onLoadingFirstAsset,
+                onAssetLoaded: onAssetLoaded
+            );
+            this.ContentManagers.Add(contentManagerForAssetPropagation);
+
             this.VanillaContentManager = new LocalizedContentManager(serviceProvider, rootDirectory);
-            this.CoreAssets = new CoreAssetPropagator(this.MainContentManager, this.Monitor, reflection, name => this.ParseAssetName(name, allowLocales: true));
+            this.CoreAssets = new CoreAssetPropagator(this.MainContentManager, contentManagerForAssetPropagation, this.Monitor, reflection, name => this.ParseAssetName(name, allowLocales: true));
             this.LocaleCodes = new Lazy<Dictionary<string, LocalizedContentManager.LanguageCode>>(() => this.GetLocaleCodes(customLanguages: Enumerable.Empty<ModLanguage>()));
         }
 

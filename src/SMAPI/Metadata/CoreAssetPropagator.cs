@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using StardewModdingAPI.Framework.ContentManagers;
 using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Internal;
 using StardewModdingAPI.Toolkit.Utilities;
@@ -31,6 +32,9 @@ namespace StardewModdingAPI.Metadata
         *********/
         /// <summary>The main content manager through which to reload assets.</summary>
         private readonly LocalizedContentManager MainContentManager;
+
+        /// <summary>An internal content manager used only for asset propagation. See remarks on <see cref="GameContentManagerForAssetPropagation"/>.</summary>
+        private readonly GameContentManagerForAssetPropagation DisposableContentManager;
 
         /// <summary>Writes messages to the console.</summary>
         private readonly IMonitor Monitor;
@@ -60,12 +64,14 @@ namespace StardewModdingAPI.Metadata
         *********/
         /// <summary>Initialize the core asset data.</summary>
         /// <param name="mainContent">The main content manager through which to reload assets.</param>
+        /// <param name="disposableContent">An internal content manager used only for asset propagation.</param>
         /// <param name="monitor">Writes messages to the console.</param>
         /// <param name="reflection">Simplifies access to private code.</param>
         /// <param name="parseAssetName">Parse a raw asset name.</param>
-        public CoreAssetPropagator(LocalizedContentManager mainContent, IMonitor monitor, Reflector reflection, Func<string, IAssetName> parseAssetName)
+        public CoreAssetPropagator(LocalizedContentManager mainContent, GameContentManagerForAssetPropagation disposableContent, IMonitor monitor, Reflector reflection, Func<string, IAssetName> parseAssetName)
         {
             this.MainContentManager = mainContent;
+            this.DisposableContentManager = disposableContent;
             this.Monitor = monitor;
             this.Reflection = reflection;
             this.ParseAssetName = parseAssetName;
