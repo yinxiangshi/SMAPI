@@ -3,6 +3,7 @@
 # Release notes
 ## Upcoming release
 * For players:
+  * Improved performance when mods change some asset types (including NPC portraits/sprites).
   * Fixed CurseForge update checks for the new CurseForge API.
 
 ## 3.14.4

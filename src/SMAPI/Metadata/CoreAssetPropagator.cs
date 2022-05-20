@@ -219,7 +219,7 @@ namespace StardewModdingAPI.Metadata
                 ** Animals
                 ****/
                 case "animals/horse":
-                    return !ignoreWorld && this.UpdatePetOrHorseSprites<Horse>(content, assetName);
+                    return !ignoreWorld && this.UpdatePetOrHorseSprites<Horse>(assetName);
 
                 /****
                 ** Buildings
@@ -486,7 +486,7 @@ namespace StardewModdingAPI.Metadata
                     return true;
 
                 case "tilesheets/critters": // Critter constructor
-                    return !ignoreWorld && this.UpdateCritterTextures(content, assetName);
+                    return !ignoreWorld && this.UpdateCritterTextures(assetName);
 
                 case "tilesheets/crops": // Game1.LoadContent
                     Game1.cropSpriteSheet = content.Load<Texture2D>(key);
@@ -555,27 +555,27 @@ namespace StardewModdingAPI.Metadata
                     return true;
 
                 case "terrainfeatures/mushroom_tree": // from Tree
-                    return !ignoreWorld && this.UpdateTreeTextures(content, assetName, Tree.mushroomTree);
+                    return !ignoreWorld && this.UpdateTreeTextures(Tree.mushroomTree);
 
                 case "terrainfeatures/tree_palm": // from Tree
-                    return !ignoreWorld && this.UpdateTreeTextures(content, assetName, Tree.palmTree);
+                    return !ignoreWorld && this.UpdateTreeTextures(Tree.palmTree);
 
                 case "terrainfeatures/tree1_fall": // from Tree
                 case "terrainfeatures/tree1_spring": // from Tree
                 case "terrainfeatures/tree1_summer": // from Tree
                 case "terrainfeatures/tree1_winter": // from Tree
-                    return !ignoreWorld && this.UpdateTreeTextures(content, assetName, Tree.bushyTree);
+                    return !ignoreWorld && this.UpdateTreeTextures(Tree.bushyTree);
 
                 case "terrainfeatures/tree2_fall": // from Tree
                 case "terrainfeatures/tree2_spring": // from Tree
                 case "terrainfeatures/tree2_summer": // from Tree
                 case "terrainfeatures/tree2_winter": // from Tree
-                    return !ignoreWorld && this.UpdateTreeTextures(content, assetName, Tree.leafyTree);
+                    return !ignoreWorld && this.UpdateTreeTextures(Tree.leafyTree);
 
                 case "terrainfeatures/tree3_fall": // from Tree
                 case "terrainfeatures/tree3_spring": // from Tree
                 case "terrainfeatures/tree3_winter": // from Tree
-                    return !ignoreWorld && this.UpdateTreeTextures(content, assetName, Tree.pineTree);
+                    return !ignoreWorld && this.UpdateTreeTextures(Tree.pineTree);
             }
 
             /****
@@ -585,11 +585,11 @@ namespace StardewModdingAPI.Metadata
             {
                 // dynamic textures
                 if (assetName.StartsWith("animals/cat"))
-                    return this.UpdatePetOrHorseSprites<Cat>(content, assetName);
+                    return this.UpdatePetOrHorseSprites<Cat>(assetName);
                 if (assetName.StartsWith("animals/dog"))
-                    return this.UpdatePetOrHorseSprites<Dog>(content, assetName);
+                    return this.UpdatePetOrHorseSprites<Dog>(assetName);
                 if (assetName.IsDirectlyUnderPath("Animals"))
-                    return this.UpdateFarmAnimalSprites(content, assetName);
+                    return this.UpdateFarmAnimalSprites(assetName);
 
                 if (assetName.IsDirectlyUnderPath("Buildings"))
                     return this.UpdateBuildings(assetName);
@@ -643,33 +643,29 @@ namespace StardewModdingAPI.Metadata
 
         /// <summary>Update the sprites for matching pets or horses.</summary>
         /// <typeparam name="TAnimal">The animal type.</typeparam>
-        /// <param name="content">The content manager through which to update the asset.</param>
         /// <param name="assetName">The asset name to update.</param>
         /// <returns>Returns whether any references were updated.</returns>
-        private bool UpdatePetOrHorseSprites<TAnimal>(LocalizedContentManager content, IAssetName assetName)
+        private bool UpdatePetOrHorseSprites<TAnimal>(IAssetName assetName)
             where TAnimal : NPC
         {
             // find matches
             TAnimal[] animals = this.GetCharacters()
                 .OfType<TAnimal>()
-                .Where(p => this.IsSameBaseName(assetName, p.Sprite?.Texture?.Name))
+                .Where(p => this.IsSameBaseName(assetName, p.Sprite?.spriteTexture?.Name))
                 .ToArray();
-            if (!animals.Any())
-                return false;
 
             // update sprites
-            Texture2D texture = content.Load<Texture2D>(assetName.BaseName);
+            bool changed = false;
             foreach (TAnimal animal in animals)
-                animal.Sprite.spriteTexture = texture;
-            return true;
+                changed |= this.MarkSpriteDirty(animal.Sprite);
+            return changed;
         }
 
         /// <summary>Update the sprites for matching farm animals.</summary>
-        /// <param name="content">The content manager through which to update the asset.</param>
         /// <param name="assetName">The asset name to update.</param>
         /// <returns>Returns whether any references were updated.</returns>
         /// <remarks>Derived from <see cref="FarmAnimal.reload"/>.</remarks>
-        private bool UpdateFarmAnimalSprites(LocalizedContentManager content, IAssetName assetName)
+        private bool UpdateFarmAnimalSprites(IAssetName assetName)
         {
             // find matches
             FarmAnimal[] animals = this.GetFarmAnimals().ToArray();
@@ -677,7 +673,7 @@ namespace StardewModdingAPI.Metadata
                 return false;
 
             // update sprites
-            Lazy<Texture2D> texture = new Lazy<Texture2D>(() => content.Load<Texture2D>(assetName.BaseName));
+            bool changed = true;
             foreach (FarmAnimal animal in animals)
             {
                 // get expected key
@@ -690,9 +686,9 @@ namespace StardewModdingAPI.Metadata
 
                 // reload asset
                 if (this.IsSameBaseName(assetName, expectedKey))
-                    animal.Sprite.spriteTexture = texture.Value;
+                    changed |= this.MarkSpriteDirty(animal.Sprite);
             }
-            return texture.IsValueCreated;
+            return changed;
         }
 
         /// <summary>Update building textures.</summary>
@@ -707,7 +703,7 @@ namespace StardewModdingAPI.Metadata
             // get building type
             string type = Path.GetFileName(assetName.BaseName);
             if (isPaintMask)
-                type = type.Substring(0, type.Length - paintMaskSuffix.Length);
+                type = type[..^paintMaskSuffix.Length];
 
             // get buildings
             Building[] buildings = this.GetLocations(buildingInteriors: false)
@@ -747,7 +743,7 @@ namespace StardewModdingAPI.Metadata
                     foreach (MapSeat seat in location.mapSeats.Where(p => p != null))
                     {
                         if (this.IsSameBaseName(assetName, seat._loadedTextureFile))
-                            seat.overlayTexture = MapSeat.mapChairTexture;
+                            seat._loadedTextureFile = null;
                     }
                 }
             }
@@ -756,10 +752,9 @@ namespace StardewModdingAPI.Metadata
         }
 
         /// <summary>Update critter textures.</summary>
-        /// <param name="content">The content manager through which to reload the asset.</param>
         /// <param name="assetName">The asset name to update.</param>
         /// <returns>Returns whether any references were updated.</returns>
-        private bool UpdateCritterTextures(LocalizedContentManager content, IAssetName assetName)
+        private bool UpdateCritterTextures(IAssetName assetName)
         {
             // get critters
             Critter[] critters =
@@ -767,19 +762,16 @@ namespace StardewModdingAPI.Metadata
                     from location in this.GetLocations()
                     where location.critters != null
                     from Critter critter in location.critters
-                    where this.IsSameBaseName(assetName, critter.sprite?.Texture?.Name)
+                    where this.IsSameBaseName(assetName, critter.sprite?.spriteTexture?.Name)
                     select critter
                 )
                 .ToArray();
-            if (!critters.Any())
-                return false;
 
             // update sprites
-            Texture2D texture = content.Load<Texture2D>(assetName.BaseName);
+            bool changed = false;
             foreach (Critter entry in critters)
-                entry.sprite.spriteTexture = texture;
-
-            return true;
+                changed |= this.MarkSpriteDirty(entry.sprite);
+            return changed;
         }
 
         /// <summary>Update the sprites for interior doors.</summary>
@@ -814,7 +806,7 @@ namespace StardewModdingAPI.Metadata
         private bool UpdateFenceTextures(IAssetName assetName)
         {
             // get fence type (e.g. LooseSprites/Fence3 => 3)
-            if (!int.TryParse(this.GetSegments(assetName.BaseName)[1].Substring("Fence".Length), out int fenceType))
+            if (!int.TryParse(this.GetSegments(assetName.BaseName)[1]["Fence".Length..], out int fenceType))
                 return false;
 
             // get fences
@@ -830,9 +822,16 @@ namespace StardewModdingAPI.Metadata
                 .ToArray();
 
             // update fence textures
+            bool changed = false;
             foreach (Fence fence in fences)
-                fence.fenceTexture = new Lazy<Texture2D>(fence.loadFenceTexture);
-            return true;
+            {
+                if (fence.fenceTexture.IsValueCreated)
+                {
+                    fence.fenceTexture = new Lazy<Texture2D>(fence.loadFenceTexture);
+                    changed = true;
+                }
+            }
+            return changed;
         }
 
         /// <summary>Update tree textures.</summary>
@@ -850,15 +849,16 @@ namespace StardewModdingAPI.Metadata
                 )
                 .ToArray();
 
-            if (grasses.Any())
+            bool changed = false;
+            foreach (Grass grass in grasses)
             {
-                Lazy<Texture2D> texture = new Lazy<Texture2D>(() => content.Load<Texture2D>(assetName.BaseName));
-                foreach (Grass grass in grasses)
-                    grass.texture = texture;
-                return true;
+                if (grass.texture.IsValueCreated)
+                {
+                    grass.texture = new Lazy<Texture2D>(() => content.Load<Texture2D>(assetName.BaseName));
+                    changed = true;
+                }
             }
-
-            return false;
+            return changed;
         }
 
         /// <summary>Update the sprites for matching NPCs.</summary>
@@ -869,19 +869,17 @@ namespace StardewModdingAPI.Metadata
             var characters =
                 (
                     from npc in this.GetCharacters()
-                    let key = this.ParseAssetNameOrNull(npc.Sprite?.Texture?.Name)?.GetBaseAssetName()
+                    let key = this.ParseAssetNameOrNull(npc.Sprite?.spriteTexture?.Name)?.GetBaseAssetName()
                     where key != null && propagated.ContainsKey(key)
                     select new { Npc = npc, AssetName = key }
                 )
                 .ToArray();
-            if (!characters.Any())
-                return;
 
             // update sprite
             foreach (var target in characters)
             {
-                target.Npc.Sprite.spriteTexture = this.LoadTexture(target.AssetName.BaseName);
-                propagated[target.AssetName] = true;
+                if (this.MarkSpriteDirty(target.Npc.Sprite))
+                    propagated[target.AssetName] = true;
             }
         }
 
@@ -919,7 +917,7 @@ namespace StardewModdingAPI.Metadata
             // update portrait
             foreach (var target in characters)
             {
-                target.Npc.Portrait = this.LoadTexture(target.AssetName.BaseName);
+                target.Npc.resetPortrait();
                 propagated[target.AssetName] = true;
             }
         }
@@ -976,26 +974,38 @@ namespace StardewModdingAPI.Metadata
         }
 
         /// <summary>Update tree textures.</summary>
-        /// <param name="content">The content manager through which to reload the asset.</param>
-        /// <param name="assetName">The asset name to update.</param>
         /// <param name="type">The type to update.</param>
         /// <returns>Returns whether any references were updated.</returns>
-        private bool UpdateTreeTextures(LocalizedContentManager content, IAssetName assetName, int type)
+        private bool UpdateTreeTextures(int type)
         {
             Tree[] trees = this.GetLocations()
                 .SelectMany(p => p.terrainFeatures.Values.OfType<Tree>())
                 .Where(tree => tree.treeType.Value == type)
                 .ToArray();
 
-            if (trees.Any())
+            bool changed = false;
+            foreach (Tree tree in trees)
             {
-                Lazy<Texture2D> texture = new Lazy<Texture2D>(() => content.Load<Texture2D>(assetName.BaseName));
-                foreach (Tree tree in trees)
-                    tree.texture = texture;
-                return true;
+                if (tree.texture.IsValueCreated)
+                {
+                    this.Reflection.GetMethod(tree, "resetTexture").Invoke();
+                    changed = true;
+                }
             }
+            return changed;
+        }
 
-            return false;
+        /// <summary>Mark an animated sprite's texture dirty, so it's reloaded next time it's rendered.</summary>
+        /// <param name="sprite">The animated sprite to change.</param>
+        /// <returns>Returns whether the sprite was changed.</returns>
+        private bool MarkSpriteDirty(AnimatedSprite sprite)
+        {
+            if (sprite.loadedTexture is null && sprite.spriteTexture is null)
+                return false;
+
+            sprite.loadedTexture = null;
+            sprite.spriteTexture = null;
+            return true;
         }
 
         /****
