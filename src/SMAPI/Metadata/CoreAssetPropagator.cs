@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Framework.ContentManagers;
 using StardewModdingAPI.Framework.Reflection;
+using StardewModdingAPI.Framework.Utilities;
 using StardewModdingAPI.Internal;
 using StardewModdingAPI.Toolkit.Utilities;
 using StardewValley;
@@ -57,6 +58,9 @@ namespace StardewModdingAPI.Metadata
             /// <summary>Any other asset.</summary>
             Other
         };
+
+        /// <summary>A cache of world data fetched for the current tick.</summary>
+        private readonly TickCacheDictionary<string> WorldCache = new();
 
 
         /*********
@@ -842,8 +846,7 @@ namespace StardewModdingAPI.Metadata
         {
             Grass[] grasses =
                 (
-                    from location in this.GetLocations()
-                    from grass in location.terrainFeatures.Values.OfType<Grass>()
+                    from grass in this.GetTerrainFeatures().OfType<Grass>()
                     where this.IsSameBaseName(assetName, grass.textureName())
                     select grass
                 )
@@ -978,8 +981,9 @@ namespace StardewModdingAPI.Metadata
         /// <returns>Returns whether any references were updated.</returns>
         private bool UpdateTreeTextures(int type)
         {
-            Tree[] trees = this.GetLocations()
-                .SelectMany(p => p.terrainFeatures.Values.OfType<Tree>())
+            Tree[] trees = this
+                .GetTerrainFeatures()
+                .OfType<Tree>()
                 .Where(tree => tree.treeType.Value == type)
                 .ToArray();
 
@@ -1188,63 +1192,108 @@ namespace StardewModdingAPI.Metadata
         /// <summary>Get all NPCs in the game (excluding farm animals).</summary>
         private IEnumerable<NPC> GetCharacters()
         {
-            foreach (NPC character in this.GetLocations().SelectMany(p => p.characters))
-                yield return character;
+            return this.WorldCache.GetOrSet(
+                nameof(this.GetCharacters),
+                () =>
+                {
+                    List<NPC> characters = new();
 
-            if (Game1.CurrentEvent?.actors != null)
-            {
-                foreach (NPC character in Game1.CurrentEvent.actors)
-                    yield return character;
-            }
+                    foreach (NPC character in this.GetLocations().SelectMany(p => p.characters))
+                        characters.Add(character);
+
+                    if (Game1.CurrentEvent?.actors != null)
+                    {
+                        foreach (NPC character in Game1.CurrentEvent.actors)
+                            characters.Add(character);
+                    }
+
+                    return characters;
+                }
+            );
         }
 
         /// <summary>Get all farm animals in the game.</summary>
         private IEnumerable<FarmAnimal> GetFarmAnimals()
         {
-            foreach (GameLocation location in this.GetLocations())
-            {
-                if (location is Farm farm)
+            return this.WorldCache.GetOrSet(
+                nameof(this.GetFarmAnimals),
+                () =>
                 {
-                    foreach (FarmAnimal animal in farm.animals.Values)
-                        yield return animal;
+                    List<FarmAnimal> animals = new();
+
+                    foreach (GameLocation location in this.GetLocations())
+                    {
+                        if (location is Farm farm)
+                        {
+                            foreach (FarmAnimal animal in farm.animals.Values)
+                                animals.Add(animal);
+                        }
+                        else if (location is AnimalHouse animalHouse)
+                        {
+                            foreach (FarmAnimal animal in animalHouse.animals.Values)
+                                animals.Add(animal);
+                        }
+                    }
+
+                    return animals;
                 }
-                else if (location is AnimalHouse animalHouse)
-                    foreach (FarmAnimal animal in animalHouse.animals.Values)
-                        yield return animal;
-            }
+            );
         }
 
         /// <summary>Get all locations in the game.</summary>
         /// <param name="buildingInteriors">Whether to also get the interior locations for constructable buildings.</param>
         private IEnumerable<GameLocation> GetLocations(bool buildingInteriors = true)
         {
-            return this.GetLocationsWithInfo(buildingInteriors).Select(info => info.Location);
+            return this.WorldCache.GetOrSet(
+                $"{nameof(this.GetLocations)}_{buildingInteriors}",
+                () => this.GetLocationsWithInfo(buildingInteriors).Select(info => info.Location).ToArray()
+            );
         }
 
         /// <summary>Get all locations in the game.</summary>
         /// <param name="buildingInteriors">Whether to also get the interior locations for constructable buildings.</param>
         private IEnumerable<LocationInfo> GetLocationsWithInfo(bool buildingInteriors = true)
         {
-            // get available root locations
-            IEnumerable<GameLocation> rootLocations = Game1.locations;
-            if (SaveGame.loaded?.locations != null)
-                rootLocations = rootLocations.Concat(SaveGame.loaded.locations);
-
-            // yield root + child locations
-            foreach (GameLocation location in rootLocations)
-            {
-                yield return new LocationInfo(location, null);
-
-                if (buildingInteriors && location is BuildableGameLocation buildableLocation)
+            return this.WorldCache.GetOrSet(
+                $"{nameof(this.GetLocationsWithInfo)}_{buildingInteriors}",
+                () =>
                 {
-                    foreach (Building building in buildableLocation.buildings)
+                    List<LocationInfo> locations = new();
+
+                    // get root locations
+                    foreach (GameLocation location in Game1.locations)
+                        locations.Add(new LocationInfo(location, null));
+                    if (SaveGame.loaded?.locations != null)
                     {
-                        GameLocation? indoors = building.indoors.Value;
-                        if (indoors != null)
-                            yield return new LocationInfo(indoors, building);
+                        foreach (GameLocation location in SaveGame.loaded.locations)
+                            locations.Add(new LocationInfo(location, null));
                     }
-                }
-            }
+
+                    // get child locations
+                    if (buildingInteriors)
+                    {
+                        foreach (BuildableGameLocation location in locations.Select(p => p.Location).OfType<BuildableGameLocation>().ToArray())
+                        {
+                            foreach (Building building in location.buildings)
+                            {
+                                GameLocation indoors = building.indoors.Value;
+                                if (indoors is not null)
+                                    locations.Add(new LocationInfo(indoors, building));
+                            }
+                        }
+                    }
+
+                    return locations;
+                });
+        }
+
+        /// <summary>Get all terrain features in the game.</summary>
+        private IEnumerable<TerrainFeature> GetTerrainFeatures()
+        {
+            return this.WorldCache.GetOrSet(
+                $"{nameof(this.GetTerrainFeatures)}",
+                () => this.GetLocations().SelectMany(p => p.terrainFeatures.Values).ToArray()
+            );
         }
 
         /// <summary>Get whether two asset names are equivalent if you ignore the locale code.</summary>
