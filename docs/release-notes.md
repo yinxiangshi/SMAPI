@@ -5,6 +5,7 @@
 * For players:
   * Improved performance when mods change some asset types (including NPC portraits/sprites).
   * Fixed CurseForge update checks for the new CurseForge API.
+  * Fixed _could not find file_ error if a mod provides a localized version of a normally unlocalized asset and then stops providing it.
 
 ## 3.14.4
 Released 15 May 2022 for Stardew Valley 1.5.6 or later.

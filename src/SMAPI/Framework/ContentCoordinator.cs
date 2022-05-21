@@ -407,6 +407,18 @@ namespace StardewModdingAPI.Framework
                     }
                 }
 
+                // forget localized flags
+                // A mod might provide a localized variant of a normally non-localized asset (like
+                // `Maps/MovieTheater.fr-FR`). When the asset is invalidated, we need to recheck
+                // whether the asset is localized in case it stops providing it.
+                foreach (IAssetName assetName in invalidatedAssets.Keys)
+                {
+                    LocalizedContentManager.localizedAssetNames.Remove(assetName.Name);
+
+                    if (LocalizedContentManager.localizedAssetNames.TryGetValue(assetName.BaseName, out string? targetForBaseKey) && targetForBaseKey == assetName.Name)
+                        LocalizedContentManager.localizedAssetNames.Remove(assetName.BaseName);
+                }
+
                 // special case: maps may be loaded through a temporary content manager that's removed while the map is still in use.
                 // This notably affects the town and farmhouse maps.
                 if (Game1.locations != null)
