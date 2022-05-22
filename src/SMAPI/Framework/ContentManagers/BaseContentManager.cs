@@ -231,24 +231,21 @@ namespace StardewModdingAPI.Framework.ContentManagers
         ** Cache invalidation
         ****/
         /// <inheritdoc />
-        public IDictionary<string, object> InvalidateCache(Func<string, Type, bool> predicate, bool dispose = false)
+        public IEnumerable<KeyValuePair<string, object>> GetCachedAssets()
         {
-            IDictionary<string, object> removeAssets = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
-            this.Cache.Remove((key, asset) =>
-            {
-                string baseAssetName = this.Coordinator.ParseAssetName(key, allowLocales: this.TryLocalizeKeys).BaseName;
+            foreach (string key in this.Cache.Keys)
+                yield return new(key, this.Cache[key]);
+        }
 
-                // check if asset should be removed
-                bool remove = removeAssets.ContainsKey(baseAssetName);
-                if (!remove && predicate(baseAssetName, asset.GetType()))
-                {
-                    removeAssets[baseAssetName] = asset;
-                    remove = true;
-                }
-                return remove;
-            }, dispose);
+        /// <inheritdoc />
+        public bool InvalidateCache(IAssetName assetName, bool dispose = false)
+        {
+            if (!this.Cache.ContainsKey(assetName.Name))
+                return false;
 
-            return removeAssets;
+            // remove from cache
+            this.Cache.Remove(assetName.Name, dispose);
+            return true;
         }
 
         /// <inheritdoc />

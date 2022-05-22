@@ -151,8 +151,23 @@ namespace StardewModdingAPI.Framework
                     onAssetLoaded: onAssetLoaded
                 )
             );
+
+            var contentManagerForAssetPropagation = new GameContentManagerForAssetPropagation(
+                name: nameof(GameContentManagerForAssetPropagation),
+                serviceProvider: serviceProvider,
+                rootDirectory: rootDirectory,
+                currentCulture: currentCulture,
+                coordinator: this,
+                monitor: monitor,
+                reflection: reflection,
+                onDisposing: this.OnDisposing,
+                onLoadingFirstAsset: onLoadingFirstAsset,
+                onAssetLoaded: onAssetLoaded
+            );
+            this.ContentManagers.Add(contentManagerForAssetPropagation);
+
             this.VanillaContentManager = new LocalizedContentManager(serviceProvider, rootDirectory);
-            this.CoreAssets = new CoreAssetPropagator(this.MainContentManager, this.Monitor, reflection, name => this.ParseAssetName(name, allowLocales: true));
+            this.CoreAssets = new CoreAssetPropagator(this.MainContentManager, contentManagerForAssetPropagation, this.Monitor, reflection, name => this.ParseAssetName(name, allowLocales: true));
             this.LocaleCodes = new Lazy<Dictionary<string, LocalizedContentManager.LanguageCode>>(() => this.GetLocaleCodes(customLanguages: Enumerable.Empty<ModLanguage>()));
         }
 
@@ -379,12 +394,29 @@ namespace StardewModdingAPI.Framework
                 // cached assets
                 foreach (IContentManager contentManager in this.ContentManagers)
                 {
-                    foreach ((string key, object asset) in contentManager.InvalidateCache((key, type) => predicate(contentManager, key, type), dispose))
+                    foreach ((string key, object asset) in contentManager.GetCachedAssets())
                     {
+                        if (!predicate(contentManager, key, asset.GetType()))
+                            continue;
+
                         AssetName assetName = this.ParseAssetName(key, allowLocales: true);
+                        contentManager.InvalidateCache(assetName, dispose);
+
                         if (!invalidatedAssets.ContainsKey(assetName))
                             invalidatedAssets[assetName] = asset.GetType();
                     }
+                }
+
+                // forget localized flags
+                // A mod might provide a localized variant of a normally non-localized asset (like
+                // `Maps/MovieTheater.fr-FR`). When the asset is invalidated, we need to recheck
+                // whether the asset is localized in case it stops providing it.
+                foreach (IAssetName assetName in invalidatedAssets.Keys)
+                {
+                    LocalizedContentManager.localizedAssetNames.Remove(assetName.Name);
+
+                    if (LocalizedContentManager.localizedAssetNames.TryGetValue(assetName.BaseName, out string? targetForBaseKey) && targetForBaseKey == assetName.Name)
+                        LocalizedContentManager.localizedAssetNames.Remove(assetName.BaseName);
                 }
 
                 // special case: maps may be loaded through a temporary content manager that's removed while the map is still in use.

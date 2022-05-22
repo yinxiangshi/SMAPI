@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Pathoschild.Http.Client;
@@ -33,9 +34,12 @@ namespace StardewModdingAPI.Web.Framework.Clients.CurseForge
         /// <summary>Construct an instance.</summary>
         /// <param name="userAgent">The user agent for the API client.</param>
         /// <param name="apiUrl">The base URL for the CurseForge API.</param>
-        public CurseForgeClient(string userAgent, string apiUrl)
+        /// <param name="apiKey">The API authentication key.</param>
+        public CurseForgeClient(string userAgent, string apiUrl, string apiKey)
         {
-            this.Client = new FluentClient(apiUrl).SetUserAgent(userAgent);
+            this.Client = new FluentClient(apiUrl)
+                .SetUserAgent(userAgent)
+                .AddDefault(request => request.WithHeader("x-api-key", apiKey));
         }
 
         /// <summary>Get update check info about a mod.</summary>
@@ -49,11 +53,18 @@ namespace StardewModdingAPI.Web.Framework.Clients.CurseForge
                 return page.SetError(RemoteModStatus.DoesNotExist, $"The value '{id}' isn't a valid CurseForge mod ID, must be an integer ID.");
 
             // get raw data
-            ModModel? mod = await this.Client
-                .GetAsync($"addon/{parsedId}")
-                .As<ModModel?>();
-            if (mod == null)
+            ModModel? mod;
+            try
+            {
+                ResponseModel<ModModel> response = await this.Client
+                    .GetAsync($"mods/{parsedId}")
+                    .As<ResponseModel<ModModel>>();
+                mod = response.Data;
+            }
+            catch (ApiException ex) when (ex.Status == HttpStatusCode.NotFound)
+            {
                 return page.SetError(RemoteModStatus.DoesNotExist, "Found no CurseForge mod with this ID.");
+            }
 
             // get downloads
             List<IModDownload> downloads = new List<IModDownload>();
@@ -65,7 +76,7 @@ namespace StardewModdingAPI.Web.Framework.Clients.CurseForge
             }
 
             // return info
-            return page.SetInfo(name: mod.Name, version: null, url: mod.WebsiteUrl, downloads: downloads);
+            return page.SetInfo(name: mod.Name, version: null, url: mod.Links.WebsiteUrl, downloads: downloads);
         }
 
         /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
