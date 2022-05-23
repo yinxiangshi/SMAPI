@@ -412,14 +412,14 @@ The NuGet package is generated automatically in `StardewModdingAPI.ModBuildConfi
 when you compile it.
 
 ## Release notes
-## 4.0.1
+### 4.0.1
 Released 14 April 2022.
 
 * Added detection for Xbox app game folders.
 * Fixed "_conflicts between different versions of Microsoft.Win32.Registry_" warnings in recent SMAPI versions.
 * Internal refactoring.
 
-## 4.0.0
+### 4.0.0
 Released 30 November 2021.
 
 * Updated for Stardew Valley 1.5.5 and SMAPI 3.13.0. (Older versions are no longer supported.)
@@ -441,7 +441,7 @@ Released 30 November 2021.
    * If you need to bundle extra DLLs besides your mod DLL, see the [`BundleExtraAssemblies`
      documentation](#configure).
 
-## 3.3.0
+### 3.3.0
 Released 30 March 2021.
 
 * Added a build warning when the mod isn't compiled for `Any CPU`.
@@ -450,7 +450,7 @@ Released 30 March 2021.
 * Added support for building mods against the 64-bit Linux version of the game on Windows.
 * The package now suppresses the misleading 'processor architecture mismatch' warnings.
 
-## 3.2.2
+### 3.2.2
 Released 23 September 2020.
 
 * Reworked and streamlined how the package is compiled.
