@@ -25,7 +25,7 @@ namespace StardewModdingAPI.Framework.StateTracking
         /*********
         ** Accessors
         *********/
-        /// <summary>Whether the value changed since the last reset.</summary>
+        /// <inheritdoc />
         public bool IsChanged => this.Watchers.Any(p => p.IsChanged);
 
         /// <summary>The tracked location.</summary>
@@ -88,7 +88,7 @@ namespace StardewModdingAPI.Framework.StateTracking
             this.UpdateChestWatcherList(added: location.Objects.Pairs, removed: Array.Empty<KeyValuePair<Vector2, SObject>>());
         }
 
-        /// <summary>Update the current value if needed.</summary>
+        /// <inheritdoc />
         public void Update()
         {
             foreach (IWatcher watcher in this.Watchers)
@@ -100,7 +100,7 @@ namespace StardewModdingAPI.Framework.StateTracking
                 watcher.Value.Update();
         }
 
-        /// <summary>Set the current value as the baseline.</summary>
+        /// <inheritdoc />
         public void Reset()
         {
             foreach (IWatcher watcher in this.Watchers)
@@ -110,7 +110,7 @@ namespace StardewModdingAPI.Framework.StateTracking
                 watcher.Value.Reset();
         }
 
-        /// <summary>Stop watching the player fields and release all references.</summary>
+        /// <inheritdoc />
         public void Dispose()
         {
             foreach (IWatcher watcher in this.Watchers)

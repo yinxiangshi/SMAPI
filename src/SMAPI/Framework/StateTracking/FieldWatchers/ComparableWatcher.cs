@@ -20,13 +20,13 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
         /*********
         ** Accessors
         *********/
-        /// <summary>The field value at the last reset.</summary>
+        /// <inheritdoc />
         public TValue PreviousValue { get; private set; }
 
-        /// <summary>The latest value.</summary>
+        /// <inheritdoc />
         public TValue CurrentValue { get; private set; }
 
-        /// <summary>Whether the value changed since the last reset.</summary>
+        /// <inheritdoc />
         public bool IsChanged { get; private set; }
 
 
@@ -44,21 +44,21 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
             this.PreviousValue = this.CurrentValue;
         }
 
-        /// <summary>Update the current value if needed.</summary>
+        /// <inheritdoc />
         public void Update()
         {
             this.CurrentValue = this.GetValue();
             this.IsChanged = !this.Comparer.Equals(this.PreviousValue, this.CurrentValue);
         }
 
-        /// <summary>Set the current value as the baseline.</summary>
+        /// <inheritdoc />
         public void Reset()
         {
             this.PreviousValue = this.CurrentValue;
             this.IsChanged = false;
         }
 
-        /// <summary>Release any references if needed when the field is no longer needed.</summary>
+        /// <inheritdoc />
         public void Dispose() { }
     }
 }

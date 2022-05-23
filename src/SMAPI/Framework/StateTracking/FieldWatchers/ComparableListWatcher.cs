@@ -26,13 +26,13 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
         /*********
         ** Accessors
         *********/
-        /// <summary>Whether the value changed since the last reset.</summary>
+        /// <inheritdoc />
         public bool IsChanged => this.AddedImpl.Count > 0 || this.RemovedImpl.Count > 0;
 
-        /// <summary>The values added since the last reset.</summary>
+        /// <inheritdoc />
         public IEnumerable<TValue> Added => this.AddedImpl;
 
-        /// <summary>The values removed since the last reset.</summary>
+        /// <inheritdoc />
         public IEnumerable<TValue> Removed => this.RemovedImpl;
 
 
@@ -48,7 +48,7 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
             this.LastValues = new HashSet<TValue>(comparer);
         }
 
-        /// <summary>Update the current value if needed.</summary>
+        /// <inheritdoc />
         public void Update()
         {
             this.AssertNotDisposed();
@@ -71,7 +71,7 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
             this.LastValues = curValues;
         }
 
-        /// <summary>Set the current value as the baseline.</summary>
+        /// <inheritdoc />
         public void Reset()
         {
             this.AssertNotDisposed();

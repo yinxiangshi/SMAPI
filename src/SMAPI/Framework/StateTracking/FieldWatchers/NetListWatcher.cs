@@ -25,13 +25,13 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
         /*********
         ** Accessors
         *********/
-        /// <summary>Whether the collection changed since the last reset.</summary>
+        /// <inheritdoc />
         public bool IsChanged => this.AddedImpl.Count > 0 || this.RemovedImpl.Count > 0;
 
-        /// <summary>The values added since the last reset.</summary>
+        /// <inheritdoc />
         public IEnumerable<TValue> Added => this.AddedImpl;
 
-        /// <summary>The values removed since the last reset.</summary>
+        /// <inheritdoc />
         public IEnumerable<TValue> Removed => this.RemovedImpl;
 
 
@@ -47,20 +47,20 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
             field.OnArrayReplaced += this.OnArrayReplaced;
         }
 
-        /// <summary>Set the current value as the baseline.</summary>
+        /// <inheritdoc />
         public void Reset()
         {
             this.AddedImpl.Clear();
             this.RemovedImpl.Clear();
         }
 
-        /// <summary>Update the current value if needed.</summary>
+        /// <inheritdoc />
         public void Update()
         {
             this.AssertNotDisposed();
         }
 
-        /// <summary>Stop watching the field and release all references.</summary>
+        /// <inheritdoc />
         public override void Dispose()
         {
             if (!this.IsDisposed)

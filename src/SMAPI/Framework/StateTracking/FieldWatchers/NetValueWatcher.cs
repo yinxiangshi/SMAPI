@@ -17,13 +17,13 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
         /*********
         ** Accessors
         *********/
-        /// <summary>Whether the value changed since the last reset.</summary>
+        /// <inheritdoc />
         public bool IsChanged { get; private set; }
 
-        /// <summary>The field value at the last reset.</summary>
+        /// <inheritdoc />
         public TValue PreviousValue { get; private set; }
 
-        /// <summary>The latest value.</summary>
+        /// <inheritdoc />
         public TValue CurrentValue { get; private set; }
 
 
@@ -42,13 +42,13 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
             field.fieldChangeEvent += this.OnValueChanged;
         }
 
-        /// <summary>Update the current value if needed.</summary>
+        /// <inheritdoc />
         public void Update()
         {
             this.AssertNotDisposed();
         }
 
-        /// <summary>Set the current value as the baseline.</summary>
+        /// <inheritdoc />
         public void Reset()
         {
             this.AssertNotDisposed();
@@ -57,7 +57,7 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
             this.IsChanged = false;
         }
 
-        /// <summary>Stop watching the field and release all references.</summary>
+        /// <inheritdoc />
         public override void Dispose()
         {
             if (!this.IsDisposed)
