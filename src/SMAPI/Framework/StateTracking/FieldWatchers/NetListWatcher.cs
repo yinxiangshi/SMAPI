@@ -102,7 +102,7 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
         /// <param name="index">The list index which changed.</param>
         /// <param name="oldValue">The previous value.</param>
         /// <param name="newValue">The new value.</param>
-        private void OnElementChanged(NetList<TValue, NetRef<TValue>> list, int index, TValue oldValue, TValue newValue)
+        private void OnElementChanged(NetList<TValue, NetRef<TValue>> list, int index, TValue? oldValue, TValue? newValue)
         {
             this.Remove(oldValue);
             this.Add(newValue);
@@ -110,7 +110,7 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
 
         /// <summary>Track an added item.</summary>
         /// <param name="value">The value that was added.</param>
-        private void Add(TValue value)
+        private void Add(TValue? value)
         {
             if (value == null)
                 return;
@@ -126,7 +126,7 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
 
         /// <summary>Track a removed item.</summary>
         /// <param name="value">The value that was removed.</param>
-        private void Remove(TValue value)
+        private void Remove(TValue? value)
         {
             if (value == null)
                 return;
