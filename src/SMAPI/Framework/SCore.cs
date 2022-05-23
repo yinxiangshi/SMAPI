@@ -596,6 +596,7 @@ namespace StardewModdingAPI.Framework
                 /*********
                 ** Execute commands
                 *********/
+                if (this.ScreenCommandQueue.Value.Any())
                 {
                     var commandQueue = this.ScreenCommandQueue.Value;
                     foreach ((Command? command, string? name, string[]? args) in commandQueue)
