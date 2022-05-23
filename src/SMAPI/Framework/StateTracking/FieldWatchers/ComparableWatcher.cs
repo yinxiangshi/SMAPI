@@ -21,6 +21,9 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
         ** Accessors
         *********/
         /// <inheritdoc />
+        public string Name { get; }
+
+        /// <inheritdoc />
         public TValue PreviousValue { get; private set; }
 
         /// <inheritdoc />
@@ -34,10 +37,12 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
+        /// <param name="name">A name which identifies what the watcher is watching, used for troubleshooting.</param>
         /// <param name="getValue">Get the current value.</param>
         /// <param name="comparer">The equality comparer which indicates whether two values are the same.</param>
-        public ComparableWatcher(Func<TValue> getValue, IEqualityComparer<TValue> comparer)
+        public ComparableWatcher(string name, Func<TValue> getValue, IEqualityComparer<TValue> comparer)
         {
+            this.Name = name;
             this.GetValue = getValue;
             this.Comparer = comparer;
             this.CurrentValue = getValue();

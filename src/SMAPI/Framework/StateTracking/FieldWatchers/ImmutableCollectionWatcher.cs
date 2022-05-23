@@ -14,6 +14,9 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
         public static ImmutableCollectionWatcher<TValue> Instance { get; } = new();
 
         /// <inheritdoc />
+        public string Name => nameof(ImmutableCollectionWatcher<TValue>);
+
+        /// <inheritdoc />
         public bool IsChanged { get; } = false;
 
         /// <inheritdoc />

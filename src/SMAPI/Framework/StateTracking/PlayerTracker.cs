@@ -54,15 +54,15 @@ namespace StardewModdingAPI.Framework.StateTracking
             this.PreviousInventory = new Dictionary<Item, int>(this.CurrentInventory);
 
             // init trackers
-            this.LocationWatcher = WatcherFactory.ForReference(this.GetCurrentLocation);
+            this.LocationWatcher = WatcherFactory.ForReference($"player.{nameof(player.currentLocation)}", this.GetCurrentLocation);
             this.SkillWatchers = new Dictionary<SkillType, IValueWatcher<int>>
             {
-                [SkillType.Combat] = WatcherFactory.ForNetValue(player.combatLevel),
-                [SkillType.Farming] = WatcherFactory.ForNetValue(player.farmingLevel),
-                [SkillType.Fishing] = WatcherFactory.ForNetValue(player.fishingLevel),
-                [SkillType.Foraging] = WatcherFactory.ForNetValue(player.foragingLevel),
-                [SkillType.Luck] = WatcherFactory.ForNetValue(player.luckLevel),
-                [SkillType.Mining] = WatcherFactory.ForNetValue(player.miningLevel)
+                [SkillType.Combat] = WatcherFactory.ForNetValue($"player.{nameof(player.combatLevel)}", player.combatLevel),
+                [SkillType.Farming] = WatcherFactory.ForNetValue($"player.{nameof(player.farmingLevel)}", player.farmingLevel),
+                [SkillType.Fishing] = WatcherFactory.ForNetValue($"player.{nameof(player.fishingLevel)}", player.fishingLevel),
+                [SkillType.Foraging] = WatcherFactory.ForNetValue($"player.{nameof(player.foragingLevel)}", player.foragingLevel),
+                [SkillType.Luck] = WatcherFactory.ForNetValue($"player.{nameof(player.luckLevel)}", player.luckLevel),
+                [SkillType.Mining] = WatcherFactory.ForNetValue($"player.{nameof(player.miningLevel)}", player.miningLevel)
             };
 
             // track watchers for convenience

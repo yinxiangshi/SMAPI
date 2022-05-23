@@ -32,6 +32,9 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
         ** Accessors
         *********/
         /// <inheritdoc />
+        public string Name { get; }
+
+        /// <inheritdoc />
         public bool IsChanged => this.PairsAdded.Count > 0 || this.PairsRemoved.Count > 0;
 
         /// <inheritdoc />
@@ -45,9 +48,11 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
+        /// <param name="name">A name which identifies what the watcher is watching, used for troubleshooting.</param>
         /// <param name="field">The field to watch.</param>
-        public NetDictionaryWatcher(NetDictionary<TKey, TValue, TField, TSerialDict, TSelf> field)
+        public NetDictionaryWatcher(string name, NetDictionary<TKey, TValue, TField, TSerialDict, TSelf> field)
         {
+            this.Name = name;
             this.Field = field;
 
             field.OnValueAdded += this.OnValueAdded;

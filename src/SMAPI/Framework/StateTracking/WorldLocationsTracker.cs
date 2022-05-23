@@ -34,6 +34,9 @@ namespace StardewModdingAPI.Framework.StateTracking
         /*********
         ** Accessors
         *********/
+        /// <inheritdoc />
+        public string Name => nameof(WorldLocationsTracker);
+
         /// <summary>Whether locations were added or removed since the last reset.</summary>
         public bool IsLocationListChanged => this.Added.Any() || this.Removed.Any();
 
@@ -59,9 +62,9 @@ namespace StardewModdingAPI.Framework.StateTracking
         /// <param name="activeVolcanoLocations">The game's list of active volcano locations.</param>
         public WorldLocationsTracker(ObservableCollection<GameLocation> locations, IList<MineShaft> activeMineLocations, IList<VolcanoDungeon> activeVolcanoLocations)
         {
-            this.LocationListWatcher = WatcherFactory.ForObservableCollection(locations);
-            this.MineLocationListWatcher = WatcherFactory.ForReferenceList(activeMineLocations);
-            this.VolcanoLocationListWatcher = WatcherFactory.ForReferenceList(activeVolcanoLocations);
+            this.LocationListWatcher = WatcherFactory.ForObservableCollection($"{this.Name}.{nameof(locations)}", locations);
+            this.MineLocationListWatcher = WatcherFactory.ForReferenceList($"{this.Name}.{nameof(activeMineLocations)}", activeMineLocations);
+            this.VolcanoLocationListWatcher = WatcherFactory.ForReferenceList($"{this.Name}.{nameof(activeVolcanoLocations)}", activeVolcanoLocations);
         }
 
         /// <inheritdoc />

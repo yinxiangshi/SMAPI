@@ -29,6 +29,9 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
         ** Accessors
         *********/
         /// <inheritdoc />
+        public string Name { get; }
+
+        /// <inheritdoc />
         public bool IsChanged => this.AddedImpl.Count > 0 || this.RemovedImpl.Count > 0;
 
         /// <inheritdoc />
@@ -42,9 +45,11 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
+        /// <param name="name">A name which identifies what the watcher is watching, used for troubleshooting.</param>
         /// <param name="field">The field to watch.</param>
-        public ObservableCollectionWatcher(ObservableCollection<TValue> field)
+        public ObservableCollectionWatcher(string name, ObservableCollection<TValue> field)
         {
+            this.Name = name;
             this.Field = field;
             field.CollectionChanged += this.OnCollectionChanged;
         }

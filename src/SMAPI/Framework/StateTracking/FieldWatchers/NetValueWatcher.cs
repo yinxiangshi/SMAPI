@@ -18,6 +18,9 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
         ** Accessors
         *********/
         /// <inheritdoc />
+        public string Name { get; }
+
+        /// <inheritdoc />
         public bool IsChanged { get; private set; }
 
         /// <inheritdoc />
@@ -31,9 +34,11 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
+        /// <param name="name">A name which identifies what the watcher is watching, used for troubleshooting.</param>
         /// <param name="field">The field to watch.</param>
-        public NetValueWatcher(NetFieldBase<TValue, TNetField> field)
+        public NetValueWatcher(string name, NetFieldBase<TValue, TNetField> field)
         {
+            this.Name = name;
             this.Field = field;
             this.PreviousValue = field.Value;
             this.CurrentValue = field.Value;

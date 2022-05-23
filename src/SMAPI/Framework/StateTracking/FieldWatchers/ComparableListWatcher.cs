@@ -27,6 +27,9 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
         ** Accessors
         *********/
         /// <inheritdoc />
+        public string Name { get; }
+
+        /// <inheritdoc />
         public bool IsChanged => this.AddedImpl.Count > 0 || this.RemovedImpl.Count > 0;
 
         /// <inheritdoc />
@@ -40,10 +43,12 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
+        /// <param name="name">A name which identifies what the watcher is watching, used for troubleshooting.</param>
         /// <param name="values">The collection to watch.</param>
         /// <param name="comparer">The equality comparer which indicates whether two values are the same.</param>
-        public ComparableListWatcher(ICollection<TValue> values, IEqualityComparer<TValue> comparer)
+        public ComparableListWatcher(string name, ICollection<TValue> values, IEqualityComparer<TValue> comparer)
         {
+            this.Name = name;
             this.CurrentValues = values;
             this.LastValues = new HashSet<TValue>(comparer);
         }

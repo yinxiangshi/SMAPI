@@ -39,11 +39,12 @@ namespace StardewModdingAPI.Framework.StateTracking
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
+        /// <param name="name">A name which identifies what the watcher is watching, used for troubleshooting.</param>
         /// <param name="chest">The chest being tracked.</param>
-        public ChestTracker(Chest chest)
+        public ChestTracker(string name, Chest chest)
         {
             this.Chest = chest;
-            this.InventoryWatcher = WatcherFactory.ForNetList(chest.items);
+            this.InventoryWatcher = WatcherFactory.ForNetList($"{name}.{nameof(chest.items)}", chest.items);
 
             this.StackSizes = this.Chest.items
                 .Where(n => n != null)
