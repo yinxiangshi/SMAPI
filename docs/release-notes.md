@@ -2,6 +2,10 @@
 
 # Release notes
 ## Upcoming release
+* For players:
+  * Added experimental image load rewrite (disabled by default).  
+    _If you have many content mods installed, enabling `UseExperimentalImageLoading` in `smapi-internal/config.json` may reduce load times or stutters when they load many image files at once._
+
 * For mod authors:
   * Fixed map edits which change warps sometimes rebuilding the NPC pathfinding cache unnecessarily, which could cause a noticeable delay for players.
   * In `smapi-internal/config.json`, you can now enable verbose logging for specific mods (instead of all or nothing).
