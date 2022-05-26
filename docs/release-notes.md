@@ -5,6 +5,9 @@
 * For players:
   * Added experimental image load rewrite (disabled by default).  
     _If you have many content mods installed, enabling `UseExperimentalImageLoading` in `smapi-internal/config.json` may reduce load times or stutters when they load many image files at once._
+* For mod authors:
+  * Added specialized `IRawTextureData` asset type.  
+    _When you're only loading a mod file to patch it into an asset, you can now load it using `helper.ModContent.Load<IRawTextureData>(path)`. This reads the image data from disk without initializing a `Texture2D` instance through the GPU. You can then pass this to SMAPI APIs that accept `Texture2D` instances._
 
 * For mod authors:
   * Fixed map edits which change warps sometimes rebuilding the NPC pathfinding cache unnecessarily, which could cause a noticeable delay for players.
