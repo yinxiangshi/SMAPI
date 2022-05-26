@@ -7,6 +7,7 @@
 * For mod authors:
   * Added a new `IRawTextureData` asset type.  
     _You can now load image files through `helper.ModContent` as `IRawTextureData` instead of `Texture2D`. This provides the image size and raw pixel data, which you can pass into other SMAPI APIs like `asset.AsImage().PatchImage`. This is much more efficient when you don't need a full `Texture2D` instance, since it bypasses the GPU operations needed to create one._
+  * Removed transitional `UsePintail` option added in 3.14.0 (now always enabled).
 
 * For mod authors:
   * Fixed map edits which change warps sometimes rebuilding the NPC pathfinding cache unnecessarily, which could cause a noticeable delay for players.
