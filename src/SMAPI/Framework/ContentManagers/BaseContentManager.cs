@@ -153,7 +153,9 @@ namespace StardewModdingAPI.Framework.ContentManagers
                 return this.LoadExact<T>(assetName, useCache: useCache);
 
             // check for localized asset
-            if (!LocalizedContentManager.localizedAssetNames.TryGetValue(assetName.Name, out _))
+            // ReSharper disable once LocalVariableHidesMember -- this is deliberate
+            Dictionary<string, string> localizedAssetNames = this.Coordinator.LocalizedAssetNames.Value;
+            if (!localizedAssetNames.TryGetValue(assetName.Name, out _))
             {
                 string localeCode = this.LanguageCodeString(language);
                 IAssetName localizedName = new AssetName(baseName: assetName.BaseName, localeCode: localeCode, languageCode: language);
@@ -161,7 +163,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
                 try
                 {
                     T data = this.LoadExact<T>(localizedName, useCache: useCache);
-                    LocalizedContentManager.localizedAssetNames[assetName.Name] = localizedName.Name;
+                    localizedAssetNames[assetName.Name] = localizedName.Name;
                     return data;
                 }
                 catch (ContentLoadException)
@@ -170,18 +172,18 @@ namespace StardewModdingAPI.Framework.ContentManagers
                     try
                     {
                         T data = this.LoadExact<T>(localizedName, useCache: useCache);
-                        LocalizedContentManager.localizedAssetNames[assetName.Name] = localizedName.Name;
+                        localizedAssetNames[assetName.Name] = localizedName.Name;
                         return data;
                     }
                     catch (ContentLoadException)
                     {
-                        LocalizedContentManager.localizedAssetNames[assetName.Name] = assetName.Name;
+                        localizedAssetNames[assetName.Name] = assetName.Name;
                     }
                 }
             }
 
             // use cached key
-            string rawName = LocalizedContentManager.localizedAssetNames[assetName.Name];
+            string rawName = localizedAssetNames[assetName.Name];
             if (assetName.Name != rawName)
                 assetName = this.Coordinator.ParseAssetName(rawName, allowLocales: this.TryLocalizeKeys);
             return this.LoadExact<T>(assetName, useCache: useCache);

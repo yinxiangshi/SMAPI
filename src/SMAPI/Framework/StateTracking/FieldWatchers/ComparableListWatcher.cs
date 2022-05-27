@@ -26,13 +26,16 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
         /*********
         ** Accessors
         *********/
-        /// <summary>Whether the value changed since the last reset.</summary>
+        /// <inheritdoc />
+        public string Name { get; }
+
+        /// <inheritdoc />
         public bool IsChanged => this.AddedImpl.Count > 0 || this.RemovedImpl.Count > 0;
 
-        /// <summary>The values added since the last reset.</summary>
+        /// <inheritdoc />
         public IEnumerable<TValue> Added => this.AddedImpl;
 
-        /// <summary>The values removed since the last reset.</summary>
+        /// <inheritdoc />
         public IEnumerable<TValue> Removed => this.RemovedImpl;
 
 
@@ -40,15 +43,17 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
+        /// <param name="name">A name which identifies what the watcher is watching, used for troubleshooting.</param>
         /// <param name="values">The collection to watch.</param>
         /// <param name="comparer">The equality comparer which indicates whether two values are the same.</param>
-        public ComparableListWatcher(ICollection<TValue> values, IEqualityComparer<TValue> comparer)
+        public ComparableListWatcher(string name, ICollection<TValue> values, IEqualityComparer<TValue> comparer)
         {
+            this.Name = name;
             this.CurrentValues = values;
             this.LastValues = new HashSet<TValue>(comparer);
         }
 
-        /// <summary>Update the current value if needed.</summary>
+        /// <inheritdoc />
         public void Update()
         {
             this.AssertNotDisposed();
@@ -71,7 +76,7 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
             this.LastValues = curValues;
         }
 
-        /// <summary>Set the current value as the baseline.</summary>
+        /// <inheritdoc />
         public void Reset()
         {
             this.AssertNotDisposed();

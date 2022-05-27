@@ -95,6 +95,9 @@ namespace StardewModdingAPI.Framework.Deprecations
         /// <summary>Print any queued messages.</summary>
         public void PrintQueued()
         {
+            if (!this.QueuedWarnings.Any())
+                return;
+
             foreach (DeprecationWarning warning in this.QueuedWarnings.OrderBy(p => p.ModName).ThenBy(p => p.NounPhrase))
             {
                 // build message

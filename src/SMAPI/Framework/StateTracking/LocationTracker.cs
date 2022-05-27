@@ -25,7 +25,10 @@ namespace StardewModdingAPI.Framework.StateTracking
         /*********
         ** Accessors
         *********/
-        /// <summary>Whether the value changed since the last reset.</summary>
+        /// <inheritdoc />
+        public string Name { get; }
+
+        /// <inheritdoc />
         public bool IsChanged => this.Watchers.Any(p => p.IsChanged);
 
         /// <summary>The tracked location.</summary>
@@ -63,16 +66,17 @@ namespace StardewModdingAPI.Framework.StateTracking
         /// <param name="location">The location to track.</param>
         public LocationTracker(GameLocation location)
         {
+            this.Name = $"Locations.{location.NameOrUniqueName}";
             this.Location = location;
 
             // init watchers
-            this.BuildingsWatcher = location is BuildableGameLocation buildableLocation ? WatcherFactory.ForNetCollection(buildableLocation.buildings) : WatcherFactory.ForImmutableCollection<Building>();
-            this.DebrisWatcher = WatcherFactory.ForNetCollection(location.debris);
-            this.LargeTerrainFeaturesWatcher = WatcherFactory.ForNetCollection(location.largeTerrainFeatures);
-            this.NpcsWatcher = WatcherFactory.ForNetCollection(location.characters);
-            this.ObjectsWatcher = WatcherFactory.ForNetDictionary(location.netObjects);
-            this.TerrainFeaturesWatcher = WatcherFactory.ForNetDictionary(location.terrainFeatures);
-            this.FurnitureWatcher = WatcherFactory.ForNetCollection(location.furniture);
+            this.BuildingsWatcher = location is BuildableGameLocation buildableLocation ? WatcherFactory.ForNetCollection($"{this.Name}.{nameof(buildableLocation.buildings)}", buildableLocation.buildings) : WatcherFactory.ForImmutableCollection<Building>();
+            this.DebrisWatcher = WatcherFactory.ForNetCollection($"{this.Name}.{nameof(location.debris)}", location.debris);
+            this.LargeTerrainFeaturesWatcher = WatcherFactory.ForNetCollection($"{this.Name}.{nameof(location.largeTerrainFeatures)}", location.largeTerrainFeatures);
+            this.NpcsWatcher = WatcherFactory.ForNetCollection($"{this.Name}.{nameof(location.characters)}", location.characters);
+            this.ObjectsWatcher = WatcherFactory.ForNetDictionary($"{this.Name}.{nameof(location.netObjects)}", location.netObjects);
+            this.TerrainFeaturesWatcher = WatcherFactory.ForNetDictionary($"{this.Name}.{nameof(location.terrainFeatures)}", location.terrainFeatures);
+            this.FurnitureWatcher = WatcherFactory.ForNetCollection($"{this.Name}.{nameof(location.furniture)}", location.furniture);
 
             this.Watchers.AddRange(new IWatcher[]
             {
@@ -88,7 +92,7 @@ namespace StardewModdingAPI.Framework.StateTracking
             this.UpdateChestWatcherList(added: location.Objects.Pairs, removed: Array.Empty<KeyValuePair<Vector2, SObject>>());
         }
 
-        /// <summary>Update the current value if needed.</summary>
+        /// <inheritdoc />
         public void Update()
         {
             foreach (IWatcher watcher in this.Watchers)
@@ -100,7 +104,7 @@ namespace StardewModdingAPI.Framework.StateTracking
                 watcher.Value.Update();
         }
 
-        /// <summary>Set the current value as the baseline.</summary>
+        /// <inheritdoc />
         public void Reset()
         {
             foreach (IWatcher watcher in this.Watchers)
@@ -110,7 +114,7 @@ namespace StardewModdingAPI.Framework.StateTracking
                 watcher.Value.Reset();
         }
 
-        /// <summary>Stop watching the player fields and release all references.</summary>
+        /// <inheritdoc />
         public void Dispose()
         {
             foreach (IWatcher watcher in this.Watchers)
@@ -143,7 +147,7 @@ namespace StardewModdingAPI.Framework.StateTracking
             foreach ((Vector2 tile, SObject? obj) in added)
             {
                 if (obj is Chest chest && !this.ChestWatchers.ContainsKey(tile))
-                    this.ChestWatchers.Add(tile, new ChestTracker(chest));
+                    this.ChestWatchers.Add(tile, new ChestTracker($"{this.Name}.chest({tile})", chest));
             }
         }
     }

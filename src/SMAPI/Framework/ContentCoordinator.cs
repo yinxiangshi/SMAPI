@@ -15,8 +15,8 @@ using StardewModdingAPI.Framework.Utilities;
 using StardewModdingAPI.Internal;
 using StardewModdingAPI.Metadata;
 using StardewModdingAPI.Toolkit.Serialization;
-using StardewModdingAPI.Toolkit.Utilities;
 using StardewModdingAPI.Toolkit.Utilities.PathLookups;
+using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.GameData;
 using xTile;
@@ -109,6 +109,10 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>The absolute path to the <see cref="ContentManager.RootDirectory"/>.</summary>
         public string FullRootDirectory { get; }
+
+        /// <summary>A lookup which tracks whether each given asset name has a localized form.</summary>
+        /// <remarks>This is a per-screen equivalent to the base game's <see cref="LocalizedContentManager.localizedAssetNames"/> field, since mods may provide different assets per-screen.</remarks>
+        public PerScreen<Dictionary<string, string>> LocalizedAssetNames { get; } = new(() => new());
 
 
         /*********
@@ -245,6 +249,9 @@ namespace StardewModdingAPI.Framework
             {
                 this.VanillaContentManager.Unload();
             });
+
+            // forget localized flags (to match the logic in Game1.TranslateFields, which is called on language change)
+            this.LocalizedAssetNames.Value.Clear();
         }
 
         /// <summary>Clean up when the player is returning to the title screen.</summary>
@@ -275,6 +282,10 @@ namespace StardewModdingAPI.Framework
             // their changes, the assets won't be found in the cache so no changes will be propagated.
             if (LocalizedContentManager.CurrentLanguageCode != LocalizedContentManager.LanguageCode.en)
                 this.InvalidateCache((contentManager, _, _) => contentManager is GameContentManager);
+
+            // clear the localized assets lookup (to match the logic in Game1.CleanupReturningToTitle)
+            foreach ((_, Dictionary<string, string> localizedAssets) in this.LocalizedAssetNames.GetActiveValues())
+                localizedAssets.Clear();
         }
 
         /// <summary>Parse a raw asset name.</summary>
@@ -411,12 +422,15 @@ namespace StardewModdingAPI.Framework
                 // A mod might provide a localized variant of a normally non-localized asset (like
                 // `Maps/MovieTheater.fr-FR`). When the asset is invalidated, we need to recheck
                 // whether the asset is localized in case it stops providing it.
-                foreach (IAssetName assetName in invalidatedAssets.Keys)
                 {
-                    LocalizedContentManager.localizedAssetNames.Remove(assetName.Name);
+                    Dictionary<string, string> localizedAssetNames = this.LocalizedAssetNames.Value;
+                    foreach (IAssetName assetName in invalidatedAssets.Keys)
+                    {
+                        localizedAssetNames.Remove(assetName.Name);
 
-                    if (LocalizedContentManager.localizedAssetNames.TryGetValue(assetName.BaseName, out string? targetForBaseKey) && targetForBaseKey == assetName.Name)
-                        LocalizedContentManager.localizedAssetNames.Remove(assetName.BaseName);
+                        if (localizedAssetNames.TryGetValue(assetName.BaseName, out string? targetForBaseKey) && targetForBaseKey == assetName.Name)
+                            localizedAssetNames.Remove(assetName.BaseName);
+                    }
                 }
 
                 // special case: maps may be loaded through a temporary content manager that's removed while the map is still in use.

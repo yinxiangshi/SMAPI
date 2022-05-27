@@ -176,7 +176,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             return asset;
         }
 
-        /// <summary>Load an unpacked image file (<c>.json</c>).</summary>
+        /// <summary>Load an unpacked image file (<c>.png</c>).</summary>
         /// <typeparam name="T">The type of asset to load.</typeparam>
         /// <param name="assetName">The asset name relative to the loader root directory.</param>
         /// <param name="file">The file to load.</param>

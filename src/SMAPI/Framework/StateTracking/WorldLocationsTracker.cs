@@ -34,10 +34,13 @@ namespace StardewModdingAPI.Framework.StateTracking
         /*********
         ** Accessors
         *********/
+        /// <inheritdoc />
+        public string Name => nameof(WorldLocationsTracker);
+
         /// <summary>Whether locations were added or removed since the last reset.</summary>
         public bool IsLocationListChanged => this.Added.Any() || this.Removed.Any();
 
-        /// <summary>Whether any tracked location data changed since the last reset.</summary>
+        /// <inheritdoc />
         public bool IsChanged => this.IsLocationListChanged || this.Locations.Any(p => p.IsChanged);
 
         /// <summary>The tracked locations.</summary>
@@ -59,12 +62,12 @@ namespace StardewModdingAPI.Framework.StateTracking
         /// <param name="activeVolcanoLocations">The game's list of active volcano locations.</param>
         public WorldLocationsTracker(ObservableCollection<GameLocation> locations, IList<MineShaft> activeMineLocations, IList<VolcanoDungeon> activeVolcanoLocations)
         {
-            this.LocationListWatcher = WatcherFactory.ForObservableCollection(locations);
-            this.MineLocationListWatcher = WatcherFactory.ForReferenceList(activeMineLocations);
-            this.VolcanoLocationListWatcher = WatcherFactory.ForReferenceList(activeVolcanoLocations);
+            this.LocationListWatcher = WatcherFactory.ForObservableCollection($"{this.Name}.{nameof(locations)}", locations);
+            this.MineLocationListWatcher = WatcherFactory.ForReferenceList($"{this.Name}.{nameof(activeMineLocations)}", activeMineLocations);
+            this.VolcanoLocationListWatcher = WatcherFactory.ForReferenceList($"{this.Name}.{nameof(activeVolcanoLocations)}", activeVolcanoLocations);
         }
 
-        /// <summary>Update the current value if needed.</summary>
+        /// <inheritdoc />
         public void Update()
         {
             // update watchers
@@ -120,7 +123,7 @@ namespace StardewModdingAPI.Framework.StateTracking
             this.VolcanoLocationListWatcher.Reset();
         }
 
-        /// <summary>Set the current value as the baseline.</summary>
+        /// <inheritdoc />
         public void Reset()
         {
             this.ResetLocationList();
@@ -135,7 +138,7 @@ namespace StardewModdingAPI.Framework.StateTracking
             return this.LocationDict.ContainsKey(location);
         }
 
-        /// <summary>Stop watching the player fields and release all references.</summary>
+        /// <inheritdoc />
         public void Dispose()
         {
             foreach (IWatcher watcher in this.GetWatchers())
