@@ -1,9 +1,12 @@
 ← [README](README.md)
 
 # Release notes
-## Upcoming release
+## 3.14.6
+Released 27 May 2022 for Stardew Valley 1.5.6 or later.
+
 * For players:
   * Fixed error in split-screen mode when a mod provides a localized asset in one screen but not another.
+  * Minor optimizations.
 
 ## 3.14.5
 Released 22 May 2022 for Stardew Valley 1.5.6 or later.
