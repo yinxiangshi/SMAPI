@@ -1,6 +1,10 @@
 ← [README](README.md)
 
 # Release notes
+## Upcoming release
+* For mod authors:
+  * Removed `runtimeconfig.json` setting which impacted hot reload support.
+
 ## 3.14.6
 Released 27 May 2022 for Stardew Valley 1.5.6 or later.
 
