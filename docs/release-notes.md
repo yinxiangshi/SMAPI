@@ -2,6 +2,8 @@
 
 # Release notes
 ## Upcoming release
+* For players:
+  * Optimized reflection cache to reduce frame skips for some players.
 * For mod authors:
   * Removed `runtimeconfig.json` setting which impacted hot reload support.
 

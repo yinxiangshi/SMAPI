@@ -1164,6 +1164,8 @@ namespace StardewModdingAPI.Framework
         protected void OnNewDayAfterFade()
         {
             this.EventManager.DayEnding.RaiseEmpty();
+
+            this.Reflection.NewCacheInterval();
         }
 
         /// <summary>A callback invoked after an asset is fully loaded through a content manager.</summary>
