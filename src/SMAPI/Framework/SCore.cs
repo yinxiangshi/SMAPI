@@ -1164,6 +1164,8 @@ namespace StardewModdingAPI.Framework
         protected void OnNewDayAfterFade()
         {
             this.EventManager.DayEnding.RaiseEmpty();
+
+            this.Reflection.NewCacheInterval();
         }
 
         /// <summary>A callback invoked after an asset is fully loaded through a content manager.</summary>
@@ -1676,6 +1678,31 @@ namespace StardewModdingAPI.Framework
                     content.ObservableAssetLoaders.CollectionChanged += (_, e) => this.OnAssetInterceptorsChanged(metadata, e.NewItems?.Cast<IAssetLoader>(), e.OldItems?.Cast<IAssetLoader>(), this.ContentCore.Loaders);
                 }
 #pragma warning restore CS0612, CS0618
+
+                // log deprecation warnings
+                if (metadata.HasWarnings(ModWarning.DetectedLegacyCachingDll, ModWarning.DetectedLegacyConfigurationDll, ModWarning.DetectedLegacyPermissionsDll))
+                {
+                    string?[] referenced =
+                        new[]
+                        {
+                            metadata.Warnings.HasFlag(ModWarning.DetectedLegacyConfigurationDll) ? "System.Configuration.ConfigurationManager" : null,
+                            metadata.Warnings.HasFlag(ModWarning.DetectedLegacyCachingDll) ? "System.Runtime.Caching" : null,
+                            metadata.Warnings.HasFlag(ModWarning.DetectedLegacyPermissionsDll) ? "System.Security.Permissions" : null
+                        }
+                        .Where(p => p is not null)
+                        .ToArray();
+
+                    foreach (string? name in referenced)
+                    {
+                        DeprecationManager.Warn(
+                            metadata,
+                            $"using {name} without bundling it",
+                            "3.14.7",
+                            DeprecationLevel.Notice,
+                            logStackTrace: false
+                        );
+                    }
+                }
 
                 // call entry method
                 Context.HeuristicModsRunningCode.Push(metadata);

@@ -1,6 +1,14 @@
 ← [README](README.md)
 
 # Release notes
+## 3.14.7
+Released 01 June 2022 for Stardew Valley 1.5.6 or later.
+
+* For players:
+  * Optimized reflection cache to reduce frame skips for some players.
+* For mod authors:
+  * Removed `runtimeconfig.json` setting which impacted hot reload support.
+
 ## 3.14.6
 Released 27 May 2022 for Stardew Valley 1.5.6 or later.
 

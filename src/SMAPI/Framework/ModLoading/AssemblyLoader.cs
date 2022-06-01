@@ -163,6 +163,29 @@ namespace StardewModdingAPI.Framework.ModLoading
                 this.AssemblyDefinitionResolver.Add(assembly.Definition);
             }
 
+            // special case: clear legacy-DLL warnings if the mod bundles a copy
+            if (mod.Warnings.HasFlag(ModWarning.DetectedLegacyCachingDll))
+            {
+                if (File.Exists(Path.Combine(mod.DirectoryPath, "System.Runtime.Caching.dll")))
+                    mod.RemoveWarning(ModWarning.DetectedLegacyCachingDll);
+                else
+                {
+                    // remove duplicate warnings (System.Runtime.Caching.dll references these)
+                    mod.RemoveWarning(ModWarning.DetectedLegacyConfigurationDll);
+                    mod.RemoveWarning(ModWarning.DetectedLegacyPermissionsDll);
+                }
+            }
+            if (mod.Warnings.HasFlag(ModWarning.DetectedLegacyConfigurationDll))
+            {
+                if (File.Exists(Path.Combine(mod.DirectoryPath, "System.Configuration.ConfigurationManager.dll")))
+                    mod.RemoveWarning(ModWarning.DetectedLegacyConfigurationDll);
+            }
+            if (mod.Warnings.HasFlag(ModWarning.DetectedLegacyPermissionsDll))
+            {
+                if (File.Exists(Path.Combine(mod.DirectoryPath, "System.Security.Permissions.dll")))
+                    mod.RemoveWarning(ModWarning.DetectedLegacyPermissionsDll);
+            }
+
             // throw if incompatibilities detected
             if (!assumeCompatible && mod.Warnings.HasFlag(ModWarning.BrokenCodeLoaded))
                 throw new IncompatibleInstructionException();
@@ -427,6 +450,21 @@ namespace StardewModdingAPI.Framework.ModLoading
                 case InstructionHandleResult.DetectedShellAccess:
                     template = $"{logPrefix}Detected shell or process access ($phrase) in assembly {filename}.";
                     mod.SetWarning(ModWarning.AccessesShell);
+                    break;
+
+                case InstructionHandleResult.DetectedLegacyCachingDll:
+                    template = $"{logPrefix}Detected reference to System.Runtime.Caching.dll, which will be removed in SMAPI 4.0.0.";
+                    mod.SetWarning(ModWarning.DetectedLegacyCachingDll);
+                    break;
+
+                case InstructionHandleResult.DetectedLegacyConfigurationDll:
+                    template = $"{logPrefix}Detected reference to System.Configuration.ConfigurationManager.dll, which will be removed in SMAPI 4.0.0.";
+                    mod.SetWarning(ModWarning.DetectedLegacyConfigurationDll);
+                    break;
+
+                case InstructionHandleResult.DetectedLegacyPermissionsDll:
+                    template = $"{logPrefix}Detected reference to System.Security.Permissions.dll, which will be removed in SMAPI 4.0.0.";
+                    mod.SetWarning(ModWarning.DetectedLegacyPermissionsDll);
                     break;
 
                 case InstructionHandleResult.None:

@@ -162,19 +162,20 @@ foreach ($folder in $folders) {
     cp "$smapiBin/SMAPI.metadata.json" "$bundlePath/smapi-internal/metadata.json"
     if ($folder -eq "linux" -or $folder -eq "macOS") {
         cp "$installAssets/unix-launcher.sh" "$bundlePath"
-        cp "$smapiBin/System.Runtime.Caching.dll" "$bundlePath/smapi-internal"
     }
     else {
         cp "$installAssets/windows-exe-config.xml" "$bundlePath/StardewModdingAPI.exe.config"
     }
 
     # copy .NET dependencies
-    cp "$smapiBin/System.Configuration.ConfigurationManager.dll" "$bundlePath/smapi-internal"
-    cp "$smapiBin/System.Runtime.Caching.dll" "$bundlePath/smapi-internal"
-    cp "$smapiBin/System.Security.Permissions.dll" "$bundlePath/smapi-internal"
     if ($folder -eq "windows") {
         cp "$smapiBin/System.Management.dll" "$bundlePath/smapi-internal"
     }
+
+    # copy legacy .NET dependencies (remove in SMAPI 4.0.0)
+    cp "$smapiBin/System.Configuration.ConfigurationManager.dll" "$bundlePath/smapi-internal"
+    cp "$smapiBin/System.Runtime.Caching.dll" "$bundlePath/smapi-internal"
+    cp "$smapiBin/System.Security.Permissions.dll" "$bundlePath/smapi-internal"
 
     # copy bundled mods
     foreach ($modName in $bundleModNames) {

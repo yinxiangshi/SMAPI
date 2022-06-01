@@ -1,6 +1,6 @@
 using System;
 using System.Reflection;
-using System.Runtime.Caching;
+using StardewModdingAPI.Framework.Utilities;
 
 namespace StardewModdingAPI.Framework.Reflection
 {
@@ -12,10 +12,7 @@ namespace StardewModdingAPI.Framework.Reflection
         ** Fields
         *********/
         /// <summary>The cached fields and methods found via reflection.</summary>
-        private readonly MemoryCache Cache = new(typeof(Reflector).FullName!);
-
-        /// <summary>The sliding cache expiration time.</summary>
-        private readonly TimeSpan SlidingCacheExpiry = TimeSpan.FromMinutes(5);
+        private readonly IntervalMemoryCache<string, MemberInfo?> Cache = new();
 
 
         /*********
@@ -136,6 +133,15 @@ namespace StardewModdingAPI.Framework.Reflection
             return method!;
         }
 
+        /****
+        ** Management
+        ****/
+        /// <summary>Start a new cache interval, clearing stale reflection lookups.</summary>
+        public void NewCacheInterval()
+        {
+            this.Cache.StartNewInterval();
+        }
+
 
         /*********
         ** Private methods
@@ -149,20 +155,23 @@ namespace StardewModdingAPI.Framework.Reflection
         private IReflectedField<TValue>? GetFieldFromHierarchy<TValue>(Type type, object? obj, string name, BindingFlags bindingFlags)
         {
             bool isStatic = bindingFlags.HasFlag(BindingFlags.Static);
-            FieldInfo? field = this.GetCached($"field::{isStatic}::{type.FullName}::{name}", () =>
-            {
-                for (Type? curType = type; curType != null; curType = curType.BaseType)
+            FieldInfo? field = this.GetCached(
+                'f', type, name, isStatic,
+                fetch: () =>
                 {
-                    FieldInfo? fieldInfo = curType.GetField(name, bindingFlags);
-                    if (fieldInfo != null)
+                    for (Type? curType = type; curType != null; curType = curType.BaseType)
                     {
-                        type = curType;
-                        return fieldInfo;
+                        FieldInfo? fieldInfo = curType.GetField(name, bindingFlags);
+                        if (fieldInfo != null)
+                        {
+                            type = curType;
+                            return fieldInfo;
+                        }
                     }
-                }
 
-                return null;
-            });
+                    return null;
+                }
+            );
 
             return field != null
                 ? new ReflectedField<TValue>(type, obj, field, isStatic)
@@ -178,20 +187,23 @@ namespace StardewModdingAPI.Framework.Reflection
         private IReflectedProperty<TValue>? GetPropertyFromHierarchy<TValue>(Type type, object? obj, string name, BindingFlags bindingFlags)
         {
             bool isStatic = bindingFlags.HasFlag(BindingFlags.Static);
-            PropertyInfo? property = this.GetCached<PropertyInfo>($"property::{isStatic}::{type.FullName}::{name}", () =>
-            {
-                for (Type? curType = type; curType != null; curType = curType.BaseType)
+            PropertyInfo? property = this.GetCached(
+                'p', type, name, isStatic,
+                fetch: () =>
                 {
-                    PropertyInfo? propertyInfo = curType.GetProperty(name, bindingFlags);
-                    if (propertyInfo != null)
+                    for (Type? curType = type; curType != null; curType = curType.BaseType)
                     {
-                        type = curType;
-                        return propertyInfo;
+                        PropertyInfo? propertyInfo = curType.GetProperty(name, bindingFlags);
+                        if (propertyInfo != null)
+                        {
+                            type = curType;
+                            return propertyInfo;
+                        }
                     }
-                }
 
-                return null;
-            });
+                    return null;
+                }
+            );
 
             return property != null
                 ? new ReflectedProperty<TValue>(type, obj, property, isStatic)
@@ -206,47 +218,41 @@ namespace StardewModdingAPI.Framework.Reflection
         private IReflectedMethod? GetMethodFromHierarchy(Type type, object? obj, string name, BindingFlags bindingFlags)
         {
             bool isStatic = bindingFlags.HasFlag(BindingFlags.Static);
-            MethodInfo? method = this.GetCached($"method::{isStatic}::{type.FullName}::{name}", () =>
-            {
-                for (Type? curType = type; curType != null; curType = curType.BaseType)
+            MethodInfo? method = this.GetCached(
+                'm', type, name, isStatic,
+                fetch: () =>
                 {
-                    MethodInfo? methodInfo = curType.GetMethod(name, bindingFlags);
-                    if (methodInfo != null)
+                    for (Type? curType = type; curType != null; curType = curType.BaseType)
                     {
-                        type = curType;
-                        return methodInfo;
+                        MethodInfo? methodInfo = curType.GetMethod(name, bindingFlags);
+                        if (methodInfo != null)
+                        {
+                            type = curType;
+                            return methodInfo;
+                        }
                     }
-                }
 
-                return null;
-            });
+                    return null;
+                }
+            );
 
             return method != null
-                ? new ReflectedMethod(type, obj, method, isStatic: bindingFlags.HasFlag(BindingFlags.Static))
+                ? new ReflectedMethod(type, obj, method, isStatic: isStatic)
                 : null;
         }
 
         /// <summary>Get a method or field through the cache.</summary>
         /// <typeparam name="TMemberInfo">The expected <see cref="MemberInfo"/> type.</typeparam>
-        /// <param name="key">The cache key.</param>
+        /// <param name="memberType">A letter representing the member type (like 'm' for method).</param>
+        /// <param name="type">The type whose members are being reflected.</param>
+        /// <param name="memberName">The member name.</param>
+        /// <param name="isStatic">Whether the member is static.</param>
         /// <param name="fetch">Fetches a new value to cache.</param>
-        private TMemberInfo? GetCached<TMemberInfo>(string key, Func<TMemberInfo?> fetch)
+        private TMemberInfo? GetCached<TMemberInfo>(char memberType, Type type, string memberName, bool isStatic, Func<TMemberInfo?> fetch)
             where TMemberInfo : MemberInfo
         {
-            // get from cache
-            if (this.Cache.Contains(key))
-            {
-                CacheEntry entry = (CacheEntry)this.Cache[key];
-                return entry.IsValid
-                    ? (TMemberInfo)entry.MemberInfo
-                    : default;
-            }
-
-            // fetch & cache new value
-            TMemberInfo? result = fetch();
-            CacheEntry cacheEntry = new(result);
-            this.Cache.Add(key, cacheEntry, new CacheItemPolicy { SlidingExpiration = this.SlidingCacheExpiry });
-            return result;
+            string key = $"{memberType}{(isStatic ? 's' : 'i')}{type.FullName}:{memberName}";
+            return (TMemberInfo?)this.Cache.GetOrSet(key, fetch);
         }
     }
 }

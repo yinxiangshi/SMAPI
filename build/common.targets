@@ -1,7 +1,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <!--set general build properties -->
-    <Version>3.14.6</Version>
+    <Version>3.14.7</Version>
     <Product>SMAPI</Product>
     <LangVersion>latest</LangVersion>
     <AssemblySearchPaths>$(AssemblySearchPaths);{GAC}</AssemblySearchPaths>
@@ -69,8 +69,10 @@
     <Copy SourceFiles="$(TargetDir)\MonoMod.Common.dll" DestinationFolder="$(GamePath)\smapi-internal" />
 
     <!-- .NET dependencies -->
-    <Copy SourceFiles="$(TargetDir)\System.Configuration.ConfigurationManager.dll" DestinationFolder="$(GamePath)\smapi-internal" />
     <Copy SourceFiles="$(TargetDir)\System.Management.dll" DestinationFolder="$(GamePath)\smapi-internal" Condition="$(OS) == 'Windows_NT'" />
+
+    <!-- Legacy .NET dependencies (remove in SMAPI 4.0.0) -->
+    <Copy SourceFiles="$(TargetDir)\System.Configuration.ConfigurationManager.dll" DestinationFolder="$(GamePath)\smapi-internal" />
     <Copy SourceFiles="$(TargetDir)\System.Runtime.Caching.dll" DestinationFolder="$(GamePath)\smapi-internal" />
     <Copy SourceFiles="$(TargetDir)\System.Security.Permissions.dll" DestinationFolder="$(GamePath)\smapi-internal" />
   </Target>

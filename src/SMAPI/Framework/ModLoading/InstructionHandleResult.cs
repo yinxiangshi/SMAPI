@@ -30,6 +30,15 @@ namespace StardewModdingAPI.Framework.ModLoading
         DetectedFilesystemAccess,
 
         /// <summary>The instruction accesses the OS shell or processes directly.</summary>
-        DetectedShellAccess
+        DetectedShellAccess,
+
+        /// <summary>The module references the legacy <c>System.Configuration.ConfigurationManager</c> assembly and doesn't include a copy in the mod folder, so it'll break in SMAPI 4.0.0.</summary>
+        DetectedLegacyConfigurationDll,
+
+        /// <summary>The module references the legacy <c>System.Runtime.Caching</c> assembly and doesn't include a copy in the mod folder, so it'll break in SMAPI 4.0.0.</summary>
+        DetectedLegacyCachingDll,
+
+        /// <summary>The module references the legacy <c>System.Security.Permissions</c> assembly and doesn't include a copy in the mod folder, so it'll break in SMAPI 4.0.0.</summary>
+        DetectedLegacyPermissionsDll
     }
 }
