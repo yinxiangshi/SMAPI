@@ -88,6 +88,10 @@ namespace StardewModdingAPI.Framework
         /// <param name="warning">The warning to set.</param>
         IModMetadata SetWarning(ModWarning warning);
 
+        /// <summary>Remove a warning flag for the mod.</summary>
+        /// <param name="warning">The warning to remove.</param>
+        IModMetadata RemoveWarning(ModWarning warning);
+
         /// <summary>Set the mod instance.</summary>
         /// <param name="mod">The mod instance to set.</param>
         /// <param name="translations">The translations for this mod (if loaded).</param>

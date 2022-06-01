@@ -53,6 +53,9 @@ namespace StardewModdingAPI.Metadata
 
                 // detect Harmony & rewrite for SMAPI 3.12 (Harmony 1.x => 2.0 update)
                 yield return new HarmonyRewriter();
+
+                // detect issues for SMAPI 4.0.0
+                yield return new LegacyAssemblyFinder();
             }
             else
                 yield return new HarmonyRewriter(shouldRewrite: false);

@@ -1679,6 +1679,31 @@ namespace StardewModdingAPI.Framework
                 }
 #pragma warning restore CS0612, CS0618
 
+                // log deprecation warnings
+                if (metadata.HasWarnings(ModWarning.DetectedLegacyCachingDll, ModWarning.DetectedLegacyConfigurationDll, ModWarning.DetectedLegacyPermissionsDll))
+                {
+                    string?[] referenced =
+                        new[]
+                        {
+                            metadata.Warnings.HasFlag(ModWarning.DetectedLegacyConfigurationDll) ? "System.Configuration.ConfigurationManager" : null,
+                            metadata.Warnings.HasFlag(ModWarning.DetectedLegacyCachingDll) ? "System.Runtime.Caching" : null,
+                            metadata.Warnings.HasFlag(ModWarning.DetectedLegacyPermissionsDll) ? "System.Security.Permissions" : null
+                        }
+                        .Where(p => p is not null)
+                        .ToArray();
+
+                    foreach (string? name in referenced)
+                    {
+                        DeprecationManager.Warn(
+                            metadata,
+                            $"using {name} without bundling it",
+                            "3.14.7",
+                            DeprecationLevel.Notice,
+                            logStackTrace: false
+                        );
+                    }
+                }
+
                 // call entry method
                 Context.HeuristicModsRunningCode.Push(metadata);
                 try

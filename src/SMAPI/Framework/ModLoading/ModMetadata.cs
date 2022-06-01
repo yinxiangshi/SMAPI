@@ -139,6 +139,13 @@ namespace StardewModdingAPI.Framework.ModLoading
         }
 
         /// <inheritdoc />
+        public IModMetadata RemoveWarning(ModWarning warning)
+        {
+            this.ActualWarnings &= ~warning;
+            return this;
+        }
+
+        /// <inheritdoc />
         public IModMetadata SetMod(IMod mod, TranslationHelper translations)
         {
             if (this.ContentPack != null)

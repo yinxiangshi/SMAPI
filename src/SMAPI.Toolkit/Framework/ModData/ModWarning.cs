@@ -35,6 +35,15 @@ namespace StardewModdingAPI.Toolkit.Framework.ModData
         AccessesFilesystem = 128,
 
         /// <summary>Uses .NET APIs for shell or process access.</summary>
-        AccessesShell = 256
+        AccessesShell = 256,
+
+        /// <summary>References the legacy <c>System.Configuration.ConfigurationManager</c> assembly and doesn't include a copy in the mod folder, so it'll break in SMAPI 4.0.0.</summary>
+        DetectedLegacyConfigurationDll = 512,
+
+        /// <summary>References the legacy <c>System.Runtime.Caching</c> assembly and doesn't include a copy in the mod folder, so it'll break in SMAPI 4.0.0.</summary>
+        DetectedLegacyCachingDll = 1024,
+
+        /// <summary>References the legacy <c>System.Security.Permissions</c> assembly and doesn't include a copy in the mod folder, so it'll break in SMAPI 4.0.0.</summary>
+        DetectedLegacyPermissionsDll = 2048
     }
 }
