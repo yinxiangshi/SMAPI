@@ -1,7 +1,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <!--set general build properties -->
-    <Version>3.14.6</Version>
+    <Version>3.14.7</Version>
     <Product>SMAPI</Product>
     <LangVersion>latest</LangVersion>
     <AssemblySearchPaths>$(AssemblySearchPaths);{GAC}</AssemblySearchPaths>
