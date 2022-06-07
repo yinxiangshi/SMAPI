@@ -1507,7 +1507,7 @@ namespace StardewModdingAPI.Framework
                 {
                     try
                     {
-                        HashSet<string> suppressUpdateChecks = new HashSet<string>(this.Settings.SuppressUpdateChecks, StringComparer.OrdinalIgnoreCase);
+                        HashSet<string> suppressUpdateChecks = this.Settings.SuppressUpdateChecks;
 
                         // prepare search model
                         List<ModSearchEntryModel> searchMods = new List<ModSearchEntryModel>();
@@ -1608,7 +1608,7 @@ namespace StardewModdingAPI.Framework
             using (AssemblyLoader modAssemblyLoader = new(Constants.Platform, this.Monitor, this.Settings.ParanoidWarnings, this.Settings.RewriteMods))
             {
                 // init
-                HashSet<string> suppressUpdateChecks = new HashSet<string>(this.Settings.SuppressUpdateChecks, StringComparer.OrdinalIgnoreCase);
+                HashSet<string> suppressUpdateChecks = this.Settings.SuppressUpdateChecks;
                 IInterfaceProxyFactory proxyFactory = this.Settings.UsePintail
                     ? new InterfaceProxyFactory()
                     : new OriginalInterfaceProxyFactory();

@@ -76,7 +76,7 @@ namespace StardewModdingAPI.Framework.Models
         public ColorSchemeConfig ConsoleColors { get; }
 
         /// <summary>The mod IDs SMAPI should ignore when performing update checks or validating update keys.</summary>
-        public string[] SuppressUpdateChecks { get; }
+        public HashSet<string> SuppressUpdateChecks { get; }
 
 
         /********
@@ -110,7 +110,7 @@ namespace StardewModdingAPI.Framework.Models
             this.UseCaseInsensitivePaths = useCaseInsensitivePaths ?? (bool)SConfig.DefaultValues[nameof(this.UseCaseInsensitivePaths)];
             this.LogNetworkTraffic = logNetworkTraffic ?? (bool)SConfig.DefaultValues[nameof(this.LogNetworkTraffic)];
             this.ConsoleColors = consoleColors;
-            this.SuppressUpdateChecks = suppressUpdateChecks ?? Array.Empty<string>();
+            this.SuppressUpdateChecks = new HashSet<string>(suppressUpdateChecks ?? Array.Empty<string>(), StringComparer.OrdinalIgnoreCase);
         }
 
         /// <summary>Override the value of <see cref="DeveloperMode"/>.</summary>
@@ -132,8 +132,7 @@ namespace StardewModdingAPI.Framework.Models
                     custom[name] = value;
             }
 
-            HashSet<string> curSuppressUpdateChecks = new(this.SuppressUpdateChecks, StringComparer.OrdinalIgnoreCase);
-            if (SConfig.DefaultSuppressUpdateChecks.Count != curSuppressUpdateChecks.Count || SConfig.DefaultSuppressUpdateChecks.Any(p => !curSuppressUpdateChecks.Contains(p)))
+            if (!this.SuppressUpdateChecks.SetEquals(SConfig.DefaultSuppressUpdateChecks))
                 custom[nameof(this.SuppressUpdateChecks)] = "[" + string.Join(", ", this.SuppressUpdateChecks) + "]";
 
             return custom;
