@@ -20,7 +20,6 @@ namespace StardewModdingAPI.Framework.Models
             [nameof(UseBetaChannel)] = Constants.ApiVersion.IsPrerelease(),
             [nameof(GitHubProjectName)] = "Pathoschild/SMAPI",
             [nameof(WebApiBaseUrl)] = "https://smapi.io/api/",
-            [nameof(VerboseLogging)] = false,
             [nameof(LogNetworkTraffic)] = false,
             [nameof(RewriteMods)] = true,
             [nameof(UsePintail)] = true,
@@ -57,8 +56,9 @@ namespace StardewModdingAPI.Framework.Models
         /// <summary>The base URL for SMAPI's web API, used to perform update checks.</summary>
         public string WebApiBaseUrl { get; }
 
-        /// <summary>Whether SMAPI should log more information about the game context.</summary>
-        public bool VerboseLogging { get; }
+        /// <summary>The log contexts for which to enable verbose logging, which may show a lot more information to simplify troubleshooting.</summary>
+        /// <remarks>The possible values are "*" (everything is verbose), "SMAPI", (SMAPI itself), or mod IDs.</remarks>
+        public HashSet<string> VerboseLogging { get; }
 
         /// <summary>Whether SMAPI should rewrite mods for compatibility.</summary>
         public bool RewriteMods { get; }
@@ -89,14 +89,14 @@ namespace StardewModdingAPI.Framework.Models
         /// <param name="useBetaChannel">Whether to show beta versions as valid updates.</param>
         /// <param name="gitHubProjectName">SMAPI's GitHub project name, used to perform update checks.</param>
         /// <param name="webApiBaseUrl">The base URL for SMAPI's web API, used to perform update checks.</param>
-        /// <param name="verboseLogging">Whether SMAPI should log more information about the game context.</param>
+        /// <param name="verboseLogging">The log contexts for which to enable verbose logging, which may show a lot more information to simplify troubleshooting.</param>
         /// <param name="rewriteMods">Whether SMAPI should rewrite mods for compatibility.</param>
         /// <param name="usePintail">Whether to use the experimental Pintail API proxying library, instead of the original proxying built into SMAPI itself.</param>
         /// <param name="useCaseInsensitivePaths">>Whether to make SMAPI file APIs case-insensitive, even on Linux.</param>
         /// <param name="logNetworkTraffic">Whether SMAPI should log network traffic.</param>
         /// <param name="consoleColors">The colors to use for text written to the SMAPI console.</param>
         /// <param name="suppressUpdateChecks">The mod IDs SMAPI should ignore when performing update checks or validating update keys.</param>
-        public SConfig(bool developerMode, bool? checkForUpdates, bool? paranoidWarnings, bool? useBetaChannel, string gitHubProjectName, string webApiBaseUrl, bool? verboseLogging, bool? rewriteMods, bool? usePintail, bool? useCaseInsensitivePaths, bool? logNetworkTraffic, ColorSchemeConfig consoleColors, string[]? suppressUpdateChecks)
+        public SConfig(bool developerMode, bool? checkForUpdates, bool? paranoidWarnings, bool? useBetaChannel, string gitHubProjectName, string webApiBaseUrl, string[]? verboseLogging, bool? rewriteMods, bool? usePintail, bool? useCaseInsensitivePaths, bool? logNetworkTraffic, ColorSchemeConfig consoleColors, string[]? suppressUpdateChecks)
         {
             this.DeveloperMode = developerMode;
             this.CheckForUpdates = checkForUpdates ?? (bool)SConfig.DefaultValues[nameof(this.CheckForUpdates)];
@@ -104,7 +104,7 @@ namespace StardewModdingAPI.Framework.Models
             this.UseBetaChannel = useBetaChannel ?? (bool)SConfig.DefaultValues[nameof(this.UseBetaChannel)];
             this.GitHubProjectName = gitHubProjectName;
             this.WebApiBaseUrl = webApiBaseUrl;
-            this.VerboseLogging = verboseLogging ?? (bool)SConfig.DefaultValues[nameof(this.VerboseLogging)];
+            this.VerboseLogging = new HashSet<string>(verboseLogging ?? Array.Empty<string>(), StringComparer.OrdinalIgnoreCase);
             this.RewriteMods = rewriteMods ?? (bool)SConfig.DefaultValues[nameof(this.RewriteMods)];
             this.UsePintail = usePintail ?? (bool)SConfig.DefaultValues[nameof(this.UsePintail)];
             this.UseCaseInsensitivePaths = useCaseInsensitivePaths ?? (bool)SConfig.DefaultValues[nameof(this.UseCaseInsensitivePaths)];
@@ -133,7 +133,10 @@ namespace StardewModdingAPI.Framework.Models
             }
 
             if (!this.SuppressUpdateChecks.SetEquals(SConfig.DefaultSuppressUpdateChecks))
-                custom[nameof(this.SuppressUpdateChecks)] = "[" + string.Join(", ", this.SuppressUpdateChecks) + "]";
+                custom[nameof(this.SuppressUpdateChecks)] = $"[{string.Join(", ", this.SuppressUpdateChecks)}]";
+
+            if (this.VerboseLogging.Any())
+                custom[nameof(this.VerboseLogging)] = $"[{string.Join(", ", this.VerboseLogging)}]";
 
             return custom;
         }

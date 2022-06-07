@@ -194,7 +194,7 @@ namespace StardewModdingAPI.Framework
             if (developerMode.HasValue)
                 this.Settings.OverrideDeveloperMode(developerMode.Value);
 
-            this.LogManager = new LogManager(logPath: logPath, colorConfig: this.Settings.ConsoleColors, writeToConsole: writeToConsole, isVerbose: this.Settings.VerboseLogging, isDeveloperMode: this.Settings.DeveloperMode, getScreenIdForLog: this.GetScreenIdForLog);
+            this.LogManager = new LogManager(logPath: logPath, colorConfig: this.Settings.ConsoleColors, writeToConsole: writeToConsole, verboseLogging: this.Settings.VerboseLogging, isDeveloperMode: this.Settings.DeveloperMode, getScreenIdForLog: this.GetScreenIdForLog);
             this.CommandManager = new CommandManager(this.Monitor);
             this.EventManager = new EventManager(this.ModRegistry);
             SCore.DeprecationManager = new DeprecationManager(this.Monitor, this.ModRegistry);
@@ -1827,7 +1827,7 @@ namespace StardewModdingAPI.Framework
             // load as content pack
             if (mod.IsContentPack)
             {
-                IMonitor monitor = this.LogManager.GetMonitor(mod.DisplayName);
+                IMonitor monitor = this.LogManager.GetMonitor(manifest.UniqueID, mod.DisplayName);
                 IFileLookup fileLookup = this.GetFileLookup(mod.DirectoryPath);
                 GameContentHelper gameContentHelper = new(this.ContentCore, mod, mod.DisplayName, monitor, this.Reflection);
                 IModContentHelper modContentHelper = new ModContentHelper(this.ContentCore, mod.DirectoryPath, mod, mod.DisplayName, gameContentHelper.GetUnderlyingContentManager(), this.Reflection);
@@ -1902,7 +1902,7 @@ namespace StardewModdingAPI.Framework
                     }
 
                     // init mod helpers
-                    IMonitor monitor = this.LogManager.GetMonitor(mod.DisplayName);
+                    IMonitor monitor = this.LogManager.GetMonitor(manifest.UniqueID, mod.DisplayName);
                     TranslationHelper translationHelper = new(mod, contentCore.GetLocale(), contentCore.Language);
                     IModHelper modHelper;
                     {
@@ -1965,7 +1965,7 @@ namespace StardewModdingAPI.Framework
             );
 
             // create mod helpers
-            IMonitor packMonitor = this.LogManager.GetMonitor(packManifest.Name);
+            IMonitor packMonitor = this.LogManager.GetMonitor(packManifest.UniqueID, packManifest.Name);
             GameContentHelper gameContentHelper = new(contentCore, fakeMod, packManifest.Name, packMonitor, this.Reflection);
             IModContentHelper packContentHelper = new ModContentHelper(contentCore, packDirPath, fakeMod, packManifest.Name, gameContentHelper.GetUnderlyingContentManager(), this.Reflection);
             TranslationHelper packTranslationHelper = new(fakeMod, contentCore.GetLocale(), contentCore.Language);

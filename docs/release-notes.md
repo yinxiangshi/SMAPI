@@ -4,6 +4,7 @@
 ## Upcoming release
 * For mod authors:
   * Fixed map edits which change warps sometimes rebuilding the NPC pathfinding cache unnecessarily, which could cause a noticeable delay for players.
+  * In `smapi-internal/config.json`, you can now enable verbose logging for specific mods (instead of all or nothing).
 
 ## 3.14.7
 Released 01 June 2022 for Stardew Valley 1.5.6 or later.
