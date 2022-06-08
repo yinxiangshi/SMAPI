@@ -13,7 +13,8 @@ See [release highlights](https://www.patreon.com/posts/66986798).
   * In `smapi-internal/config.json`, you can now enable verbose logging for specific mods (instead of all or nothing).
   * Updated dependencies:
     * Harmony 2.2.1 (see changes in [2.2.0](https://github.com/pardeike/Harmony/releases/tag/v2.2.0.0) and [2.2.1](https://github.com/pardeike/Harmony/releases/tag/v2.2.1.0));
-    * Newtonsoft.Json 13.0.1 (see [changes](https://github.com/JamesNK/Newtonsoft.Json/releases/tag/13.0.1)).
+    * Newtonsoft.Json 13.0.1 (see [changes](https://github.com/JamesNK/Newtonsoft.Json/releases/tag/13.0.1));
+    * Pintail 2.2.0.
   * Removed transitional `UsePintail` option added in 3.14.0 (now always enabled).
   * Fixed map edits which change warps sometimes rebuilding the NPC pathfinding cache unnecessarily, which could cause a noticeable delay for players.
 
