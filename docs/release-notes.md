@@ -7,16 +7,15 @@ See [release highlights](https://www.patreon.com/posts/66986798).
 * For players:
   * Optimized mod image file loading.
   * Minor optimizations (thanks to Michael Kuklinski / Ameisen!).
-* For mod authors:
-  * Added a new `IRawTextureData` asset type.  
-    _You can now load image files through `helper.ModContent` as `IRawTextureData` instead of `Texture2D`. This provides the image size and raw pixel data, which you can pass into other SMAPI APIs like `asset.AsImage().PatchImage`. This is much more efficient when you don't need a full `Texture2D` instance, since it bypasses the GPU operations needed to create one._
-  * Updated to Harmony 2.2.1 (see what's new in [2.2.0](https://github.com/pardeike/Harmony/releases/tag/v2.2.0.0) and [2.2.1](https://github.com/pardeike/Harmony/releases/tag/v2.2.1.0)).
-  * Updated dependencies (MonoMod.Common 21.6.21.1 → 22.3.5.1).
-  * Removed transitional `UsePintail` option added in 3.14.0 (now always enabled).
 
 * For mod authors:
-  * Fixed map edits which change warps sometimes rebuilding the NPC pathfinding cache unnecessarily, which could cause a noticeable delay for players.
+  * Added a [new `IRawTextureData` asset type](https://stardewvalleywiki.com/Modding:Migrate_to_SMAPI_4.0#Raw_texture_data), so mods can avoid creating full `Texture2D` instances in many cases.
   * In `smapi-internal/config.json`, you can now enable verbose logging for specific mods (instead of all or nothing).
+  * Updated dependencies:
+    * Harmony 2.2.1 (see changes in [2.2.0](https://github.com/pardeike/Harmony/releases/tag/v2.2.0.0) and [2.2.1](https://github.com/pardeike/Harmony/releases/tag/v2.2.1.0));
+    * Newtonsoft.Json 13.0.1 (see [changes](https://github.com/JamesNK/Newtonsoft.Json/releases/tag/13.0.1)).
+  * Removed transitional `UsePintail` option added in 3.14.0 (now always enabled).
+  * Fixed map edits which change warps sometimes rebuilding the NPC pathfinding cache unnecessarily, which could cause a noticeable delay for players.
 
 ## 3.14.7
 Released 01 June 2022 for Stardew Valley 1.5.6 or later.
