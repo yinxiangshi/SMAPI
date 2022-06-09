@@ -465,7 +465,7 @@ namespace StardewModdingAPI.Framework
                     assets: invalidatedAssets.ToDictionary(p => p.Key, p => p.Value),
                     ignoreWorld: Context.IsWorldFullyUnloaded,
                     out IDictionary<IAssetName, bool> propagated,
-                    out bool updatedNpcWarps
+                    out bool updatedWarpRoutes
                 );
 
                 // log summary
@@ -481,8 +481,8 @@ namespace StardewModdingAPI.Framework
                         ? $"Propagated {propagatedKeys.Length} core assets ({FormatKeyList(propagatedKeys)})."
                         : "Propagated 0 core assets."
                     );
-                    if (updatedNpcWarps)
-                        report.AppendLine("Updated NPC pathfinding cache.");
+                    if (updatedWarpRoutes)
+                        report.AppendLine("Updated NPC warp route cache.");
                 }
                 this.Monitor.Log(report.ToString().TrimEnd());
             }

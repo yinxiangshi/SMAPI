@@ -1,11 +1,16 @@
 ← [README](README.md)
 
 # Release notes
+## Upcoming release
+* For mod authors:
+  * Fixed map edits which change warps sometimes rebuilding the NPC pathfinding cache unnecessarily, which could cause a noticeable delay for players.
+
 ## 3.14.7
 Released 01 June 2022 for Stardew Valley 1.5.6 or later.
 
 * For players:
   * Optimized reflection cache to reduce frame skips for some players.
+
 * For mod authors:
   * Removed `runtimeconfig.json` setting which impacted hot reload support.
 
