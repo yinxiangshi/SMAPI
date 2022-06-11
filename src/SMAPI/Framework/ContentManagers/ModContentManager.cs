@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
@@ -45,6 +46,16 @@ namespace StardewModdingAPI.Framework.ContentManagers
 
         /// <summary>If a map tilesheet's image source has no file extensions, the file extensions to check for in the local mod folder.</summary>
         private static readonly string[] LocalTilesheetExtensions = { ".png", ".xnb" };
+
+        /// <summary>A lookup of image file paths to whether they have PyTK scaling information.</summary>
+        private static readonly Dictionary<string, bool> IsPyTkScaled = new(StringComparer.OrdinalIgnoreCase);
+
+
+        /*********
+        ** Accessors
+        *********/
+        /// <summary>Whether to enable legacy compatibility mode for PyTK scale-up textures.</summary>
+        internal static bool EnablePyTkLegacyMode;
 
 
         /*********
@@ -192,14 +203,40 @@ namespace StardewModdingAPI.Framework.ContentManagers
         private T LoadImageFile<T>(IAssetName assetName, FileInfo file)
         {
             this.AssertValidType<T>(assetName, file, typeof(Texture2D), typeof(IRawTextureData));
-            bool asRawData = typeof(T).IsAssignableTo(typeof(IRawTextureData));
+            bool expectsRawData = typeof(T).IsAssignableTo(typeof(IRawTextureData));
+            bool asRawData = expectsRawData || this.UseRawImageLoading;
+
+            // disable raw data if PyTK will rescale the image (until it supports raw data)
+            if (asRawData && !expectsRawData)
+            {
+                if (ModContentManager.EnablePyTkLegacyMode)
+                {
+                    if (!ModContentManager.IsPyTkScaled.TryGetValue(file.FullName, out bool isScaled))
+                    {
+                        string? dirPath = file.DirectoryName;
+                        string fileName = $"{Path.GetFileNameWithoutExtension(file.Name)}.pytk.json";
+
+                        string path = dirPath is not null
+                            ? Path.Combine(dirPath, fileName)
+                            : fileName;
+
+                        ModContentManager.IsPyTkScaled[file.FullName] = isScaled = File.Exists(path);
+                    }
+
+                    asRawData = !isScaled;
+                    if (!asRawData)
+                        this.Monitor.LogOnce("Enabled compatibility mode for PyTK scaled textures. This won't cause any issues, but may impact performance.", LogLevel.Warn);
+                }
+                else
+                    asRawData = true;
+            }
 
             // load
-            if (asRawData || this.UseRawImageLoading)
+            if (asRawData)
             {
-                IRawTextureData raw = this.LoadRawImageData(file, asRawData);
+                IRawTextureData raw = this.LoadRawImageData(file, expectsRawData);
 
-                if (asRawData)
+                if (expectsRawData)
                     return (T)raw;
                 else
                 {

@@ -1636,6 +1636,12 @@ namespace StardewModdingAPI.Framework
             // initialize translations
             this.ReloadTranslations(loaded);
 
+            // set temporary PyTK compatibility mode
+            {
+                IModInfo? pyTk = this.ModRegistry.Get("Platonymous.Toolkit");
+                ModContentManager.EnablePyTkLegacyMode = pyTk is not null && pyTk.Manifest.Version.IsOlderThan("1.23.1");
+            }
+
             // initialize loaded non-content-pack mods
             this.Monitor.Log("Launching mods...", LogLevel.Debug);
 #pragma warning disable CS0612, CS0618 // deprecated code
