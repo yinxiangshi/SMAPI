@@ -24,7 +24,4 @@
     <None Update="i18n\*.json" CopyToOutputDirectory="PreserveNewest" />
     <None Update="manifest.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
-
-  <Import Project="..\SMAPI.Internal\SMAPI.Internal.projitems" Label="Shared" />
-  <Import Project="..\SMAPI.Internal.Patching\SMAPI.Internal.Patching.projitems" Label="Shared" />
 </Project>
