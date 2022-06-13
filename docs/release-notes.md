@@ -7,6 +7,7 @@ See [release highlights](https://www.patreon.com/posts/66986798).
 * For players:
   * Optimized mod image file loading.
   * Minor optimizations (thanks to Michael Kuklinski / Ameisen!).
+  * Updated compatibility list.
 
 * For mod authors:
   * Added a [new `IRawTextureData` asset type](https://stardewvalleywiki.com/Modding:Migrate_to_SMAPI_4.0#Raw_texture_data), so mods can avoid creating full `Texture2D` instances in many cases.
