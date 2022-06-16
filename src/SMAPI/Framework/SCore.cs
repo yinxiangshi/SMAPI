@@ -1231,7 +1231,7 @@ namespace StardewModdingAPI.Framework
             }
 
             // make sure it's a content pack for the requesting mod
-            if (!onBehalfOf.IsContentPack || !string.Equals(onBehalfOf.Manifest.ContentPackFor?.UniqueID, mod.Manifest.UniqueID))
+            if (!onBehalfOf.IsContentPack || !string.Equals(onBehalfOf.Manifest.ContentPackFor?.UniqueID, mod.Manifest.UniqueID, StringComparison.OrdinalIgnoreCase))
             {
                 mod.LogAsModOnce($"{errorPrefix}: that isn't a content pack for this mod.", LogLevel.Warn);
                 return null;

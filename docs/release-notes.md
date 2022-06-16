@@ -17,6 +17,7 @@ See [release highlights](https://www.patreon.com/posts/66986798).
     * Newtonsoft.Json 13.0.1 (see [changes](https://github.com/JamesNK/Newtonsoft.Json/releases/tag/13.0.1));
     * Pintail 2.2.0.
   * Removed transitional `UsePintail` option added in 3.14.0 (now always enabled).
+  * Fixed `onBehalfOf` arguments in the new content API being case-sensitive.
   * Fixed map edits which change warps sometimes rebuilding the NPC pathfinding cache unnecessarily, which could cause a noticeable delay for players.
 
 ## 3.14.7
