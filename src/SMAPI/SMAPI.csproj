@@ -23,9 +23,9 @@
   <ItemGroup>
     <PackageReference Include="LargeAddressAware" Version="1.0.5" />
     <PackageReference Include="Mono.Cecil" Version="0.11.4" />
-    <PackageReference Include="MonoMod.Common" Version="21.6.21.1" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="Pintail" Version="2.1.0" />
+    <PackageReference Include="MonoMod.Common" Version="22.3.5.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="Pintail" Version="2.2.0" />
     <PackageReference Include="Platonymous.TMXTile" Version="1.5.9" />
     <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
 
@@ -41,6 +41,7 @@
     <Reference Include="GalaxyCSharp" HintPath="$(GamePath)\GalaxyCSharp.dll" Private="False" />
     <Reference Include="Lidgren.Network" HintPath="$(GamePath)\Lidgren.Network.dll" Private="False" />
     <Reference Include="MonoGame.Framework" HintPath="$(GamePath)\MonoGame.Framework.dll" Private="False" />
+    <Reference Include="SkiaSharp" HintPath="$(GamePath)\SkiaSharp.dll" Private="False" />
     <Reference Include="xTile" HintPath="$(GamePath)\xTile.dll" Private="False" />
   </ItemGroup>
 

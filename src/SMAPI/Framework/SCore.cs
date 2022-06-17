@@ -194,7 +194,7 @@ namespace StardewModdingAPI.Framework
             if (developerMode.HasValue)
                 this.Settings.OverrideDeveloperMode(developerMode.Value);
 
-            this.LogManager = new LogManager(logPath: logPath, colorConfig: this.Settings.ConsoleColors, writeToConsole: writeToConsole, isVerbose: this.Settings.VerboseLogging, isDeveloperMode: this.Settings.DeveloperMode, getScreenIdForLog: this.GetScreenIdForLog);
+            this.LogManager = new LogManager(logPath: logPath, colorConfig: this.Settings.ConsoleColors, writeToConsole: writeToConsole, verboseLogging: this.Settings.VerboseLogging, isDeveloperMode: this.Settings.DeveloperMode, getScreenIdForLog: this.GetScreenIdForLog);
             this.CommandManager = new CommandManager(this.Monitor);
             this.EventManager = new EventManager(this.ModRegistry);
             SCore.DeprecationManager = new DeprecationManager(this.Monitor, this.ModRegistry);
@@ -1231,7 +1231,7 @@ namespace StardewModdingAPI.Framework
             }
 
             // make sure it's a content pack for the requesting mod
-            if (!onBehalfOf.IsContentPack || !string.Equals(onBehalfOf.Manifest.ContentPackFor?.UniqueID, mod.Manifest.UniqueID))
+            if (!onBehalfOf.IsContentPack || !string.Equals(onBehalfOf.Manifest.ContentPackFor?.UniqueID, mod.Manifest.UniqueID, StringComparison.OrdinalIgnoreCase))
             {
                 mod.LogAsModOnce($"{errorPrefix}: that isn't a content pack for this mod.", LogLevel.Warn);
                 return null;
@@ -1301,7 +1301,8 @@ namespace StardewModdingAPI.Framework
                     onAssetLoaded: this.OnAssetLoaded,
                     onAssetsInvalidated: this.OnAssetsInvalidated,
                     getFileLookup: this.GetFileLookup,
-                    requestAssetOperations: this.RequestAssetOperations
+                    requestAssetOperations: this.RequestAssetOperations,
+                    useRawImageLoading: this.Settings.UseRawImageLoading
                 );
                 if (this.ContentCore.Language != this.Translator.LocaleEnum)
                     this.Translator.SetLocale(this.ContentCore.GetLocale(), this.ContentCore.Language);
@@ -1507,7 +1508,7 @@ namespace StardewModdingAPI.Framework
                 {
                     try
                     {
-                        HashSet<string> suppressUpdateChecks = new HashSet<string>(this.Settings.SuppressUpdateChecks, StringComparer.OrdinalIgnoreCase);
+                        HashSet<string> suppressUpdateChecks = this.Settings.SuppressUpdateChecks;
 
                         // prepare search model
                         List<ModSearchEntryModel> searchMods = new List<ModSearchEntryModel>();
@@ -1608,10 +1609,8 @@ namespace StardewModdingAPI.Framework
             using (AssemblyLoader modAssemblyLoader = new(Constants.Platform, this.Monitor, this.Settings.ParanoidWarnings, this.Settings.RewriteMods))
             {
                 // init
-                HashSet<string> suppressUpdateChecks = new HashSet<string>(this.Settings.SuppressUpdateChecks, StringComparer.OrdinalIgnoreCase);
-                IInterfaceProxyFactory proxyFactory = this.Settings.UsePintail
-                    ? new InterfaceProxyFactory()
-                    : new OriginalInterfaceProxyFactory();
+                HashSet<string> suppressUpdateChecks = this.Settings.SuppressUpdateChecks;
+                IInterfaceProxyFactory proxyFactory = new InterfaceProxyFactory();
 
                 // load mods
                 foreach (IModMetadata mod in mods)
@@ -1636,6 +1635,14 @@ namespace StardewModdingAPI.Framework
 
             // initialize translations
             this.ReloadTranslations(loaded);
+
+            // set temporary PyTK compatibility mode
+            // This is part of a three-part fix for PyTK 1.23.0 and earlier. When removing this,
+            // search 'Platonymous.Toolkit' to find the other part in SMAPI and Content Patcher.
+            {
+                IModInfo? pyTk = this.ModRegistry.Get("Platonymous.Toolkit");
+                ModContentManager.EnablePyTkLegacyMode = pyTk is not null && pyTk.Manifest.Version.IsOlderThan("1.23.1");
+            }
 
             // initialize loaded non-content-pack mods
             this.Monitor.Log("Launching mods...", LogLevel.Debug);
@@ -1827,7 +1834,7 @@ namespace StardewModdingAPI.Framework
             // load as content pack
             if (mod.IsContentPack)
             {
-                IMonitor monitor = this.LogManager.GetMonitor(mod.DisplayName);
+                IMonitor monitor = this.LogManager.GetMonitor(manifest.UniqueID, mod.DisplayName);
                 IFileLookup fileLookup = this.GetFileLookup(mod.DirectoryPath);
                 GameContentHelper gameContentHelper = new(this.ContentCore, mod, mod.DisplayName, monitor, this.Reflection);
                 IModContentHelper modContentHelper = new ModContentHelper(this.ContentCore, mod.DirectoryPath, mod, mod.DisplayName, gameContentHelper.GetUnderlyingContentManager(), this.Reflection);
@@ -1902,7 +1909,7 @@ namespace StardewModdingAPI.Framework
                     }
 
                     // init mod helpers
-                    IMonitor monitor = this.LogManager.GetMonitor(mod.DisplayName);
+                    IMonitor monitor = this.LogManager.GetMonitor(manifest.UniqueID, mod.DisplayName);
                     TranslationHelper translationHelper = new(mod, contentCore.GetLocale(), contentCore.Language);
                     IModHelper modHelper;
                     {
@@ -1965,7 +1972,7 @@ namespace StardewModdingAPI.Framework
             );
 
             // create mod helpers
-            IMonitor packMonitor = this.LogManager.GetMonitor(packManifest.Name);
+            IMonitor packMonitor = this.LogManager.GetMonitor(packManifest.UniqueID, packManifest.Name);
             GameContentHelper gameContentHelper = new(contentCore, fakeMod, packManifest.Name, packMonitor, this.Reflection);
             IModContentHelper packContentHelper = new ModContentHelper(contentCore, packDirPath, fakeMod, packManifest.Name, gameContentHelper.GetUnderlyingContentManager(), this.Reflection);
             TranslationHelper packTranslationHelper = new(fakeMod, contentCore.GetLocale(), contentCore.Language);

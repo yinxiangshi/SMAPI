@@ -170,6 +170,11 @@
         /*********
         ** Broke in SMAPI 3.14.0
         *********/
+        "CFAutomate": {
+            "ID": "Platonymous.CFAutomate",
+            "~2.12.9 | Status": "AssumeBroken",
+            "~2.12.9 | StatusReasonDetails": "causes runtime errors in newer versions of Automate"
+        },
         "Dynamic Game Assets": {
             "ID": "spacechase0.DynamicGameAssets",
             "~1.4.1 | Status": "AssumeBroken",

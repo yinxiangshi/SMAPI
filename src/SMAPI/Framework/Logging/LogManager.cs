@@ -31,8 +31,8 @@ namespace StardewModdingAPI.Framework.Logging
         /// <summary>Prefixing a low-level message with this character indicates that the console interceptor should write the string without intercepting it. (The character itself is not written.)</summary>
         private const char IgnoreChar = InterceptingTextWriter.IgnoreChar;
 
-        /// <summary>Get a named monitor instance.</summary>
-        private readonly Func<string, Monitor> GetMonitorImpl;
+        /// <summary>Create a monitor instance given the ID and name.</summary>
+        private readonly Func<string, string, Monitor> GetMonitorImpl;
 
         /// <summary>Regex patterns which match console non-error messages to suppress from the console and log.</summary>
         private readonly Regex[] SuppressConsolePatterns =
@@ -88,23 +88,23 @@ namespace StardewModdingAPI.Framework.Logging
         /// <param name="logPath">The log file path to write.</param>
         /// <param name="colorConfig">The colors to use for text written to the SMAPI console.</param>
         /// <param name="writeToConsole">Whether to output log messages to the console.</param>
-        /// <param name="isVerbose">Whether verbose logging is enabled. This enables more detailed diagnostic messages than are normally needed.</param>
+        /// <param name="verboseLogging">The log contexts for which to enable verbose logging, which may show a lot more information to simplify troubleshooting.</param>
         /// <param name="isDeveloperMode">Whether to enable full console output for developers.</param>
         /// <param name="getScreenIdForLog">Get the screen ID that should be logged to distinguish between players in split-screen mode, if any.</param>
-        public LogManager(string logPath, ColorSchemeConfig colorConfig, bool writeToConsole, bool isVerbose, bool isDeveloperMode, Func<int?> getScreenIdForLog)
+        public LogManager(string logPath, ColorSchemeConfig colorConfig, bool writeToConsole, HashSet<string> verboseLogging, bool isDeveloperMode, Func<int?> getScreenIdForLog)
         {
             // init log file
             this.LogFile = new LogFileManager(logPath);
 
             // init monitor
-            this.GetMonitorImpl = name => new Monitor(name, LogManager.IgnoreChar, this.LogFile, colorConfig, isVerbose, getScreenIdForLog)
+            this.GetMonitorImpl = (id, name) => new Monitor(name, LogManager.IgnoreChar, this.LogFile, colorConfig, verboseLogging.Contains("*") || verboseLogging.Contains(id), getScreenIdForLog)
             {
                 WriteToConsole = writeToConsole,
                 ShowTraceInConsole = isDeveloperMode,
                 ShowFullStampInConsole = isDeveloperMode
             };
-            this.Monitor = this.GetMonitor("SMAPI");
-            this.MonitorForGame = this.GetMonitor("game");
+            this.Monitor = this.GetMonitor("SMAPI", "SMAPI");
+            this.MonitorForGame = this.GetMonitor("game", "game");
 
             // redirect direct console output
             this.ConsoleInterceptor = new InterceptingTextWriter(
@@ -124,10 +124,11 @@ namespace StardewModdingAPI.Framework.Logging
         }
 
         /// <summary>Get a monitor instance derived from SMAPI's current settings.</summary>
+        /// <param name="id">The unique ID for the mod context.</param>
         /// <param name="name">The name of the module which will log messages with this instance.</param>
-        public Monitor GetMonitor(string name)
+        public Monitor GetMonitor(string id, string name)
         {
-            return this.GetMonitorImpl(name);
+            return this.GetMonitorImpl(id, name);
         }
 
         /// <summary>Set the title of the SMAPI console window.</summary>

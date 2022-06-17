@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -7,6 +9,8 @@ using BmFont;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using SkiaSharp;
+using StardewModdingAPI.Framework.Content;
 using StardewModdingAPI.Framework.Exceptions;
 using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Toolkit.Serialization;
@@ -20,11 +24,14 @@ using xTile.Tiles;
 namespace StardewModdingAPI.Framework.ContentManagers
 {
     /// <summary>A content manager which handles reading files from a SMAPI mod folder with support for unpacked files.</summary>
-    internal class ModContentManager : BaseContentManager
+    internal sealed class ModContentManager : BaseContentManager
     {
         /*********
         ** Fields
         *********/
+        /// <summary>Whether to use raw image data when possible, instead of initializing an XNA Texture2D instance through the GPU.</summary>
+        private readonly bool UseRawImageLoading;
+
         /// <summary>Encapsulates SMAPI's JSON file parsing.</summary>
         private readonly JsonHelper JsonHelper;
 
@@ -38,7 +45,17 @@ namespace StardewModdingAPI.Framework.ContentManagers
         private readonly IFileLookup FileLookup;
 
         /// <summary>If a map tilesheet's image source has no file extensions, the file extensions to check for in the local mod folder.</summary>
-        private static readonly HashSet<string> LocalTilesheetExtensions = new(StringComparer.OrdinalIgnoreCase) { ".png", ".xnb" };
+        private static readonly string[] LocalTilesheetExtensions = { ".png", ".xnb" };
+
+        /// <summary>A lookup of image file paths to whether they have PyTK scaling information.</summary>
+        private static readonly Dictionary<string, bool> IsPyTkScaled = new(StringComparer.OrdinalIgnoreCase);
+
+
+        /*********
+        ** Accessors
+        *********/
+        /// <summary>Whether to enable legacy compatibility mode for PyTK scale-up textures.</summary>
+        internal static bool EnablePyTkLegacyMode;
 
 
         /*********
@@ -57,13 +74,15 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <param name="jsonHelper">Encapsulates SMAPI's JSON file parsing.</param>
         /// <param name="onDisposing">A callback to invoke when the content manager is being disposed.</param>
         /// <param name="fileLookup">A lookup for files within the <paramref name="rootDirectory"/>.</param>
-        public ModContentManager(string name, IContentManager gameContentManager, IServiceProvider serviceProvider, string modName, string rootDirectory, CultureInfo currentCulture, ContentCoordinator coordinator, IMonitor monitor, Reflector reflection, JsonHelper jsonHelper, Action<BaseContentManager> onDisposing, IFileLookup fileLookup)
+        /// <param name="useRawImageLoading">Whether to use raw image data when possible, instead of initializing an XNA Texture2D instance through the GPU.</param>
+        public ModContentManager(string name, IContentManager gameContentManager, IServiceProvider serviceProvider, string modName, string rootDirectory, CultureInfo currentCulture, ContentCoordinator coordinator, IMonitor monitor, Reflector reflection, JsonHelper jsonHelper, Action<BaseContentManager> onDisposing, IFileLookup fileLookup, bool useRawImageLoading)
             : base(name, serviceProvider, rootDirectory, currentCulture, coordinator, monitor, reflection, onDisposing, isNamespaced: true)
         {
             this.GameContentManager = gameContentManager;
             this.FileLookup = fileLookup;
             this.JsonHelper = jsonHelper;
             this.ModName = modName;
+            this.UseRawImageLoading = useRawImageLoading;
 
             this.TryLocalizeKeys = false;
         }
@@ -119,8 +138,11 @@ namespace StardewModdingAPI.Framework.ContentManagers
                     _ => this.HandleUnknownFileType<T>(assetName, file)
                 };
             }
-            catch (Exception ex) when (ex is not SContentLoadException)
+            catch (Exception ex)
             {
+                if (ex is SContentLoadException)
+                    throw;
+
                 throw this.GetLoadError(assetName, ContentLoadErrorType.Other, "an unexpected error occurred.", ex);
             }
 
@@ -130,6 +152,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
         }
 
         /// <inheritdoc />
+        [Obsolete($"Temporary {nameof(ModContentManager)}s are unsupported")]
         public override LocalizedContentManager CreateTemporary()
         {
             throw new NotSupportedException("Can't create a temporary mod content manager.");
@@ -155,11 +178,8 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <param name="file">The file to load.</param>
         private T LoadFont<T>(IAssetName assetName, FileInfo file)
         {
-            // validate
-            if (!typeof(T).IsAssignableFrom(typeof(XmlSource)))
-                throw this.GetLoadError(assetName, ContentLoadErrorType.InvalidData, $"can't read file with extension '{file.Extension}' as type '{typeof(T)}'; must be type '{typeof(XmlSource)}'.");
+            this.AssertValidType<T>(assetName, file, typeof(XmlSource));
 
-            // load
             string source = File.ReadAllText(file.FullName);
             return (T)(object)new XmlSource(source);
         }
@@ -182,15 +202,89 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <param name="file">The file to load.</param>
         private T LoadImageFile<T>(IAssetName assetName, FileInfo file)
         {
-            // validate
-            if (typeof(T) != typeof(Texture2D))
-                throw this.GetLoadError(assetName, ContentLoadErrorType.InvalidData, $"can't read file with extension '{file.Extension}' as type '{typeof(T)}'; must be type '{typeof(Texture2D)}'.");
+            this.AssertValidType<T>(assetName, file, typeof(Texture2D), typeof(IRawTextureData));
+            bool expectsRawData = typeof(T).IsAssignableTo(typeof(IRawTextureData));
+            bool asRawData = expectsRawData || this.UseRawImageLoading;
+
+            // disable raw data if PyTK will rescale the image (until it supports raw data)
+            if (asRawData && !expectsRawData)
+            {
+                if (ModContentManager.EnablePyTkLegacyMode)
+                {
+                    if (!ModContentManager.IsPyTkScaled.TryGetValue(file.FullName, out bool isScaled))
+                    {
+                        string? dirPath = file.DirectoryName;
+                        string fileName = $"{Path.GetFileNameWithoutExtension(file.Name)}.pytk.json";
+
+                        string path = dirPath is not null
+                            ? Path.Combine(dirPath, fileName)
+                            : fileName;
+
+                        ModContentManager.IsPyTkScaled[file.FullName] = isScaled = File.Exists(path);
+                    }
+
+                    asRawData = !isScaled;
+                    if (!asRawData)
+                        this.Monitor.LogOnce("Enabled compatibility mode for PyTK scaled textures. This won't cause any issues, but may impact performance.", LogLevel.Warn);
+                }
+                else
+                    asRawData = true;
+            }
 
             // load
-            using FileStream stream = File.OpenRead(file.FullName);
-            Texture2D texture = Texture2D.FromStream(Game1.graphics.GraphicsDevice, stream);
-            texture = this.PremultiplyTransparency(texture);
-            return (T)(object)texture;
+            if (asRawData)
+            {
+                IRawTextureData raw = this.LoadRawImageData(file, expectsRawData);
+
+                if (expectsRawData)
+                    return (T)raw;
+                else
+                {
+                    Texture2D texture = new(Game1.graphics.GraphicsDevice, raw.Width, raw.Height);
+                    texture.SetData(raw.Data);
+                    return (T)(object)texture;
+                }
+            }
+            else
+            {
+                using FileStream stream = File.OpenRead(file.FullName);
+                Texture2D texture = Texture2D.FromStream(Game1.graphics.GraphicsDevice, stream);
+                texture = this.PremultiplyTransparency(texture);
+                return (T)(object)texture;
+            }
+        }
+
+        /// <summary>Load the raw image data from a file on disk.</summary>
+        /// <param name="file">The file whose data to load.</param>
+        /// <param name="forRawData">Whether the data is being loaded for an <see cref="IRawTextureData"/> (true) or <see cref="Texture2D"/> (false) instance.</param>
+        /// <remarks>This is separate to let framework mods intercept the data before it's loaded, if needed.</remarks>
+        [SuppressMessage("ReSharper", "UnusedParameter.Local", Justification = "The 'forRawData' parameter is only added for mods which may intercept this method.")]
+        [SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "The 'forRawData' parameter is only added for mods which may intercept this method.")]
+        private IRawTextureData LoadRawImageData(FileInfo file, bool forRawData)
+        {
+            // load raw data
+            int width;
+            int height;
+            SKPMColor[] rawPixels;
+            {
+                using FileStream stream = File.OpenRead(file.FullName);
+                using SKBitmap bitmap = SKBitmap.Decode(stream);
+                rawPixels = SKPMColor.PreMultiply(bitmap.Pixels);
+                width = bitmap.Width;
+                height = bitmap.Height;
+            }
+
+            // convert to XNA pixel format
+            var pixels = GC.AllocateUninitializedArray<Color>(rawPixels.Length);
+            for (int i = 0; i < pixels.Length; i++)
+            {
+                SKPMColor pixel = rawPixels[i];
+                pixels[i] = pixel.Alpha == 0
+                    ? Color.Transparent
+                    : new Color(r: pixel.Red, g: pixel.Green, b: pixel.Blue, alpha: pixel.Alpha);
+            }
+
+            return new RawTextureData(width, height, pixels);
         }
 
         /// <summary>Load an unpacked image file (<c>.tbin</c> or <c>.tmx</c>).</summary>
@@ -199,11 +293,8 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <param name="file">The file to load.</param>
         private T LoadMapFile<T>(IAssetName assetName, FileInfo file)
         {
-            // validate
-            if (typeof(T) != typeof(Map))
-                throw this.GetLoadError(assetName, ContentLoadErrorType.InvalidData, $"can't read file with extension '{file.Extension}' as type '{typeof(T)}'; must be type '{typeof(Map)}'.");
+            this.AssertValidType<T>(assetName, file, typeof(Map));
 
-            // load
             FormatManager formatManager = FormatManager.Instance;
             Map map = formatManager.LoadMap(file.FullName);
             map.assetPath = assetName.Name;
@@ -216,6 +307,9 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <param name="assetName">The asset name relative to the loader root directory.</param>
         private T LoadXnbFile<T>(IAssetName assetName)
         {
+            if (typeof(IRawTextureData).IsAssignableFrom(typeof(T)))
+                throw this.GetLoadError(assetName, ContentLoadErrorType.Other, $"can't read XNB file as type {typeof(IRawTextureData)}; that type can only be read from a PNG file.");
+
             // the underlying content manager adds a .xnb extension implicitly, so
             // we need to strip it here to avoid trying to load a '.xnb.xnb' file.
             IAssetName loadName = assetName.Name.EndsWith(".xnb", StringComparison.OrdinalIgnoreCase)
@@ -242,11 +336,24 @@ namespace StardewModdingAPI.Framework.ContentManagers
             throw this.GetLoadError(assetName, ContentLoadErrorType.InvalidName, $"unknown file extension '{file.Extension}'; must be one of '.fnt', '.json', '.png', '.tbin', '.tmx', or '.xnb'.");
         }
 
+        /// <summary>Assert that the asset type is compatible with one of the allowed types.</summary>
+        /// <typeparam name="TAsset">The actual asset type.</typeparam>
+        /// <param name="assetName">The asset name relative to the loader root directory.</param>
+        /// <param name="file">The file being loaded.</param>
+        /// <param name="validTypes">The allowed asset types.</param>
+        /// <exception cref="SContentLoadException">The <typeparamref name="TAsset"/> is not compatible with any of the <paramref name="validTypes"/>.</exception>
+        private void AssertValidType<TAsset>(IAssetName assetName, FileInfo file, params Type[] validTypes)
+        {
+            if (!validTypes.Any(validType => validType.IsAssignableFrom(typeof(TAsset))))
+                throw this.GetLoadError(assetName, ContentLoadErrorType.InvalidData, $"can't read file with extension '{file.Extension}' as type '{typeof(TAsset)}'; must be type '{string.Join("' or '", validTypes.Select(p => p.FullName))}'.");
+        }
+
         /// <summary>Get an error which indicates that an asset couldn't be loaded.</summary>
         /// <param name="errorType">Why loading an asset through the content pipeline failed.</param>
         /// <param name="assetName">The asset name that failed to load.</param>
         /// <param name="reasonPhrase">The reason the file couldn't be loaded.</param>
         /// <param name="exception">The underlying exception, if applicable.</param>
+        [DebuggerStepThrough, DebuggerHidden]
         private SContentLoadException GetLoadError(IAssetName assetName, ContentLoadErrorType errorType, string reasonPhrase, Exception? exception = null)
         {
             return new(errorType, $"Failed loading asset '{assetName}' from {this.Name}: {reasonPhrase}", exception);
@@ -261,7 +368,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             FileInfo file = this.FileLookup.GetFile(path);
 
             // try with default image extensions
-            if (!file.Exists && typeof(Texture2D).IsAssignableFrom(typeof(T)) && !ModContentManager.LocalTilesheetExtensions.Contains(file.Extension))
+            if (!file.Exists && typeof(Texture2D).IsAssignableFrom(typeof(T)) && !ModContentManager.LocalTilesheetExtensions.Contains(file.Extension, StringComparer.OrdinalIgnoreCase))
             {
                 foreach (string extension in ModContentManager.LocalTilesheetExtensions)
                 {
@@ -284,7 +391,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
         private Texture2D PremultiplyTransparency(Texture2D texture)
         {
             // premultiply pixels
-            Color[] data = new Color[texture.Width * texture.Height];
+            Color[] data = GC.AllocateUninitializedArray<Color>(texture.Width * texture.Height);
             texture.GetData(data);
             bool changed = false;
             for (int i = 0; i < data.Length; i++)
@@ -324,7 +431,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
 
                 // reverse incorrect eager tilesheet path prefixing
                 if (fixEagerPathPrefixes && relativeMapFolder.Length > 0 && imageSource.StartsWith(relativeMapFolder))
-                    imageSource = imageSource.Substring(relativeMapFolder.Length + 1);
+                    imageSource = imageSource[(relativeMapFolder.Length + 1)..];
 
                 // validate tilesheet path
                 string errorPrefix = $"{this.ModName} loaded map '{relativeMapPath}' with invalid tilesheet path '{imageSource}'.";
@@ -345,8 +452,11 @@ namespace StardewModdingAPI.Framework.ContentManagers
                         tilesheet.ImageSource = assetName.Name;
                     }
                 }
-                catch (Exception ex) when (ex is not SContentLoadException)
+                catch (Exception ex)
                 {
+                    if (ex is SContentLoadException)
+                        throw;
+
                     throw new SContentLoadException(ContentLoadErrorType.InvalidData, $"{errorPrefix} The tilesheet couldn't be loaded.", ex);
                 }
             }
@@ -361,7 +471,6 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <remarks>See remarks on <see cref="FixTilesheetPaths"/>.</remarks>
         private bool TryGetTilesheetAssetName(string modRelativeMapFolder, string relativePath, out IAssetName? assetName, out string? error)
         {
-            assetName = null;
             error = null;
 
             // nothing to do
@@ -376,7 +485,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             // opened in Tiled, while still mapping it to the vanilla 'Maps/spring_town' asset at runtime.
             {
                 string filename = Path.GetFileName(relativePath);
-                if (filename.StartsWith("."))
+                if (filename.StartsWith('.'))
                     relativePath = Path.Combine(Path.GetDirectoryName(relativePath) ?? "", filename.TrimStart('.'));
             }
 
@@ -391,7 +500,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             }
 
             // get from game assets
-            IAssetName contentKey = this.Coordinator.ParseAssetName(this.GetContentKeyForTilesheetImageSource(relativePath), allowLocales: false);
+            AssetName contentKey = this.Coordinator.ParseAssetName(this.GetContentKeyForTilesheetImageSource(relativePath), allowLocales: false);
             try
             {
                 this.GameContentManager.LoadLocalized<Texture2D>(contentKey, this.GameContentManager.Language, useCache: true); // no need to bypass cache here, since we're not storing the asset
@@ -412,6 +521,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             }
 
             // not found
+            assetName = null;
             error = "The tilesheet couldn't be found relative to either map file or the game's content folder.";
             return false;
         }
@@ -422,11 +532,11 @@ namespace StardewModdingAPI.Framework.ContentManagers
         {
             // get file path
             string path = Path.Combine(this.GameContentManager.FullRootDirectory, key);
-            if (!path.EndsWith(".xnb"))
+            if (!path.EndsWith(".xnb", StringComparison.OrdinalIgnoreCase))
                 path += ".xnb";
 
             // get file
-            return new FileInfo(path).Exists;
+            return File.Exists(path);
         }
 
         /// <summary>Get the asset key for a tilesheet in the game's <c>Maps</c> content folder.</summary>
@@ -442,7 +552,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
 
             // remove file extension from unpacked file
             if (key.EndsWith(".png", StringComparison.OrdinalIgnoreCase))
-                key = key.Substring(0, key.Length - 4);
+                key = key[..^4];
 
             return key;
         }

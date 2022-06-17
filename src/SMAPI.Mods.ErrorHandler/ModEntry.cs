@@ -2,6 +2,7 @@ using System;
 using System.Reflection;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Internal.Patching;
+using StardewModdingAPI.Mods.ErrorHandler.ModPatches;
 using StardewModdingAPI.Mods.ErrorHandler.Patches;
 using StardewValley;
 
@@ -29,6 +30,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler
 
             // apply patches
             HarmonyPatcher.Apply(this.ModManifest.UniqueID, this.Monitor,
+                // game patches
                 new DialoguePatcher(monitorForGame, this.Helper.Reflection),
                 new EventPatcher(monitorForGame),
                 new GameLocationPatcher(monitorForGame),
@@ -37,7 +39,10 @@ namespace StardewModdingAPI.Mods.ErrorHandler
                 new ObjectPatcher(),
                 new SaveGamePatcher(this.Monitor, this.OnSaveContentRemoved),
                 new SpriteBatchPatcher(),
-                new UtilityPatcher()
+                new UtilityPatcher(),
+
+                // mod patches
+                new PyTkPatcher(helper.ModRegistry)
             );
 
             // hook events
