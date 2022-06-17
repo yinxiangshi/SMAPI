@@ -1,8 +1,8 @@
 ← [README](README.md)
 
 # Release notes
-## Upcoming release
-See [release highlights](https://www.patreon.com/posts/66986798).
+## 3.15.0
+Released 17 June 2022 for Stardew Valley 1.5.6 or later. See [release highlights](https://www.patreon.com/posts/67877219).
 
 * For players:
   * Optimized mod image file loading.
@@ -10,7 +10,7 @@ See [release highlights](https://www.patreon.com/posts/66986798).
   * Updated compatibility list.
 
 * For mod authors:
-  * Added a [new `IRawTextureData` asset type](https://stardewvalleywiki.com/Modding:Migrate_to_SMAPI_4.0#Raw_texture_data), so mods can avoid creating full `Texture2D` instances in many cases.
+  * Added an [`IRawTextureData` asset type](https://stardewvalleywiki.com/Modding:Migrate_to_SMAPI_4.0#Raw_texture_data), to avoid creating full `Texture2D` instances in many cases.
   * In `smapi-internal/config.json`, you can now enable verbose logging for specific mods (instead of all or nothing).
   * Updated dependencies:
     * Harmony 2.2.1 (see changes in [2.2.0](https://github.com/pardeike/Harmony/releases/tag/v2.2.0.0) and [2.2.1](https://github.com/pardeike/Harmony/releases/tag/v2.2.1.0));
