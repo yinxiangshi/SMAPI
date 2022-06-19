@@ -293,7 +293,7 @@ else if (log?.IsValid == true)
         <table
             id="metadata"
             class="table"
-            data-code-mods="@log.Mods.Count(p => !p.IsContentPack)"
+            data-code-mods="@log.Mods.Count(p => p.IsCodeMod)"
             data-content-packs="@log.Mods.Count(p => p.IsContentPack)"
             data-os="@log.OperatingSystem"
             data-game-version="@log.GameVersion"

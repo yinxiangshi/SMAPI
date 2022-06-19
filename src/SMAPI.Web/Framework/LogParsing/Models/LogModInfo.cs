@@ -39,9 +39,15 @@ namespace StardewModdingAPI.Web.Framework.LogParsing.Models
         [MemberNotNullWhen(true, nameof(LogModInfo.UpdateVersion), nameof(LogModInfo.UpdateLink))]
         public bool HasUpdate => this.UpdateVersion != null && this.Version != this.UpdateVersion;
 
-        /// <summary>Whether the mod is a content pack for another mod.</summary>
+        /// <summary>Whether this is an actual mod (rather than a special entry for SMAPI or the game itself).</summary>
+        public bool IsMod { get; }
+
+        /// <summary>Whether this is a C# code mod.</summary>
+        public bool IsCodeMod { get; }
+
+        /// <summary>Whether this is a content pack for another mod.</summary>
         [MemberNotNullWhen(true, nameof(LogModInfo.ContentPackFor))]
-        public bool IsContentPack => !string.IsNullOrWhiteSpace(this.ContentPackFor);
+        public bool IsContentPack { get; }
 
 
         /*********
@@ -57,7 +63,8 @@ namespace StardewModdingAPI.Web.Framework.LogParsing.Models
         /// <param name="contentPackFor">The name of the mod for which this is a content pack (if applicable).</param>
         /// <param name="errors">The number of errors logged by this mod.</param>
         /// <param name="loaded">Whether the mod was loaded into the game.</param>
-        public LogModInfo(string name, string author, string version, string description, string? updateVersion = null, string? updateLink = null, string? contentPackFor = null, int errors = 0, bool loaded = true)
+        /// <param name="isMod">Whether this is an actual mod (instead of a special entry for SMAPI or the game).</param>
+        public LogModInfo(string name, string author, string version, string description, string? updateVersion = null, string? updateLink = null, string? contentPackFor = null, int errors = 0, bool loaded = true, bool isMod = true)
         {
             this.Name = name;
             this.Author = author;
@@ -68,6 +75,13 @@ namespace StardewModdingAPI.Web.Framework.LogParsing.Models
             this.ContentPackFor = contentPackFor;
             this.Errors = errors;
             this.Loaded = loaded;
+
+            if (isMod)
+            {
+                this.IsMod = true;
+                this.IsContentPack = !string.IsNullOrWhiteSpace(this.ContentPackFor);
+                this.IsCodeMod = !this.IsContentPack;
+            }
         }
 
         /// <summary>Add an update alert for this mod.</summary>

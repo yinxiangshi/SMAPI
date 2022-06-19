@@ -1,6 +1,10 @@
 ← [README](README.md)
 
 # Release notes
+## Upcoming release
+* For the web UI:
+  * Fixed the mod count in the log parser metadata.
+
 ## 3.15.0
 Released 17 June 2022 for Stardew Valley 1.5.6 or later. See [release highlights](https://www.patreon.com/posts/67877219).
 
