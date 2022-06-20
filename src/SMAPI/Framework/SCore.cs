@@ -32,7 +32,9 @@ using StardewModdingAPI.Framework.Networking;
 using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Framework.Rendering;
 using StardewModdingAPI.Framework.Serialization;
+#if SMAPI_DEPRECATED
 using StardewModdingAPI.Framework.StateTracking.Comparers;
+#endif
 using StardewModdingAPI.Framework.StateTracking.Snapshots;
 using StardewModdingAPI.Framework.Utilities;
 using StardewModdingAPI.Internal;
@@ -139,8 +141,10 @@ namespace StardewModdingAPI.Framework
         /// <summary>The maximum number of consecutive attempts SMAPI should make to recover from an update error.</summary>
         private readonly Countdown UpdateCrashTimer = new(60); // 60 ticks = roughly one second
 
+#if SMAPI_DEPRECATED
         /// <summary>Asset interceptors added or removed since the last tick.</summary>
         private readonly List<AssetInterceptorChange> ReloadAssetInterceptorsQueue = new();
+#endif
 
         /// <summary>A list of queued commands to parse and execute.</summary>
         /// <remarks>This property must be thread-safe, since it's accessed from a separate console input thread.</remarks>
@@ -483,6 +487,7 @@ namespace StardewModdingAPI.Framework
                     return;
                 }
 
+#if SMAPI_DEPRECATED
                 /*********
                 ** Reload assets when interceptors are added/removed
                 *********/
@@ -515,6 +520,7 @@ namespace StardewModdingAPI.Framework
                     // reload affected assets
                     this.ContentCore.InvalidateCache(asset => interceptors.Any(p => p.CanIntercept(asset)));
                 }
+#endif
 
                 /*********
                 ** Parse commands
@@ -1646,9 +1652,9 @@ namespace StardewModdingAPI.Framework
 
             // initialize loaded non-content-pack mods
             this.Monitor.Log("Launching mods...", LogLevel.Debug);
-#pragma warning disable CS0612, CS0618 // deprecated code
             foreach (IModMetadata metadata in loadedMods)
             {
+#if SMAPI_DEPRECATED
                 // add interceptors
                 if (metadata.Mod?.Helper is ModHelper helper)
                 {
@@ -1684,7 +1690,6 @@ namespace StardewModdingAPI.Framework
                     content.ObservableAssetEditors.CollectionChanged += (_, e) => this.OnAssetInterceptorsChanged(metadata, e.NewItems?.Cast<IAssetEditor>(), e.OldItems?.Cast<IAssetEditor>(), this.ContentCore.Editors);
                     content.ObservableAssetLoaders.CollectionChanged += (_, e) => this.OnAssetInterceptorsChanged(metadata, e.NewItems?.Cast<IAssetLoader>(), e.OldItems?.Cast<IAssetLoader>(), this.ContentCore.Loaders);
                 }
-#pragma warning restore CS0612, CS0618
 
                 // log deprecation warnings
                 if (metadata.HasWarnings(ModWarning.DetectedLegacyCachingDll, ModWarning.DetectedLegacyConfigurationDll, ModWarning.DetectedLegacyPermissionsDll))
@@ -1710,6 +1715,7 @@ namespace StardewModdingAPI.Framework
                         );
                     }
                 }
+#endif
 
                 // call entry method
                 Context.HeuristicModsRunningCode.Push(metadata);
@@ -1750,6 +1756,7 @@ namespace StardewModdingAPI.Framework
             this.Monitor.Log("Mods loaded and ready!", LogLevel.Debug);
         }
 
+#if SMAPI_DEPRECATED
         /// <summary>Raised after a mod adds or removes asset interceptors.</summary>
         /// <typeparam name="T">The asset interceptor type (one of <see cref="IAssetEditor"/> or <see cref="IAssetLoader"/>).</typeparam>
         /// <param name="mod">The mod metadata.</param>
@@ -1772,6 +1779,7 @@ namespace StardewModdingAPI.Framework
                     list.Remove(entry);
             }
         }
+#endif
 
         /// <summary>Load a given mod.</summary>
         /// <param name="mod">The mod to load.</param>
@@ -1915,9 +1923,9 @@ namespace StardewModdingAPI.Framework
                     {
                         IModEvents events = new ModEvents(mod, this.EventManager);
                         ICommandHelper commandHelper = new CommandHelper(mod, this.CommandManager);
-#pragma warning disable CS0612 // deprecated code
+#if SMAPI_DEPRECATED
                         ContentHelper contentHelper = new(contentCore, mod.DirectoryPath, mod, monitor, this.Reflection);
-#pragma warning restore CS0612
+#endif
                         GameContentHelper gameContentHelper = new(contentCore, mod, mod.DisplayName, monitor, this.Reflection);
                         IModContentHelper modContentHelper = new ModContentHelper(contentCore, mod.DirectoryPath, mod, mod.DisplayName, gameContentHelper.GetUnderlyingContentManager(), this.Reflection);
                         IContentPackHelper contentPackHelper = new ContentPackHelper(
@@ -1930,7 +1938,11 @@ namespace StardewModdingAPI.Framework
                         IModRegistry modRegistryHelper = new ModRegistryHelper(mod, this.ModRegistry, proxyFactory, monitor);
                         IMultiplayerHelper multiplayerHelper = new MultiplayerHelper(mod, this.Multiplayer);
 
-                        modHelper = new ModHelper(mod, mod.DirectoryPath, () => this.GetCurrentGameInstance().Input, events, contentHelper, gameContentHelper, modContentHelper, contentPackHelper, commandHelper, dataHelper, modRegistryHelper, reflectionHelper, multiplayerHelper, translationHelper);
+                        modHelper = new ModHelper(mod, mod.DirectoryPath, () => this.GetCurrentGameInstance().Input, events,
+#if SMAPI_DEPRECATED
+                            contentHelper,
+#endif
+                            gameContentHelper, modContentHelper, contentPackHelper, commandHelper, dataHelper, modRegistryHelper, reflectionHelper, multiplayerHelper, translationHelper);
                     }
 
                     // init mod

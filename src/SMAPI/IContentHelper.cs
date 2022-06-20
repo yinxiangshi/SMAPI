@@ -1,3 +1,4 @@
+#if SMAPI_DEPRECATED
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
@@ -80,3 +81,4 @@ namespace StardewModdingAPI
             where T : notnull;
     }
 }
+#endif

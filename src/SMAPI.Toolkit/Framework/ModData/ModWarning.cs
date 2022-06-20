@@ -18,9 +18,11 @@ namespace StardewModdingAPI.Toolkit.Framework.ModData
         /// <summary>The mod patches the game in a way that may impact stability.</summary>
         PatchesGame = 4,
 
+#if SMAPI_FOR_WINDOWS
         /// <summary>The mod uses the <c>dynamic</c> keyword which won't work on Linux/macOS.</summary>
         [Obsolete("This value is no longer used by SMAPI and will be removed in the upcoming SMAPI 4.0.0.")]
         UsesDynamic = 8,
+#endif
 
         /// <summary>The mod references specialized 'unvalidated update tick' events which may impact stability.</summary>
         UsesUnvalidatedUpdateTick = 16,
@@ -37,6 +39,7 @@ namespace StardewModdingAPI.Toolkit.Framework.ModData
         /// <summary>Uses .NET APIs for shell or process access.</summary>
         AccessesShell = 256,
 
+#if SMAPI_DEPRECATED
         /// <summary>References the legacy <c>System.Configuration.ConfigurationManager</c> assembly and doesn't include a copy in the mod folder, so it'll break in SMAPI 4.0.0.</summary>
         DetectedLegacyConfigurationDll = 512,
 
@@ -45,5 +48,6 @@ namespace StardewModdingAPI.Toolkit.Framework.ModData
 
         /// <summary>References the legacy <c>System.Security.Permissions</c> assembly and doesn't include a copy in the mod folder, so it'll break in SMAPI 4.0.0.</summary>
         DetectedLegacyPermissionsDll = 2048
+#endif
     }
 }

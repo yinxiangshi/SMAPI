@@ -1,3 +1,4 @@
+#if SMAPI_DEPRECATED
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -249,3 +250,4 @@ namespace StardewModdingAPI.Framework.ModHelpers
         }
     }
 }
+#endif

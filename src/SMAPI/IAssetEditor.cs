@@ -1,3 +1,4 @@
+#if SMAPI_DEPRECATED
 using System;
 using StardewModdingAPI.Events;
 
@@ -19,3 +20,4 @@ namespace StardewModdingAPI
         void Edit<T>(IAssetData asset);
     }
 }
+#endif

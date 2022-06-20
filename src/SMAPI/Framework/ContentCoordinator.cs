@@ -12,7 +12,9 @@ using StardewModdingAPI.Framework.Content;
 using StardewModdingAPI.Framework.ContentManagers;
 using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Framework.Utilities;
+#if SMAPI_DEPRECATED
 using StardewModdingAPI.Internal;
+#endif
 using StardewModdingAPI.Metadata;
 using StardewModdingAPI.Toolkit.Serialization;
 using StardewModdingAPI.Toolkit.Utilities.PathLookups;
@@ -84,6 +86,7 @@ namespace StardewModdingAPI.Framework
         /// <summary>The cached asset load/edit operations to apply, indexed by asset name.</summary>
         private readonly TickCacheDictionary<IAssetName, AssetOperationGroup?> AssetOperationsByKey = new();
 
+#if SMAPI_DEPRECATED
         /// <summary>A cache of asset operation groups created for legacy <see cref="IAssetLoader"/> implementations.</summary>
         [Obsolete("This only exists to support legacy code and will be removed in SMAPI 4.0.0.")]
         private readonly Dictionary<IAssetLoader, Dictionary<Type, AssetLoadOperation>> LegacyLoaderCache = new(ReferenceEqualityComparer.Instance);
@@ -91,6 +94,7 @@ namespace StardewModdingAPI.Framework
         /// <summary>A cache of asset operation groups created for legacy <see cref="IAssetEditor"/> implementations.</summary>
         [Obsolete("This only exists to support legacy code and will be removed in SMAPI 4.0.0.")]
         private readonly Dictionary<IAssetEditor, Dictionary<Type, AssetEditOperation>> LegacyEditorCache = new(ReferenceEqualityComparer.Instance);
+#endif
 
 
         /*********
@@ -102,6 +106,7 @@ namespace StardewModdingAPI.Framework
         /// <summary>The current language as a constant.</summary>
         public LocalizedContentManager.LanguageCode Language => this.MainContentManager.Language;
 
+#if SMAPI_DEPRECATED
         /// <summary>Interceptors which provide the initial versions of matching assets.</summary>
         [Obsolete("This only exists to support legacy code and will be removed in SMAPI 4.0.0.")]
         public IList<ModLinked<IAssetLoader>> Loaders { get; } = new List<ModLinked<IAssetLoader>>();
@@ -109,6 +114,7 @@ namespace StardewModdingAPI.Framework
         /// <summary>Interceptors which edit matching assets after they're loaded.</summary>
         [Obsolete("This only exists to support legacy code and will be removed in SMAPI 4.0.0.")]
         public IList<ModLinked<IAssetEditor>> Editors { get; } = new List<ModLinked<IAssetEditor>>();
+#endif
 
         /// <summary>The absolute path to the <see cref="ContentManager.RootDirectory"/>.</summary>
         public string FullRootDirectory { get; }
@@ -498,15 +504,25 @@ namespace StardewModdingAPI.Framework
             return invalidatedAssets.Keys;
         }
 
+#if SMAPI_DEPRECATED
         /// <summary>Get the asset load and edit operations to apply to a given asset if it's (re)loaded now.</summary>
         /// <typeparam name="T">The asset type.</typeparam>
         /// <param name="info">The asset info to load or edit.</param>
         public AssetOperationGroup? GetAssetOperations<T>(IAssetInfo info)
             where T : notnull
+#else
+        /// <summary>Get the asset load and edit operations to apply to a given asset if it's (re)loaded now.</summary>
+        /// <param name="info">The asset info to load or edit.</param>
+        public AssetOperationGroup? GetAssetOperations(IAssetInfo info)
+#endif
         {
             return this.AssetOperationsByKey.GetOrSet(
                 info.Name,
+#if SMAPI_DEPRECATED
                 () => this.GetAssetOperationsWithoutCache<T>(info)
+#else
+                () => this.RequestAssetOperations(info)
+#endif
             );
         }
 
@@ -629,6 +645,7 @@ namespace StardewModdingAPI.Framework
             return map;
         }
 
+#if SMAPI_DEPRECATED
         /// <summary>Get the asset load and edit operations to apply to a given asset if it's (re)loaded now, ignoring the <see cref="AssetOperationsByKey"/> cache.</summary>
         /// <typeparam name="T">The asset type.</typeparam>
         /// <param name="info">The asset info to load or edit.</param>
@@ -639,7 +656,6 @@ namespace StardewModdingAPI.Framework
             AssetOperationGroup? group = this.RequestAssetOperations(info);
 
             // legacy load operations
-#pragma warning disable CS0612, CS0618 // deprecated code
             if (this.Editors.Count > 0 || this.Loaders.Count > 0)
             {
                 IAssetInfo legacyInfo = this.GetLegacyAssetInfo(info);
@@ -738,7 +754,6 @@ namespace StardewModdingAPI.Framework
                     );
                 }
             }
-#pragma warning restore CS0612, CS0618
 
             return group;
         }
@@ -818,5 +833,6 @@ namespace StardewModdingAPI.Framework
             // else no change needed
             return asset;
         }
+#endif
     }
 }

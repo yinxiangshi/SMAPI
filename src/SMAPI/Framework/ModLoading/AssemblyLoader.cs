@@ -163,6 +163,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                 this.AssemblyDefinitionResolver.Add(assembly.Definition);
             }
 
+#if SMAPI_DEPRECATED
             // special case: clear legacy-DLL warnings if the mod bundles a copy
             if (mod.Warnings.HasFlag(ModWarning.DetectedLegacyCachingDll))
             {
@@ -185,6 +186,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                 if (File.Exists(Path.Combine(mod.DirectoryPath, "System.Security.Permissions.dll")))
                     mod.RemoveWarning(ModWarning.DetectedLegacyPermissionsDll);
             }
+#endif
 
             // throw if incompatibilities detected
             if (!assumeCompatible && mod.Warnings.HasFlag(ModWarning.BrokenCodeLoaded))
@@ -452,6 +454,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                     mod.SetWarning(ModWarning.AccessesShell);
                     break;
 
+#if SMAPI_DEPRECATED
                 case InstructionHandleResult.DetectedLegacyCachingDll:
                     template = $"{logPrefix}Detected reference to System.Runtime.Caching.dll, which will be removed in SMAPI 4.0.0.";
                     mod.SetWarning(ModWarning.DetectedLegacyCachingDll);
@@ -466,6 +469,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                     template = $"{logPrefix}Detected reference to System.Security.Permissions.dll, which will be removed in SMAPI 4.0.0.";
                     mod.SetWarning(ModWarning.DetectedLegacyPermissionsDll);
                     break;
+#endif
 
                 case InstructionHandleResult.None:
                     break;
