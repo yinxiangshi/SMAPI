@@ -54,6 +54,7 @@ namespace StardewModdingApi.Installer
             yield return GetInstallPath("smapi-internal");
             yield return GetInstallPath("steam_appid.txt");
 
+#if SMAPI_DEPRECATED
             // obsolete
             yield return GetInstallPath("libgdiplus.dylib");                 // before 3.13 (macOS only)
             yield return GetInstallPath(Path.Combine("Mods", ".cache"));     // 1.3-1.4
@@ -82,6 +83,7 @@ namespace StardewModdingApi.Installer
                 foreach (DirectoryInfo modDir in modsDir.EnumerateDirectories())
                     yield return Path.Combine(modDir.FullName, ".cache"); // 1.4–1.7
             }
+#endif
 
             yield return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StardewValley", "ErrorLogs"); // remove old log files
         }
@@ -477,8 +479,10 @@ namespace StardewModdingApi.Installer
                         File.WriteAllText(paths.ApiConfigPath, text);
                     }
 
+#if SMAPI_DEPRECATED
                     // remove obsolete appdata mods
                     this.InteractivelyRemoveAppDataMods(paths.ModsDir, bundledModsDir);
+#endif
                 }
             }
             Console.WriteLine();
@@ -805,6 +809,7 @@ namespace StardewModdingApi.Installer
             }
         }
 
+#if SMAPI_DEPRECATED
         /// <summary>Interactively move mods out of the app data directory.</summary>
         /// <param name="properModsDir">The directory which should contain all mods.</param>
         /// <param name="packagedModsDir">The installer directory containing packaged mods.</param>
@@ -887,6 +892,7 @@ namespace StardewModdingApi.Installer
                 directory.Delete(recursive: true);
             }
         }
+#endif
 
         /// <summary>Get whether a file or folder should be copied from the installer files.</summary>
         /// <param name="entry">The file or folder info.</param>

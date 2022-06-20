@@ -1,6 +1,12 @@
 ← [README](README.md)
 
 # Release notes
+<!--
+## 4.0.0
+* The installer no longer supports updating from SMAPI 2.11.3 or earlier (released in 2019).  
+  _If needed, you can update to SMAPI 3.15.0 first and then install to the latest version._
+-->
+
 ## Upcoming release
 * For the web UI:
   * Fixed the mod count in the log parser metadata.
