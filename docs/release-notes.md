@@ -8,6 +8,9 @@
 -->
 
 ## Upcoming release
+* For players:
+  * Minor optimizations.
+
 * For the web UI:
   * Fixed the mod count in the log parser metadata.
 

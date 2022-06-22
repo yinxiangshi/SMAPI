@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -147,8 +146,7 @@ namespace StardewModdingAPI.Framework
 #endif
 
         /// <summary>A list of queued commands to parse and execute.</summary>
-        /// <remarks>This property must be thread-safe, since it's accessed from a separate console input thread.</remarks>
-        private readonly ConcurrentQueue<string> RawCommandQueue = new();
+        private readonly CommandQueue RawCommandQueue = new();
 
         /// <summary>A list of commands to execute on each screen.</summary>
         private readonly PerScreen<List<QueuedCommand>> ScreenCommandQueue = new(() => new List<QueuedCommand>());
@@ -437,7 +435,7 @@ namespace StardewModdingAPI.Framework
                 () => this.LogManager.RunConsoleInputLoop(
                     commandManager: this.CommandManager,
                     reloadTranslations: this.ReloadTranslations,
-                    handleInput: input => this.RawCommandQueue.Enqueue(input),
+                    handleInput: input => this.RawCommandQueue.Add(input),
                     continueWhile: () => this.IsGameRunning && !this.CancellationToken.IsCancellationRequested
                 )
             ).Start();
@@ -525,29 +523,32 @@ namespace StardewModdingAPI.Framework
                 /*********
                 ** Parse commands
                 *********/
-                while (this.RawCommandQueue.TryDequeue(out string? rawInput))
+                if (this.RawCommandQueue.TryDequeue(out string[]? rawCommands))
                 {
-                    // parse command
-                    string? name;
-                    string[]? args;
-                    Command? command;
-                    int screenId;
-                    try
+                    foreach (string rawInput in rawCommands)
                     {
-                        if (!this.CommandManager.TryParse(rawInput, out name, out args, out command, out screenId))
+                        // parse command
+                        string? name;
+                        string[]? args;
+                        Command? command;
+                        int screenId;
+                        try
                         {
-                            this.Monitor.Log("Unknown command; type 'help' for a list of available commands.", LogLevel.Error);
+                            if (!this.CommandManager.TryParse(rawInput, out name, out args, out command, out screenId))
+                            {
+                                this.Monitor.Log("Unknown command; type 'help' for a list of available commands.", LogLevel.Error);
+                                continue;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            this.Monitor.Log($"Failed parsing that command:\n{ex.GetLogSummary()}", LogLevel.Error);
                             continue;
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        this.Monitor.Log($"Failed parsing that command:\n{ex.GetLogSummary()}", LogLevel.Error);
-                        continue;
-                    }
 
-                    // queue command for screen
-                    this.ScreenCommandQueue.GetValueForScreen(screenId).Add(new(command, name, args));
+                        // queue command for screen
+                        this.ScreenCommandQueue.GetValueForScreen(screenId).Add(new(command, name, args));
+                    }
                 }
 
 
