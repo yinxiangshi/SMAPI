@@ -38,45 +38,49 @@ namespace StardewModdingAPI.Framework.Models
         /********
         ** Accessors
         ********/
+        //
+        // Note: properties must be writable to support merging config.user.json into it.
+        //
+
         /// <summary>Whether to enable development features.</summary>
-        public bool DeveloperMode { get; private set; }
+        public bool DeveloperMode { get; set; }
 
         /// <summary>Whether to check for newer versions of SMAPI and mods on startup.</summary>
-        public bool CheckForUpdates { get; }
+        public bool CheckForUpdates { get; set; }
 
         /// <summary>Whether to add a section to the 'mod issues' list for mods which which directly use potentially sensitive .NET APIs like file or shell access.</summary>
-        public bool ParanoidWarnings { get; }
+        public bool ParanoidWarnings { get; set; }
 
         /// <summary>Whether to show beta versions as valid updates.</summary>
-        public bool UseBetaChannel { get; }
+        public bool UseBetaChannel { get; set; }
 
         /// <summary>SMAPI's GitHub project name, used to perform update checks.</summary>
-        public string GitHubProjectName { get; }
+        public string GitHubProjectName { get; set; }
 
         /// <summary>The base URL for SMAPI's web API, used to perform update checks.</summary>
-        public string WebApiBaseUrl { get; }
+        public string WebApiBaseUrl { get; set; }
 
         /// <summary>The log contexts for which to enable verbose logging, which may show a lot more information to simplify troubleshooting.</summary>
         /// <remarks>The possible values are "*" (everything is verbose), "SMAPI", (SMAPI itself), or mod IDs.</remarks>
-        public HashSet<string> VerboseLogging { get; }
+        public HashSet<string> VerboseLogging { get; set; }
 
         /// <summary>Whether SMAPI should rewrite mods for compatibility.</summary>
-        public bool RewriteMods { get; }
+        public bool RewriteMods { get; set; }
 
         /// <summary>Whether to use raw image data when possible, instead of initializing an XNA Texture2D instance through the GPU.</summary>
-        public bool UseRawImageLoading { get; }
+        public bool UseRawImageLoading { get; set; }
 
         /// <summary>Whether to make SMAPI file APIs case-insensitive, even on Linux.</summary>
-        public bool UseCaseInsensitivePaths { get; }
+        public bool UseCaseInsensitivePaths { get; set; }
 
         /// <summary>Whether SMAPI should log network traffic. Best combined with <see cref="VerboseLogging"/>, which includes network metadata.</summary>
-        public bool LogNetworkTraffic { get; }
+        public bool LogNetworkTraffic { get; set; }
 
         /// <summary>The colors to use for text written to the SMAPI console.</summary>
-        public ColorSchemeConfig ConsoleColors { get; }
+        public ColorSchemeConfig ConsoleColors { get; set; }
 
         /// <summary>The mod IDs SMAPI should ignore when performing update checks or validating update keys.</summary>
-        public HashSet<string> SuppressUpdateChecks { get; }
+        public HashSet<string> SuppressUpdateChecks { get; set; }
 
 
         /********

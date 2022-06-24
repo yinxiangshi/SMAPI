@@ -10,6 +10,7 @@
 ## Upcoming release
 * For players:
   * Minor optimizations.
+  * Fixed `smapi-internal/config.user.json` overrides not applied after SMAPI 3.14.0.
 
 * For the web UI:
   * Fixed the mod count in the log parser metadata.
