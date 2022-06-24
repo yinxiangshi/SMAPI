@@ -66,8 +66,8 @@ namespace StardewModdingAPI.Framework
         /****
         ** Low-level components
         ****/
-        /// <summary>Tracks whether the game should exit immediately and any pending initialization should be cancelled.</summary>
-        private readonly CancellationTokenSource CancellationToken = new();
+        /// <summary>Whether the game should exit immediately and any pending initialization should be cancelled.</summary>
+        private bool IsExiting;
 
         /// <summary>Manages the SMAPI console window and log file.</summary>
         private readonly LogManager LogManager;
@@ -272,16 +272,6 @@ namespace StardewModdingAPI.Framework
                     new TitleMenuPatcher(this.OnLoadStageChanged)
                 );
 
-                // add exit handler
-                this.CancellationToken.Token.Register(() =>
-                {
-                    if (this.IsGameRunning)
-                    {
-                        this.LogManager.WriteCrashLog();
-                        this.Game.Exit();
-                    }
-                });
-
                 // set window titles
                 this.UpdateWindowTitles();
             }
@@ -358,8 +348,8 @@ namespace StardewModdingAPI.Framework
 
             // dispose core components
             this.IsGameRunning = false;
+            this.IsExiting = true;
             this.ContentCore?.Dispose();
-            this.CancellationToken.Dispose();
             this.Game?.Dispose();
             this.LogManager.Dispose(); // dispose last to allow for any last-second log messages
 
@@ -374,7 +364,7 @@ namespace StardewModdingAPI.Framework
         /// <summary>Initialize mods before the first game asset is loaded. At this point the core content managers are loaded (so mods can load their own assets), but the game is mostly uninitialized.</summary>
         private void InitializeBeforeFirstAssetLoaded()
         {
-            if (this.CancellationToken.IsCancellationRequested)
+            if (this.IsExiting)
             {
                 this.Monitor.Log("SMAPI shutting down: aborting initialization.", LogLevel.Warn);
                 return;
@@ -436,7 +426,7 @@ namespace StardewModdingAPI.Framework
                     commandManager: this.CommandManager,
                     reloadTranslations: this.ReloadTranslations,
                     handleInput: input => this.RawCommandQueue.Add(input),
-                    continueWhile: () => this.IsGameRunning && !this.CancellationToken.IsCancellationRequested
+                    continueWhile: () => this.IsGameRunning && !this.IsExiting
                 )
             ).Start();
         }
@@ -479,7 +469,7 @@ namespace StardewModdingAPI.Framework
                 ** Special cases
                 *********/
                 // Abort if SMAPI is exiting.
-                if (this.CancellationToken.IsCancellationRequested)
+                if (this.IsExiting)
                 {
                     this.Monitor.Log("SMAPI shutting down: aborting update.");
                     return;
@@ -2233,7 +2223,10 @@ namespace StardewModdingAPI.Framework
         private void ExitGameImmediately(string message)
         {
             this.Monitor.LogFatal(message);
-            this.CancellationToken.Cancel();
+            this.LogManager.WriteCrashLog();
+
+            this.IsExiting = true;
+            this.Game.Exit();
         }
 
         /// <summary>Get the screen ID that should be logged to distinguish between players in split-screen mode, if any.</summary>
