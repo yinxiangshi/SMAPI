@@ -1,3 +1,9 @@
+<!--
+
+This MSBuild file sets the common configuration and build scripts used by all the projects in this
+repo. It imports the other MSBuild files as needed.
+
+-->
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <!--set general build properties -->
@@ -6,6 +12,8 @@
     <LangVersion>latest</LangVersion>
     <AssemblySearchPaths>$(AssemblySearchPaths);{GAC}</AssemblySearchPaths>
     <DefineConstants>$(DefineConstants);SMAPI_DEPRECATED</DefineConstants>
+    <DebugType>pdbonly</DebugType>
+    <DebugSymbols>true</DebugSymbols>
 
     <!--enable nullable annotations, except in .NET Standard 2.0 where they aren't supported-->
     <Nullable Condition="'$(TargetFramework)' != 'netstandard2.0'">enable</Nullable>
@@ -36,79 +44,13 @@
 
   <!--find game folder-->
   <Import Project="find-game-folder.targets" />
-
-  <!-- if game path is invalid, show one user-friendly error instead of a slew of reference errors -->
   <Target Name="ValidateInstallPath" AfterTargets="BeforeBuild">
+    <!-- if game path is invalid, show one user-friendly error instead of a slew of reference errors -->
     <Error Condition="!Exists('$(GamePath)')" Text="Failed to find the game install path automatically. You can specify where to find it; see https://smapi.io/package/custom-game-path." />
   </Target>
 
-  <!-- copy files into game directory and enable debugging -->
-  <Target Name="CopySmapiFiles" AfterTargets="AfterBuild" Condition="'$(CopyToGameFolder)' == 'true'">
-    <CallTarget Targets="CopySMAPI;CopyDefaultMods" />
-  </Target>
-  <Target Name="CopySMAPI" Condition="'$(MSBuildProjectName)' == 'SMAPI'">
-    <ItemGroup>
-      <TranslationFiles Include="$(TargetDir)\i18n\*.json" />
-    </ItemGroup>
-
-    <!-- SMAPI -->
-    <Copy SourceFiles="$(TargetDir)\$(TargetName).dll" DestinationFolder="$(GamePath)" />
-    <Copy SourceFiles="$(TargetDir)\$(TargetName).exe" DestinationFolder="$(GamePath)" Condition="$(OS) == 'Windows_NT'" />
-    <Copy SourceFiles="$(TargetDir)\$(TargetName)" DestinationFolder="$(GamePath)" Condition="$(OS) != 'Windows_NT'" />
-    <Copy SourceFiles="$(TargetDir)\$(TargetName).pdb" DestinationFolder="$(GamePath)" />
-    <Copy SourceFiles="$(TargetDir)\$(TargetName).xml" DestinationFolder="$(GamePath)" />
-    <Copy SourceFiles="$(TargetDir)\SMAPI.config.json" DestinationFiles="$(GamePath)\smapi-internal\config.json" />
-    <Copy SourceFiles="$(TargetDir)\SMAPI.metadata.json" DestinationFiles="$(GamePath)\smapi-internal\metadata.json" />
-    <Copy SourceFiles="$(TargetDir)\Newtonsoft.Json.dll" DestinationFolder="$(GamePath)\smapi-internal" />
-    <Copy SourceFiles="$(TargetDir)\TMXTile.dll" DestinationFolder="$(GamePath)\smapi-internal" />
-    <Copy SourceFiles="$(TargetDir)\Pintail.dll" DestinationFolder="$(GamePath)\smapi-internal" />
-    <Copy SourceFiles="@(TranslationFiles)" DestinationFolder="$(GamePath)\smapi-internal\i18n" />
-
-    <!-- Harmony + dependencies -->
-    <Copy SourceFiles="$(TargetDir)\0Harmony.dll" DestinationFolder="$(GamePath)\smapi-internal" />
-    <Copy SourceFiles="$(TargetDir)\0Harmony.xml" DestinationFolder="$(GamePath)\smapi-internal" />
-    <Copy SourceFiles="$(TargetDir)\Mono.Cecil.dll" DestinationFolder="$(GamePath)\smapi-internal" />
-    <Copy SourceFiles="$(TargetDir)\Mono.Cecil.Mdb.dll" DestinationFolder="$(GamePath)\smapi-internal" />
-    <Copy SourceFiles="$(TargetDir)\Mono.Cecil.Pdb.dll" DestinationFolder="$(GamePath)\smapi-internal" />
-    <Copy SourceFiles="$(TargetDir)\MonoMod.Common.dll" DestinationFolder="$(GamePath)\smapi-internal" />
-
-    <!-- .NET dependencies -->
-    <Copy SourceFiles="$(TargetDir)\System.Management.dll" DestinationFolder="$(GamePath)\smapi-internal" Condition="$(OS) == 'Windows_NT'" />
-
-    <!-- Legacy .NET dependencies (remove in SMAPI 4.0.0) -->
-    <Copy SourceFiles="$(TargetDir)\System.Configuration.ConfigurationManager.dll" DestinationFolder="$(GamePath)\smapi-internal" />
-    <Copy SourceFiles="$(TargetDir)\System.Runtime.Caching.dll" DestinationFolder="$(GamePath)\smapi-internal" />
-    <Copy SourceFiles="$(TargetDir)\System.Security.Permissions.dll" DestinationFolder="$(GamePath)\smapi-internal" />
-  </Target>
-
-  <Target Name="CopyDefaultMods" Condition="'$(MSBuildProjectName)' == 'SMAPI.Mods.ConsoleCommands' OR '$(MSBuildProjectName)' == 'SMAPI.Mods.ErrorHandler' OR '$(MSBuildProjectName)' == 'SMAPI.Mods.SaveBackup'">
-    <ItemGroup>
-      <TranslationFiles Include="$(TargetDir)\i18n\*.json" />
-    </ItemGroup>
-
-    <Copy SourceFiles="$(TargetDir)\$(TargetName).dll" DestinationFolder="$(GamePath)\Mods\$(AssemblyName)" />
-    <Copy SourceFiles="$(TargetDir)\$(TargetName).pdb" DestinationFolder="$(GamePath)\Mods\$(AssemblyName)" Condition="Exists('$(TargetDir)\$(TargetName).pdb')" />
-    <Copy SourceFiles="$(TargetDir)\manifest.json" DestinationFolder="$(GamePath)\Mods\$(AssemblyName)" />
-    <Copy SourceFiles="@(TranslationFiles)" DestinationFolder="$(GamePath)\Mods\$(AssemblyName)\i18n" />
-  </Target>
-
-  <Target Name="CopyToolkit" Condition="'$(MSBuildProjectName)' == 'SMAPI.Toolkit'" AfterTargets="PostBuildEvent">
-    <Copy SourceFiles="$(TargetDir)\$(TargetName).dll" DestinationFolder="$(GamePath)\smapi-internal" />
-    <Copy SourceFiles="$(TargetDir)\$(TargetName).pdb" DestinationFolder="$(GamePath)\smapi-internal" />
-    <Copy SourceFiles="$(TargetDir)\$(TargetName).xml" DestinationFolder="$(GamePath)\smapi-internal" />
-  </Target>
-
-  <Target Name="CopyToolkitCoreInterfaces" Condition="'$(MSBuildProjectName)' == 'SMAPI.Toolkit.CoreInterfaces'" AfterTargets="PostBuildEvent">
-    <Copy SourceFiles="$(TargetDir)\$(TargetName).dll" DestinationFolder="$(GamePath)\smapi-internal" />
-    <Copy SourceFiles="$(TargetDir)\$(TargetName).pdb" DestinationFolder="$(GamePath)\smapi-internal" />
-    <Copy SourceFiles="$(TargetDir)\$(TargetName).xml" DestinationFolder="$(GamePath)\smapi-internal" />
-  </Target>
-
-  <!-- common build settings -->
-  <PropertyGroup>
-    <DebugType>pdbonly</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-  </PropertyGroup>
+  <!--deploy local files-->
+  <Import Project="deploy-local-smapi.targets" Condition="'$(CopyToGameFolder)' == 'true'" />
 
   <!-- launch SMAPI through Visual Studio -->
   <PropertyGroup Condition="'$(MSBuildProjectName)' == 'SMAPI'">
