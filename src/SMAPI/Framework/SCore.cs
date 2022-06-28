@@ -10,6 +10,7 @@ using System.Runtime.ExceptionServices;
 using System.Security;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 #if SMAPI_FOR_WINDOWS
 using Microsoft.Win32;
@@ -406,7 +407,7 @@ namespace StardewModdingAPI.Framework
                 this.CheckForSoftwareConflicts();
 
                 // check for updates
-                this.CheckForUpdatesAsync(mods);
+                _ = this.CheckForUpdatesAsync(mods); // ignore task since the main thread doesn't need to wait for it
             }
 
             // update window titles
@@ -1450,16 +1451,15 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>Asynchronously check for a new version of SMAPI and any installed mods, and print alerts to the console if an update is available.</summary>
         /// <param name="mods">The mods to include in the update check (if eligible).</param>
-        private void CheckForUpdatesAsync(IModMetadata[] mods)
+        private async Task CheckForUpdatesAsync(IModMetadata[] mods)
         {
-            if (!this.Settings.CheckForUpdates)
-                return;
-
-            new Thread(() =>
+            try
             {
+                if (!this.Settings.CheckForUpdates)
+                    return;
+
                 // create client
-                string url = this.Settings.WebApiBaseUrl;
-                WebApiClient client = new(url, Constants.ApiVersion);
+                using WebApiClient client = new(this.Settings.WebApiBaseUrl, Constants.ApiVersion);
                 this.Monitor.Log("Checking for updates...");
 
                 // check SMAPI version
@@ -1469,9 +1469,15 @@ namespace StardewModdingAPI.Framework
                     try
                     {
                         // fetch update check
-                        ModEntryModel response = client.GetModInfo(new[] { new ModSearchEntryModel("Pathoschild.SMAPI", Constants.ApiVersion, new[] { $"GitHub:{this.Settings.GitHubProjectName}" }) }, apiVersion: Constants.ApiVersion, gameVersion: Constants.GameVersion, platform: Constants.Platform).Single().Value;
-                        updateFound = response.SuggestedUpdate?.Version;
-                        updateUrl = response.SuggestedUpdate?.Url;
+                        IDictionary<string, ModEntryModel> response = await client.GetModInfoAsync(
+                            mods: new[] { new ModSearchEntryModel("Pathoschild.SMAPI", Constants.ApiVersion, new[] { $"GitHub:{this.Settings.GitHubProjectName}" }) },
+                            apiVersion: Constants.ApiVersion,
+                            gameVersion: Constants.GameVersion,
+                            platform: Constants.Platform
+                        );
+                        ModEntryModel updateInfo = response.Single().Value;
+                        updateFound = updateInfo.SuggestedUpdate?.Version;
+                        updateUrl = updateInfo.SuggestedUpdate?.Url;
 
                         // log message
                         if (updateFound != null)
@@ -1480,10 +1486,10 @@ namespace StardewModdingAPI.Framework
                             this.Monitor.Log("   SMAPI okay.");
 
                         // show errors
-                        if (response.Errors.Any())
+                        if (updateInfo.Errors.Any())
                         {
                             this.Monitor.Log("Couldn't check for a new version of SMAPI. This won't affect your game, but you may not be notified of new versions if this keeps happening.", LogLevel.Warn);
-                            this.Monitor.Log($"Error: {string.Join("\n", response.Errors)}");
+                            this.Monitor.Log($"Error: {string.Join("\n", updateInfo.Errors)}");
                         }
                     }
                     catch (Exception ex)
@@ -1523,7 +1529,7 @@ namespace StardewModdingAPI.Framework
 
                         // fetch results
                         this.Monitor.Log($"   Checking for updates to {searchMods.Count} mods...");
-                        IDictionary<string, ModEntryModel> results = client.GetModInfo(searchMods.ToArray(), apiVersion: Constants.ApiVersion, gameVersion: Constants.GameVersion, platform: Constants.Platform);
+                        IDictionary<string, ModEntryModel> results = await client.GetModInfoAsync(searchMods.ToArray(), apiVersion: Constants.ApiVersion, gameVersion: Constants.GameVersion, platform: Constants.Platform);
 
                         // extract update alerts & errors
                         var updates = new List<Tuple<IModMetadata, ISemanticVersion, string>>();
@@ -1573,7 +1579,15 @@ namespace StardewModdingAPI.Framework
                         );
                     }
                 }
-            }).Start();
+            }
+            catch (Exception ex)
+            {
+                this.Monitor.Log("Couldn't check for updates. This won't affect your game, but you won't be notified of SMAPI or mod updates if this keeps happening.", LogLevel.Warn);
+                this.Monitor.Log(ex is WebException && ex.InnerException == null
+                    ? ex.Message
+                    : ex.ToString()
+                );
+            }
         }
 
         /// <summary>Create a directory path if it doesn't exist.</summary>

@@ -9,8 +9,11 @@
 
 ## Upcoming release
 * For players:
-  * Minor optimizations.
+  * Fixed lag which occurred for some players since Stardew Valley 1.5.5.
   * Fixed `smapi-internal/config.user.json` overrides not applied after SMAPI 3.14.0.
+
+* For mod authors:
+  * The [FluentHttpClient package](https://github.com/Pathoschild/FluentHttpClient#readme) is now loaded by SMAPI.
 
 * For the web UI:
   * Updated the JSON validator/schema for Content Patcher 1.27.0.
