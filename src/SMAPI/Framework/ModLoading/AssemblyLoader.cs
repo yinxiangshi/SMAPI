@@ -264,8 +264,18 @@ namespace StardewModdingAPI.Framework.ModLoading
             if (!file.Exists)
                 yield break; // not a local assembly
 
+            // add the assembly's directory temporarily if needed
+            // this is needed by F# mods which bundle FSharp.Core.dll, for example
+            string? temporarySearchDir = null;
+            if (file.DirectoryName is not null && !this.AssemblyDefinitionResolver.GetSearchDirectories().Contains(file.DirectoryName))
+            {
+                this.AssemblyDefinitionResolver.AddSearchDirectory(file.DirectoryName);
+                temporarySearchDir = file.DirectoryName;
+            }
+
             // read assembly
             AssemblyDefinition assembly;
+            try
             {
                 byte[] assemblyBytes = File.ReadAllBytes(file.FullName);
                 Stream readStream = this.TrackForDisposal(new MemoryStream(assemblyBytes));
@@ -285,6 +295,12 @@ namespace StardewModdingAPI.Framework.ModLoading
                     readStream.Position = 0;
                     assembly = this.TrackForDisposal(AssemblyDefinition.ReadAssembly(readStream, new ReaderParameters(ReadingMode.Immediate) { AssemblyResolver = assemblyResolver, InMemory = true }));
                 }
+            }
+            finally
+            {
+                // clean up temporary search directory
+                if (temporarySearchDir is not null)
+                    this.AssemblyDefinitionResolver.RemoveSearchDirectory(temporarySearchDir);
             }
 
             // skip if already visited
