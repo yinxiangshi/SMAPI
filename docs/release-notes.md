@@ -13,6 +13,7 @@
   * Fixed `smapi-internal/config.user.json` overrides not applied after SMAPI 3.14.0.
 
 * For the web UI:
+  * Updated the JSON validator/schema for Content Patcher 1.27.0.
   * Fixed the mod count in the log parser metadata.
 
 ## 3.15.0
