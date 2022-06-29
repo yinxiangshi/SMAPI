@@ -18,7 +18,7 @@ namespace StardewModdingAPI.Toolkit.Framework.ModData
         /// <summary>The mod patches the game in a way that may impact stability.</summary>
         PatchesGame = 4,
 
-#if SMAPI_FOR_WINDOWS
+#if SMAPI_DEPRECATED
         /// <summary>The mod uses the <c>dynamic</c> keyword which won't work on Linux/macOS.</summary>
         [Obsolete("This value is no longer used by SMAPI and will be removed in the upcoming SMAPI 4.0.0.")]
         UsesDynamic = 8,
