@@ -107,12 +107,6 @@
             "Default | UpdateKey": "Nexus:1726"
         },
 
-        "Rubydew": {
-            "ID": "bwdy.rubydew",
-            "SuppressWarnings": "UsesDynamic", // mod explicitly loads DLLs for Linux/macOS compatibility
-            "Default | UpdateKey": "Nexus:3656"
-        },
-
         "SpaceCore": {
             "ID": "spacechase0.SpaceCore",
             "Default | UpdateKey": "Nexus:1348"
