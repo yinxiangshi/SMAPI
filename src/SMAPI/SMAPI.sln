@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 25.0.1700.5
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SMAPI", "SMAPI.csproj", "{A09B2199-7A4C-4F47-8406-9A73A2FEAA96}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A09B2199-7A4C-4F47-8406-9A73A2FEAA96}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A09B2199-7A4C-4F47-8406-9A73A2FEAA96}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A09B2199-7A4C-4F47-8406-9A73A2FEAA96}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A09B2199-7A4C-4F47-8406-9A73A2FEAA96}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FD0C4E68-CA54-4AD5-8171-DA621027A9DF}
+	EndGlobalSection
+EndGlobal
