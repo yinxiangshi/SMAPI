@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
@@ -46,9 +45,6 @@ namespace StardewModdingAPI.Framework.ContentManagers
 
         /// <summary>If a map tilesheet's image source has no file extensions, the file extensions to check for in the local mod folder.</summary>
         private static readonly string[] LocalTilesheetExtensions = { ".png", ".xnb" };
-
-        /// <summary>A lookup of image file paths to whether they have PyTK scaling information.</summary>
-        private static readonly Dictionary<string, bool> IsPyTkScaled = new(StringComparer.OrdinalIgnoreCase);
 
 
         /*********
@@ -211,24 +207,13 @@ namespace StardewModdingAPI.Framework.ContentManagers
             {
                 if (ModContentManager.EnablePyTkLegacyMode)
                 {
-                    if (!ModContentManager.IsPyTkScaled.TryGetValue(file.FullName, out bool isScaled))
-                    {
-                        string? dirPath = file.DirectoryName;
-                        string fileName = $"{Path.GetFileNameWithoutExtension(file.Name)}.pytk.json";
-
-                        string path = dirPath is not null
-                            ? Path.Combine(dirPath, fileName)
-                            : fileName;
-
-                        ModContentManager.IsPyTkScaled[file.FullName] = isScaled = File.Exists(path);
-                    }
-
-                    asRawData = !isScaled;
-                    if (!asRawData)
-                        this.Monitor.LogOnce("Enabled compatibility mode for PyTK scaled textures. This won't cause any issues, but may impact performance.", LogLevel.Warn);
+                    // PyTK intercepts Texture2D file loads to rescale them (e.g. for HD portraits),
+                    // but doesn't support IRawTextureData loads yet. We can't just check if the
+                    // current file has a '.pytk.json' rescale file though, since PyTK may still
+                    // rescale it if the original asset or another edit gets rescaled.
+                    asRawData = false;
+                    this.Monitor.LogOnce("Enabled compatibility mode for PyTK 1.23.0 or earlier. This won't cause any issues, but may impact performance.", LogLevel.Warn);
                 }
-                else
-                    asRawData = true;
             }
 
             // load
