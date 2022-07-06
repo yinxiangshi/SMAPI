@@ -453,6 +453,7 @@ namespace StardewModdingApi.Installer
                             }
 
                             // find target folder
+                            // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract -- avoid error if the Mods folder has invalid mods, since they're not validated yet
                             ModFolder? targetMod = targetMods.FirstOrDefault(p => p.Manifest?.UniqueID?.Equals(sourceMod.Manifest.UniqueID, StringComparison.OrdinalIgnoreCase) == true);
                             DirectoryInfo defaultTargetFolder = new(Path.Combine(paths.ModsPath, sourceMod.Directory.Name));
                             DirectoryInfo targetFolder = targetMod?.Directory ?? defaultTargetFolder;

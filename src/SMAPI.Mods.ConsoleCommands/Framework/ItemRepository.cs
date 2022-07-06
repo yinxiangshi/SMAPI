@@ -30,7 +30,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework
         /// <summary>Get all spawnable items.</summary>
         /// <param name="itemTypes">The item types to fetch (or null for any type).</param>
         /// <param name="includeVariants">Whether to include flavored variants like "Sunflower Honey".</param>
-        [SuppressMessage("ReSharper", "AccessToModifiedClosure", Justification = "TryCreate invokes the lambda immediately.")]
+        [SuppressMessage("ReSharper", "AccessToModifiedClosure", Justification = $"{nameof(ItemRepository.TryCreate)} invokes the lambda immediately.")]
         public IEnumerable<SearchableItem> GetAll(ItemType[]? itemTypes = null, bool includeVariants = true)
         {
             //

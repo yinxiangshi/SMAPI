@@ -28,7 +28,7 @@ namespace StardewModdingAPI.Framework.ModLoading.RewriteFacades
             return new Harmony(id);
         }
 
-        [SuppressMessage("ReSharper", "ConditionIsAlwaysTrueOrFalse", Justification = "If the user passes a null original method, we let it fail in the underlying Harmony instance instead of handling it here.")]
+        [SuppressMessage("ReSharper", "ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract", Justification = "If the user passes a null original method, we let it fail in the underlying Harmony instance instead of handling it here.")]
         public DynamicMethod Patch(MethodBase original, HarmonyMethod? prefix = null, HarmonyMethod? postfix = null, HarmonyMethod? transpiler = null)
         {
             // In Harmony 1.x you could target a virtual method that's not implemented by the

@@ -966,7 +966,7 @@ namespace StardewModdingAPI.Metadata
             {
                 // get suspension bridges field
                 var field = this.Reflection.GetField<IEnumerable<SuspensionBridge>?>(location, nameof(IslandNorth.suspensionBridges), required: false);
-                // ReSharper disable once ConditionIsAlwaysTrueOrFalse -- field is nullable when required: false
+                // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract -- field is nullable when required: false
                 if (field == null || !typeof(IEnumerable<SuspensionBridge>).IsAssignableFrom(field.FieldInfo.FieldType))
                     continue;
 

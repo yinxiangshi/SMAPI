@@ -250,7 +250,7 @@ namespace StardewModdingAPI.Utilities
         /// <param name="year">The year.</param>
         /// <param name="allowDayZero">Whether to allow 0 spring Y1 as a valid date.</param>
         /// <exception cref="ArgumentException">One of the arguments has an invalid value (like day 35).</exception>
-        [SuppressMessage("ReSharper", "ConstantConditionalAccessQualifier", Justification = "The nullability is validated in this constructor.")]
+        [SuppressMessage("ReSharper", "ConditionalAccessQualifierIsNonNullableAccordingToAPIContract", Justification = "The nullability is validated in this constructor.")]
         private SDate(int day, string season, int year, bool allowDayZero)
         {
             season = season?.Trim().ToLowerInvariant()!; // null-checked below

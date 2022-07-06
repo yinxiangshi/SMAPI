@@ -42,7 +42,7 @@ namespace StardewModdingAPI.Web.Framework.Clients.ModDrop
 
         /// <summary>Get update check info about a mod.</summary>
         /// <param name="id">The mod ID.</param>
-        [SuppressMessage("ReSharper", "ConstantConditionalAccessQualifier", Justification = "The nullability is validated in this method.")]
+        [SuppressMessage("ReSharper", "ConditionalAccessQualifierIsNonNullableAccordingToAPIContract", Justification = "The nullability is validated in this method.")]
         public async Task<IModPage?> GetModData(string id)
         {
             IModPage page = new GenericModPage(this.SiteKey, id);

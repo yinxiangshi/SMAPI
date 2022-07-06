@@ -252,6 +252,7 @@ namespace StardewModdingAPI.Framework
         [SuppressMessage("ReSharper", "LocalVariableHidesMember", Justification = "copied from game code as-is")]
         [SuppressMessage("ReSharper", "MergeIntoPattern", Justification = "copied from game code as-is")]
         [SuppressMessage("ReSharper", "PossibleLossOfFraction", Justification = "copied from game code as-is")]
+        [SuppressMessage("ReSharper", "PossibleNullReferenceException", Justification = "copied from game code as-is")]
         [SuppressMessage("ReSharper", "RedundantArgumentDefaultValue", Justification = "copied from game code as-is")]
         [SuppressMessage("ReSharper", "RedundantBaseQualifier", Justification = "copied from game code as-is")]
         [SuppressMessage("ReSharper", "RedundantCast", Justification = "copied from game code as-is")]
@@ -261,6 +262,8 @@ namespace StardewModdingAPI.Framework
         [SuppressMessage("ReSharper", "MergeIntoPattern", Justification = "copied from game code as-is")]
         [SuppressMessage("SMAPI.CommonErrors", "AvoidImplicitNetFieldCast", Justification = "copied from game code as-is")]
         [SuppressMessage("SMAPI.CommonErrors", "AvoidNetField", Justification = "copied from game code as-is")]
+
+        [SuppressMessage("ReSharper", "ConditionIsAlwaysTrueOrFalse", Justification = "Deliberate to minimize chance of errors when copying event calls into new versions of this code.")]
         private void DrawImpl(GameTime gameTime, RenderTarget2D target_screen)
         {
             var events = this.Events;

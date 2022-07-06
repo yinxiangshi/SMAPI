@@ -325,7 +325,7 @@ namespace StardewModdingAPI.Framework
         }
 
         /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
-        [SuppressMessage("ReSharper", "ConstantConditionalAccessQualifier", Justification = "May be disposed before SMAPI is fully initialized.")]
+        [SuppressMessage("ReSharper", "ConditionalAccessQualifierIsNonNullableAccordingToAPIContract", Justification = "May be disposed before SMAPI is fully initialized.")]
         public void Dispose()
         {
             // skip if already disposed
@@ -1285,7 +1285,7 @@ namespace StardewModdingAPI.Framework
         private LocalizedContentManager CreateContentManager(IServiceProvider serviceProvider, string rootDirectory)
         {
             // Game1._temporaryContent initializing from SGame constructor
-            // ReSharper disable once ConditionIsAlwaysTrueOrFalse -- this is the method that initializes it
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract -- this is the method that initializes it
             if (this.ContentCore == null)
             {
                 this.ContentCore = new ContentCoordinator(
@@ -1808,7 +1808,7 @@ namespace StardewModdingAPI.Framework
                 string relativePath = mod.GetRelativePathWithRoot();
                 if (mod.IsContentPack)
                     this.Monitor.Log($"   {mod.DisplayName} (from {relativePath}) [content pack]...");
-                // ReSharper disable once ConstantConditionalAccessQualifier -- mod may be invalid at this point
+                // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract -- mod may be invalid at this point
                 else if (mod.Manifest?.EntryDll != null)
                     this.Monitor.Log($"   {mod.DisplayName} (from {relativePath}{Path.DirectorySeparatorChar}{mod.Manifest.EntryDll})..."); // don't use Path.Combine here, since EntryDLL might not be valid
                 else
