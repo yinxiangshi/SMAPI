@@ -9,6 +9,7 @@
 
 ## Upcoming release
 * For players:
+  * Update alerts now mention which mod version you have now (thanks to ishanjalan!).
   * Fixed lag which occurred for some players since Stardew Valley 1.5.5.
   * Fixed `smapi-internal/config.user.json` overrides not applied after SMAPI 3.14.0.
   * Fixed PyTK not rescaling images correctly in some cases.  
