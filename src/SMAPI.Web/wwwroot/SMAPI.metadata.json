@@ -166,8 +166,8 @@
         *********/
         "CFAutomate": {
             "ID": "Platonymous.CFAutomate",
-            "~2.12.9 | Status": "AssumeBroken",
-            "~2.12.9 | StatusReasonDetails": "causes runtime errors in newer versions of Automate"
+            "~2.12.11 | Status": "AssumeBroken",
+            "~2.12.11 | StatusReasonDetails": "causes runtime errors in newer versions of Automate"
         },
         "Dynamic Game Assets": {
             "ID": "spacechase0.DynamicGameAssets",

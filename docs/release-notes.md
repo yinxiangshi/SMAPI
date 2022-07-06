@@ -14,6 +14,7 @@
   * Fixed `smapi-internal/config.user.json` overrides not applied after SMAPI 3.14.0.
   * Fixed PyTK not rescaling images correctly in some cases.  
     _When PyTK 1.23.0 or earlier is installed, this will disable the main performance improvements in SMAPI 3.15.0._
+  * Updated compatibility list.
 
 * For mod authors:
   * The [FluentHttpClient package](https://github.com/Pathoschild/FluentHttpClient#readme) is now loaded by SMAPI.
