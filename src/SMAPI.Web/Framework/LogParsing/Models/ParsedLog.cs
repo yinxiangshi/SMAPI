@@ -28,6 +28,9 @@ namespace StardewModdingAPI.Web.Framework.LogParsing.Models
         /// <summary>The SMAPI version.</summary>
         public string? ApiVersion { get; set; }
 
+        /// <summary>The parsed SMAPI version, if it's valid.</summary>
+        public ISemanticVersion? ApiVersionParsed { get; set; }
+
         /// <summary>The game version.</summary>
         public string? GameVersion { get; set; }
 

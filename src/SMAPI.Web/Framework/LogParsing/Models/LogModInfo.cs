@@ -1,10 +1,19 @@
+using System;
 using System.Diagnostics.CodeAnalysis;
+using StardewModdingAPI.Toolkit;
 
 namespace StardewModdingAPI.Web.Framework.LogParsing.Models
 {
     /// <summary>Metadata about a mod or content pack in the log.</summary>
     public class LogModInfo
     {
+        /*********
+        ** Private fields
+        *********/
+        /// <summary>The parsed mod version, if valid.</summary>
+        private Lazy<ISemanticVersion?> ParsedVersionImpl;
+
+
         /*********
         ** Accessors
         *********/
@@ -68,7 +77,6 @@ namespace StardewModdingAPI.Web.Framework.LogParsing.Models
         {
             this.Name = name;
             this.Author = author;
-            this.Version = version;
             this.Description = description;
             this.UpdateVersion = updateVersion;
             this.UpdateLink = updateLink;
@@ -82,6 +90,8 @@ namespace StardewModdingAPI.Web.Framework.LogParsing.Models
                 this.IsContentPack = !string.IsNullOrWhiteSpace(this.ContentPackFor);
                 this.IsCodeMod = !this.IsContentPack;
             }
+
+            this.OverrideVersion(version);
         }
 
         /// <summary>Add an update alert for this mod.</summary>
@@ -95,9 +105,29 @@ namespace StardewModdingAPI.Web.Framework.LogParsing.Models
 
         /// <summary>Override the version number, for cases like SMAPI itself where the version is only known later during parsing.</summary>
         /// <param name="version">The new mod version.</param>
+        [MemberNotNull(nameof(LogModInfo.Version), nameof(LogModInfo.ParsedVersionImpl))]
         public void OverrideVersion(string version)
         {
             this.Version = version;
+            this.ParsedVersionImpl = new Lazy<ISemanticVersion?>(this.ParseVersion);
+        }
+
+        /// <summary>Get the semantic version for this mod, if it's valid.</summary>
+        public ISemanticVersion? GetParsedVersion()
+        {
+            return this.ParsedVersionImpl.Value;
+        }
+
+
+        /*********
+        ** Private methods
+        *********/
+        /// <summary>Get the semantic version for this mod, if it's valid.</summary>
+        public ISemanticVersion? ParseVersion()
+        {
+            return !string.IsNullOrWhiteSpace(this.Version) && SemanticVersion.TryParse(this.Version, out ISemanticVersion? version)
+                ? version
+                : null;
         }
     }
 }

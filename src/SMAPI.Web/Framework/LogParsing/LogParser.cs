@@ -200,6 +200,8 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
                             log.GameVersion = match.Groups["gameVersion"].Value;
                             log.OperatingSystem = match.Groups["os"].Value;
                             smapiMod.OverrideVersion(log.ApiVersion);
+
+                            log.ApiVersionParsed = smapiMod.GetParsedVersion();
                         }
 
                         // mod path line
