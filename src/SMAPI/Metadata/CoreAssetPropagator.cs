@@ -164,6 +164,7 @@ namespace StardewModdingAPI.Metadata
             var content = this.MainContentManager;
             string key = assetName.BaseName;
             changedWarpRoutes = false;
+            bool changed = false;
 
             /****
             ** Special case: current map tilesheet
@@ -175,7 +176,10 @@ namespace StardewModdingAPI.Metadata
                 foreach (TileSheet tilesheet in Game1.currentLocation.map.TileSheets)
                 {
                     if (this.IsSameBaseName(assetName, tilesheet.ImageSource))
+                    {
                         Game1.mapDisplayDevice.LoadTileSheet(tilesheet);
+                        changed = true;
+                    }
                 }
             }
 
@@ -184,8 +188,6 @@ namespace StardewModdingAPI.Metadata
             ****/
             if (type == typeof(Map))
             {
-                bool anyChanged = false;
-
                 if (!ignoreWorld)
                 {
                     foreach (LocationInfo info in this.GetLocationsWithInfo())
@@ -206,12 +208,12 @@ namespace StardewModdingAPI.Metadata
                             var newWarps = GetWarpSet(location);
 
                             changedWarpRoutes = changedWarpRoutes || oldWarps.Count != newWarps.Count || oldWarps.Any(p => !newWarps.Contains(p));
-                            anyChanged = true;
+                            changed = true;
                         }
                     }
                 }
 
-                return anyChanged;
+                return changed;
             }
 
             /****
@@ -223,7 +225,7 @@ namespace StardewModdingAPI.Metadata
                 ** Animals
                 ****/
                 case "animals/horse":
-                    return !ignoreWorld && this.UpdatePetOrHorseSprites<Horse>(assetName);
+                    return changed | (!ignoreWorld && this.UpdatePetOrHorseSprites<Horse>(assetName));
 
                 /****
                 ** Buildings
@@ -239,7 +241,7 @@ namespace StardewModdingAPI.Metadata
                         Farm farm = Game1.getFarm();
                         farm?.ApplyHousePaint();
 
-                        return removedFromCache || farm != null;
+                        return changed | (removedFromCache || farm != null);
                     }
 
                 /****
@@ -253,7 +255,7 @@ namespace StardewModdingAPI.Metadata
                 case "characters/farmer/farmer_base_bald":
                 case "characters/farmer/farmer_girl_base":
                 case "characters/farmer/farmer_girl_base_bald":
-                    return !ignoreWorld && this.UpdatePlayerSprites(assetName);
+                    return changed | (!ignoreWorld && this.UpdatePlayerSprites(assetName));
 
                 case "characters/farmer/hairstyles": // Game1.LoadContent
                     FarmerRenderer.hairStylesTexture = this.LoadTexture(key);
@@ -305,10 +307,10 @@ namespace StardewModdingAPI.Metadata
                     return true;
 
                 case "data/farmanimals": // FarmAnimal constructor
-                    return !ignoreWorld && this.UpdateFarmAnimalData();
+                    return changed | (!ignoreWorld && this.UpdateFarmAnimalData());
 
                 case "data/hairdata": // Farmer.GetHairStyleMetadataFile
-                    return this.UpdateHairData();
+                    return changed | this.UpdateHairData();
 
                 case "data/movies": // MovieTheater.GetMovieData
                 case "data/moviesreactions": // MovieTheater.GetMovieReactions
@@ -316,7 +318,7 @@ namespace StardewModdingAPI.Metadata
                     return true;
 
                 case "data/npcdispositions": // NPC constructor
-                    return !ignoreWorld && this.UpdateNpcDispositions(content, assetName);
+                    return changed | (!ignoreWorld && this.UpdateNpcDispositions(content, assetName));
 
                 case "data/npcgifttastes": // Game1.LoadContent
                     Game1.NPCGiftTastes = content.Load<Dictionary<string, string>>(key);
@@ -428,7 +430,7 @@ namespace StardewModdingAPI.Metadata
                     return true;
 
                 case "loosesprites/suspensionbridge": // SuspensionBridge constructor
-                    return !ignoreWorld && this.UpdateSuspensionBridges(content, assetName);
+                    return changed | (!ignoreWorld && this.UpdateSuspensionBridges(content, assetName));
 
                 /****
                 ** Content\Maps
@@ -456,16 +458,16 @@ namespace StardewModdingAPI.Metadata
                             return true;
                         }
                     }
-                    return false;
+                    return changed;
 
                 case "minigames/titlebuttons": // TitleMenu
-                    return this.UpdateTitleButtons(content, assetName);
+                    return changed | this.UpdateTitleButtons(content, assetName);
 
                 /****
                 ** Content\Strings
                 ****/
                 case "strings/stringsfromcsfiles":
-                    return this.UpdateStringsFromCsFiles(content);
+                    return changed | this.UpdateStringsFromCsFiles(content);
 
                 /****
                 ** Content\TileSheets
@@ -490,7 +492,7 @@ namespace StardewModdingAPI.Metadata
                     return true;
 
                 case "tilesheets/critters": // Critter constructor
-                    return !ignoreWorld && this.UpdateCritterTextures(assetName);
+                    return changed | (!ignoreWorld && this.UpdateCritterTextures(assetName));
 
                 case "tilesheets/crops": // Game1.LoadContent
                     Game1.cropSpriteSheet = content.Load<Texture2D>(key);
@@ -559,27 +561,27 @@ namespace StardewModdingAPI.Metadata
                     return true;
 
                 case "terrainfeatures/mushroom_tree": // from Tree
-                    return !ignoreWorld && this.UpdateTreeTextures(Tree.mushroomTree);
+                    return changed | (!ignoreWorld && this.UpdateTreeTextures(Tree.mushroomTree));
 
                 case "terrainfeatures/tree_palm": // from Tree
-                    return !ignoreWorld && this.UpdateTreeTextures(Tree.palmTree);
+                    return changed | (!ignoreWorld && this.UpdateTreeTextures(Tree.palmTree));
 
                 case "terrainfeatures/tree1_fall": // from Tree
                 case "terrainfeatures/tree1_spring": // from Tree
                 case "terrainfeatures/tree1_summer": // from Tree
                 case "terrainfeatures/tree1_winter": // from Tree
-                    return !ignoreWorld && this.UpdateTreeTextures(Tree.bushyTree);
+                    return changed | (!ignoreWorld && this.UpdateTreeTextures(Tree.bushyTree));
 
                 case "terrainfeatures/tree2_fall": // from Tree
                 case "terrainfeatures/tree2_spring": // from Tree
                 case "terrainfeatures/tree2_summer": // from Tree
                 case "terrainfeatures/tree2_winter": // from Tree
-                    return !ignoreWorld && this.UpdateTreeTextures(Tree.leafyTree);
+                    return changed | (!ignoreWorld && this.UpdateTreeTextures(Tree.leafyTree));
 
                 case "terrainfeatures/tree3_fall": // from Tree
                 case "terrainfeatures/tree3_spring": // from Tree
                 case "terrainfeatures/tree3_winter": // from Tree
-                    return !ignoreWorld && this.UpdateTreeTextures(Tree.pineTree);
+                    return changed | (!ignoreWorld && this.UpdateTreeTextures(Tree.pineTree));
             }
 
             /****
@@ -588,25 +590,29 @@ namespace StardewModdingAPI.Metadata
             if (!ignoreWorld)
             {
                 // dynamic textures
-                if (assetName.StartsWith("animals/cat"))
-                    return this.UpdatePetOrHorseSprites<Cat>(assetName);
-                if (assetName.StartsWith("animals/dog"))
-                    return this.UpdatePetOrHorseSprites<Dog>(assetName);
                 if (assetName.IsDirectlyUnderPath("Animals"))
-                    return this.UpdateFarmAnimalSprites(assetName);
+                {
+                    if (assetName.StartsWith("animals/cat"))
+                        return changed | this.UpdatePetOrHorseSprites<Cat>(assetName);
+
+                    if (assetName.StartsWith("animals/dog"))
+                        return changed | this.UpdatePetOrHorseSprites<Dog>(assetName);
+
+                    return changed | this.UpdateFarmAnimalSprites(assetName);
+                }
 
                 if (assetName.IsDirectlyUnderPath("Buildings"))
-                    return this.UpdateBuildings(assetName);
+                    return changed | this.UpdateBuildings(assetName);
 
                 if (assetName.StartsWith("LooseSprites/Fence"))
-                    return this.UpdateFenceTextures(assetName);
+                    return changed | this.UpdateFenceTextures(assetName);
 
                 // dynamic data
                 if (assetName.IsDirectlyUnderPath("Characters/Dialogue"))
-                    return this.UpdateNpcDialogue(assetName);
+                    return changed | this.UpdateNpcDialogue(assetName);
 
                 if (assetName.IsDirectlyUnderPath("Characters/schedules"))
-                    return this.UpdateNpcSchedules(assetName);
+                    return changed | this.UpdateNpcSchedules(assetName);
             }
 
             return false;

@@ -16,6 +16,7 @@
 
 * For mod authors:
   * The [FluentHttpClient package](https://github.com/Pathoschild/FluentHttpClient#readme) is now loaded by SMAPI.
+  * Fixed `TRACE` logs not tracking reloaded map tilesheets as a propagated asset.
 
 * For the web UI:
   * Improved the log parser's 'suggested fixes' section:
