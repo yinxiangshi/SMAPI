@@ -22,7 +22,7 @@ namespace StardewModdingAPI.Toolkit.Framework
         /// <param name="buffer">The buffer to fill with the resulting string.</param>
         [DllImport("libc")]
         [SuppressMessage("ReSharper", "IdentifierTypo", Justification = "This is the actual external command name.")]
-        static extern int uname(IntPtr buffer);
+        private static extern int uname(IntPtr buffer);
 
 
         /*********

@@ -278,11 +278,11 @@ namespace StardewModdingAPI.Utilities
 
         /// <summary>Get whether a date represents 0 spring Y1, which is the date during the in-game intro.</summary>
         /// <param name="day">The day of month.</param>
-        /// <param name="season">The season name.</param>
+        /// <param name="season">The normalized season name.</param>
         /// <param name="year">The year.</param>
         private bool IsDayZero(int day, string season, int year)
         {
-            return day == 0 && season?.Trim().ToLower() == "spring" && year == 1;
+            return day == 0 && season == "spring" && year == 1;
         }
 
         /// <summary>Get the day of week for a given date.</summary>

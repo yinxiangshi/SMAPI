@@ -42,7 +42,12 @@ namespace StardewModdingAPI.Toolkit.Serialization.Converters
                     return this.ReadObject(JObject.Load(reader), path);
 
                 case JsonToken.String:
-                    return this.ReadString(JToken.Load(reader).Value<string>(), path);
+                    {
+                        string? value = JToken.Load(reader).Value<string>();
+                        return value is not null
+                            ? this.ReadString(value, path)
+                            : null;
+                    }
 
                 default:
                     throw new SParseException($"Can't parse {typeof(T).Name} from {reader.TokenType} node (path: {reader.Path}).");

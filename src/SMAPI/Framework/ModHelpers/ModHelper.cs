@@ -88,6 +88,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <param name="modDirectory">The full path to the mod's folder.</param>
         /// <param name="currentInputState">Manages the game's input state for the current player instance. That may not be the main player in split-screen mode.</param>
         /// <param name="events">Manages access to events raised by SMAPI.</param>
+        /// <param name="contentHelper">An API for loading content assets.</param>
         /// <param name="gameContentHelper">An API for loading content assets from the game's <c>Content</c> folder or via <see cref="IModEvents.Content"/>.</param>
         /// <param name="modContentHelper">An API for loading content assets from your mod's files.</param>
         /// <param name="contentPackHelper">An API for managing content packs.</param>

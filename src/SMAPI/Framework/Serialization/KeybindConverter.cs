@@ -49,7 +49,10 @@ namespace StardewModdingAPI.Framework.Serialization
 
                 case JsonToken.String:
                     {
-                        string str = JToken.Load(reader).Value<string>();
+                        string? str = JToken.Load(reader).Value<string>();
+
+                        if (str is null)
+                            return new Keybind(Array.Empty<SButton>());
 
                         if (objectType == typeof(Keybind))
                         {
