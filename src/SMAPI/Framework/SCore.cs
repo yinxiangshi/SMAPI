@@ -1565,7 +1565,7 @@ namespace StardewModdingAPI.Framework
                             this.Monitor.Newline();
                             this.Monitor.Log($"You can update {updates.Count} mod{(updates.Count != 1 ? "s" : "")}:", LogLevel.Alert);
                             foreach ((IModMetadata mod, ISemanticVersion newVersion, string newUrl) in updates)
-                                this.Monitor.Log($"   {mod.DisplayName} {newVersion}: {newUrl} (You have {mod.Manifest.Version}", LogLevel.Alert);
+                                this.Monitor.Log($"   {mod.DisplayName} {newVersion}: {newUrl} (you have {mod.Manifest.Version})", LogLevel.Alert);
                         }
                         else
                             this.Monitor.Log("   All mods up to date.");
