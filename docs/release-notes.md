@@ -18,7 +18,9 @@
   * The [FluentHttpClient package](https://github.com/Pathoschild/FluentHttpClient#readme) is now loaded by SMAPI.
 
 * For the web UI:
-  * The log parser now detects a missing or outdated Error Handler mod for its 'suggested fixes' section.
+  * Improved the log parser's 'suggested fixes' section:
+    * added warning if Error Handler is missing or outdated;
+    * improved visual styles.
   * Updated the JSON validator/schema for Content Patcher 1.27.0.
   * Fixed the mod count in the log parser metadata.
 

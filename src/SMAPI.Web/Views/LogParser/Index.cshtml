@@ -39,7 +39,7 @@
         <meta name="robots" content="noindex" />
     }
     <link rel="stylesheet" href="~/Content/css/file-upload.css" />
-    <link rel="stylesheet" href="~/Content/css/log-parser.css?r=20220409" />
+    <link rel="stylesheet" href="~/Content/css/log-parser.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tabbyjs@12.0.3/dist/css/tabby-ui-vertical.min.css" />
 
     <script src="https://cdn.jsdelivr.net/npm/tabbyjs@12.0.3" crossorigin="anonymous"></script>
@@ -248,7 +248,7 @@ else if (log?.IsValid == true)
             <ul id="fix-list">
                 @if (errorHandler is null)
                 {
-                    <li>You don't have the <strong>Error Handler</strong> mod installed. This automatically prevents many game or mod errors. You can <a href="https://stardewvalleywiki.com/Modding:Player_Guide#Install_SMAPI">reinstall SMAPI</a> to re-add it.</li>
+                    <li class="important">You don't have the <strong>Error Handler</strong> mod installed. This automatically prevents many game or mod errors. You can <a href="https://stardewvalleywiki.com/Modding:Player_Guide#Install_SMAPI">reinstall SMAPI</a> to re-add it.</li>
                 }
                 @if (hasOlderErrorHandler)
                 {
