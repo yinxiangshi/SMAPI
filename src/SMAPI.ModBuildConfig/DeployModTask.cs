@@ -227,8 +227,7 @@ namespace StardewModdingAPI.ModBuildConfig
                 string fromPath = entry.Value.FullName;
                 string toPath = Path.Combine(modFolderPath, entry.Key);
 
-                // ReSharper disable once AssignNullToNotNullAttribute -- not applicable in this context
-                Directory.CreateDirectory(Path.GetDirectoryName(toPath));
+                Directory.CreateDirectory(Path.GetDirectoryName(toPath)!);
 
                 File.Copy(fromPath, toPath, overwrite: true);
             }

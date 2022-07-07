@@ -1,3 +1,4 @@
+#if SMAPI_DEPRECATED
 using Mono.Cecil;
 using StardewModdingAPI.Framework.ModLoading.Framework;
 
@@ -47,3 +48,4 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
         }
     }
 }
+#endif

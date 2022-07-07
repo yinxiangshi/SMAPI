@@ -15,21 +15,27 @@ namespace StardewModdingAPI.Toolkit.Serialization
         ** Accessors
         *********/
         /// <summary>The JSON settings to use when serializing and deserializing files.</summary>
-        public JsonSerializerSettings JsonSettings { get; } = new()
-        {
-            Formatting = Formatting.Indented,
-            ObjectCreationHandling = ObjectCreationHandling.Replace, // avoid issue where default ICollection<T> values are duplicated each time the config is loaded
-            Converters = new List<JsonConverter>
-            {
-                new SemanticVersionConverter(),
-                new StringEnumConverter()
-            }
-        };
+        public JsonSerializerSettings JsonSettings { get; } = JsonHelper.CreateDefaultSettings();
 
 
         /*********
         ** Public methods
         *********/
+        /// <summary>Create an instance of the default JSON serializer settings.</summary>
+        public static JsonSerializerSettings CreateDefaultSettings()
+        {
+            return new()
+            {
+                Formatting = Formatting.Indented,
+                ObjectCreationHandling = ObjectCreationHandling.Replace, // avoid issue where default ICollection<T> values are duplicated each time the config is loaded
+                Converters = new List<JsonConverter>
+                {
+                    new SemanticVersionConverter(),
+                    new StringEnumConverter()
+                }
+            };
+        }
+
         /// <summary>Read a JSON file.</summary>
         /// <typeparam name="TModel">The model type.</typeparam>
         /// <param name="fullPath">The absolute file path.</param>

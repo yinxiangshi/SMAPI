@@ -400,7 +400,7 @@ namespace StardewModdingAPI.Framework.Logging
         /// <param name="mods">The loaded mods.</param>
         /// <param name="skippedMods">The mods which could not be loaded.</param>
         /// <param name="logParanoidWarnings">Whether to log issues for mods which directly use potentially sensitive .NET APIs like file or shell access.</param>
-        [SuppressMessage("ReSharper", "ConstantConditionalAccessQualifier", Justification = "Manifests aren't guaranteed non-null at this point in the loading process.")]
+        [SuppressMessage("ReSharper", "ConditionalAccessQualifierIsNonNullableAccordingToAPIContract", Justification = "Manifests aren't guaranteed non-null at this point in the loading process.")]
         private void LogModWarnings(IEnumerable<IModMetadata> mods, IModMetadata[] skippedMods, bool logParanoidWarnings)
         {
             // get mods with warnings

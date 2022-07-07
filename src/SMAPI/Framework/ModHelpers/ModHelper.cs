@@ -1,7 +1,9 @@
 using System;
 using System.IO;
 using StardewModdingAPI.Events;
+#if SMAPI_DEPRECATED
 using StardewModdingAPI.Framework.Deprecations;
+#endif
 using StardewModdingAPI.Framework.Input;
 
 namespace StardewModdingAPI.Framework.ModHelpers
@@ -9,12 +11,14 @@ namespace StardewModdingAPI.Framework.ModHelpers
     /// <summary>Provides simplified APIs for writing mods.</summary>
     internal class ModHelper : BaseHelper, IModHelper, IDisposable
     {
+#if SMAPI_DEPRECATED
         /*********
         ** Fields
         *********/
         /// <summary>The backing field for <see cref="Content"/>.</summary>
         [Obsolete("This only exists to support legacy code and will be removed in SMAPI 4.0.0.")]
         private readonly ContentHelper ContentImpl;
+#endif
 
 
         /*********
@@ -26,6 +30,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <inheritdoc />
         public IModEvents Events { get; }
 
+#if SMAPI_DEPRECATED
         /// <inheritdoc />
         [Obsolete($"Use {nameof(IGameContentHelper)} or {nameof(IModContentHelper)} instead.")]
         public IContentHelper Content
@@ -42,6 +47,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
                 return this.ContentImpl;
             }
         }
+#endif
 
         /// <inheritdoc />
         public IGameContentHelper GameContent { get; }
@@ -96,9 +102,9 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <exception cref="InvalidOperationException">The <paramref name="modDirectory"/> path does not exist on disk.</exception>
         public ModHelper(
             IModMetadata mod, string modDirectory, Func<SInputState> currentInputState, IModEvents events,
-#pragma warning disable CS0612 // deprecated code
+#if SMAPI_DEPRECATED
             ContentHelper contentHelper,
-#pragma warning restore CS0612
+#endif
             IGameContentHelper gameContentHelper, IModContentHelper modContentHelper, IContentPackHelper contentPackHelper, ICommandHelper commandHelper, IDataHelper dataHelper, IModRegistry modRegistry, IReflectionHelper reflectionHelper, IMultiplayerHelper multiplayer, ITranslationHelper translationHelper
         )
             : base(mod)
@@ -111,9 +117,9 @@ namespace StardewModdingAPI.Framework.ModHelpers
 
             // initialize
             this.DirectoryPath = modDirectory;
-#pragma warning disable CS0612 // deprecated code
+#if SMAPI_DEPRECATED
             this.ContentImpl = contentHelper ?? throw new ArgumentNullException(nameof(contentHelper));
-#pragma warning restore CS0612
+#endif
             this.GameContent = gameContentHelper ?? throw new ArgumentNullException(nameof(gameContentHelper));
             this.ModContent = modContentHelper ?? throw new ArgumentNullException(nameof(modContentHelper));
             this.ContentPacks = contentPackHelper ?? throw new ArgumentNullException(nameof(contentPackHelper));
@@ -127,12 +133,14 @@ namespace StardewModdingAPI.Framework.ModHelpers
             this.Events = events;
         }
 
+#if SMAPI_DEPRECATED
         /// <summary>Get the underlying instance for <see cref="IContentHelper"/>.</summary>
         [Obsolete("This only exists to support legacy code and will be removed in SMAPI 4.0.0.")]
         public ContentHelper GetLegacyContentHelper()
         {
             return this.ContentImpl;
         }
+#endif
 
         /****
         ** Mod config file

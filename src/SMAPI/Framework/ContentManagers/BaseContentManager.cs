@@ -111,7 +111,6 @@ namespace StardewModdingAPI.Framework.ContentManagers
         }
 
         /// <inheritdoc />
-        [SuppressMessage("ReSharper", "ConditionIsAlwaysTrueOrFalse", Justification = "Copied as-is from game code")]
         public sealed override string LoadBaseString(string path)
         {
             try
@@ -119,7 +118,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
                 // copied as-is from LocalizedContentManager.LoadBaseString
                 // This is only changed to call this.Load instead of base.Load, to support mod assets
                 this.ParseStringPath(path, out string assetName, out string key);
-                Dictionary<string, string> strings = this.Load<Dictionary<string, string>>(assetName, LanguageCode.en);
+                Dictionary<string, string>? strings = this.Load<Dictionary<string, string>?>(assetName, LanguageCode.en);
                 return strings != null && strings.ContainsKey(key)
                     ? this.GetString(strings, key)
                     : path;

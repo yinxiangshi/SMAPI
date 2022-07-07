@@ -1,8 +1,8 @@
+#if SMAPI_DEPRECATED
 using System;
 using System.Reflection;
 using StardewModdingAPI.Internal;
 
-#pragma warning disable CS0618 // obsolete asset interceptors deliberately supported here
 namespace StardewModdingAPI.Framework.Content
 {
     /// <summary>A wrapper for <see cref="IAssetEditor"/> and <see cref="IAssetLoader"/> for internal cache invalidation.</summary>
@@ -103,3 +103,4 @@ namespace StardewModdingAPI.Framework.Content
         }
     }
 }
+#endif

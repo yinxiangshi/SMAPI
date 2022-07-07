@@ -6,7 +6,9 @@ using System.Reflection;
 using Mono.Cecil;
 using StardewModdingAPI.Enums;
 using StardewModdingAPI.Framework;
+#if SMAPI_DEPRECATED
 using StardewModdingAPI.Framework.Deprecations;
+#endif
 using StardewModdingAPI.Framework.ModLoading;
 using StardewModdingAPI.Toolkit.Framework;
 using StardewModdingAPI.Toolkit.Utilities;
@@ -50,7 +52,7 @@ namespace StardewModdingAPI
         internal static int? LogScreenId { get; set; }
 
         /// <summary>SMAPI's current raw semantic version.</summary>
-        internal static string RawApiVersion = "3.15.0";
+        internal static string RawApiVersion = "3.15.1";
     }
 
     /// <summary>Contains SMAPI's constants and assumptions.</summary>
@@ -77,6 +79,7 @@ namespace StardewModdingAPI
         /// <summary>The game framework running the game.</summary>
         public static GameFramework GameFramework { get; } = EarlyConstants.GameFramework;
 
+#if SMAPI_DEPRECATED
         /// <summary>The path to the game folder.</summary>
         [Obsolete($"Use {nameof(Constants)}.{nameof(GamePath)} instead. This property will be removed in SMAPI 4.0.0.")]
         public static string ExecutionPath
@@ -93,6 +96,7 @@ namespace StardewModdingAPI
                 return Constants.GamePath;
             }
         }
+#endif
 
         /// <summary>The path to the game folder.</summary>
         public static string GamePath { get; } = EarlyConstants.GamePath;

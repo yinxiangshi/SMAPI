@@ -199,7 +199,7 @@ namespace StardewModdingAPI.Web
         /// <param name="settings">The serializer settings to edit.</param>
         private void ConfigureJsonNet(JsonSerializerSettings settings)
         {
-            foreach (JsonConverter converter in new JsonHelper().JsonSettings.Converters)
+            foreach (JsonConverter converter in JsonHelper.CreateDefaultSettings().Converters)
                 settings.Converters.Add(converter);
 
             settings.Formatting = Formatting.Indented;

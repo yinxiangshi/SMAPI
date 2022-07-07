@@ -25,7 +25,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.5" />
     <PackageReference Include="Newtonsoft.Json.Schema" Version="3.0.14" />
     <PackageReference Include="Pathoschild.FluentNexus" Version="1.0.5" />
-    <PackageReference Include="Pathoschild.Http.FluentClient" Version="4.1.0" />
+    <PackageReference Include="Pathoschild.Http.FluentClient" Version="4.1.1" />
   </ItemGroup>
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="1.0.1" />

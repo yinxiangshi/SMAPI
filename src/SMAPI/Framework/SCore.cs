@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -11,6 +10,7 @@ using System.Runtime.ExceptionServices;
 using System.Security;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 #if SMAPI_FOR_WINDOWS
 using Microsoft.Win32;
@@ -32,7 +32,9 @@ using StardewModdingAPI.Framework.Networking;
 using StardewModdingAPI.Framework.Reflection;
 using StardewModdingAPI.Framework.Rendering;
 using StardewModdingAPI.Framework.Serialization;
+#if SMAPI_DEPRECATED
 using StardewModdingAPI.Framework.StateTracking.Comparers;
+#endif
 using StardewModdingAPI.Framework.StateTracking.Snapshots;
 using StardewModdingAPI.Framework.Utilities;
 using StardewModdingAPI.Internal;
@@ -65,8 +67,8 @@ namespace StardewModdingAPI.Framework
         /****
         ** Low-level components
         ****/
-        /// <summary>Tracks whether the game should exit immediately and any pending initialization should be cancelled.</summary>
-        private readonly CancellationTokenSource CancellationToken = new();
+        /// <summary>Whether the game should exit immediately and any pending initialization should be cancelled.</summary>
+        private bool IsExiting;
 
         /// <summary>Manages the SMAPI console window and log file.</summary>
         private readonly LogManager LogManager;
@@ -139,12 +141,13 @@ namespace StardewModdingAPI.Framework
         /// <summary>The maximum number of consecutive attempts SMAPI should make to recover from an update error.</summary>
         private readonly Countdown UpdateCrashTimer = new(60); // 60 ticks = roughly one second
 
+#if SMAPI_DEPRECATED
         /// <summary>Asset interceptors added or removed since the last tick.</summary>
         private readonly List<AssetInterceptorChange> ReloadAssetInterceptorsQueue = new();
+#endif
 
         /// <summary>A list of queued commands to parse and execute.</summary>
-        /// <remarks>This property must be thread-safe, since it's accessed from a separate console input thread.</remarks>
-        private readonly ConcurrentQueue<string> RawCommandQueue = new();
+        private readonly CommandQueue RawCommandQueue = new();
 
         /// <summary>A list of commands to execute on each screen.</summary>
         private readonly PerScreen<List<QueuedCommand>> ScreenCommandQueue = new(() => new List<QueuedCommand>());
@@ -188,7 +191,7 @@ namespace StardewModdingAPI.Framework
             string logPath = this.GetLogPath();
 
             // init basics
-            this.Settings = JsonConvert.DeserializeObject<SConfig>(File.ReadAllText(Constants.ApiConfigPath));
+            this.Settings = JsonConvert.DeserializeObject<SConfig>(File.ReadAllText(Constants.ApiConfigPath)) ?? throw new InvalidOperationException("The 'smapi-internal/config.json' file is missing or invalid. You can reinstall SMAPI to fix this.");
             if (File.Exists(Constants.ApiUserConfigPath))
                 JsonConvert.PopulateObject(File.ReadAllText(Constants.ApiUserConfigPath), this.Settings);
             if (developerMode.HasValue)
@@ -270,16 +273,6 @@ namespace StardewModdingAPI.Framework
                     new TitleMenuPatcher(this.OnLoadStageChanged)
                 );
 
-                // add exit handler
-                this.CancellationToken.Token.Register(() =>
-                {
-                    if (this.IsGameRunning)
-                    {
-                        this.LogManager.WriteCrashLog();
-                        this.Game.Exit();
-                    }
-                });
-
                 // set window titles
                 this.UpdateWindowTitles();
             }
@@ -332,7 +325,7 @@ namespace StardewModdingAPI.Framework
         }
 
         /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
-        [SuppressMessage("ReSharper", "ConstantConditionalAccessQualifier", Justification = "May be disposed before SMAPI is fully initialized.")]
+        [SuppressMessage("ReSharper", "ConditionalAccessQualifierIsNonNullableAccordingToAPIContract", Justification = "May be disposed before SMAPI is fully initialized.")]
         public void Dispose()
         {
             // skip if already disposed
@@ -356,8 +349,8 @@ namespace StardewModdingAPI.Framework
 
             // dispose core components
             this.IsGameRunning = false;
+            this.IsExiting = true;
             this.ContentCore?.Dispose();
-            this.CancellationToken.Dispose();
             this.Game?.Dispose();
             this.LogManager.Dispose(); // dispose last to allow for any last-second log messages
 
@@ -372,7 +365,7 @@ namespace StardewModdingAPI.Framework
         /// <summary>Initialize mods before the first game asset is loaded. At this point the core content managers are loaded (so mods can load their own assets), but the game is mostly uninitialized.</summary>
         private void InitializeBeforeFirstAssetLoaded()
         {
-            if (this.CancellationToken.IsCancellationRequested)
+            if (this.IsExiting)
             {
                 this.Monitor.Log("SMAPI shutting down: aborting initialization.", LogLevel.Warn);
                 return;
@@ -414,7 +407,7 @@ namespace StardewModdingAPI.Framework
                 this.CheckForSoftwareConflicts();
 
                 // check for updates
-                this.CheckForUpdatesAsync(mods);
+                _ = this.CheckForUpdatesAsync(mods); // ignore task since the main thread doesn't need to wait for it
             }
 
             // update window titles
@@ -433,8 +426,8 @@ namespace StardewModdingAPI.Framework
                 () => this.LogManager.RunConsoleInputLoop(
                     commandManager: this.CommandManager,
                     reloadTranslations: this.ReloadTranslations,
-                    handleInput: input => this.RawCommandQueue.Enqueue(input),
-                    continueWhile: () => this.IsGameRunning && !this.CancellationToken.IsCancellationRequested
+                    handleInput: input => this.RawCommandQueue.Add(input),
+                    continueWhile: () => this.IsGameRunning && !this.IsExiting
                 )
             ).Start();
         }
@@ -477,12 +470,13 @@ namespace StardewModdingAPI.Framework
                 ** Special cases
                 *********/
                 // Abort if SMAPI is exiting.
-                if (this.CancellationToken.IsCancellationRequested)
+                if (this.IsExiting)
                 {
                     this.Monitor.Log("SMAPI shutting down: aborting update.");
                     return;
                 }
 
+#if SMAPI_DEPRECATED
                 /*********
                 ** Reload assets when interceptors are added/removed
                 *********/
@@ -515,33 +509,37 @@ namespace StardewModdingAPI.Framework
                     // reload affected assets
                     this.ContentCore.InvalidateCache(asset => interceptors.Any(p => p.CanIntercept(asset)));
                 }
+#endif
 
                 /*********
                 ** Parse commands
                 *********/
-                while (this.RawCommandQueue.TryDequeue(out string? rawInput))
+                if (this.RawCommandQueue.TryDequeue(out string[]? rawCommands))
                 {
-                    // parse command
-                    string? name;
-                    string[]? args;
-                    Command? command;
-                    int screenId;
-                    try
+                    foreach (string rawInput in rawCommands)
                     {
-                        if (!this.CommandManager.TryParse(rawInput, out name, out args, out command, out screenId))
+                        // parse command
+                        string? name;
+                        string[]? args;
+                        Command? command;
+                        int screenId;
+                        try
                         {
-                            this.Monitor.Log("Unknown command; type 'help' for a list of available commands.", LogLevel.Error);
+                            if (!this.CommandManager.TryParse(rawInput, out name, out args, out command, out screenId))
+                            {
+                                this.Monitor.Log("Unknown command; type 'help' for a list of available commands.", LogLevel.Error);
+                                continue;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            this.Monitor.Log($"Failed parsing that command:\n{ex.GetLogSummary()}", LogLevel.Error);
                             continue;
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        this.Monitor.Log($"Failed parsing that command:\n{ex.GetLogSummary()}", LogLevel.Error);
-                        continue;
-                    }
 
-                    // queue command for screen
-                    this.ScreenCommandQueue.GetValueForScreen(screenId).Add(new(command, name, args));
+                        // queue command for screen
+                        this.ScreenCommandQueue.GetValueForScreen(screenId).Add(new(command, name, args));
+                    }
                 }
 
 
@@ -1287,7 +1285,7 @@ namespace StardewModdingAPI.Framework
         private LocalizedContentManager CreateContentManager(IServiceProvider serviceProvider, string rootDirectory)
         {
             // Game1._temporaryContent initializing from SGame constructor
-            // ReSharper disable once ConditionIsAlwaysTrueOrFalse -- this is the method that initializes it
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract -- this is the method that initializes it
             if (this.ContentCore == null)
             {
                 this.ContentCore = new ContentCoordinator(
@@ -1453,16 +1451,15 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>Asynchronously check for a new version of SMAPI and any installed mods, and print alerts to the console if an update is available.</summary>
         /// <param name="mods">The mods to include in the update check (if eligible).</param>
-        private void CheckForUpdatesAsync(IModMetadata[] mods)
+        private async Task CheckForUpdatesAsync(IModMetadata[] mods)
         {
-            if (!this.Settings.CheckForUpdates)
-                return;
-
-            new Thread(() =>
+            try
             {
+                if (!this.Settings.CheckForUpdates)
+                    return;
+
                 // create client
-                string url = this.Settings.WebApiBaseUrl;
-                WebApiClient client = new(url, Constants.ApiVersion);
+                using WebApiClient client = new(this.Settings.WebApiBaseUrl, Constants.ApiVersion);
                 this.Monitor.Log("Checking for updates...");
 
                 // check SMAPI version
@@ -1472,9 +1469,15 @@ namespace StardewModdingAPI.Framework
                     try
                     {
                         // fetch update check
-                        ModEntryModel response = client.GetModInfo(new[] { new ModSearchEntryModel("Pathoschild.SMAPI", Constants.ApiVersion, new[] { $"GitHub:{this.Settings.GitHubProjectName}" }) }, apiVersion: Constants.ApiVersion, gameVersion: Constants.GameVersion, platform: Constants.Platform).Single().Value;
-                        updateFound = response.SuggestedUpdate?.Version;
-                        updateUrl = response.SuggestedUpdate?.Url;
+                        IDictionary<string, ModEntryModel> response = await client.GetModInfoAsync(
+                            mods: new[] { new ModSearchEntryModel("Pathoschild.SMAPI", Constants.ApiVersion, new[] { $"GitHub:{this.Settings.GitHubProjectName}" }) },
+                            apiVersion: Constants.ApiVersion,
+                            gameVersion: Constants.GameVersion,
+                            platform: Constants.Platform
+                        );
+                        ModEntryModel updateInfo = response.Single().Value;
+                        updateFound = updateInfo.SuggestedUpdate?.Version;
+                        updateUrl = updateInfo.SuggestedUpdate?.Url;
 
                         // log message
                         if (updateFound != null)
@@ -1483,10 +1486,10 @@ namespace StardewModdingAPI.Framework
                             this.Monitor.Log("   SMAPI okay.");
 
                         // show errors
-                        if (response.Errors.Any())
+                        if (updateInfo.Errors.Any())
                         {
                             this.Monitor.Log("Couldn't check for a new version of SMAPI. This won't affect your game, but you may not be notified of new versions if this keeps happening.", LogLevel.Warn);
-                            this.Monitor.Log($"Error: {string.Join("\n", response.Errors)}");
+                            this.Monitor.Log($"Error: {string.Join("\n", updateInfo.Errors)}");
                         }
                     }
                     catch (Exception ex)
@@ -1526,7 +1529,7 @@ namespace StardewModdingAPI.Framework
 
                         // fetch results
                         this.Monitor.Log($"   Checking for updates to {searchMods.Count} mods...");
-                        IDictionary<string, ModEntryModel> results = client.GetModInfo(searchMods.ToArray(), apiVersion: Constants.ApiVersion, gameVersion: Constants.GameVersion, platform: Constants.Platform);
+                        IDictionary<string, ModEntryModel> results = await client.GetModInfoAsync(searchMods.ToArray(), apiVersion: Constants.ApiVersion, gameVersion: Constants.GameVersion, platform: Constants.Platform);
 
                         // extract update alerts & errors
                         var updates = new List<Tuple<IModMetadata, ISemanticVersion, string>>();
@@ -1562,7 +1565,7 @@ namespace StardewModdingAPI.Framework
                             this.Monitor.Newline();
                             this.Monitor.Log($"You can update {updates.Count} mod{(updates.Count != 1 ? "s" : "")}:", LogLevel.Alert);
                             foreach ((IModMetadata mod, ISemanticVersion newVersion, string newUrl) in updates)
-                                this.Monitor.Log($"   {mod.DisplayName} {newVersion}: {newUrl}", LogLevel.Alert);
+                                this.Monitor.Log($"   {mod.DisplayName} {newVersion}: {newUrl} (you have {mod.Manifest.Version})", LogLevel.Alert);
                         }
                         else
                             this.Monitor.Log("   All mods up to date.");
@@ -1576,7 +1579,15 @@ namespace StardewModdingAPI.Framework
                         );
                     }
                 }
-            }).Start();
+            }
+            catch (Exception ex)
+            {
+                this.Monitor.Log("Couldn't check for updates. This won't affect your game, but you won't be notified of SMAPI or mod updates if this keeps happening.", LogLevel.Warn);
+                this.Monitor.Log(ex is WebException && ex.InnerException == null
+                    ? ex.Message
+                    : ex.ToString()
+                );
+            }
         }
 
         /// <summary>Create a directory path if it doesn't exist.</summary>
@@ -1646,9 +1657,9 @@ namespace StardewModdingAPI.Framework
 
             // initialize loaded non-content-pack mods
             this.Monitor.Log("Launching mods...", LogLevel.Debug);
-#pragma warning disable CS0612, CS0618 // deprecated code
             foreach (IModMetadata metadata in loadedMods)
             {
+#if SMAPI_DEPRECATED
                 // add interceptors
                 if (metadata.Mod?.Helper is ModHelper helper)
                 {
@@ -1684,7 +1695,6 @@ namespace StardewModdingAPI.Framework
                     content.ObservableAssetEditors.CollectionChanged += (_, e) => this.OnAssetInterceptorsChanged(metadata, e.NewItems?.Cast<IAssetEditor>(), e.OldItems?.Cast<IAssetEditor>(), this.ContentCore.Editors);
                     content.ObservableAssetLoaders.CollectionChanged += (_, e) => this.OnAssetInterceptorsChanged(metadata, e.NewItems?.Cast<IAssetLoader>(), e.OldItems?.Cast<IAssetLoader>(), this.ContentCore.Loaders);
                 }
-#pragma warning restore CS0612, CS0618
 
                 // log deprecation warnings
                 if (metadata.HasWarnings(ModWarning.DetectedLegacyCachingDll, ModWarning.DetectedLegacyConfigurationDll, ModWarning.DetectedLegacyPermissionsDll))
@@ -1710,6 +1720,7 @@ namespace StardewModdingAPI.Framework
                         );
                     }
                 }
+#endif
 
                 // call entry method
                 Context.HeuristicModsRunningCode.Push(metadata);
@@ -1750,6 +1761,7 @@ namespace StardewModdingAPI.Framework
             this.Monitor.Log("Mods loaded and ready!", LogLevel.Debug);
         }
 
+#if SMAPI_DEPRECATED
         /// <summary>Raised after a mod adds or removes asset interceptors.</summary>
         /// <typeparam name="T">The asset interceptor type (one of <see cref="IAssetEditor"/> or <see cref="IAssetLoader"/>).</typeparam>
         /// <param name="mod">The mod metadata.</param>
@@ -1772,6 +1784,7 @@ namespace StardewModdingAPI.Framework
                     list.Remove(entry);
             }
         }
+#endif
 
         /// <summary>Load a given mod.</summary>
         /// <param name="mod">The mod to load.</param>
@@ -1795,7 +1808,7 @@ namespace StardewModdingAPI.Framework
                 string relativePath = mod.GetRelativePathWithRoot();
                 if (mod.IsContentPack)
                     this.Monitor.Log($"   {mod.DisplayName} (from {relativePath}) [content pack]...");
-                // ReSharper disable once ConstantConditionalAccessQualifier -- mod may be invalid at this point
+                // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract -- mod may be invalid at this point
                 else if (mod.Manifest?.EntryDll != null)
                     this.Monitor.Log($"   {mod.DisplayName} (from {relativePath}{Path.DirectorySeparatorChar}{mod.Manifest.EntryDll})..."); // don't use Path.Combine here, since EntryDLL might not be valid
                 else
@@ -1915,9 +1928,9 @@ namespace StardewModdingAPI.Framework
                     {
                         IModEvents events = new ModEvents(mod, this.EventManager);
                         ICommandHelper commandHelper = new CommandHelper(mod, this.CommandManager);
-#pragma warning disable CS0612 // deprecated code
+#if SMAPI_DEPRECATED
                         ContentHelper contentHelper = new(contentCore, mod.DirectoryPath, mod, monitor, this.Reflection);
-#pragma warning restore CS0612
+#endif
                         GameContentHelper gameContentHelper = new(contentCore, mod, mod.DisplayName, monitor, this.Reflection);
                         IModContentHelper modContentHelper = new ModContentHelper(contentCore, mod.DirectoryPath, mod, mod.DisplayName, gameContentHelper.GetUnderlyingContentManager(), this.Reflection);
                         IContentPackHelper contentPackHelper = new ContentPackHelper(
@@ -1930,7 +1943,11 @@ namespace StardewModdingAPI.Framework
                         IModRegistry modRegistryHelper = new ModRegistryHelper(mod, this.ModRegistry, proxyFactory, monitor);
                         IMultiplayerHelper multiplayerHelper = new MultiplayerHelper(mod, this.Multiplayer);
 
-                        modHelper = new ModHelper(mod, mod.DirectoryPath, () => this.GetCurrentGameInstance().Input, events, contentHelper, gameContentHelper, modContentHelper, contentPackHelper, commandHelper, dataHelper, modRegistryHelper, reflectionHelper, multiplayerHelper, translationHelper);
+                        modHelper = new ModHelper(mod, mod.DirectoryPath, () => this.GetCurrentGameInstance().Input, events,
+#if SMAPI_DEPRECATED
+                            contentHelper,
+#endif
+                            gameContentHelper, modContentHelper, contentPackHelper, commandHelper, dataHelper, modRegistryHelper, reflectionHelper, multiplayerHelper, translationHelper);
                     }
 
                     // init mod
@@ -2220,7 +2237,10 @@ namespace StardewModdingAPI.Framework
         private void ExitGameImmediately(string message)
         {
             this.Monitor.LogFatal(message);
-            this.CancellationToken.Cancel();
+            this.LogManager.WriteCrashLog();
+
+            this.IsExiting = true;
+            this.Game.Exit();
         }
 
         /// <summary>Get the screen ID that should be logged to distinguish between players in split-screen mode, if any.</summary>

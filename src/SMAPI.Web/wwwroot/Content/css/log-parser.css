@@ -54,6 +54,36 @@ table caption {
 }
 
 /*********
+** Suggested fixes
+*********/
+#fix-list {
+    padding-left: 1em;
+    margin-bottom: 2em;
+}
+
+#fix-list li {
+    padding: 0.5em;
+    background: #FFC;
+    border: 1px solid #880;
+    border-radius: 5px;
+    list-style-type: none;
+}
+
+#fix-list li:not(:last-child) {
+     margin-bottom: 0.5em;
+}
+
+#fix-list li.important {
+    background: #FCC;
+    border-color: #800;
+}
+
+#fix-list li::before {
+    content: "⚠ ";
+}
+
+
+/*********
 ** Log metadata & filters
 *********/
 .table, #filters {
@@ -82,10 +112,6 @@ table caption {
 
 .table > caption {
     min-height: 1.3em;
-}
-
-#fix-list {
-    margin-bottom: 2em;
 }
 
 #updates {

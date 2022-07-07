@@ -21,7 +21,8 @@ namespace StardewModdingAPI.Toolkit.Framework
         /// <summary>Get the OS name from the system uname command.</summary>
         /// <param name="buffer">The buffer to fill with the resulting string.</param>
         [DllImport("libc")]
-        static extern int uname(IntPtr buffer);
+        [SuppressMessage("ReSharper", "IdentifierTypo", Justification = "This is the actual external command name.")]
+        private static extern int uname(IntPtr buffer);
 
 
         /*********
@@ -51,7 +52,6 @@ namespace StardewModdingAPI.Toolkit.Framework
 
         /// <summary>Get the human-readable OS name and version.</summary>
         /// <param name="platform">The current platform.</param>
-        [SuppressMessage("ReSharper", "EmptyGeneralCatchClause", Justification = "Error suppressed deliberately to fallback to default behaviour.")]
         public static string GetFriendlyPlatformName(string platform)
         {
 #if SMAPI_FOR_WINDOWS
@@ -65,7 +65,10 @@ namespace StardewModdingAPI.Toolkit.Framework
 
                 return result ?? "Windows";
             }
-            catch { }
+            catch
+            {
+                // fallback to default behavior
+            }
 #endif
 
             string name = Environment.OSVersion.ToString();

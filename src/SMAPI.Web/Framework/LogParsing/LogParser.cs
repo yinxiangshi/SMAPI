@@ -77,8 +77,8 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
                 };
 
                 // parse log messages
-                LogModInfo smapiMod = new(name: "SMAPI", author: "Pathoschild", version: "", description: "", loaded: true);
-                LogModInfo gameMod = new(name: "game", author: "", version: "", description: "", loaded: true);
+                LogModInfo smapiMod = new(name: "SMAPI", author: "Pathoschild", version: "", description: "", loaded: true, isMod: false);
+                LogModInfo gameMod = new(name: "game", author: "", version: "", description: "", loaded: true, isMod: false);
                 IDictionary<string, List<LogModInfo>> mods = new Dictionary<string, List<LogModInfo>>();
                 bool inModList = false;
                 bool inContentPackList = false;
@@ -200,6 +200,8 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
                             log.GameVersion = match.Groups["gameVersion"].Value;
                             log.OperatingSystem = match.Groups["os"].Value;
                             smapiMod.OverrideVersion(log.ApiVersion);
+
+                            log.ApiVersionParsed = smapiMod.GetParsedVersion();
                         }
 
                         // mod path line

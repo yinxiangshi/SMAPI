@@ -14,7 +14,7 @@ namespace StardewModdingAPI.Framework.Rendering
 {
     /// <summary>A map display device which reimplements the default logic.</summary>
     /// <remarks>This is an exact copy of <see cref="XnaDisplayDevice"/>, except that private fields are protected and all methods are virtual.</remarks>
-    [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Field naming deliberately matches " + nameof(XnaDisplayDevice) + " to minimize differences.")]
+    [SuppressMessage("ReSharper", "InconsistentNaming", Justification = $"Field naming deliberately matches {nameof(XnaDisplayDevice)} to minimize differences.")]
     internal class SXnaDisplayDevice : IDisplayDevice
     {
         /*********

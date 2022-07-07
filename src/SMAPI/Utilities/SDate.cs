@@ -250,7 +250,7 @@ namespace StardewModdingAPI.Utilities
         /// <param name="year">The year.</param>
         /// <param name="allowDayZero">Whether to allow 0 spring Y1 as a valid date.</param>
         /// <exception cref="ArgumentException">One of the arguments has an invalid value (like day 35).</exception>
-        [SuppressMessage("ReSharper", "ConstantConditionalAccessQualifier", Justification = "The nullability is validated in this constructor.")]
+        [SuppressMessage("ReSharper", "ConditionalAccessQualifierIsNonNullableAccordingToAPIContract", Justification = "The nullability is validated in this constructor.")]
         private SDate(int day, string season, int year, bool allowDayZero)
         {
             season = season?.Trim().ToLowerInvariant()!; // null-checked below
@@ -278,11 +278,11 @@ namespace StardewModdingAPI.Utilities
 
         /// <summary>Get whether a date represents 0 spring Y1, which is the date during the in-game intro.</summary>
         /// <param name="day">The day of month.</param>
-        /// <param name="season">The season name.</param>
+        /// <param name="season">The normalized season name.</param>
         /// <param name="year">The year.</param>
         private bool IsDayZero(int day, string season, int year)
         {
-            return day == 0 && season?.Trim().ToLower() == "spring" && year == 1;
+            return day == 0 && season == "spring" && year == 1;
         }
 
         /// <summary>Get the day of week for a given date.</summary>

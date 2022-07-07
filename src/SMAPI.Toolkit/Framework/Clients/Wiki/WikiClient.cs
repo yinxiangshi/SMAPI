@@ -283,8 +283,8 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
         }
 
         /// <summary>The response model for the MediaWiki parse API.</summary>
-        [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
-        [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
+        [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local", Justification = "Used via JSON deserialization.")]
+        [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local", Justification = "Used via JSON deserialization.")]
         private class ResponseModel
         {
             /*********
@@ -306,9 +306,9 @@ namespace StardewModdingAPI.Toolkit.Framework.Clients.Wiki
         }
 
         /// <summary>The inner response model for the MediaWiki parse API.</summary>
-        [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
-        [SuppressMessage("ReSharper", "CollectionNeverUpdated.Local")]
-        [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
+        [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local", Justification = "Used via JSON deserialization.")]
+        [SuppressMessage("ReSharper", "CollectionNeverUpdated.Local", Justification = "Used via JSON deserialization.")]
+        [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local", Justification = "Used via JSON deserialization.")]
         private class ResponseParseModel
         {
             /*********

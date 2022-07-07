@@ -1,6 +1,32 @@
 ← [README](README.md)
 
 # Release notes
+<!--
+## 4.0.0
+* The installer no longer supports updating from SMAPI 2.11.3 or earlier (released in 2019).  
+  _If needed, you can update to SMAPI 3.15.0 first and then install to the latest version._
+-->
+
+## 3.15.1
+Released 06 July 2022 for Stardew Valley 1.5.6 or later.
+
+* For players:
+  * Added current version to update alerts (thanks to ishan!).
+  * Fixed lag for some players since Stardew Valley 1.5.5.
+  * Fixed `smapi-internal/config.user.json` overrides not applied after SMAPI 3.14.0.
+  * Fixed PyTK not rescaling images correctly in some cases.  
+    _When PyTK 1.23.0 or earlier is installed, this will disable the main performance improvements in SMAPI 3.15.0._
+  * Updated compatibility list.
+
+* For mod authors:
+  * The [FluentHttpClient package](https://github.com/Pathoschild/FluentHttpClient#readme) is now loaded by SMAPI.
+  * Fixed `TRACE` logs not tracking reloaded map tilesheets as a propagated asset.
+
+* For the web UI:
+  * Added log parser suggested fix for missing/outdated Error Handler, and improved visual styles.
+  * Updated the JSON validator/schema for Content Patcher 1.27.0.
+  * Fixed the mod count in the log parser metadata.
+
 ## 3.15.0
 Released 17 June 2022 for Stardew Valley 1.5.6 or later. See [release highlights](https://www.patreon.com/posts/67877219).
 

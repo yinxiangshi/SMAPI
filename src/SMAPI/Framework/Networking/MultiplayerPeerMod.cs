@@ -22,7 +22,7 @@ namespace StardewModdingAPI.Framework.Networking
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="mod">The mod metadata.</param>
-        [SuppressMessage("ReSharper", "ConstantConditionalAccessQualifier", Justification = "The ID shouldn't be null, but we should handle it to avoid an error just in case.")]
+        [SuppressMessage("ReSharper", "ConditionalAccessQualifierIsNonNullableAccordingToAPIContract", Justification = "The ID shouldn't be null, but we should handle it to avoid an error just in case.")]
         public MultiplayerPeerMod(RemoteContextModModel mod)
         {
             this.Name = mod.Name;

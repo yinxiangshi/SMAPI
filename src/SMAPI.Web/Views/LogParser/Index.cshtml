@@ -8,24 +8,29 @@
 @{
     ViewData["Title"] = "SMAPI log parser";
 
+    // get log info
     ParsedLog? log = Model!.ParsedLog;
-
     IDictionary<string, LogModInfo[]> contentPacks = Model.GetContentPacksByMod();
+    ISet<int> screenIds = new HashSet<int>(log?.Messages.Select(p => p.ScreenId) ?? Array.Empty<int>());
+
+    // detect suggested fixes
+    LogModInfo[] outdatedMods = log?.Mods.Where(mod => mod.HasUpdate).ToArray() ?? Array.Empty<LogModInfo>();
+    LogModInfo? errorHandler = log?.Mods.FirstOrDefault(p => p.IsCodeMod && p.Name == "Error Handler");
+    bool hasOlderErrorHandler = errorHandler?.GetParsedVersion() is not null && log?.ApiVersionParsed is not null && log.ApiVersionParsed.IsNewerThan(errorHandler.GetParsedVersion());
+
+    // get filters
     IDictionary<string, bool> defaultFilters = Enum
         .GetValues<LogLevel>()
         .ToDictionary(level => level.ToString().ToLower(), level => level != LogLevel.Trace);
-
     IDictionary<int, string> logLevels = Enum
         .GetValues<LogLevel>()
         .ToDictionary(level => (int)level, level => level.ToString().ToLower());
-
     IDictionary<int, string> logSections = Enum
         .GetValues<LogSection>()
         .ToDictionary(section => (int)section, section => section.ToString());
 
+    // get form
     string curPageUrl = this.Url.PlainAction("Index", "LogParser", new { id = Model.PasteID }, absoluteUrl: true)!;
-
-    ISet<int> screenIds = new HashSet<int>(log?.Messages.Select(p => p.ScreenId) ?? Array.Empty<int>());
 }
 
 @section Head {
@@ -34,7 +39,7 @@
         <meta name="robots" content="noindex" />
     }
     <link rel="stylesheet" href="~/Content/css/file-upload.css" />
-    <link rel="stylesheet" href="~/Content/css/log-parser.css?r=20220409" />
+    <link rel="stylesheet" href="~/Content/css/log-parser.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tabbyjs@12.0.3/dist/css/tabby-ui-vertical.min.css" />
 
     <script src="https://cdn.jsdelivr.net/npm/tabbyjs@12.0.3" crossorigin="anonymous"></script>
@@ -69,7 +74,7 @@
             </text>
         }
     </script>
-    
+
     <script>
         $(function() {
             smapi.logParser(
@@ -158,7 +163,7 @@ else if (log?.IsValid == true)
     <div id="os-instructions">
         <div>
             <ul data-tabs>
-                @foreach (Platform platform in new[] {Platform.Android, Platform.Linux, Platform.Mac, Platform.Windows})
+                @foreach (Platform platform in new[] { Platform.Android, Platform.Linux, Platform.Mac, Platform.Windows })
                 {
                     @if (platform == Platform.Windows)
                     {
@@ -237,55 +242,66 @@ else if (log?.IsValid == true)
 @if (log?.IsValid == true)
 {
     <div id="output">
-        @if (log.Mods.Any(mod => mod.HasUpdate))
+        @if (outdatedMods.Any() || errorHandler is null || hasOlderErrorHandler)
         {
             <h2>Suggested fixes</h2>
             <ul id="fix-list">
-                <li>
-                    Consider updating these mods to fix problems:
+                @if (errorHandler is null)
+                {
+                    <li class="important">You don't have the <strong>Error Handler</strong> mod installed. This automatically prevents many game or mod errors. You can <a href="https://stardewvalleywiki.com/Modding:Player_Guide#Install_SMAPI">reinstall SMAPI</a> to re-add it.</li>
+                }
+                @if (hasOlderErrorHandler)
+                {
+                    <li>Your <strong>Error Handler</strong> mod is older than SMAPI. You may be missing some game/mod error fixes. You can <a href="https://stardewvalleywiki.com/Modding:Player_Guide#Install_SMAPI">reinstall SMAPI</a> to update it.</li>
+                }
+                @if (outdatedMods.Any())
+                {
+                    <li>
+                        Consider updating these mods to fix problems:
 
-                    <table id="updates" class="table">
-                        @foreach (LogModInfo mod in log.Mods.Where(mod => (mod.HasUpdate && !mod.IsContentPack) || (contentPacks.TryGetValue(mod.Name, out LogModInfo[]? contentPackList) && contentPackList.Any(pack => pack.HasUpdate))))
-                        {
-                            <tr class="mod-entry">
-                                <td>
-                                    <strong class=@(!mod.HasUpdate ? "hidden" : "")>@mod.Name</strong>
-                                    @if (contentPacks != null && contentPacks.TryGetValue(mod.Name, out LogModInfo[]? contentPackList))
-                                    {
-                                        <div class="content-packs">
-                                            @foreach (LogModInfo contentPack in contentPackList.Where(pack => pack.HasUpdate))
-                                            {
-                                                <text>+ @contentPack.Name</text><br />
-                                            }
-                                        </div>
-                                    }
-                                </td>
-                                <td>
-                                    @if (mod.HasUpdate)
-                                    {
-                                        <a href="@mod.UpdateLink" target="_blank">
-                                            @(mod.Version == null ? mod.UpdateVersion : $"{mod.Version} → {mod.UpdateVersion}")
-                                        </a>
-                                    }
-                                    else
-                                    {
-                                        <text>&nbsp;</text>
-                                    }
+                        <table id="updates" class="table">
+                            @foreach (LogModInfo mod in log.Mods.Where(mod => (mod.HasUpdate && !mod.IsContentPack) || (contentPacks.TryGetValue(mod.Name, out LogModInfo[]? contentPackList) && contentPackList.Any(pack => pack.HasUpdate))))
+                            {
+                                <tr class="mod-entry">
+                                    <td>
+                                        <strong class=@(!mod.HasUpdate ? "hidden" : "")>@mod.Name</strong>
+                                        @if (contentPacks != null && contentPacks.TryGetValue(mod.Name, out LogModInfo[]? contentPackList))
+                                        {
+                                            <div class="content-packs">
+                                                @foreach (LogModInfo contentPack in contentPackList.Where(pack => pack.HasUpdate))
+                                                {
+                                                    <text>+ @contentPack.Name</text><br />
+                                                }
+                                            </div>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (mod.HasUpdate)
+                                        {
+                                            <a href="@mod.UpdateLink" target="_blank">
+                                                @(mod.Version == null ? mod.UpdateVersion : $"{mod.Version} → {mod.UpdateVersion}")
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <text>&nbsp;</text>
+                                        }
 
-                                    @if (contentPacks != null && contentPacks.TryGetValue(mod.Name, out contentPackList))
-                                    {
-                                        <div>
-                                            @foreach (LogModInfo contentPack in contentPackList.Where(pack => pack.HasUpdate))
-                                            {
-                                                <a href="@contentPack.UpdateLink" target="_blank">@contentPack.Version → @contentPack.UpdateVersion</a><br />
-                                            }
-                                        </div>
-                                    }
-                                </td>
-                            </tr>
-                        }
-                    </table>
-                </li>
+                                        @if (contentPacks != null && contentPacks.TryGetValue(mod.Name, out contentPackList))
+                                        {
+                                            <div>
+                                                @foreach (LogModInfo contentPack in contentPackList.Where(pack => pack.HasUpdate))
+                                                {
+                                                    <a href="@contentPack.UpdateLink" target="_blank">@contentPack.Version → @contentPack.UpdateVersion</a><br />
+                                                }
+                                            </div>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </table>
+                    </li>
+                }
             </ul>
         }
 
@@ -293,7 +309,7 @@ else if (log?.IsValid == true)
         <table
             id="metadata"
             class="table"
-            data-code-mods="@log.Mods.Count(p => !p.IsContentPack)"
+            data-code-mods="@log.Mods.Count(p => p.IsCodeMod)"
             data-content-packs="@log.Mods.Count(p => p.IsContentPack)"
             data-os="@log.OperatingSystem"
             data-game-version="@log.GameVersion"
@@ -434,7 +450,7 @@ else if (log?.IsValid == true)
                 <div>
                     This website uses JavaScript to display a filterable table. To view this log, please enable JavaScript or <a href="@this.Url.PlainAction("Index", "LogParser", new { id = Model.PasteID, format = LogViewFormat.RawView })">view the raw log</a>.
                 </div>
-                <br/>
+                <br />
             </noscript>
 
             <log-table>

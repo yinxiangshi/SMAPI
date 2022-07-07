@@ -65,7 +65,7 @@ namespace StardewModdingAPI.Toolkit
         /// <param name="metadataPath">The file path for the SMAPI metadata file.</param>
         public ModDatabase GetModDatabase(string metadataPath)
         {
-            MetadataModel metadata = JsonConvert.DeserializeObject<MetadataModel>(File.ReadAllText(metadataPath));
+            MetadataModel metadata = JsonConvert.DeserializeObject<MetadataModel>(File.ReadAllText(metadataPath)) ?? new MetadataModel();
             ModDataRecord[] records = metadata.ModData.Select(pair => new ModDataRecord(pair.Key, pair.Value)).ToArray();
             return new ModDatabase(records, this.GetUpdateUrl);
         }

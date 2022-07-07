@@ -96,6 +96,7 @@ namespace StardewModdingAPI.Framework
             }
         }
 
+#if SMAPI_DEPRECATED
         /// <inheritdoc />
         [Obsolete($"Use {nameof(IContentPack.ModContent)}.{nameof(IModContentHelper.Load)} instead. This method will be removed in SMAPI 4.0.0.")]
         public T LoadAsset<T>(string key)
@@ -110,6 +111,7 @@ namespace StardewModdingAPI.Framework
         {
             return this.ModContent.GetInternalAssetName(key).Name;
         }
+#endif
 
 
         /*********

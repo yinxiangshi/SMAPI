@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
+#if SMAPI_DEPRECATED
 using StardewModdingAPI.Framework.Deprecations;
+#endif
 
 namespace StardewModdingAPI.Framework.Content
 {
@@ -30,6 +32,10 @@ namespace StardewModdingAPI.Framework.Content
         public IAssetName NameWithoutLocale => this.NameWithoutLocaleImpl ??= this.Name.GetBaseAssetName();
 
         /// <inheritdoc />
+        public Type DataType { get; }
+
+#if SMAPI_DEPRECATED
+        /// <inheritdoc />
         [Obsolete($"Use {nameof(AssetInfo.Name)} or {nameof(AssetInfo.NameWithoutLocale)} instead. This property will be removed in SMAPI 4.0.0.")]
         public string AssetName
         {
@@ -50,9 +56,7 @@ namespace StardewModdingAPI.Framework.Content
                 return this.NameWithoutLocale.Name;
             }
         }
-
-        /// <inheritdoc />
-        public Type DataType { get; }
+#endif
 
 
         /*********
@@ -71,6 +75,7 @@ namespace StardewModdingAPI.Framework.Content
             this.GetNormalizedPath = getNormalizedPath;
         }
 
+#if SMAPI_DEPRECATED
         /// <inheritdoc />
         [Obsolete($"Use {nameof(Name)}.{nameof(IAssetName.IsEquivalentTo)} or {nameof(AssetInfo.NameWithoutLocale)}.{nameof(IAssetName.IsEquivalentTo)} instead. This method will be removed in SMAPI 4.0.0.")]
         public bool AssetNameEquals(string path)
@@ -90,6 +95,7 @@ namespace StardewModdingAPI.Framework.Content
 
             return this.NameWithoutLocale.IsEquivalentTo(path);
         }
+#endif
 
 
         /*********

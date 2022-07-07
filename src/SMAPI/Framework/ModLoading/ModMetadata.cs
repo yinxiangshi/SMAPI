@@ -83,7 +83,7 @@ namespace StardewModdingAPI.Framework.ModLoading
 
         /// <inheritdoc />
         [MemberNotNullWhen(true, nameof(ModMetadata.ContentPack))]
-        [SuppressMessage("ReSharper", "ConstantConditionalAccessQualifier", Justification = "The manifest may be null for broken mods while loading.")]
+        [SuppressMessage("ReSharper", "ConditionalAccessQualifierIsNonNullableAccordingToAPIContract", Justification = "The manifest may be null for broken mods while loading.")]
         public bool IsContentPack => this.Manifest?.ContentPackFor != null;
 
         /// <summary>The fake content packs created by this mod, if any.</summary>
