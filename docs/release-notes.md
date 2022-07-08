@@ -8,6 +8,9 @@
 -->
 
 ## Upcoming release
+* For players:
+  * Fixed Linux/macOS installer's color theme question partly unreadable if the terminal background is dark.
+
 * For the web UI:
   * Added log parser warning about performance of PyTK 1.23.0 or earlier.
 

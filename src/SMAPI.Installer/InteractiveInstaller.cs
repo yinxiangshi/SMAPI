@@ -206,7 +206,7 @@ namespace StardewModdingApi.Installer
                 Console.WriteLine();
 
                 // handle choice
-                string choice = this.InteractivelyChoose("Type 1 or 2, then press enter.", new[] { "1", "2" });
+                string choice = this.InteractivelyChoose("Type 1 or 2, then press enter.", new[] { "1", "2" }, printLine: Console.WriteLine);
                 switch (choice)
                 {
                     case "1":
@@ -629,22 +629,22 @@ namespace StardewModdingApi.Installer
         }
 
         /// <summary>Interactively ask the user to choose a value.</summary>
-        /// <param name="print">A callback which prints a message to the console.</param>
+        /// <param name="printLine">A callback which prints a message to the console.</param>
         /// <param name="message">The message to print.</param>
         /// <param name="options">The allowed options (not case sensitive).</param>
         /// <param name="indent">The indentation to prefix to output.</param>
-        private string InteractivelyChoose(string message, string[] options, string indent = "", Action<string>? print = null)
+        private string InteractivelyChoose(string message, string[] options, string indent = "", Action<string>? printLine = null)
         {
-            print ??= this.PrintInfo;
+            printLine ??= this.PrintInfo;
 
             while (true)
             {
-                print(indent + message);
+                printLine(indent + message);
                 Console.Write(indent);
                 string? input = Console.ReadLine()?.Trim().ToLowerInvariant();
                 if (input == null || !options.Contains(input))
                 {
-                    print($"{indent}That's not a valid option.");
+                    printLine($"{indent}That's not a valid option.");
                     continue;
                 }
                 return input;
