@@ -9,10 +9,15 @@
 
 ## Upcoming release
 * For players:
-  * Fixed Linux/macOS installer's color theme question partly unreadable if the terminal background is dark.
+  * Fixed SMAPI applying different DPI awareness settings than the game (thanks to spacechase0!).
+  * Fixed Linux/macOS installer's color scheme question partly unreadable if the terminal background is dark.
+
+* For mod authors:
+  * While loading your mod, SMAPI now searches for indirect dependencies in your mod's folder to support edge cases like F# mods (thanks to TehPers)!
 
 * For the web UI:
   * Added log parser warning about performance of PyTK 1.23.0 or earlier.
+  * Converted pufferchick icons to SVG (thanks to ishan!).
 
 ## 3.15.1
 Released 06 July 2022 for Stardew Valley 1.5.6 or later.
