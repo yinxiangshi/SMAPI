@@ -267,11 +267,8 @@ namespace StardewModdingAPI.Framework.ModLoading
             // add the assembly's directory temporarily if needed
             // this is needed by F# mods which bundle FSharp.Core.dll, for example
             string? temporarySearchDir = null;
-            if (file.DirectoryName is not null && !this.AssemblyDefinitionResolver.GetSearchDirectories().Contains(file.DirectoryName))
-            {
-                this.AssemblyDefinitionResolver.AddSearchDirectory(file.DirectoryName);
+            if (this.AssemblyDefinitionResolver.TryAddSearchDirectory(file.DirectoryName))
                 temporarySearchDir = file.DirectoryName;
-            }
 
             // read assembly
             AssemblyDefinition assembly;

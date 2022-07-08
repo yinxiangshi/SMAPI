@@ -244,8 +244,8 @@ namespace StardewModdingAPI
         internal static void ConfigureAssemblyResolver(AssemblyDefinitionResolver resolver)
         {
             // add search paths
-            resolver.AddSearchDirectory(Constants.GamePath);
-            resolver.AddSearchDirectory(Constants.InternalFilesPath);
+            resolver.TryAddSearchDirectory(Constants.GamePath);
+            resolver.TryAddSearchDirectory(Constants.InternalFilesPath);
 
             // add SMAPI explicitly
             // Normally this would be handled automatically by the search paths, but for some reason there's a specific
