@@ -17,6 +17,7 @@
     LogModInfo[] outdatedMods = log?.Mods.Where(mod => mod.HasUpdate).ToArray() ?? Array.Empty<LogModInfo>();
     LogModInfo? errorHandler = log?.Mods.FirstOrDefault(p => p.IsCodeMod && p.Name == "Error Handler");
     bool hasOlderErrorHandler = errorHandler?.GetParsedVersion() is not null && log?.ApiVersionParsed is not null && log.ApiVersionParsed.IsNewerThan(errorHandler.GetParsedVersion());
+    bool isPyTkCompatibilityMode = log?.ApiVersionParsed?.IsOlderThan("3.15.0") is false && log.Mods.Any(p => p.IsCodeMod && p.Name == "PyTK" && p.GetParsedVersion()?.IsOlderThan("1.23.1") is true);
 
     // get filters
     IDictionary<string, bool> defaultFilters = Enum
@@ -242,7 +243,7 @@ else if (log?.IsValid == true)
 @if (log?.IsValid == true)
 {
     <div id="output">
-        @if (outdatedMods.Any() || errorHandler is null || hasOlderErrorHandler)
+        @if (outdatedMods.Any() || errorHandler is null || hasOlderErrorHandler || isPyTkCompatibilityMode)
         {
             <h2>Suggested fixes</h2>
             <ul id="fix-list">
@@ -253,6 +254,10 @@ else if (log?.IsValid == true)
                 @if (hasOlderErrorHandler)
                 {
                     <li>Your <strong>Error Handler</strong> mod is older than SMAPI. You may be missing some game/mod error fixes. You can <a href="https://stardewvalleywiki.com/Modding:Player_Guide#Install_SMAPI">reinstall SMAPI</a> to update it.</li>
+                }
+                @if (isPyTkCompatibilityMode)
+                {
+                    <li>PyTK 1.23.0 or earlier isn't compatible with newer SMAPI performance optimizations. This may increase loading times or in-game lag.</li>
                 }
                 @if (outdatedMods.Any())
                 {

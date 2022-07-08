@@ -7,6 +7,10 @@
   _If needed, you can update to SMAPI 3.15.0 first and then install to the latest version._
 -->
 
+## Upcoming release
+* For the web UI:
+  * Added log parser warning about performance of PyTK 1.23.0 or earlier.
+
 ## 3.15.1
 Released 06 July 2022 for Stardew Valley 1.5.6 or later.
 
