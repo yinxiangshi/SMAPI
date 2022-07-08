@@ -16,6 +16,7 @@
 
     <!-- tiered compilation breaks Harmony -->
     <TieredCompilation>false</TieredCompilation>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
 
   <Import Project="..\..\build\common.targets" />
