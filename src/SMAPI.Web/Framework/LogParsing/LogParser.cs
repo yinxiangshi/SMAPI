@@ -42,7 +42,7 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
         private readonly Regex ModUpdateListStartPattern = new(@"^You can update \d+ mods?:$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         /// <summary>A regex pattern matching an entry in SMAPI's mod update list.</summary>
-        private readonly Regex ModUpdateListEntryPattern = new(@"^   (?<name>.+) (?<version>[^\s]+): (?<link>.+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private readonly Regex ModUpdateListEntryPattern = new(@"^   (?<name>.+) (?<version>[^\s]+): (?<link>[^\s]+)(?: \(you have [^\)]+\))?$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         /// <summary>A regex pattern matching SMAPI's update line.</summary>
         private readonly Regex SmapiUpdatePattern = new(@"^You can update SMAPI to (?<version>[^\s]+): (?<link>.+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
