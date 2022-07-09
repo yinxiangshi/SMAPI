@@ -62,7 +62,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
                     source: this.Mod,
                     nounPhrase: $"{nameof(IContentHelper)}.{nameof(IContentHelper.AssetLoaders)}",
                     version: "3.14.0",
-                    severity: DeprecationLevel.Notice
+                    severity: DeprecationLevel.Info
                 );
 
                 return this.ObservableAssetLoaders;
@@ -78,7 +78,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
                     source: this.Mod,
                     nounPhrase: $"{nameof(IContentHelper)}.{nameof(IContentHelper.AssetEditors)}",
                     version: "3.14.0",
-                    severity: DeprecationLevel.Notice
+                    severity: DeprecationLevel.Info
                 );
 
                 return this.ObservableAssetEditors;
@@ -126,7 +126,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
                                 this.Mod,
                                 "loading assets from the Content folder with a .xnb file extension",
                                 "3.14.0",
-                                DeprecationLevel.Notice
+                                DeprecationLevel.Info
                             );
                         }
 
@@ -150,7 +150,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
                                         this.Mod,
                                         "loading XNB files from the mod folder without the .xnb file extension",
                                         "3.14.0",
-                                        DeprecationLevel.Notice
+                                        DeprecationLevel.Info
                                     );
                                     return data;
                                 }

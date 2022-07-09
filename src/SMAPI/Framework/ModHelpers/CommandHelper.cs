@@ -43,7 +43,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
                 source: this.Mod,
                 nounPhrase: $"{nameof(IModHelper)}.{nameof(IModHelper.ConsoleCommands)}.{nameof(ICommandHelper.Trigger)}",
                 version: "3.8.1",
-                severity: DeprecationLevel.Notice
+                severity: DeprecationLevel.Info
             );
 
             return this.CommandManager.Trigger(name, arguments);

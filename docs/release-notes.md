@@ -14,6 +14,8 @@
 
 * For mod authors:
   * While loading your mod, SMAPI now searches for indirect dependencies in your mod's folder to support edge cases like F# mods (thanks to TehPers)!
+  * **Raised deprecation message levels.**  
+    _Deprecation warnings are now player-visible in the SMAPI console as grayed-out `DEBUG` messages. They'll be raised to `WARN` level in SMAPI 3.17 next month, which will be the last major release before SMAPI 4.0._
 
 * For the web UI:
   * Added log parser warning about performance of PyTK 1.23.0 or earlier.

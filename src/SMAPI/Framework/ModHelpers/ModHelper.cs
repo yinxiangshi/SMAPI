@@ -41,7 +41,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
                     source: this.Mod,
                     nounPhrase: $"{nameof(IModHelper)}.{nameof(IModHelper.Content)}",
                     version: "3.14.0",
-                    severity: DeprecationLevel.Notice
+                    severity: DeprecationLevel.Info
                 );
 
                 return this.ContentImpl;
