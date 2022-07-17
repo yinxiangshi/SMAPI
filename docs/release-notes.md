@@ -19,7 +19,7 @@
 
 * For the web UI:
   * Added log parser warning about performance of PyTK 1.23.0 or earlier.
-  * Converted pufferchick icons to SVG (thanks to ishan!).
+  * Converted images to SVG (thanks to ishan!).
   * Updated log parser for new update alert format in SMAPI 3.15.1.
 
 ## 3.15.1
