@@ -16,6 +16,7 @@
   * While loading your mod, SMAPI now searches for indirect dependencies in your mod's folder to support edge cases like F# mods (thanks to TehPers)!
   * **Raised deprecation message levels.**  
     _Deprecation warnings are now player-visible in the SMAPI console as grayed-out `DEBUG` messages. They'll be raised to `WARN` level in SMAPI 3.17 next month, which will be the last major release before SMAPI 4.0._
+  * Updated to Pintail 2.2.1 (see [changes](https://github.com/Nanoray-pl/Pintail/blob/master/docs/release-notes.md#221)).
 
 * For the web UI:
   * Added log parser warning about performance of PyTK 1.23.0 or earlier.
@@ -56,7 +57,7 @@ Released 17 June 2022 for Stardew Valley 1.5.6 or later. See [release highlights
   * Updated dependencies:
     * Harmony 2.2.1 (see changes in [2.2.0](https://github.com/pardeike/Harmony/releases/tag/v2.2.0.0) and [2.2.1](https://github.com/pardeike/Harmony/releases/tag/v2.2.1.0));
     * Newtonsoft.Json 13.0.1 (see [changes](https://github.com/JamesNK/Newtonsoft.Json/releases/tag/13.0.1));
-    * Pintail 2.2.0.
+    * Pintail 2.2.0 (see [changes](https://github.com/Nanoray-pl/Pintail/blob/master/docs/release-notes.md#220)).
   * Removed transitional `UsePintail` option added in 3.14.0 (now always enabled).
   * Fixed `onBehalfOf` arguments in the new content API being case-sensitive.
   * Fixed map edits which change warps sometimes rebuilding the NPC pathfinding cache unnecessarily, which could cause a noticeable delay for players.
