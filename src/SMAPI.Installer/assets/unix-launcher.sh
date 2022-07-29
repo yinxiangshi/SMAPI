@@ -55,7 +55,7 @@ if [ "$(uname)" == "Darwin" ]; then
         if [ "$USE_CURRENT_SHELL" == "false" ]; then
             echo "Reopening in the Terminal app..."
             echo '#!/bin/sh' > /tmp/open-smapi-terminal.command
-            echo "\"$0\" $* --use-current-shell" >> /tmp/open-smapi-terminal.command
+            echo "\"$0\" $@ --use-current-shell" >> /tmp/open-smapi-terminal.command
             chmod +x /tmp/open-smapi-terminal.command
             cat /tmp/open-smapi-terminal.command
             open -W /tmp/open-smapi-terminal.command
@@ -114,27 +114,27 @@ else
                 terminal|termite)
                     # consumes only one argument after -e
                     # options containing space characters are unsupported
-                    exec "$TERMINAL_NAME" -e "env TERM=xterm $LAUNCH_FILE $*"
+                    exec "$TERMINAL_NAME" -e "env TERM=xterm $LAUNCH_FILE $@"
                     ;;
 
                 xterm|konsole|alacritty)
                     # consumes all arguments after -e
-                    exec "$TERMINAL_NAME" -e env TERM=xterm $LAUNCH_FILE "$*"
+                    exec "$TERMINAL_NAME" -e env TERM=xterm $LAUNCH_FILE "$@"
                     ;;
 
                 terminator|xfce4-terminal|mate-terminal)
                     # consumes all arguments after -x
-                    exec "$TERMINAL_NAME" -x env TERM=xterm $LAUNCH_FILE "$*"
+                    exec "$TERMINAL_NAME" -x env TERM=xterm $LAUNCH_FILE "$@"
                     ;;
 
                 gnome-terminal)
                     # consumes all arguments after --
-                    exec "$TERMINAL_NAME" -- env TERM=xterm $LAUNCH_FILE "$*"
+                    exec "$TERMINAL_NAME" -- env TERM=xterm $LAUNCH_FILE "$@"
                     ;;
 
                 kitty)
                     # consumes all trailing arguments
-                    exec "$TERMINAL_NAME" env TERM=xterm $LAUNCH_FILE "$*"
+                    exec "$TERMINAL_NAME" env TERM=xterm $LAUNCH_FILE "$@"
                     ;;
 
                 *)
