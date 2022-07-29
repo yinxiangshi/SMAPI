@@ -54,12 +54,12 @@ if [ "$(uname)" == "Darwin" ]; then
         # https://stackoverflow.com/a/29511052/262123
         if [ "$USE_CURRENT_SHELL" == "false" ]; then
             echo "Reopening in the Terminal app..."
-            echo '#!/bin/sh' > /tmp/open-smapi-terminal.sh
-            echo "\"$0\" $@ --use-current-shell" >> /tmp/open-smapi-terminal.sh
-            chmod +x /tmp/open-smapi-terminal.sh
-            cat /tmp/open-smapi-terminal.sh
-            open -W -a Terminal /tmp/open-smapi-terminal.sh
-            rm /tmp/open-smapi-terminal.sh
+            echo '#!/bin/sh' > /tmp/open-smapi-terminal.command
+            echo "\"$0\" $@ --use-current-shell" >> /tmp/open-smapi-terminal.command
+            chmod +x /tmp/open-smapi-terminal.command
+            cat /tmp/open-smapi-terminal.command
+            open -W /tmp/open-smapi-terminal.command
+            rm /tmp/open-smapi-terminal.command
             exit 0
         fi
     fi
