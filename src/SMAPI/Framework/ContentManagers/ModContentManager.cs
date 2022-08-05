@@ -254,6 +254,8 @@ namespace StardewModdingAPI.Framework.ContentManagers
             {
                 using FileStream stream = File.OpenRead(file.FullName);
                 using SKBitmap bitmap = SKBitmap.Decode(stream);
+                if (bitmap is null)
+                    throw new InvalidDataException("{file.FullName} appears not to be a valid image file.");
                 rawPixels = SKPMColor.PreMultiply(bitmap.Pixels);
                 width = bitmap.Width;
                 height = bitmap.Height;
