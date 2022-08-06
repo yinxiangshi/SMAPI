@@ -13,6 +13,7 @@
 * For mod authors:
   * Updated to .NET 6.
   * Removed all deprecated APIs.
+  * SMAPI no longer intercepts output written to the console. Mods which directly access `Console` will be listed under mod warnings.
 
 ## Upcoming release
 * For players:
