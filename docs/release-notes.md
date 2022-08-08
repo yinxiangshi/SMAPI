@@ -12,6 +12,7 @@
   * Fixed SMAPI on Windows applying different DPI awareness settings than the game (thanks to spacechase0!).
   * Fixed Linux/macOS installer's color scheme question partly unreadable if the terminal background is dark.
   * Fixed error message when a mod loads an invalid PNG file (thanks to atravita!).
+  * Fixed error message when a mod is duplicated, but one of the copies is also missing the DLL file. This now shows the duplicate-mod message instead of the missing-DLL message.
   * Fixed macOS launcher using Terminal regardless of the system's default terminal (thanks to ishan!).
   * Fixed best practices in Linux/macOS launcher scripts (thanks to ishan!).
   * Improved translations. Thanks to KediDili (updated Turkish)!
