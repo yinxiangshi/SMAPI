@@ -8,8 +8,7 @@
   ** Set build options
   **********************************************-->
   <PropertyGroup>
-    <!-- include PDB file by default to enable line numbers in stack traces -->
-    <DebugType>pdbonly</DebugType>
+    <!-- enable line numbers in stack traces -->
     <DebugSymbols>true</DebugSymbols>
 
     <!-- don't create the 'refs' folder (which isn't useful for mods) -->
