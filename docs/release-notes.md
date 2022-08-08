@@ -9,8 +9,12 @@
 
 ## Upcoming release
 * For players:
-  * Fixed SMAPI applying different DPI awareness settings than the game (thanks to spacechase0!).
+  * Fixed SMAPI on Windows applying different DPI awareness settings than the game (thanks to spacechase0!).
   * Fixed Linux/macOS installer's color scheme question partly unreadable if the terminal background is dark.
+  * Fixed error message when a mod loads an invalid PNG file (thanks to atravita!).
+  * Fixed macOS launcher using Terminal regardless of the system's default terminal (thanks to ishan!).
+  * Fixed best practices in Linux/macOS launcher scripts (thanks to ishan!).
+  * Improved translations. Thanks to KediDili (updated Turkish)!
 
 * For mod authors:
   * While loading your mod, SMAPI now searches for indirect dependencies in your mod's folder to support edge cases like F# mods (thanks to TehPers)!
