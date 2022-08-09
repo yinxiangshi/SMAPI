@@ -9,6 +9,8 @@
 
 ## Upcoming release
 * For players:
+  * SMAPI now sets a success/error code when the game exits.  
+    _This is used by your OS (like Windows) to decide whether to keep the console window open when the game ends._
   * Fixed SMAPI on Windows applying different DPI awareness settings than the game (thanks to spacechase0!).
   * Fixed Linux/macOS installer's color scheme question partly unreadable if the terminal background is dark.
   * Fixed error message when a mod loads an invalid PNG file (thanks to atravita!).

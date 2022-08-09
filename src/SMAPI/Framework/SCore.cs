@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -50,6 +49,7 @@ using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.Menus;
 using StardewValley.Objects;
+using StardewValley.SDKs;
 using xTile.Display;
 using LanguageCode = StardewValley.LocalizedContentManager.LanguageCode;
 using MiniMonoModHotfix = MonoMod.Utils.MiniMonoModHotfix;
@@ -67,8 +67,11 @@ namespace StardewModdingAPI.Framework
         /****
         ** Low-level components
         ****/
+        /// <summary>A state which indicates whether SMAPI should exit immediately and any pending initialization should be cancelled.</summary>
+        private ExitState ExitState;
+
         /// <summary>Whether the game should exit immediately and any pending initialization should be cancelled.</summary>
-        private bool IsExiting;
+        private bool IsExiting => this.ExitState != ExitState.None;
 
         /// <summary>Manages the SMAPI console window and log file.</summary>
         private readonly LogManager LogManager;
@@ -297,22 +300,13 @@ namespace StardewModdingAPI.Framework
                 this.IsGameRunning = true;
                 StardewValley.Program.releaseBuild = true; // game's debug logic interferes with SMAPI opening the game window
                 this.Game.Run();
+                this.Dispose(isError: false);
             }
             catch (Exception ex)
             {
                 this.LogManager.LogFatalLaunchError(ex);
                 this.LogManager.PressAnyKeyToExit();
-            }
-            finally
-            {
-                try
-                {
-                    this.Dispose();
-                }
-                catch (Exception ex)
-                {
-                    this.Monitor.Log($"The game ended, but SMAPI wasn't able to dispose correctly. Technical details: {ex}", LogLevel.Error);
-                }
+                this.Dispose(isError: true);
             }
         }
 
@@ -327,6 +321,14 @@ namespace StardewModdingAPI.Framework
         /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
         [SuppressMessage("ReSharper", "ConditionalAccessQualifierIsNonNullableAccordingToAPIContract", Justification = "May be disposed before SMAPI is fully initialized.")]
         public void Dispose()
+        {
+            this.Dispose(isError: true); // if we got here, SMAPI didn't detect the exit before it happened
+        }
+
+        /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
+        /// <param name="isError">Whether the process is exiting due to an error or crash.</param>
+        [SuppressMessage("ReSharper", "ConditionalAccessQualifierIsNonNullableAccordingToAPIContract", Justification = "May be disposed before SMAPI is fully initialized.")]
+        public void Dispose(bool isError)
         {
             // skip if already disposed
             if (this.IsDisposed)
@@ -349,13 +351,29 @@ namespace StardewModdingAPI.Framework
 
             // dispose core components
             this.IsGameRunning = false;
-            this.IsExiting = true;
+            if (this.ExitState == ExitState.None || isError)
+                this.ExitState = isError ? ExitState.Crash : ExitState.GameExit;
             this.ContentCore?.Dispose();
             this.Game?.Dispose();
             this.LogManager.Dispose(); // dispose last to allow for any last-second log messages
 
-            // end game (moved from Game1.OnExiting to let us clean up first)
-            Process.GetCurrentProcess().Kill();
+            // clean up SDK
+            // This avoids Steam connection errors when it exits unexpectedly. The game avoids this
+            // by killing the entire process, but we can't set the error code if we do that.
+            try
+            {
+                FieldInfo? field = typeof(StardewValley.Program).GetField("_sdk", BindingFlags.NonPublic | BindingFlags.Static);
+                SDKHelper? sdk = field?.GetValue(null) as SDKHelper;
+                sdk?.Shutdown();
+            }
+            catch
+            {
+                // well, at least we tried
+            }
+
+            // end game with error code
+            // This helps the OS decide whether to keep the window open (e.g. Windows may keep it open on error).
+            Environment.Exit(this.ExitState == ExitState.Crash ? 1 : 0);
         }
 
 
@@ -1250,7 +1268,7 @@ namespace StardewModdingAPI.Framework
         private void OnGameExiting()
         {
             this.Multiplayer.Disconnect(StardewValley.Multiplayer.DisconnectType.ClosedGame);
-            this.Dispose();
+            this.Dispose(isError: false);
         }
 
         /// <summary>Raised when a mod network message is received.</summary>
@@ -2239,7 +2257,7 @@ namespace StardewModdingAPI.Framework
             this.Monitor.LogFatal(message);
             this.LogManager.WriteCrashLog();
 
-            this.IsExiting = true;
+            this.ExitState = ExitState.Crash;
             this.Game.Exit();
         }
 
