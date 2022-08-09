@@ -29,6 +29,7 @@
   * Added log parser warning about performance of PyTK 1.23.0 or earlier.
   * Converted images to SVG (thanks to ishan!).
   * Updated log parser for new update alert format in SMAPI 3.15.1.
+  * Fixed parsing for invalid content packs.
 
 ## 3.15.1
 Released 06 July 2022 for Stardew Valley 1.5.6 or later.

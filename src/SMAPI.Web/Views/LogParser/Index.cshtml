@@ -352,16 +352,31 @@ else if (log?.IsValid == true)
                     <span class="notice btn txt" v-on:click="toggleContentPacks">toggle content packs in list</span>
                 }
             </caption>
-            @foreach (var mod in log.Mods.Where(p => p.Loaded && !p.IsContentPack))
-            {
-                if (contentPacks == null || !contentPacks.TryGetValue(mod.Name, out LogModInfo[]? contentPackList))
-                    contentPackList = null;
 
+            @{
+                var modsWithContentPacks = log.Mods
+                    .Where(mod => mod.Loaded && !mod.IsContentPack)
+                    .Select(mod => (
+                        Mod: mod,
+                        ContentPacks: contentPacks?.TryGetValue(mod.Name, out LogModInfo[]? contentPackList) == true ? contentPackList : Array.Empty<LogModInfo>()
+                    ))
+                    .ToList();
+                if (contentPacks?.TryGetValue("", out LogModInfo[] invalidPacks) == true)
+                {
+                    modsWithContentPacks.Add((
+                        Mod: new LogModInfo(ModType.CodeMod, "<invalid content packs>", "", "", ""),
+                        ContentPacks: invalidPacks
+                    ));
+                }
+            }
+
+            @foreach ((LogModInfo mod, LogModInfo[] contentPackList) in modsWithContentPacks)
+            {
                 <tr v-on:click="toggleMod('@Model.GetSlug(mod.Name)')" class="mod-entry" v-bind:class="{ hidden: !showMods['@Model.GetSlug(mod.Name)'] }">
                     <td><input type="checkbox" v-bind:checked="showMods['@Model.GetSlug(mod.Name)']" v-bind:class="{ invisible: !anyModsHidden }" /></td>
                     <td>
                         <strong v-pre>@mod.Name</strong> @mod.Version
-                        @if (contentPackList != null)
+                        @if (contentPackList.Any())
                         {
                             <div v-if="!hideContentPacks" class="content-packs">
                                 @foreach (var contentPack in contentPackList)
@@ -374,7 +389,7 @@ else if (log?.IsValid == true)
                     </td>
                     <td>
                         @mod.Author
-                        @if (contentPackList != null)
+                        @if (contentPackList.Any())
                         {
                             <div v-if="!hideContentPacks" class="content-packs">
                                 @foreach (var contentPack in contentPackList)

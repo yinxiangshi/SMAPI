@@ -48,21 +48,24 @@ namespace StardewModdingAPI.Web.Framework.LogParsing.Models
         [MemberNotNullWhen(true, nameof(LogModInfo.UpdateVersion), nameof(LogModInfo.UpdateLink))]
         public bool HasUpdate => this.UpdateVersion != null && this.Version != this.UpdateVersion;
 
+        /// <summary>The mod type.</summary>
+        public ModType ModType { get; }
+
         /// <summary>Whether this is an actual mod (rather than a special entry for SMAPI or the game itself).</summary>
-        public bool IsMod { get; }
+        public bool IsMod => this.ModType != ModType.Special;
 
         /// <summary>Whether this is a C# code mod.</summary>
-        public bool IsCodeMod { get; }
+        public bool IsCodeMod => this.ModType == ModType.CodeMod;
 
         /// <summary>Whether this is a content pack for another mod.</summary>
-        [MemberNotNullWhen(true, nameof(LogModInfo.ContentPackFor))]
-        public bool IsContentPack { get; }
+        public bool IsContentPack => this.ModType == ModType.ContentPack;
 
 
         /*********
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
+        /// <param name="modType">The mod type.</param>
         /// <param name="name">The mod name.</param>
         /// <param name="author">The mod author.</param>
         /// <param name="version">The mod version.</param>
@@ -72,9 +75,9 @@ namespace StardewModdingAPI.Web.Framework.LogParsing.Models
         /// <param name="contentPackFor">The name of the mod for which this is a content pack (if applicable).</param>
         /// <param name="errors">The number of errors logged by this mod.</param>
         /// <param name="loaded">Whether the mod was loaded into the game.</param>
-        /// <param name="isMod">Whether this is an actual mod (instead of a special entry for SMAPI or the game).</param>
-        public LogModInfo(string name, string author, string version, string description, string? updateVersion = null, string? updateLink = null, string? contentPackFor = null, int errors = 0, bool loaded = true, bool isMod = true)
+        public LogModInfo(ModType modType, string name, string author, string version, string description, string? updateVersion = null, string? updateLink = null, string? contentPackFor = null, int errors = 0, bool loaded = true)
         {
+            this.ModType = modType;
             this.Name = name;
             this.Author = author;
             this.Description = description;
@@ -83,13 +86,6 @@ namespace StardewModdingAPI.Web.Framework.LogParsing.Models
             this.ContentPackFor = contentPackFor;
             this.Errors = errors;
             this.Loaded = loaded;
-
-            if (isMod)
-            {
-                this.IsMod = true;
-                this.IsContentPack = !string.IsNullOrWhiteSpace(this.ContentPackFor);
-                this.IsCodeMod = !this.IsContentPack;
-            }
 
             this.OverrideVersion(version);
         }
