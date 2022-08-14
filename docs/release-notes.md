@@ -24,6 +24,7 @@
   * **Raised deprecation message levels.**  
     _Deprecation warnings are now player-visible in the SMAPI console as grayed-out `DEBUG` messages. They'll be raised to `WARN` level in SMAPI 3.17 next month, which will be the last major release before SMAPI 4.0._
   * Updated to Pintail 2.2.1 (see [changes](https://github.com/Nanoray-pl/Pintail/blob/master/docs/release-notes.md#221)).
+  * Switched SMAPI's `.pdb` file to the newer 'portable' format. This has no effect on mods.
 
 * For the web UI:
   * Added log parser warning about performance of PyTK 1.23.0 or earlier.
