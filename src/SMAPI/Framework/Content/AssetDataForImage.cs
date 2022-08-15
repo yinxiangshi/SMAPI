@@ -1,4 +1,5 @@
 using System;
+using System.Buffers;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -47,44 +48,55 @@ namespace StardewModdingAPI.Framework.Content
                 int areaHeight = sourceArea.Value.Height;
 
                 if (areaX == 0 && areaY == 0 && areaWidth == source.Width && areaHeight == source.Height)
+                {
                     sourceData = source.Data;
+                    this.PatchImageImpl(sourceData, source.Width, source.Height, sourceArea.Value, targetArea.Value, patchMode);
+                }
                 else
                 {
-                    sourceData = new Color[areaWidth * areaHeight];
-                    int i = 0;
-                    for (int y = areaY, maxY = areaY + areaHeight - 1; y <= maxY; y++)
+                    int pixelCount = areaWidth * areaHeight;
+                    sourceData = ArrayPool<Color>.Shared.Rent(pixelCount);
+
+                    for (int y = areaY, maxY = areaY + areaHeight; y < maxY; y++)
                     {
-                        for (int x = areaX, maxX = areaX + areaWidth - 1; x <= maxX; x++)
-                        {
-                            int targetIndex = (y * source.Width) + x;
-                            sourceData[i++] = source.Data[targetIndex];
-                        }
+                        // avoiding an variable that increments allows the processor to re-arrange here.
+                        int sourceIndex = (y * source.Width) + areaX;
+                        int targetIndex = (y - areaY) * areaWidth;
+                        Array.Copy(source.Data, sourceIndex, sourceData, targetIndex, areaWidth);
                     }
+
+                    // apply
+                    this.PatchImageImpl(sourceData, source.Width, source.Height, sourceArea.Value, targetArea.Value, patchMode);
+
+                    // return
+                    ArrayPool<Color>.Shared.Return(sourceData);
                 }
             }
-
-            // apply
-            this.PatchImageImpl(sourceData, source.Width, source.Height, sourceArea.Value, targetArea.Value, patchMode);
         }
 
         /// <inheritdoc />
         public void PatchImage(Texture2D source, Rectangle? sourceArea = null, Rectangle? targetArea = null, PatchMode patchMode = PatchMode.Replace)
         {
+            // validate
+            if (source == null)
+                throw new ArgumentNullException(nameof(source), "Can't patch from a null source texture.");
+
             this.GetPatchBounds(ref sourceArea, ref targetArea, source.Width, source.Height);
 
             // validate source texture
-            if (source == null)
-                throw new ArgumentNullException(nameof(source), "Can't patch from a null source texture.");
             if (!source.Bounds.Contains(sourceArea.Value))
                 throw new ArgumentOutOfRangeException(nameof(sourceArea), "The source area is outside the bounds of the source texture.");
 
             // get source data
             int pixelCount = sourceArea.Value.Width * sourceArea.Value.Height;
-            Color[] sourceData = GC.AllocateUninitializedArray<Color>(pixelCount);
+            Color[] sourceData = ArrayPool<Color>.Shared.Rent(pixelCount);
             source.GetData(0, sourceArea, sourceData, 0, pixelCount);
 
             // apply
             this.PatchImageImpl(sourceData, source.Width, source.Height, sourceArea.Value, targetArea.Value, patchMode);
+
+            // return
+            ArrayPool<Color>.Shared.Return(sourceData);
         }
 
         /// <inheritdoc />
@@ -143,7 +155,7 @@ namespace StardewModdingAPI.Framework.Content
             if (patchMode == PatchMode.Overlay)
             {
                 // get target data
-                Color[] mergedData = GC.AllocateUninitializedArray<Color>(pixelCount);
+                Color[] mergedData = ArrayPool<Color>.Shared.Rent(pixelCount);
                 target.GetData(0, targetArea, mergedData, 0, pixelCount);
 
                 // merge pixels
@@ -175,6 +187,7 @@ namespace StardewModdingAPI.Framework.Content
                 }
 
                 target.SetData(0, targetArea, mergedData, 0, pixelCount);
+                ArrayPool<Color>.Shared.Return(mergedData);
             }
             else
                 target.SetData(0, targetArea, sourceData, 0, pixelCount);
