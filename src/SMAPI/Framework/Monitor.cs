@@ -25,7 +25,9 @@ namespace StardewModdingAPI.Framework
         private readonly LogFileManager LogFile;
 
         /// <summary>The maximum length of the <see cref="LogLevel"/> values.</summary>
-        private static readonly int MaxLevelLength = (from level in Enum.GetValues(typeof(LogLevel)).Cast<LogLevel>() select level.ToString().Length).Max();
+        private static readonly int MaxLevelLength = (from level in Enum.GetValues<LogLevel>() select level.ToString().Length).Max();
+
+        private static readonly Dictionary<ConsoleLogLevel, string> LogStrings = Enum.GetValues<ConsoleLogLevel>().ToDictionary(k => k, v => v.ToString().ToUpper().PadRight(MaxLevelLength));
 
         /// <summary>A cache of messages that should only be logged once.</summary>
         private readonly HashSet<string> LogOnceCache = new();
@@ -147,7 +149,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="level">The log level.</param>
         private string GenerateMessagePrefix(string source, ConsoleLogLevel level)
         {
-            string levelStr = level.ToString().ToUpper().PadRight(Monitor.MaxLevelLength);
+            string levelStr = LogStrings[level];
             int? playerIndex = this.GetScreenIdForLog();
 
             return $"[{DateTime.Now:HH:mm:ss} {levelStr}{(playerIndex != null ? $" screen_{playerIndex}" : "")} {source}]";
