@@ -27,10 +27,13 @@ namespace StardewModdingAPI.Framework
         /// <summary>The maximum length of the <see cref="LogLevel"/> values.</summary>
         private static readonly int MaxLevelLength = (from level in Enum.GetValues<LogLevel>() select level.ToString().Length).Max();
 
+        /// <summary>A mapping of console log levels to their string form.</summary>
         private static readonly Dictionary<ConsoleLogLevel, string> LogStrings = Enum.GetValues<ConsoleLogLevel>().ToDictionary(k => k, v => v.ToString().ToUpper().PadRight(MaxLevelLength));
 
+        private readonly record struct LogOnceCacheEntry(string message, LogLevel level);
+
         /// <summary>A cache of messages that should only be logged once.</summary>
-        private readonly HashSet<string> LogOnceCache = new();
+        private readonly HashSet<LogOnceCacheEntry> LogOnceCache = new();
 
         /// <summary>Get the screen ID that should be logged to distinguish between players in split-screen mode, if any.</summary>
         private readonly Func<int?> GetScreenIdForLog;
@@ -86,7 +89,7 @@ namespace StardewModdingAPI.Framework
         /// <inheritdoc />
         public void LogOnce(string message, LogLevel level = LogLevel.Trace)
         {
-            if (this.LogOnceCache.Add($"{message}|{level}"))
+            if (this.LogOnceCache.Add(new LogOnceCacheEntry(message, level)))
                 this.LogImpl(this.Source, message, (ConsoleLogLevel)level);
         }
 

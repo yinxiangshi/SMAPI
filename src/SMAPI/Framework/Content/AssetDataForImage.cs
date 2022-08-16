@@ -33,11 +33,11 @@ namespace StardewModdingAPI.Framework.Content
         /// <inheritdoc />
         public void PatchImage(IRawTextureData source, Rectangle? sourceArea = null, Rectangle? targetArea = null, PatchMode patchMode = PatchMode.Replace)
         {
-            this.GetPatchBounds(ref sourceArea, ref targetArea, source.Width, source.Height);
-
-            // validate source data
+            // nullcheck
             if (source == null)
                 throw new ArgumentNullException(nameof(source), "Can't patch from null source data.");
+
+            this.GetPatchBounds(ref sourceArea, ref targetArea, source.Width, source.Height);
 
             // get the pixels for the source area
             Color[] sourceData;
@@ -59,7 +59,6 @@ namespace StardewModdingAPI.Framework.Content
 
                     for (int y = areaY, maxY = areaY + areaHeight; y < maxY; y++)
                     {
-                        // avoiding an variable that increments allows the processor to re-arrange here.
                         int sourceIndex = (y * source.Width) + areaX;
                         int targetIndex = (y - areaY) * areaWidth;
                         Array.Copy(source.Data, sourceIndex, sourceData, targetIndex, areaWidth);
@@ -77,13 +76,13 @@ namespace StardewModdingAPI.Framework.Content
         /// <inheritdoc />
         public void PatchImage(Texture2D source, Rectangle? sourceArea = null, Rectangle? targetArea = null, PatchMode patchMode = PatchMode.Replace)
         {
-            // validate
+            // nullcheck
             if (source == null)
                 throw new ArgumentNullException(nameof(source), "Can't patch from a null source texture.");
 
             this.GetPatchBounds(ref sourceArea, ref targetArea, source.Width, source.Height);
 
-            // validate source texture
+            // validate source bounds
             if (!source.Bounds.Contains(sourceArea.Value))
                 throw new ArgumentOutOfRangeException(nameof(sourceArea), "The source area is outside the bounds of the source texture.");
 
@@ -161,8 +160,8 @@ namespace StardewModdingAPI.Framework.Content
                 // merge pixels
                 for (int i = 0; i < pixelCount; i++)
                 {
-                    Color above = sourceData[i];
-                    Color below = mergedData[i];
+                    ref Color above = ref sourceData[i];
+                    ref Color below = ref mergedData[i];
 
                     // shortcut transparency
                     if (above.A < MinOpacity)
