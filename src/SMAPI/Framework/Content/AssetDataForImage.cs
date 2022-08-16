@@ -40,7 +40,7 @@ namespace StardewModdingAPI.Framework.Content
             this.GetPatchBounds(ref sourceArea, ref targetArea, source.Width, source.Height);
 
             // get the pixels for the source area
-            Color[] sourceData;
+            Color[] trimmedSourceData;
             {
                 int areaX = sourceArea.Value.X;
                 int areaY = sourceArea.Value.Y;
@@ -49,26 +49,42 @@ namespace StardewModdingAPI.Framework.Content
 
                 if (areaX == 0 && areaY == 0 && areaWidth == source.Width && areaHeight == source.Height)
                 {
-                    sourceData = source.Data;
-                    this.PatchImageImpl(sourceData, source.Width, source.Height, sourceArea.Value, targetArea.Value, patchMode);
+                    trimmedSourceData = source.Data;
+                    this.PatchImageImpl(trimmedSourceData, source.Width, source.Height, sourceArea.Value, targetArea.Value, patchMode);
                 }
                 else
                 {
                     int pixelCount = areaWidth * areaHeight;
-                    sourceData = ArrayPool<Color>.Shared.Rent(pixelCount);
+                    trimmedSourceData = ArrayPool<Color>.Shared.Rent(pixelCount);
 
-                    for (int y = areaY, maxY = areaY + areaHeight; y < maxY; y++)
+                    // shortcut! If I want a horizontal slice of the texture
+                    // I can copy the whole array in one pass
+                    // Likely ~uncommon but Array.Copy significantly benefits
+                    // from being able to do this.
+                    if (areaWidth == source.Width && areaX == 0)
                     {
-                        int sourceIndex = (y * source.Width) + areaX;
-                        int targetIndex = (y - areaY) * areaWidth;
-                        Array.Copy(source.Data, sourceIndex, sourceData, targetIndex, areaWidth);
+                        int sourceIndex = areaY * source.Width;
+                        int targetIndex = 0;
+
+                        Array.Copy(source.Data, sourceIndex, trimmedSourceData, targetIndex, pixelCount);
+                    }
+                    else
+                    {
+                        // copying line-by-line
+                        // Array.Copy isn't great at small scale
+                        for (int y = areaY, maxY = areaY + areaHeight; y < maxY; y++)
+                        {
+                            int sourceIndex = (y * source.Width) + areaX;
+                            int targetIndex = (y - areaY) * areaWidth;
+                            Array.Copy(source.Data, sourceIndex, trimmedSourceData, targetIndex, areaWidth);
+                        }
                     }
 
                     // apply
-                    this.PatchImageImpl(sourceData, source.Width, source.Height, sourceArea.Value, targetArea.Value, patchMode);
+                    this.PatchImageImpl(trimmedSourceData, source.Width, source.Height, sourceArea.Value, targetArea.Value, patchMode);
 
                     // return
-                    ArrayPool<Color>.Shared.Return(sourceData);
+                    ArrayPool<Color>.Shared.Return(trimmedSourceData);
                 }
             }
         }
@@ -160,8 +176,9 @@ namespace StardewModdingAPI.Framework.Content
                 // merge pixels
                 for (int i = 0; i < pixelCount; i++)
                 {
-                    Color above = sourceData[i];
-                    Color below = mergedData[i];
+                    // should probably benchmark this...
+                    ref Color above = ref sourceData[i];
+                    ref Color below = ref mergedData[i];
 
                     // shortcut transparency
                     if (above.A < MinOpacity)

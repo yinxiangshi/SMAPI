@@ -8,5 +8,5 @@ namespace StardewModdingAPI.Framework.Content
     /// <param name="Priority">If there are multiple loads that apply to the same asset, the priority with which this one should be applied.</param>
     /// <param name="OnBehalfOf">The content pack on whose behalf the asset is being loaded, if any.</param>
     /// <param name="GetData">Load the initial value for an asset.</param>
-    internal record AssetLoadOperation(IModMetadata Mod, IModMetadata? OnBehalfOf, AssetLoadPriority Priority, Func<IAssetInfo, object> GetData);
+    internal readonly record struct AssetLoadOperation(IModMetadata Mod, IModMetadata? OnBehalfOf, AssetLoadPriority Priority, Func<IAssetInfo, object> GetData);
 }

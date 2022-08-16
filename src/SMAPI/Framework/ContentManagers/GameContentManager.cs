@@ -172,7 +172,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             where T : notnull
         {
             // find matching loader
-            AssetLoadOperation? loader = null;
+            AssetLoadOperation loader = default;
             if (loadOperations?.Count > 0)
             {
                 if (!this.AssertMaxOneRequiredLoader(info, loadOperations, out string? error))
@@ -183,7 +183,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
 
                 loader = loadOperations.OrderByDescending(p => p.Priority).FirstOrDefault();
             }
-            if (loader == null)
+            if (loader.Mod == null) // aka, this is default.
                 return null;
 
             // fetch asset from loader
