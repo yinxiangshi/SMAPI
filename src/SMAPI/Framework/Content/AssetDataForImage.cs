@@ -160,13 +160,13 @@ namespace StardewModdingAPI.Framework.Content
                 // merge pixels
                 for (int i = 0; i < pixelCount; i++)
                 {
-                    ref Color above = ref sourceData[i];
-                    ref Color below = ref mergedData[i];
+                    Color above = sourceData[i];
+                    Color below = mergedData[i];
 
                     // shortcut transparency
                     if (above.A < MinOpacity)
                         continue;
-                    if (below.A < MinOpacity)
+                    if (below.A < MinOpacity || above.A == byte.MaxValue)
                         mergedData[i] = above;
 
                     // merge pixels
