@@ -9,6 +9,7 @@
 
 ## Upcoming release
 * For players:
+  * Added error message if mod files are detected directly under `Mods` (instead of each mod having its own subfolder).
   * SMAPI now sets a success/error code when the game exits.  
     _This is used by your OS (like Windows) to decide whether to keep the console window open when the game ends._
   * Fixed SMAPI on Windows applying different DPI awareness settings than the game (thanks to spacechase0!).
