@@ -353,6 +353,9 @@ namespace StardewModdingAPI.Framework.ContentManagers
         [DoesNotReturn]
         [DebuggerStepThrough, DebuggerHidden]
         [MethodImpl(MethodImplOptions.NoInlining)]
+#if NET6_0_OR_GREATER
+        [StackTraceHidden]
+#endif
         private void ThrowLoadError(IAssetName assetName, ContentLoadErrorType errorType, string reasonPhrase, Exception? exception = null)
         {
             throw new SContentLoadException(errorType, $"Failed loading asset '{assetName}' from {this.Name}: {reasonPhrase}", exception);
