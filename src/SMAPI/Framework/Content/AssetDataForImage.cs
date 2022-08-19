@@ -40,7 +40,7 @@ namespace StardewModdingAPI.Framework.Content
             this.GetPatchBounds(ref sourceArea, ref targetArea, source.Width, source.Height);
 
             // get the pixels for the source area
-            Color[] trimmedSourceData;
+            Color[] sourceData;
             {
                 int areaX = sourceArea.Value.X;
                 int areaY = sourceArea.Value.Y;
@@ -49,42 +49,40 @@ namespace StardewModdingAPI.Framework.Content
 
                 if (areaX == 0 && areaY == 0 && areaWidth == source.Width && areaHeight == source.Height)
                 {
-                    trimmedSourceData = source.Data;
-                    this.PatchImageImpl(trimmedSourceData, source.Width, source.Height, sourceArea.Value, targetArea.Value, patchMode);
+                    sourceData = source.Data;
+                    this.PatchImageImpl(sourceData, source.Width, source.Height, sourceArea.Value, targetArea.Value, patchMode);
                 }
                 else
                 {
                     int pixelCount = areaWidth * areaHeight;
-                    trimmedSourceData = ArrayPool<Color>.Shared.Rent(pixelCount);
+                    sourceData = ArrayPool<Color>.Shared.Rent(pixelCount);
 
-                    // shortcut! If I want a horizontal slice of the texture
-                    // I can copy the whole array in one pass
-                    // Likely ~uncommon but Array.Copy significantly benefits
-                    // from being able to do this.
-                    if (areaWidth == source.Width && areaX == 0)
+                    if (areaX == 0 && areaWidth == source.Width)
                     {
-                        int sourceIndex = areaY * source.Width;
-                        int targetIndex = 0;
+                        // shortcut copying because the area to copy is contiguous. This is
+                        // probably uncommon, but Array.Copy benefits a lot.
 
-                        Array.Copy(source.Data, sourceIndex, trimmedSourceData, targetIndex, pixelCount);
+                        int sourceIndex = areaY * areaWidth;
+                        int targetIndex = 0;
+                        Array.Copy(source.Data, sourceIndex, sourceData, targetIndex, areaWidth);
+
                     }
                     else
                     {
-                        // copying line-by-line
-                        // Array.Copy isn't great at small scale
+                        // slower copying, line by line
                         for (int y = areaY, maxY = areaY + areaHeight; y < maxY; y++)
                         {
                             int sourceIndex = (y * source.Width) + areaX;
                             int targetIndex = (y - areaY) * areaWidth;
-                            Array.Copy(source.Data, sourceIndex, trimmedSourceData, targetIndex, areaWidth);
+                            Array.Copy(source.Data, sourceIndex, sourceData, targetIndex, areaWidth);
                         }
                     }
 
                     // apply
-                    this.PatchImageImpl(trimmedSourceData, source.Width, source.Height, sourceArea.Value, targetArea.Value, patchMode);
+                    this.PatchImageImpl(sourceData, source.Width, source.Height, sourceArea.Value, targetArea.Value, patchMode);
 
                     // return
-                    ArrayPool<Color>.Shared.Return(trimmedSourceData);
+                    ArrayPool<Color>.Shared.Return(sourceData);
                 }
             }
         }
@@ -176,9 +174,9 @@ namespace StardewModdingAPI.Framework.Content
                 // merge pixels
                 for (int i = 0; i < pixelCount; i++)
                 {
-                    // should probably benchmark this...
-                    ref Color above = ref sourceData[i];
-                    ref Color below = ref mergedData[i];
+                    // ref locals here? Not sure.
+                    Color above = sourceData[i];
+                    Color below = mergedData[i];
 
                     // shortcut transparency
                     if (above.A < MinOpacity)
