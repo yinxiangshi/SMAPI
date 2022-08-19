@@ -64,7 +64,7 @@ namespace StardewModdingAPI.Framework.Content
 
                         int sourceIndex = areaY * areaWidth;
                         int targetIndex = 0;
-                        Array.Copy(source.Data, sourceIndex, sourceData, targetIndex, areaWidth);
+                        Array.Copy(source.Data, sourceIndex, sourceData, targetIndex, pixelCount);
 
                     }
                     else
