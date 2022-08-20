@@ -47,7 +47,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                 IModMetadata metadata = new ModMetadata(folder.DisplayName, folder.Directory.FullName, rootPath, manifest, dataRecord, isIgnored: shouldIgnore);
                 if (shouldIgnore)
                     metadata.SetStatus(status, ModFailReason.DisabledByDotConvention, "disabled by dot convention");
-                else if (metadata.Status == ModMetadataStatus.Failed)
+                else if (status == ModMetadataStatus.Failed)
                     metadata.SetStatus(status, ModFailReason.InvalidManifest, folder.ManifestParseErrorText);
 
                 yield return metadata;
