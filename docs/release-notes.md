@@ -4,10 +4,12 @@
 <!--
 ## 4.0.0
 * The installer no longer supports updating from SMAPI 2.11.3 or earlier (released in 2019).  
-  _If needed, you can update to SMAPI 3.15.0 first and then install to the latest version._
+  _If needed, you can update to SMAPI 3.16.0 first and then install the latest version._
 -->
 
-## Upcoming release
+## 3.16.0
+Released 22 August 2022 for Stardew Valley 1.5.6 or later. See [release highlights](https://www.patreon.com/posts/70797008).
+
 * For players:
   * Added error message if mod files are detected directly under `Mods` (instead of each mod having its own subfolder).
   * SMAPI now sets a success/error code when the game exits.  
@@ -21,16 +23,16 @@
   * Improved translations. Thanks to KediDili (updated Turkish)!
 
 * For mod authors:
-  * While loading your mod, SMAPI now searches for indirect dependencies in your mod's folder to support edge cases like F# mods (thanks to TehPers)!
+  * While loading your mod, SMAPI now searches for indirect dependencies in your mod's folder (thanks to TehPers)! This mainly enables F# mods.
   * **Raised deprecation message levels.**  
-    _Deprecation warnings are now player-visible in the SMAPI console as grayed-out `DEBUG` messages. They'll be raised to `WARN` level in SMAPI 3.17 next month, which will be the last major release before SMAPI 4.0._
+    _Deprecation warnings are now player-visible in the SMAPI console as faded `DEBUG` messages._
   * Updated to Pintail 2.2.1 (see [changes](https://github.com/Nanoray-pl/Pintail/blob/master/docs/release-notes.md#221)).
-  * Switched SMAPI's `.pdb` file to the newer 'portable' format. This has no effect on mods.
+  * Switched SMAPI's `.pdb` files to the newer 'portable' format. This has no effect on mods.
 
 * For the web UI:
   * Added log parser warning about performance of PyTK 1.23.0 or earlier.
   * Converted images to SVG (thanks to ishan!).
-  * Updated log parser for new update alert format in SMAPI 3.15.1.
+  * Updated log parser for the new update alert format in SMAPI 3.15.1.
   * Updated the JSON validator/schema for Content Patcher 1.28.0.
   * Fixed log parsing for invalid content packs.
   * Fixed log parsing if a mod logged a null character.
