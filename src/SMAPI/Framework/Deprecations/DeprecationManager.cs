@@ -124,7 +124,7 @@ namespace StardewModdingAPI.Framework.Deprecations
                 }
 
                 // log message
-                if (level == LogLevel.Trace)
+                if (level is LogLevel.Trace or LogLevel.Debug)
                 {
                     if (warning.LogStackTrace)
                         message += $"\n{this.GetSimplifiedStackTrace(warning.StackTrace, warning.Mod)}";
