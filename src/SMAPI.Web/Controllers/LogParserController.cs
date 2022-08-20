@@ -1,7 +1,9 @@
 using System;
-using System.Linq;
+using System.Collections.Specialized;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using Microsoft.AspNetCore.Mvc;
 using StardewModdingAPI.Toolkit.Utilities;
 using StardewModdingAPI.Web.Framework;
@@ -87,9 +89,15 @@ namespace StardewModdingAPI.Web.Controllers
         public async Task<ActionResult> PostAsync()
         {
             // get raw log text
-            string? input = this.Request.Form["input"].FirstOrDefault();
-            if (string.IsNullOrWhiteSpace(input))
-                return this.View("Index", this.GetModel(null, uploadError: "The log file seems to be empty."));
+            // note: avoid this.Request.Form, which fails if any mod logged a null character.
+            string? input;
+            {
+                using StreamReader reader = new StreamReader(this.Request.Body);
+                NameValueCollection parsed = HttpUtility.ParseQueryString(await reader.ReadToEndAsync());
+                input = parsed["input"];
+                if (string.IsNullOrWhiteSpace(input))
+                    return this.View("Index", this.GetModel(null, uploadError: "The log file seems to be empty."));
+            }
 
             // upload log
             UploadResult uploadResult = await this.Storage.SaveAsync(input);

@@ -36,13 +36,13 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
         private readonly Regex ContentPackListStartPattern = new(@"^Loaded \d+ content packs:$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         /// <summary>A regex pattern matching an entry in SMAPI's content pack list.</summary>
-        private readonly Regex ContentPackListEntryPattern = new(@"^   (?<name>.+?) (?<version>[^\s]+)(?: by (?<author>[^\|]+))? \| for (?<for>[^\|]+)(?: \| (?<description>.+))?$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private readonly Regex ContentPackListEntryPattern = new(@"^   (?<name>.+?) (?<version>[^\s]+)(?: by (?<author>[^\|]+))? \| for (?<for>[^\|]*)(?: \| (?<description>.+))?$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         /// <summary>A regex pattern matching the start of SMAPI's mod update list.</summary>
         private readonly Regex ModUpdateListStartPattern = new(@"^You can update \d+ mods?:$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         /// <summary>A regex pattern matching an entry in SMAPI's mod update list.</summary>
-        private readonly Regex ModUpdateListEntryPattern = new(@"^   (?<name>.+) (?<version>[^\s]+): (?<link>.+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private readonly Regex ModUpdateListEntryPattern = new(@"^   (?<name>.+) (?<version>[^\s]+): (?<link>[^\s]+)(?: \(you have [^\)]+\))?$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         /// <summary>A regex pattern matching SMAPI's update line.</summary>
         private readonly Regex SmapiUpdatePattern = new(@"^You can update SMAPI to (?<version>[^\s]+): (?<link>.+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
@@ -77,8 +77,8 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
                 };
 
                 // parse log messages
-                LogModInfo smapiMod = new(name: "SMAPI", author: "Pathoschild", version: "", description: "", loaded: true, isMod: false);
-                LogModInfo gameMod = new(name: "game", author: "", version: "", description: "", loaded: true, isMod: false);
+                LogModInfo smapiMod = new(ModType.Special, name: "SMAPI", author: "Pathoschild", version: "", description: "", loaded: true);
+                LogModInfo gameMod = new(ModType.Special, name: "game", author: "", version: "", description: "", loaded: true);
                 IDictionary<string, List<LogModInfo>> mods = new Dictionary<string, List<LogModInfo>>();
                 bool inModList = false;
                 bool inContentPackList = false;
@@ -133,7 +133,7 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
 
                             if (!mods.TryGetValue(name, out List<LogModInfo>? entries))
                                 mods[name] = entries = new List<LogModInfo>();
-                            entries.Add(new LogModInfo(name: name, author: author, version: version, description: description, loaded: true));
+                            entries.Add(new LogModInfo(ModType.CodeMod, name: name, author: author, version: version, description: description, loaded: true));
 
                             message.Section = LogSection.ModsList;
                         }
@@ -156,7 +156,7 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
 
                             if (!mods.TryGetValue(name, out List<LogModInfo>? entries))
                                 mods[name] = entries = new List<LogModInfo>();
-                            entries.Add(new LogModInfo(name: name, author: author, version: version, description: description, contentPackFor: forMod, loaded: true));
+                            entries.Add(new LogModInfo(ModType.ContentPack, name: name, author: author, version: version, description: description, contentPackFor: forMod, loaded: true));
 
                             message.Section = LogSection.ContentPackList;
                         }

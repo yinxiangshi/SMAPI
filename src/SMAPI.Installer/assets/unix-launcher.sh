@@ -54,12 +54,12 @@ if [ "$(uname)" == "Darwin" ]; then
         # https://stackoverflow.com/a/29511052/262123
         if [ "$USE_CURRENT_SHELL" == "false" ]; then
             echo "Reopening in the Terminal app..."
-            echo '#!/bin/sh' > /tmp/open-smapi-terminal.sh
-            echo "\"$0\" $@ --use-current-shell" >> /tmp/open-smapi-terminal.sh
-            chmod +x /tmp/open-smapi-terminal.sh
-            cat /tmp/open-smapi-terminal.sh
-            open -W -a Terminal /tmp/open-smapi-terminal.sh
-            rm /tmp/open-smapi-terminal.sh
+            echo '#!/bin/sh' > /tmp/open-smapi-terminal.command
+            echo "\"$0\" $@ --use-current-shell" >> /tmp/open-smapi-terminal.command
+            chmod +x /tmp/open-smapi-terminal.command
+            cat /tmp/open-smapi-terminal.command
+            open -W /tmp/open-smapi-terminal.command
+            rm /tmp/open-smapi-terminal.command
             exit 0
         fi
     fi
@@ -71,8 +71,8 @@ fi
 ##########
 # script must be run from the game folder
 if [ ! -f "Stardew Valley.dll" ]; then
-    echo "Oops! SMAPI must be placed in the Stardew Valley game folder.\nSee instructions: https://stardewvalleywiki.com/Modding:Player_Guide";
-    read
+    printf "Oops! SMAPI must be placed in the Stardew Valley game folder.\nSee instructions: https://stardewvalleywiki.com/Modding:Player_Guide";
+    read -r
     exit 1
 fi
 
@@ -102,37 +102,39 @@ else
 
         # find the true shell behind x-terminal-emulator
         if [ "$TERMINAL_NAME" = "x-terminal-emulator" ]; then
-            export TERMINAL_NAME="$(basename "$(readlink -f $(command -v x-terminal-emulator))")"
+            TERMINAL_NAME="$(basename "$(readlink -f "$(command -v x-terminal-emulator)")")"
+            export TERMINAL_NAME
         fi
 
         # run in selected terminal and account for quirks
-        export TERMINAL_PATH="$(command -v $TERMINAL_NAME)"
-        if [ -x $TERMINAL_PATH ]; then
+        TERMINAL_PATH="$(command -v "$TERMINAL_NAME")"
+        export TERMINAL_PATH
+        if [ -x "$TERMINAL_PATH" ]; then
             case $TERMINAL_NAME in
                 terminal|termite)
                     # consumes only one argument after -e
                     # options containing space characters are unsupported
-                    exec $TERMINAL_NAME -e "env TERM=xterm $LAUNCH_FILE $@"
+                    exec "$TERMINAL_NAME" -e "env TERM=xterm $LAUNCH_FILE $@"
                     ;;
 
                 xterm|konsole|alacritty)
                     # consumes all arguments after -e
-                    exec $TERMINAL_NAME -e env TERM=xterm $LAUNCH_FILE "$@"
+                    exec "$TERMINAL_NAME" -e env TERM=xterm $LAUNCH_FILE "$@"
                     ;;
 
                 terminator|xfce4-terminal|mate-terminal)
                     # consumes all arguments after -x
-                    exec $TERMINAL_NAME -x env TERM=xterm $LAUNCH_FILE "$@"
+                    exec "$TERMINAL_NAME" -x env TERM=xterm $LAUNCH_FILE "$@"
                     ;;
 
                 gnome-terminal)
                     # consumes all arguments after --
-                    exec $TERMINAL_NAME -- env TERM=xterm $LAUNCH_FILE "$@"
+                    exec "$TERMINAL_NAME" -- env TERM=xterm $LAUNCH_FILE "$@"
                     ;;
 
                 kitty)
                     # consumes all trailing arguments
-                    exec $TERMINAL_NAME env TERM=xterm $LAUNCH_FILE "$@"
+                    exec "$TERMINAL_NAME" env TERM=xterm $LAUNCH_FILE "$@"
                     ;;
 
                 *)

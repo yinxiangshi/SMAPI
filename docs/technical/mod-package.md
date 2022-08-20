@@ -412,6 +412,9 @@ The NuGet package is generated automatically in `StardewModdingAPI.ModBuildConfi
 when you compile it.
 
 ## Release notes
+### Upcoming release
+* Switched to the newer crossplatform `portable` debug symbols (thanks to lanturnalis!).
+
 ### 4.0.1
 Released 14 April 2022.
 

@@ -4,8 +4,38 @@
 <!--
 ## 4.0.0
 * The installer no longer supports updating from SMAPI 2.11.3 or earlier (released in 2019).  
-  _If needed, you can update to SMAPI 3.15.0 first and then install to the latest version._
+  _If needed, you can update to SMAPI 3.16.0 first and then install the latest version._
 -->
+
+## 3.16.0
+Released 22 August 2022 for Stardew Valley 1.5.6 or later. See [release highlights](https://www.patreon.com/posts/70797008).
+
+* For players:
+  * Added error message if mod files are detected directly under `Mods` (instead of each mod having its own subfolder).
+  * SMAPI now sets a success/error code when the game exits.  
+    _This is used by your OS (like Windows) to decide whether to keep the console window open when the game ends._
+  * Fixed SMAPI on Windows applying different DPI awareness settings than the game (thanks to spacechase0!).
+  * Fixed Linux/macOS installer's color scheme question partly unreadable if the terminal background is dark.
+  * Fixed error message when a mod loads an invalid PNG file (thanks to atravita!).
+  * Fixed error message when a mod is duplicated, but one of the copies is also missing the DLL file. This now shows the duplicate-mod message instead of the missing-DLL message.
+  * Fixed macOS launcher using Terminal regardless of the system's default terminal (thanks to ishan!).
+  * Fixed best practices in Linux/macOS launcher scripts (thanks to ishan!).
+  * Improved translations. Thanks to KediDili (updated Turkish)!
+
+* For mod authors:
+  * While loading your mod, SMAPI now searches for indirect dependencies in your mod's folder (thanks to TehPers)! This mainly enables F# mods.
+  * **Raised deprecation message levels.**  
+    _Deprecation warnings are now player-visible in the SMAPI console as faded `DEBUG` messages._
+  * Updated to Pintail 2.2.1 (see [changes](https://github.com/Nanoray-pl/Pintail/blob/master/docs/release-notes.md#221)).
+  * Switched SMAPI's `.pdb` files to the newer 'portable' format. This has no effect on mods.
+
+* For the web UI:
+  * Added log parser warning about performance of PyTK 1.23.0 or earlier.
+  * Converted images to SVG (thanks to ishan!).
+  * Updated log parser for the new update alert format in SMAPI 3.15.1.
+  * Updated the JSON validator/schema for Content Patcher 1.28.0.
+  * Fixed log parsing for invalid content packs.
+  * Fixed log parsing if a mod logged a null character.
 
 ## 3.15.1
 Released 06 July 2022 for Stardew Valley 1.5.6 or later.
@@ -41,7 +71,7 @@ Released 17 June 2022 for Stardew Valley 1.5.6 or later. See [release highlights
   * Updated dependencies:
     * Harmony 2.2.1 (see changes in [2.2.0](https://github.com/pardeike/Harmony/releases/tag/v2.2.0.0) and [2.2.1](https://github.com/pardeike/Harmony/releases/tag/v2.2.1.0));
     * Newtonsoft.Json 13.0.1 (see [changes](https://github.com/JamesNK/Newtonsoft.Json/releases/tag/13.0.1));
-    * Pintail 2.2.0.
+    * Pintail 2.2.0 (see [changes](https://github.com/Nanoray-pl/Pintail/blob/master/docs/release-notes.md#220)).
   * Removed transitional `UsePintail` option added in 3.14.0 (now always enabled).
   * Fixed `onBehalfOf` arguments in the new content API being case-sensitive.
   * Fixed map edits which change warps sometimes rebuilding the NPC pathfinding cache unnecessarily, which could cause a noticeable delay for players.

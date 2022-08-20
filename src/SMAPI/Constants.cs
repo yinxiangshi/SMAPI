@@ -52,7 +52,7 @@ namespace StardewModdingAPI
         internal static int? LogScreenId { get; set; }
 
         /// <summary>SMAPI's current raw semantic version.</summary>
-        internal static string RawApiVersion = "3.15.1";
+        internal static string RawApiVersion = "3.16.0";
     }
 
     /// <summary>Contains SMAPI's constants and assumptions.</summary>
@@ -90,7 +90,7 @@ namespace StardewModdingAPI
                     source: null,
                     nounPhrase: $"{nameof(Constants)}.{nameof(Constants.ExecutionPath)}",
                     version: "3.14.0",
-                    severity: DeprecationLevel.Notice
+                    severity: DeprecationLevel.Info
                 );
 
                 return Constants.GamePath;
@@ -244,8 +244,8 @@ namespace StardewModdingAPI
         internal static void ConfigureAssemblyResolver(AssemblyDefinitionResolver resolver)
         {
             // add search paths
-            resolver.AddSearchDirectory(Constants.GamePath);
-            resolver.AddSearchDirectory(Constants.InternalFilesPath);
+            resolver.TryAddSearchDirectory(Constants.GamePath);
+            resolver.TryAddSearchDirectory(Constants.InternalFilesPath);
 
             // add SMAPI explicitly
             // Normally this would be handled automatically by the search paths, but for some reason there's a specific

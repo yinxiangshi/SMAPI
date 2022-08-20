@@ -47,7 +47,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                 IModMetadata metadata = new ModMetadata(folder.DisplayName, folder.Directory.FullName, rootPath, manifest, dataRecord, isIgnored: shouldIgnore);
                 if (shouldIgnore)
                     metadata.SetStatus(status, ModFailReason.DisabledByDotConvention, "disabled by dot convention");
-                else
+                else if (status == ModMetadataStatus.Failed)
                     metadata.SetStatus(status, ModFailReason.InvalidManifest, folder.ManifestParseErrorText);
 
                 yield return metadata;
@@ -223,8 +223,8 @@ namespace StardewModdingAPI.Framework.ModLoading
                 {
                     foreach (IModMetadata mod in group)
                     {
-                        if (mod.Status == ModMetadataStatus.Failed)
-                            continue; // don't replace metadata error
+                        if (mod.Status == ModMetadataStatus.Failed && mod.FailReason != ModFailReason.InvalidManifest)
+                            continue;
 
                         string folderList = string.Join(", ", group.Select(p => p.GetRelativePathWithRoot()).OrderBy(p => p));
                         mod.SetStatus(ModMetadataStatus.Failed, ModFailReason.Duplicate, $"you have multiple copies of this mod installed. To fix this, delete these folders and reinstall the mod: {folderList}.");
