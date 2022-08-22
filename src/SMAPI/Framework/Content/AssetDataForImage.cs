@@ -47,10 +47,12 @@ namespace StardewModdingAPI.Framework.Content
                 int areaWidth = sourceArea.Value.Width;
                 int areaHeight = sourceArea.Value.Height;
 
-                if (areaX == 0 && areaY == 0 && areaWidth == source.Width && areaHeight == source.Height)
+                if (areaX == 0 && areaY == 0 && areaWidth == source.Width && areaHeight <= source.Height)
                 {
+                    // It's actually fine if the source is taller than the sourceArea
+                    // the "extra" bits on the end of the array can just be ignored.
                     sourceData = source.Data;
-                    this.PatchImageImpl(sourceData, source.Width, source.Height, sourceArea.Value, targetArea.Value, patchMode);
+                    this.PatchImageImpl(sourceData, areaWidth, areaHeight, sourceArea.Value, targetArea.Value, patchMode);
                 }
                 else
                 {
