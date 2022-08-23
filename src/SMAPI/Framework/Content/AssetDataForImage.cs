@@ -219,15 +219,17 @@ namespace StardewModdingAPI.Framework.Content
                 // merge pixels
                 for (int i = startIndex; i <= endIndex; i++)
                 {
+                    int targetIndex = i - sourceoffset;
+
                     // ref locals here? Not sure.
                     Color above = sourceData[i];
-                    Color below = mergedData[i - sourceoffset];
+                    Color below = mergedData[targetIndex];
 
                     // shortcut transparency
                     if (above.A < MinOpacity)
                         continue;
                     if (below.A < MinOpacity || above.A == byte.MaxValue)
-                        mergedData[i] = above;
+                        mergedData[targetIndex] = above;
 
                     // merge pixels
                     else
@@ -236,7 +238,7 @@ namespace StardewModdingAPI.Framework.Content
                         // premultiplied by the content pipeline. The formula is derived from
                         // https://blogs.msdn.microsoft.com/shawnhar/2009/11/06/premultiplied-alpha/.
                         float alphaBelow = 1 - (above.A / 255f);
-                        mergedData[i] = new Color(
+                        mergedData[targetIndex] = new Color(
                             r: (int)(above.R + (below.R * alphaBelow)),
                             g: (int)(above.G + (below.G * alphaBelow)),
                             b: (int)(above.B + (below.B * alphaBelow)),
