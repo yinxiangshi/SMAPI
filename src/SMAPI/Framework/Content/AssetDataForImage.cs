@@ -187,7 +187,7 @@ namespace StardewModdingAPI.Framework.Content
                 }
 
                 if (startIndex == -1)
-                    return;
+                    return; // apparently a completely blank texture?
 
                 int endIndex = -1;
                 for (int i = pixelCount - 1; i >= startIndex; i--)
@@ -200,8 +200,9 @@ namespace StardewModdingAPI.Framework.Content
                 }
 
                 if (endIndex == -1)
-                    return;
+                    return; // should never happen
 
+                // Calculate new Y bounds
                 int topoffset = startIndex / sourceArea.Width;
                 int bottomoffset = endIndex / sourceArea.Width;
 
