@@ -207,7 +207,6 @@ namespace StardewModdingAPI.Framework.Content
 
                 // Update target rectangle
                 targetArea = new(targetArea.X, targetArea.Y + topoffset, targetArea.Width, bottomoffset - topoffset + 1);
-
                 pixelCount = targetArea.Width * targetArea.Height;
 
                 int sourceoffset = topoffset * sourceArea.Width;
@@ -217,11 +216,11 @@ namespace StardewModdingAPI.Framework.Content
                 target.GetData(0, targetArea, mergedData, 0, pixelCount);
 
                 // merge pixels
-                for (int i = 0; i < pixelCount; i++)
+                for (int i = startIndex; i <= endIndex; i++)
                 {
                     // ref locals here? Not sure.
-                    Color above = sourceData[sourceoffset + i];
-                    Color below = mergedData[i];
+                    Color above = sourceData[i];
+                    Color below = mergedData[i - sourceoffset];
 
                     // shortcut transparency
                     if (above.A < MinOpacity)
