@@ -1,6 +1,7 @@
 using System;
 using System.Buffers;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
@@ -166,9 +167,51 @@ namespace StardewModdingAPI.Framework.Content
             if (sourceArea.Size != targetArea.Size)
                 throw new InvalidOperationException("The source and target areas must be the same size.");
 
-            // merge data
-            if (patchMode == PatchMode.Overlay)
+            if (patchMode == PatchMode.Replace)
+                target.SetData(0, targetArea, sourceData, 0, pixelCount);
+            else
             {
+                // merge data
+
+                // Content packs have a habit of using large amounts of blank space.
+                // Adjusting bounds to ignore transparent pixels at the start and end.
+
+                int startIndex = -1;
+                for (int i = 0; i < pixelCount; i++)
+                {
+                    if (sourceData[i].A >= MinOpacity)
+                    {
+                        startIndex = i;
+                        break;
+                    }
+                }
+
+                if (startIndex == -1)
+                    return;
+
+                int endIndex = -1;
+                for (int i = pixelCount - 1; i >= startIndex; i--)
+                {
+                    if (sourceData[i].A >= MinOpacity)
+                    {
+                        endIndex = i;
+                        break;
+                    }
+                }
+
+                if (endIndex == -1)
+                    return;
+
+                int topoffset = startIndex / sourceArea.Width;
+                int bottomoffset = endIndex / sourceArea.Width;
+
+                // Update target rectangle
+                targetArea = new(targetArea.X, targetArea.Y + topoffset, targetArea.Width, bottomoffset - topoffset + 1);
+
+                pixelCount = targetArea.Width * targetArea.Height;
+
+                int sourceoffset = topoffset * sourceArea.Width;
+
                 // get target data
                 Color[] mergedData = ArrayPool<Color>.Shared.Rent(pixelCount);
                 target.GetData(0, targetArea, mergedData, 0, pixelCount);
@@ -177,7 +220,7 @@ namespace StardewModdingAPI.Framework.Content
                 for (int i = 0; i < pixelCount; i++)
                 {
                     // ref locals here? Not sure.
-                    Color above = sourceData[i];
+                    Color above = sourceData[sourceoffset + i];
                     Color below = mergedData[i];
 
                     // shortcut transparency
@@ -205,8 +248,6 @@ namespace StardewModdingAPI.Framework.Content
                 target.SetData(0, targetArea, mergedData, 0, pixelCount);
                 ArrayPool<Color>.Shared.Return(mergedData);
             }
-            else
-                target.SetData(0, targetArea, sourceData, 0, pixelCount);
         }
     }
 }
