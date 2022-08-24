@@ -48,7 +48,16 @@ namespace StardewModdingAPI.Framework.ModLoading
                 if (shouldIgnore)
                     metadata.SetStatus(status, ModFailReason.DisabledByDotConvention, "disabled by dot convention");
                 else if (status == ModMetadataStatus.Failed)
-                    metadata.SetStatus(status, ModFailReason.InvalidManifest, folder.ManifestParseErrorText);
+                {
+                    ModFailReason reason = folder.ManifestParseError switch
+                    {
+                        ModParseError.EmptyFolder or ModParseError.EmptyVortexFolder => ModFailReason.EmptyFolder,
+                        ModParseError.XnbMod => ModFailReason.XnbMod,
+                        _ => ModFailReason.InvalidManifest
+                    };
+
+                    metadata.SetStatus(status, reason, folder.ManifestParseErrorText);
+                }
 
                 yield return metadata;
             }
