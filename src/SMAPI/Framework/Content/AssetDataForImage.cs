@@ -40,6 +40,11 @@ namespace StardewModdingAPI.Framework.Content
 
             this.GetPatchBounds(ref sourceArea, ref targetArea, source.Width, source.Height);
 
+            // check to see if the Data is sufficiently long.
+            // while SMAPI's impl is going to be, it's not necessarily the case for mod impl.
+            if (source.Data.Length < (sourceArea.Value.Bottom - 1) * source.Width + sourceArea.Value.Right)
+                throw new ArgumentException("Source data insufficiently long for this operation.");
+
             // get the pixels for the source area
             Color[] sourceData;
             {
@@ -48,37 +53,24 @@ namespace StardewModdingAPI.Framework.Content
                 int areaWidth = sourceArea.Value.Width;
                 int areaHeight = sourceArea.Value.Height;
 
-                if (areaX == 0 && areaY == 0 && areaWidth == source.Width && areaHeight <= source.Height)
+                if (areaWidth == source.Width)
                 {
                     // It's actually fine if the source is taller than the sourceArea
                     // the "extra" bits on the end of the array can just be ignored.
                     sourceData = source.Data;
-                    this.PatchImageImpl(sourceData, areaWidth, areaHeight, sourceArea.Value, targetArea.Value, patchMode);
+                    this.PatchImageImpl(sourceData, source.Width, source.Height, sourceArea.Value, targetArea.Value, patchMode, areaY);
                 }
                 else
                 {
                     int pixelCount = areaWidth * areaHeight;
                     sourceData = ArrayPool<Color>.Shared.Rent(pixelCount);
 
-                    if (areaX == 0 && areaWidth == source.Width)
+                    // slower copying, line by line
+                    for (int y = areaY, maxY = areaY + areaHeight; y < maxY; y++)
                     {
-                        // shortcut copying because the area to copy is contiguous. This is
-                        // probably uncommon, but Array.Copy benefits a lot.
-
-                        int sourceIndex = areaY * areaWidth;
-                        int targetIndex = 0;
-                        Array.Copy(source.Data, sourceIndex, sourceData, targetIndex, pixelCount);
-
-                    }
-                    else
-                    {
-                        // slower copying, line by line
-                        for (int y = areaY, maxY = areaY + areaHeight; y < maxY; y++)
-                        {
-                            int sourceIndex = (y * source.Width) + areaX;
-                            int targetIndex = (y - areaY) * areaWidth;
-                            Array.Copy(source.Data, sourceIndex, sourceData, targetIndex, areaWidth);
-                        }
+                        int sourceIndex = (y * source.Width) + areaX;
+                        int targetIndex = (y - areaY) * areaWidth;
+                        Array.Copy(source.Data, sourceIndex, sourceData, targetIndex, areaWidth);
                     }
 
                     // apply
@@ -150,10 +142,11 @@ namespace StardewModdingAPI.Framework.Content
         /// <param name="sourceArea">The part of the <paramref name="sourceData"/> to copy (or <c>null</c> to take the whole texture). This must be within the bounds of the <paramref name="sourceData"/> texture.</param>
         /// <param name="targetArea">The part of the content to patch (or <c>null</c> to patch the whole texture). The original content within this area will be erased. This must be within the bounds of the existing spritesheet.</param>
         /// <param name="patchMode">Indicates how an image should be patched.</param>
+        /// <param name="startRow">The row to start on, for the sourceData.</param>
         /// <exception cref="ArgumentNullException">One of the arguments is null.</exception>
         /// <exception cref="ArgumentOutOfRangeException">The <paramref name="targetArea"/> is outside the bounds of the spritesheet.</exception>
         /// <exception cref="InvalidOperationException">The content being read isn't an image.</exception>
-        private void PatchImageImpl(Color[] sourceData, int sourceWidth, int sourceHeight, Rectangle sourceArea, Rectangle targetArea, PatchMode patchMode)
+        private void PatchImageImpl(Color[] sourceData, int sourceWidth, int sourceHeight, Rectangle sourceArea, Rectangle targetArea, PatchMode patchMode, int startRow = 0)
         {
             // get texture
             Texture2D target = this.Data;
@@ -168,7 +161,7 @@ namespace StardewModdingAPI.Framework.Content
                 throw new InvalidOperationException("The source and target areas must be the same size.");
 
             if (patchMode == PatchMode.Replace)
-                target.SetData(0, targetArea, sourceData, 0, pixelCount);
+                target.SetData(0, targetArea, sourceData, startRow * sourceArea.Width, pixelCount);
             else
             {
                 // merge data
@@ -177,7 +170,7 @@ namespace StardewModdingAPI.Framework.Content
                 // Adjusting bounds to ignore transparent pixels at the start and end.
 
                 int startIndex = -1;
-                for (int i = 0; i < pixelCount; i++)
+                for (int i = startRow * sourceArea.Width; i < pixelCount; i++)
                 {
                     if (sourceData[i].A >= MinOpacity)
                     {
