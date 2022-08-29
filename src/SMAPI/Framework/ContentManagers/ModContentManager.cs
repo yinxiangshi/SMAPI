@@ -50,8 +50,10 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /*********
         ** Accessors
         *********/
+#if SMAPI_DEPRECATED
         /// <summary>Whether to enable legacy compatibility mode for PyTK scale-up textures.</summary>
         internal static bool EnablePyTkLegacyMode;
+#endif
 
 
         /*********
@@ -202,6 +204,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             bool expectsRawData = typeof(T).IsAssignableTo(typeof(IRawTextureData));
             bool asRawData = expectsRawData || this.UseRawImageLoading;
 
+#if SMAPI_DEPRECATED
             // disable raw data if PyTK will rescale the image (until it supports raw data)
             if (asRawData && !expectsRawData)
             {
@@ -212,9 +215,10 @@ namespace StardewModdingAPI.Framework.ContentManagers
                     // current file has a '.pytk.json' rescale file though, since PyTK may still
                     // rescale it if the original asset or another edit gets rescaled.
                     asRawData = false;
-                    this.Monitor.LogOnce("Enabled compatibility mode for PyTK 1.23.0 or earlier. This won't cause any issues, but may impact performance.", LogLevel.Warn);
+                    this.Monitor.LogOnce("Enabled compatibility mode for PyTK 1.23.* or earlier. This won't cause any issues, but may impact performance. This will no longer be supported in the upcoming SMAPI 4.0.0.", LogLevel.Warn);
                 }
             }
+#endif
 
             // load
             if (asRawData)

@@ -7,6 +7,13 @@
   _If needed, you can update to SMAPI 3.16.0 first and then install the latest version._
 -->
 
+## 3.16.1
+Released 29 August 2022 for Stardew Valley 1.5.6 or later.
+
+* For players:
+  * Updated PyTK compatibility mode for the latest PyTK version.
+  * Fixed broken mods sometimes incorrectly listed as duplicate.
+
 ## 3.16.0
 Released 22 August 2022 for Stardew Valley 1.5.6 or later. See [release highlights](https://www.patreon.com/posts/70797008).
 

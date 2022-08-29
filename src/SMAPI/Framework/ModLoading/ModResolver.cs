@@ -48,7 +48,16 @@ namespace StardewModdingAPI.Framework.ModLoading
                 if (shouldIgnore)
                     metadata.SetStatus(status, ModFailReason.DisabledByDotConvention, "disabled by dot convention");
                 else if (status == ModMetadataStatus.Failed)
-                    metadata.SetStatus(status, ModFailReason.InvalidManifest, folder.ManifestParseErrorText);
+                {
+                    ModFailReason reason = folder.ManifestParseError switch
+                    {
+                        ModParseError.EmptyFolder or ModParseError.EmptyVortexFolder => ModFailReason.EmptyFolder,
+                        ModParseError.XnbMod => ModFailReason.XnbMod,
+                        _ => ModFailReason.InvalidManifest
+                    };
+
+                    metadata.SetStatus(status, reason, folder.ManifestParseErrorText);
+                }
 
                 yield return metadata;
             }
@@ -218,12 +227,12 @@ namespace StardewModdingAPI.Framework.ModLoading
             {
                 var duplicatesByID = mods
                     .GroupBy(mod => mod.Manifest?.UniqueID?.Trim(), mod => mod, StringComparer.OrdinalIgnoreCase)
-                    .Where(p => p.Count() > 1);
+                    .Where(p => !string.IsNullOrEmpty(p.Key) && p.Count() > 1);
                 foreach (var group in duplicatesByID)
                 {
                     foreach (IModMetadata mod in group)
                     {
-                        if (mod.Status == ModMetadataStatus.Failed && mod.FailReason != ModFailReason.InvalidManifest)
+                        if (mod.Status == ModMetadataStatus.Failed && mod.FailReason is not (ModFailReason.InvalidManifest or ModFailReason.LoadFailed or ModFailReason.MissingDependencies))
                             continue;
 
                         string folderList = string.Join(", ", group.Select(p => p.GetRelativePathWithRoot()).OrderBy(p => p));
