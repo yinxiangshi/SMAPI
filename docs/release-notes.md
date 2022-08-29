@@ -8,7 +8,9 @@
 -->
 
 ## Upcoming release
-* Fixed broken mods sometimes incorrectly listed as duplicate.
+* For players:
+  * Updated compatibility workaround for the recent PyTK update.
+  * Fixed broken mods sometimes incorrectly listed as duplicate.
 
 ## 3.16.0
 Released 22 August 2022 for Stardew Valley 1.5.6 or later. See [release highlights](https://www.patreon.com/posts/70797008).

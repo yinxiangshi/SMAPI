@@ -10,7 +10,7 @@ using StardewModdingAPI.Internal;
 using StardewModdingAPI.Internal.Patching;
 
 //
-// This is part of a three-part fix for PyTK 1.23.0 and earlier. When removing this, search
+// This is part of a three-part fix for PyTK 1.23.* and earlier. When removing this, search
 // 'Platonymous.Toolkit' to find the other part in SMAPI and Content Patcher.
 //
 
@@ -38,7 +38,7 @@ namespace StardewModdingAPI.Mods.ErrorHandler.ModPatches
         public PyTkPatcher(IModRegistry modRegistry)
         {
             IModMetadata? pyTk = (IModMetadata?)modRegistry.Get(@"Platonymous.Toolkit");
-            if (pyTk is not null && !pyTk.Manifest.Version.IsNewerThan("1.23.0"))
+            if (pyTk is not null && pyTk.Manifest.Version.IsOlderThan("1.24.0"))
                 PyTkPatcher.PyTk = pyTk;
         }
 

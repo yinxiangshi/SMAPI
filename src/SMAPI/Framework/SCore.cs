@@ -1673,11 +1673,11 @@ namespace StardewModdingAPI.Framework
             this.ReloadTranslations(loaded);
 
             // set temporary PyTK compatibility mode
-            // This is part of a three-part fix for PyTK 1.23.0 and earlier. When removing this,
+            // This is part of a three-part fix for PyTK 1.23.* and earlier. When removing this,
             // search 'Platonymous.Toolkit' to find the other part in SMAPI and Content Patcher.
             {
                 IModInfo? pyTk = this.ModRegistry.Get("Platonymous.Toolkit");
-                ModContentManager.EnablePyTkLegacyMode = pyTk is not null && pyTk.Manifest.Version.IsOlderThan("1.23.1");
+                ModContentManager.EnablePyTkLegacyMode = pyTk is not null && pyTk.Manifest.Version.IsOlderThan("1.24.0");
             }
 
             // initialize loaded non-content-pack mods
