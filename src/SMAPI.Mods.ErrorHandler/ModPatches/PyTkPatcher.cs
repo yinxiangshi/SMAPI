@@ -1,3 +1,4 @@
+#if SMAPI_DEPRECATED
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
@@ -77,3 +78,4 @@ namespace StardewModdingAPI.Mods.ErrorHandler.ModPatches
         }
     }
 }
+#endif

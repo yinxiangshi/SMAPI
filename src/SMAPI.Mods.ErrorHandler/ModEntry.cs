@@ -2,7 +2,9 @@ using System;
 using System.Reflection;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Internal.Patching;
+#if SMAPI_DEPRECATED
 using StardewModdingAPI.Mods.ErrorHandler.ModPatches;
+#endif
 using StardewModdingAPI.Mods.ErrorHandler.Patches;
 using StardewValley;
 
@@ -39,10 +41,12 @@ namespace StardewModdingAPI.Mods.ErrorHandler
                 new ObjectPatcher(),
                 new SaveGamePatcher(this.Monitor, this.OnSaveContentRemoved),
                 new SpriteBatchPatcher(),
-                new UtilityPatcher(),
+                new UtilityPatcher()
 
+#if SMAPI_DEPRECATED
                 // mod patches
-                new PyTkPatcher(helper.ModRegistry)
+                , new PyTkPatcher(helper.ModRegistry)
+#endif
             );
 
             // hook events
