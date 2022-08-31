@@ -7,6 +7,12 @@
   _If needed, you can update to SMAPI 3.16.0 first and then install the latest version._
 -->
 
+## 3.16.2
+Released 31 August 2022 for Stardew Valley 1.5.6 or later.
+
+* For players:
+  * Fixed `NoSuitableGraphicsDeviceException` launch error for some players with compatible GPUs since 3.16.0.
+
 ## 3.16.1
 Released 29 August 2022 for Stardew Valley 1.5.6 or later.
 

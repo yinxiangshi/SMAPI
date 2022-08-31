@@ -52,7 +52,7 @@ namespace StardewModdingAPI
         internal static int? LogScreenId { get; set; }
 
         /// <summary>SMAPI's current raw semantic version.</summary>
-        internal static string RawApiVersion = "3.16.1";
+        internal static string RawApiVersion = "3.16.2";
     }
 
     /// <summary>Contains SMAPI's constants and assumptions.</summary>
