@@ -63,7 +63,7 @@ namespace StardewModdingAPI.Framework.StateTracking.FieldWatchers
             {
                 if (this.LastValues.Count > 0)
                 {
-                    this.AddedImpl.AddRange(this.LastValues);
+                    this.RemovedImpl.AddRange(this.LastValues);
                     this.LastValues.Clear();
                 }
                 return;
