@@ -54,35 +54,44 @@ namespace StardewModdingAPI.Toolkit.Framework.UpdateData
         public UpdateKey(ModSiteKey site, string? id, string? subkey)
             : this(UpdateKey.GetString(site, id, subkey), site, id, subkey) { }
 
+        /// <summary>
+        ///   Split a string into two at a delimiter.  If the delimiter does not appear in the string then the second
+        ///   value of the returned tuple is null.  Both returned strings are trimmed of whitespace.
+        /// </summary>
+        /// <param name="s">The string to split.</param>
+        /// <param name="delimiter">The character on which to split.</param>
+        /// <param name="keepDelimiter">
+        ///   If <c>true</c> then the second string returned will include the delimiter character
+        ///   (provided that the string is not <c>null</c>)
+        /// </param>
+        /// <returns>
+        ///   A pair containing the string consisting of all characters in <paramref name="s"/> before the first
+        ///   occurrence of <paramref name="delimiter"/>, and a string consisting of all characters in <paramref name="s"/>
+        ///   after the first occurrence of <paramref name="delimiter"/> or <c>null</c> if the delimiter does not
+        ///   exist in s.  Both strings are trimmed of whitespace.
+        /// </returns>
+        private static (string, string?) Bifurcate(string s, char delimiter, bool keepDelimiter = false) {
+            int pos = s.IndexOf(delimiter);
+            if (pos < 0)
+                return (s.Trim(), null);
+            return (s.Substring(0, pos).Trim(), s.Substring(pos + (keepDelimiter ? 0 : 1)).Trim());
+        }
+
         /// <summary>Parse a raw update key.</summary>
         /// <param name="raw">The raw update key to parse.</param>
         public static UpdateKey Parse(string? raw)
         {
+            if (raw is null)
+                return new UpdateKey(raw, ModSiteKey.Unknown, null, null);
             // extract site + ID
-            string? rawSite;
-            string? id;
-            {
-                string[]? parts = raw?.Trim().Split(':');
-                if (parts?.Length != 2)
-                    return new UpdateKey(raw, ModSiteKey.Unknown, null, null);
-
-                rawSite = parts[0].Trim();
-                id = parts[1].Trim();
-            }
+            (string rawSite, string? id) = Bifurcate(raw, ':');
             if (string.IsNullOrWhiteSpace(id))
                 id = null;
 
             // extract subkey
             string? subkey = null;
             if (id != null)
-            {
-                string[] parts = id.Split('@');
-                if (parts.Length == 2)
-                {
-                    id = parts[0].Trim();
-                    subkey = $"@{parts[1]}".Trim();
-                }
-            }
+                (id, subkey) = Bifurcate(id, '@', true);
 
             // parse
             if (!Enum.TryParse(rawSite, true, out ModSiteKey site))

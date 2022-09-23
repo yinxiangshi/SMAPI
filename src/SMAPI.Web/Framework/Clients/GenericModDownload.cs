@@ -1,3 +1,5 @@
+using System;
+
 namespace StardewModdingAPI.Web.Framework.Clients
 {
     /// <summary>Generic metadata about a file download on a mod page.</summary>
@@ -28,6 +30,18 @@ namespace StardewModdingAPI.Web.Framework.Clients
             this.Name = name;
             this.Description = description;
             this.Version = version;
+        }
+
+        /// <summary>
+        ///   Return true if the subkey matches this download.  A subkey matches if it appears as
+        ///   a substring in the name or description.
+        /// </summary>
+        /// <param name="subkey">the subkey</param>
+        /// <returns><c>true</c> if <paramref name="subkey"/> matches this download, otherwise <c>false</c></returns>
+        /// <exception cref="System.NotImplementedException"></exception>
+        public bool MatchesSubkey(string subkey) {
+            return this.Name.Contains(subkey, StringComparison.OrdinalIgnoreCase) == true
+                || this.Description?.Contains(subkey, StringComparison.OrdinalIgnoreCase) == true;
         }
     }
 }

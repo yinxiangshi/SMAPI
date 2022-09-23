@@ -119,7 +119,7 @@ namespace StardewModdingAPI.Web.Framework
             preview = null;
 
             // parse all versions from the mod page
-            IEnumerable<(string? name, string? description, ISemanticVersion? version)> GetAllVersions()
+            IEnumerable<(IModDownload? download, ISemanticVersion? version)> GetAllVersions()
             {
                 if (mod != null)
                 {
@@ -132,14 +132,14 @@ namespace StardewModdingAPI.Web.Framework
                     // get mod version
                     ISemanticVersion? modVersion = ParseAndMapVersion(mod.Version);
                     if (modVersion != null)
-                        yield return (name: null, description: null, version: ParseAndMapVersion(mod.Version));
+                        yield return (download: null, version: ParseAndMapVersion(mod.Version));
 
                     // get file versions
                     foreach (IModDownload download in mod.Downloads)
                     {
                         ISemanticVersion? cur = ParseAndMapVersion(download.Version);
                         if (cur != null)
-                            yield return (download.Name, download.Description, cur);
+                            yield return (download, cur);
                     }
                 }
             }
@@ -148,13 +148,13 @@ namespace StardewModdingAPI.Web.Framework
                 .ToArray();
 
             // get main + preview versions
-            void TryGetVersions([NotNullWhen(true)] out ISemanticVersion? mainVersion, out ISemanticVersion? previewVersion, Func<(string? name, string? description, ISemanticVersion? version), bool>? filter = null)
+            void TryGetVersions([NotNullWhen(true)] out ISemanticVersion? mainVersion, out ISemanticVersion? previewVersion, Func<(IModDownload? download, ISemanticVersion? version), bool>? filter = null)
             {
                 mainVersion = null;
                 previewVersion = null;
 
                 // get latest main + preview version
-                foreach ((string? name, string? description, ISemanticVersion? version) entry in versions)
+                foreach ((IModDownload? download, ISemanticVersion? version) entry in versions)
                 {
                     if (entry.version is null || filter?.Invoke(entry) == false)
                         continue;
@@ -178,7 +178,7 @@ namespace StardewModdingAPI.Web.Framework
             }
 
             if (subkey is not null)
-                TryGetVersions(out main, out preview, entry => entry.name?.Contains(subkey, StringComparison.OrdinalIgnoreCase) == true || entry.description?.Contains(subkey, StringComparison.OrdinalIgnoreCase) == true);
+                TryGetVersions(out main, out preview, entry => entry.download?.MatchesSubkey(subkey) == true);
             if (main is null)
                 TryGetVersions(out main, out preview);
 
