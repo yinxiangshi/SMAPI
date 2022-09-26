@@ -30,6 +30,12 @@ namespace StardewModdingAPI
             return null;
         }
 
+        /// <inheritdoc />
+        public virtual object? GetApi(IManifest manifest)
+        {
+            return null;
+        }
+
         /// <summary>Release or reset unmanaged resources.</summary>
         public void Dispose()
         {

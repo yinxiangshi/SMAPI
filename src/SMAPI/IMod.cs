@@ -25,5 +25,11 @@ namespace StardewModdingAPI
 
         /// <summary>Get an API that other mods can access. This is always called after <see cref="Entry"/>.</summary>
         object? GetApi();
+
+        /// <summary>Get an API that a specific other mod can access. This method is called the first time the other mod calls <see cref="IModRegistry.GetApi(string)"/> for this mod.</summary>
+        /// <param name="manifest">The other mod's manifest.</param>
+        /// <returns>Returns an API for another mod, or <c>null</c> if the other mod should use the general API returned from <see cref="GetApi()"/>.</returns>
+        object? GetApi(IManifest manifest);
+
     }
 }
