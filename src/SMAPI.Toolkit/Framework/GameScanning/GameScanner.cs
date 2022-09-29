@@ -9,6 +9,7 @@ using StardewModdingAPI.Toolkit.Utilities;
 using System.Reflection;
 #if SMAPI_FOR_WINDOWS
 using Microsoft.Win32;
+using VdfParser;
 #endif
 
 namespace StardewModdingAPI.Toolkit.Framework.GameScanning
@@ -158,7 +159,14 @@ namespace StardewModdingAPI.Toolkit.Framework.GameScanning
                         // via Steam library path
                         string? steamPath = this.GetCurrentUserRegistryValue(@"Software\Valve\Steam", "SteamPath");
                         if (steamPath != null)
+                        {
                             yield return Path.Combine(steamPath.Replace('/', '\\'), @"steamapps\common\Stardew Valley");
+
+                            // Check for Steam libraries in other locations
+                            string? path = this.GetPathFromSteamLibrary(steamPath);
+                            if (!string.IsNullOrWhiteSpace(path))
+                                yield return path;
+                        }
 #endif
 
                         // default GOG/Steam paths
@@ -242,6 +250,34 @@ namespace StardewModdingAPI.Toolkit.Framework.GameScanning
                 return null;
             using (openKey)
                 return (string?)openKey.GetValue(name);
+        }
+
+        /// <summary>Get the game directory path from alternative Steam library locations.</summary>
+        /// <param name="steamPath">The full path to the directory containing steam.exe.</param>
+        /// <returns>The game directory, if found.</returns>
+        private string? GetPathFromSteamLibrary(string? steamPath)
+        {
+            string stardewAppId = "413150";
+            if (steamPath != null)
+            {
+                string? libraryFoldersPath = Path.Combine(steamPath.Replace('/', '\\'), "steamapps\\libraryfolders.vdf");
+                using FileStream fs = File.OpenRead(libraryFoldersPath);
+                VdfDeserializer deserializer = new VdfDeserializer();
+                SteamLibraryCollection libraries = deserializer.Deserialize<SteamLibraryCollection>(fs);
+                if (libraries.libraryfolders != null)
+                {
+                    var stardewLibrary = libraries.libraryfolders.FirstOrDefault(f =>
+                    {
+                        var apps = f.Value?.apps;
+                        return apps != null && apps.Any(a => a.Key.Equals(stardewAppId));
+                    });
+                    if (stardewLibrary.Value?.path != null)
+                    {
+                        return Path.Combine(stardewLibrary.Value.path.Replace("\\\\", "\\"), @"steamapps\common\Stardew Valley");
+                    }
+                }
+            }
+            return null;
         }
 #endif
     }
