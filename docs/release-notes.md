@@ -7,6 +7,10 @@
   _If needed, you can update to SMAPI 3.16.0 first and then install the latest version._
 -->
 
+## Upcoming release
+* For players:
+  * Fixed update alert shown for a prerelease version on GitHub if it's not marked as prerelease.
+
 ## 3.16.2
 Released 31 August 2022 for Stardew Valley 1.5.6 or later.
 
