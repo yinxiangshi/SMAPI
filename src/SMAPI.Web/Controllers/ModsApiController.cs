@@ -22,6 +22,7 @@ using StardewModdingAPI.Web.Framework.Clients.CurseForge;
 using StardewModdingAPI.Web.Framework.Clients.GitHub;
 using StardewModdingAPI.Web.Framework.Clients.ModDrop;
 using StardewModdingAPI.Web.Framework.Clients.Nexus;
+using StardewModdingAPI.Web.Framework.Clients.UpdateManifest;
 using StardewModdingAPI.Web.Framework.ConfigModels;
 
 namespace StardewModdingAPI.Web.Controllers
@@ -63,14 +64,15 @@ namespace StardewModdingAPI.Web.Controllers
         /// <param name="github">The GitHub API client.</param>
         /// <param name="modDrop">The ModDrop API client.</param>
         /// <param name="nexus">The Nexus API client.</param>
-        public ModsApiController(IWebHostEnvironment environment, IWikiCacheRepository wikiCache, IModCacheRepository modCache, IOptions<ModUpdateCheckConfig> config, IChucklefishClient chucklefish, ICurseForgeClient curseForge, IGitHubClient github, IModDropClient modDrop, INexusClient nexus)
+        /// <param name="updateManifest">The UpdateManifest client.</param>
+        public ModsApiController(IWebHostEnvironment environment, IWikiCacheRepository wikiCache, IModCacheRepository modCache, IOptions<ModUpdateCheckConfig> config, IChucklefishClient chucklefish, ICurseForgeClient curseForge, IGitHubClient github, IModDropClient modDrop, INexusClient nexus, IUpdateManifestClient updateManifest)
         {
             this.ModDatabase = new ModToolkit().GetModDatabase(Path.Combine(environment.WebRootPath, "SMAPI.metadata.json"));
 
             this.WikiCache = wikiCache;
             this.ModCache = modCache;
             this.Config = config;
-            this.ModSites = new ModSiteManager(new IModSiteClient[] { chucklefish, curseForge, github, modDrop, nexus });
+            this.ModSites = new ModSiteManager(new IModSiteClient[] { chucklefish, curseForge, github, modDrop, nexus, updateManifest });
         }
 
         /// <summary>Fetch version metadata for the given mods.</summary>
@@ -161,18 +163,22 @@ namespace StardewModdingAPI.Web.Controllers
 
                 // if there's only a prerelease version (e.g. from GitHub), don't override the main version
                 ISemanticVersion? curMain = data.Version;
+                string? curMainUrl = data.MainVersionUrl;
                 ISemanticVersion? curPreview = data.PreviewVersion;
+                string? curPreviewUrl = data.PreviewVersionUrl;
                 if (curPreview == null && curMain?.IsPrerelease() == true)
                 {
                     curPreview = curMain;
+                    curPreviewUrl = curMainUrl;
                     curMain = null;
+                    curMainUrl = null;
                 }
 
                 // handle versions
                 if (this.IsNewer(curMain, main?.Version))
-                    main = new ModEntryVersionModel(curMain, data.Url!);
+                    main = new ModEntryVersionModel(curMain, curMainUrl ?? data.Url!);
                 if (this.IsNewer(curPreview, optional?.Version))
-                    optional = new ModEntryVersionModel(curPreview, data.Url!);
+                    optional = new ModEntryVersionModel(curPreview, curPreviewUrl ?? data.Url!);
             }
 
             // get unofficial version

@@ -27,6 +27,11 @@ namespace StardewModdingAPI.Web.Framework
         /// <summary>The error message indicating why the mod is invalid (if applicable).</summary>
         public string? Error { get; private set; }
 
+        /// <summary>The URL associated with the mod's latest version (if distinct from the mod page's URL).</summary>
+        public string? MainVersionUrl { get; private set; }
+
+        /// <summary>The URL associated with the mod's <see cref="PreviewVersion"/> (if distinct from the mod page's URL).</summary>
+        public string? PreviewVersionUrl { get; private set; }
 
         /*********
         ** Public methods
@@ -65,11 +70,15 @@ namespace StardewModdingAPI.Web.Framework
         /// <summary>Set the mod version info.</summary>
         /// <param name="version">The semantic version for the mod's latest release.</param>
         /// <param name="previewVersion">The semantic version for the mod's latest preview release, if available and different from <see cref="Version"/>.</param>
+        /// <param name="mainVersionUrl">The URL associated with <paramref name="version"/>, if different from the mod page's URL.</param>
+        /// <param name="previewVersionUrl">The URL associated with <paramref name="previewVersion"/>, if different from the mod page's URL.</param>
         [MemberNotNull(nameof(ModInfoModel.Version))]
-        public ModInfoModel SetVersions(ISemanticVersion version, ISemanticVersion? previewVersion = null)
+        public ModInfoModel SetVersions(ISemanticVersion version, ISemanticVersion? previewVersion = null, string? mainVersionUrl = null, string? previewVersionUrl = null)
         {
             this.Version = version;
             this.PreviewVersion = previewVersion;
+            this.MainVersionUrl = mainVersionUrl;
+            this.PreviewVersionUrl = previewVersionUrl;
 
             return this;
         }

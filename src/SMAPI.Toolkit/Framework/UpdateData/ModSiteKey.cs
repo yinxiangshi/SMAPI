@@ -19,6 +19,9 @@ namespace StardewModdingAPI.Toolkit.Framework.UpdateData
         ModDrop,
 
         /// <summary>The Nexus Mods mod repository.</summary>
-        Nexus
+        Nexus,
+
+        /// <summary>An arbitrary URL for an update manifest file.</summary>
+        UpdateManifest
     }
 }

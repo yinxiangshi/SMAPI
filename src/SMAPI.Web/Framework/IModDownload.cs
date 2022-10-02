@@ -15,9 +15,12 @@ namespace StardewModdingAPI.Web.Framework
         /// <summary>The download's file version.</summary>
         string? Version { get; }
 
-        /// <summary>Return <c>true</c> iff the subkey matches this download</summary>
+        /// <summary>This download's URL (if it has a URL that is different from the containing mod page's URL).</summary>
+        string? Url { get; }
+
+        /// <summary>Return <see langword="true"/> iff the subkey matches this download</summary>
         /// <param name="subkey">the subkey</param>
-        /// <returns><c>true</c> if <paramref name="subkey"/> matches this download, otherwise <c>false</c></returns>
+        /// <returns><see langword="true"/> if <paramref name="subkey"/> matches this download, otherwise <see langword="false"/></returns>
         bool MatchesSubkey(string subkey);
     }
 }
