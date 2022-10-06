@@ -137,8 +137,8 @@ namespace StardewModdingAPI.Framework.Content
 
         /// <summary>Overwrite part of the image.</summary>
         /// <param name="sourceData">The image data to patch into the content.</param>
-        /// <param name="sourceWidth">The pixel width of the source image.</param>
-        /// <param name="sourceHeight">The pixel height of the source image.</param>
+        /// <param name="sourceWidth">The pixel width of the original source image.</param>
+        /// <param name="sourceHeight">The pixel height of the original source image.</param>
         /// <param name="sourceArea">The part of the <paramref name="sourceData"/> to copy (or <c>null</c> to take the whole texture). This must be within the bounds of the <paramref name="sourceData"/> texture.</param>
         /// <param name="targetArea">The part of the content to patch (or <c>null</c> to patch the whole texture). The original content within this area will be erased. This must be within the bounds of the existing spritesheet.</param>
         /// <param name="patchMode">Indicates how an image should be patched.</param>
@@ -183,7 +183,7 @@ namespace StardewModdingAPI.Framework.Content
                     return; // apparently a completely blank texture?
 
                 int endIndex = -1;
-                for (int i = pixelCount - 1; i >= startIndex; i--)
+                for (int i = startRow * sourceArea.Width + pixelCount - 1; i >= startIndex; i--)
                 {
                     if (sourceData[i].A >= MinOpacity)
                     {
