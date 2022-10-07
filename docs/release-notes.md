@@ -11,6 +11,9 @@
 * For players:
   * Fixed update alert shown for a prerelease version on GitHub if it's not marked as prerelease.
 
+* For mod authors:
+  * Updated to [FluentHttpClient](https://github.com/Pathoschild/FluentHttpClient#readme) 4.2.0 (see [changes](https://github.com/Pathoschild/FluentHttpClient/blob/develop/RELEASE-NOTES.md#420)).
+
 ## 3.16.2
 Released 31 August 2022 for Stardew Valley 1.5.6 or later.
 
