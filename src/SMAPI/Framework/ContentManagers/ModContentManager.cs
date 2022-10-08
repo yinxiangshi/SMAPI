@@ -395,25 +395,30 @@ namespace StardewModdingAPI.Framework.ContentManagers
             // premultiply pixels
             int count = texture.Width * texture.Height;
             Color[] data = ArrayPool<Color>.Shared.Rent(count);
-            texture.GetData(data, 0, count);
-
-            bool changed = false;
-            for (int i = 0; i < count; i++)
+            try
             {
-                ref Color pixel = ref data[i];
-                if (pixel.A is (byte.MinValue or byte.MaxValue))
-                    continue; // no need to change fully transparent/opaque pixels
+                texture.GetData(data, 0, count);
 
-                data[i] = new Color(pixel.R * pixel.A / byte.MaxValue, pixel.G * pixel.A / byte.MaxValue, pixel.B * pixel.A / byte.MaxValue, pixel.A); // slower version: Color.FromNonPremultiplied(data[i].ToVector4())
-                changed = true;
+                bool changed = false;
+                for (int i = 0; i < count; i++)
+                {
+                    ref Color pixel = ref data[i];
+                    if (pixel.A is (byte.MinValue or byte.MaxValue))
+                        continue; // no need to change fully transparent/opaque pixels
+
+                    data[i] = new Color(pixel.R * pixel.A / byte.MaxValue, pixel.G * pixel.A / byte.MaxValue, pixel.B * pixel.A / byte.MaxValue, pixel.A); // slower version: Color.FromNonPremultiplied(data[i].ToVector4())
+                    changed = true;
+                }
+
+                if (changed)
+                    texture.SetData(data, 0, count);
+
+                return texture;
             }
-
-            if (changed)
-                texture.SetData(data, 0, count);
-
-            // return
-            ArrayPool<Color>.Shared.Return(data);
-            return texture;
+            finally
+            {
+                ArrayPool<Color>.Shared.Return(data);
+            }
         }
 
         /// <summary>Fix custom map tilesheet paths so they can be found by the content manager.</summary>

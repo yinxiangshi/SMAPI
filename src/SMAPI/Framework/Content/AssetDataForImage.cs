@@ -1,7 +1,6 @@
 using System;
 using System.Buffers;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
@@ -64,20 +63,23 @@ namespace StardewModdingAPI.Framework.Content
                 {
                     int pixelCount = areaWidth * areaHeight;
                     sourceData = ArrayPool<Color>.Shared.Rent(pixelCount);
-
-                    // slower copying, line by line
-                    for (int y = areaY, maxY = areaY + areaHeight; y < maxY; y++)
+                    try
                     {
-                        int sourceIndex = (y * source.Width) + areaX;
-                        int targetIndex = (y - areaY) * areaWidth;
-                        Array.Copy(source.Data, sourceIndex, sourceData, targetIndex, areaWidth);
+                        // slower copying, line by line
+                        for (int y = areaY, maxY = areaY + areaHeight; y < maxY; y++)
+                        {
+                            int sourceIndex = (y * source.Width) + areaX;
+                            int targetIndex = (y - areaY) * areaWidth;
+                            Array.Copy(source.Data, sourceIndex, sourceData, targetIndex, areaWidth);
+                        }
+
+                        // apply
+                        this.PatchImageImpl(sourceData, source.Width, source.Height, sourceArea.Value, targetArea.Value, patchMode);
                     }
-
-                    // apply
-                    this.PatchImageImpl(sourceData, source.Width, source.Height, sourceArea.Value, targetArea.Value, patchMode);
-
-                    // return
-                    ArrayPool<Color>.Shared.Return(sourceData);
+                    finally
+                    {
+                        ArrayPool<Color>.Shared.Return(sourceData);
+                    }
                 }
             }
         }
@@ -98,13 +100,15 @@ namespace StardewModdingAPI.Framework.Content
             // get source data
             int pixelCount = sourceArea.Value.Width * sourceArea.Value.Height;
             Color[] sourceData = ArrayPool<Color>.Shared.Rent(pixelCount);
-            source.GetData(0, sourceArea, sourceData, 0, pixelCount);
-
-            // apply
-            this.PatchImageImpl(sourceData, source.Width, source.Height, sourceArea.Value, targetArea.Value, patchMode);
-
-            // return
-            ArrayPool<Color>.Shared.Return(sourceData);
+            try
+            {
+                source.GetData(0, sourceArea, sourceData, 0, pixelCount);
+                this.PatchImageImpl(sourceData, source.Width, source.Height, sourceArea.Value, targetArea.Value, patchMode);
+            }
+            finally
+            {
+                ArrayPool<Color>.Shared.Return(sourceData);
+            }
         }
 
         /// <inheritdoc />
@@ -207,41 +211,47 @@ namespace StardewModdingAPI.Framework.Content
 
                 // get target data
                 Color[] mergedData = ArrayPool<Color>.Shared.Rent(pixelCount);
-                target.GetData(0, targetArea, mergedData, 0, pixelCount);
-
-                // merge pixels
-                for (int i = startIndex; i <= endIndex; i++)
+                try
                 {
-                    int targetIndex = i - sourceoffset;
-
-                    // ref locals here? Not sure.
-                    Color above = sourceData[i];
-                    Color below = mergedData[targetIndex];
-
-                    // shortcut transparency
-                    if (above.A < MinOpacity)
-                        continue;
-                    if (below.A < MinOpacity || above.A == byte.MaxValue)
-                        mergedData[targetIndex] = above;
+                    target.GetData(0, targetArea, mergedData, 0, pixelCount);
 
                     // merge pixels
-                    else
+                    for (int i = startIndex; i <= endIndex; i++)
                     {
-                        // This performs a conventional alpha blend for the pixels, which are already
-                        // premultiplied by the content pipeline. The formula is derived from
-                        // https://blogs.msdn.microsoft.com/shawnhar/2009/11/06/premultiplied-alpha/.
-                        float alphaBelow = 1 - (above.A / 255f);
-                        mergedData[targetIndex] = new Color(
-                            r: (int)(above.R + (below.R * alphaBelow)),
-                            g: (int)(above.G + (below.G * alphaBelow)),
-                            b: (int)(above.B + (below.B * alphaBelow)),
-                            alpha: Math.Max(above.A, below.A)
-                        );
-                    }
-                }
+                        int targetIndex = i - sourceoffset;
 
-                target.SetData(0, targetArea, mergedData, 0, pixelCount);
-                ArrayPool<Color>.Shared.Return(mergedData);
+                        // ref locals here? Not sure.
+                        Color above = sourceData[i];
+                        Color below = mergedData[targetIndex];
+
+                        // shortcut transparency
+                        if (above.A < MinOpacity)
+                            continue;
+                        if (below.A < MinOpacity || above.A == byte.MaxValue)
+                            mergedData[targetIndex] = above;
+
+                        // merge pixels
+                        else
+                        {
+                            // This performs a conventional alpha blend for the pixels, which are already
+                            // premultiplied by the content pipeline. The formula is derived from
+                            // https://blogs.msdn.microsoft.com/shawnhar/2009/11/06/premultiplied-alpha/.
+                            float alphaBelow = 1 - (above.A / 255f);
+                            mergedData[targetIndex] = new Color(
+                                r: (int)(above.R + (below.R * alphaBelow)),
+                                g: (int)(above.G + (below.G * alphaBelow)),
+                                b: (int)(above.B + (below.B * alphaBelow)),
+                                alpha: Math.Max(above.A, below.A)
+                            );
+                        }
+                    }
+
+                    target.SetData(0, targetArea, mergedData, 0, pixelCount);
+                }
+                finally
+                {
+                    ArrayPool<Color>.Shared.Return(mergedData);
+                }
             }
         }
     }
