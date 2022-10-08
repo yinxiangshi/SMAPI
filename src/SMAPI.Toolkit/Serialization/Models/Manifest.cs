@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Text;
 using Newtonsoft.Json;
 using StardewModdingAPI.Toolkit.Serialization.Converters;
 
@@ -90,13 +91,13 @@ namespace StardewModdingAPI.Toolkit.Serialization.Models
         [JsonConstructor]
         public Manifest(string uniqueId, string name, string author, string description, ISemanticVersion version, ISemanticVersion? minimumApiVersion, string? entryDll, IManifestContentPackFor? contentPackFor, IManifestDependency[]? dependencies, string[]? updateKeys)
         {
-            this.UniqueID = this.NormalizeWhitespace(uniqueId);
-            this.Name = this.NormalizeWhitespace(name);
-            this.Author = this.NormalizeWhitespace(author);
-            this.Description = this.NormalizeWhitespace(description);
+            this.UniqueID = this.NormalizeField(uniqueId);
+            this.Name = this.NormalizeField(name, replaceSquareBrackets: true);
+            this.Author = this.NormalizeField(author);
+            this.Description = this.NormalizeField(description);
             this.Version = version;
             this.MinimumApiVersion = minimumApiVersion;
-            this.EntryDll = this.NormalizeWhitespace(entryDll);
+            this.EntryDll = this.NormalizeField(entryDll);
             this.ContentPackFor = contentPackFor;
             this.Dependencies = dependencies ?? Array.Empty<IManifestDependency>();
             this.UpdateKeys = updateKeys ?? Array.Empty<string>();
@@ -113,17 +114,47 @@ namespace StardewModdingAPI.Toolkit.Serialization.Models
         /*********
         ** Private methods
         *********/
-        /// <summary>Normalize whitespace in a raw string.</summary>
+        /// <summary>Normalize a manifest field to strip newlines, trim whitespace, and optionally strip square brackets.</summary>
         /// <param name="input">The input to strip.</param>
+        /// <param name="replaceSquareBrackets">Whether to replace square brackets with round ones. This is used in the mod name to avoid breaking the log format.</param>
 #if NET5_0_OR_GREATER
         [return: NotNullIfNotNull("input")]
 #endif
-        private string? NormalizeWhitespace(string? input)
+        private string? NormalizeField(string? input, bool replaceSquareBrackets = false)
         {
-            return input
-                ?.Trim()
-                .Replace("\r", "")
-                .Replace("\n", "");
+            input = input?.Trim();
+
+            if (!string.IsNullOrEmpty(input))
+            {
+                StringBuilder? builder = null;
+
+                for (int i = 0; i < input.Length; i++)
+                {
+                    switch (input[i])
+                    {
+                        case '\r':
+                        case '\n':
+                            builder ??= new StringBuilder(input);
+                            builder[i] = ' ';
+                            break;
+
+                        case '[' when replaceSquareBrackets:
+                            builder ??= new StringBuilder(input);
+                            builder[i] = '(';
+                            break;
+
+                        case ']' when replaceSquareBrackets:
+                            builder ??= new StringBuilder(input);
+                            builder[i] = ')';
+                            break;
+                    }
+                }
+
+                if (builder != null)
+                    input = builder.ToString();
+            }
+
+            return input;
         }
     }
 }

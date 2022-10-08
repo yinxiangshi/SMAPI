@@ -12,6 +12,7 @@
   * Fixed update alert shown for a prerelease version on GitHub if it's not marked as prerelease.
 
 * For mod authors:
+  * SMAPI now treats square brackets in the manifest `Name` field as round brackets, to avoid breaking tools which parse log files.
   * Updated to [FluentHttpClient](https://github.com/Pathoschild/FluentHttpClient#readme) 4.2.0 (see [changes](https://github.com/Pathoschild/FluentHttpClient/blob/develop/RELEASE-NOTES.md#420)).
 
 ## 3.16.2
