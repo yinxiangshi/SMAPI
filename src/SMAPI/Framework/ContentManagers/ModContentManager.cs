@@ -241,7 +241,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             {
                 using FileStream stream = File.OpenRead(file.FullName);
                 Texture2D texture = Texture2D.FromStream(Game1.graphics.GraphicsDevice, stream);
-                texture = this.PremultiplyTransparency(texture);
+                this.PremultiplyTransparency(texture);
                 return (T)(object)texture;
             }
         }
@@ -345,17 +345,15 @@ namespace StardewModdingAPI.Framework.ContentManagers
                 this.ThrowLoadError(assetName, ContentLoadErrorType.InvalidData, $"can't read file with extension '{file.Extension}' as type '{typeof(TAsset)}'; must be type '{string.Join("' or '", validTypes.Select(p => p.FullName))}'.");
         }
 
-        /// <summary>Throws an error which indicates that an asset couldn't be loaded.</summary>
+        /// <summary>Throw an error which indicates that an asset couldn't be loaded.</summary>
         /// <param name="errorType">Why loading an asset through the content pipeline failed.</param>
         /// <param name="assetName">The asset name that failed to load.</param>
         /// <param name="reasonPhrase">The reason the file couldn't be loaded.</param>
         /// <param name="exception">The underlying exception, if applicable.</param>
+        /// <exception cref="SContentLoadException" />
         [DoesNotReturn]
         [DebuggerStepThrough, DebuggerHidden]
         [MethodImpl(MethodImplOptions.NoInlining)]
-#if NET6_0_OR_GREATER
-        [StackTraceHidden]
-#endif
         private void ThrowLoadError(IAssetName assetName, ContentLoadErrorType errorType, string reasonPhrase, Exception? exception = null)
         {
             throw new SContentLoadException(errorType, $"Failed loading asset '{assetName}' from {this.Name}: {reasonPhrase}", exception);
@@ -390,9 +388,8 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <param name="texture">The texture to premultiply.</param>
         /// <returns>Returns a premultiplied texture.</returns>
         /// <remarks>Based on <a href="https://gamedev.stackexchange.com/a/26037">code by David Gouveia</a>.</remarks>
-        private Texture2D PremultiplyTransparency(Texture2D texture)
+        private void PremultiplyTransparency(Texture2D texture)
         {
-            // premultiply pixels
             int count = texture.Width * texture.Height;
             Color[] data = ArrayPool<Color>.Shared.Rent(count);
             try
@@ -412,8 +409,6 @@ namespace StardewModdingAPI.Framework.ContentManagers
 
                 if (changed)
                     texture.SetData(data, 0, count);
-
-                return texture;
             }
             finally
             {

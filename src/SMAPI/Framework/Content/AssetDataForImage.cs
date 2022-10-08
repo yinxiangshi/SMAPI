@@ -33,71 +33,59 @@ namespace StardewModdingAPI.Framework.Content
         /// <inheritdoc />
         public void PatchImage(IRawTextureData source, Rectangle? sourceArea = null, Rectangle? targetArea = null, PatchMode patchMode = PatchMode.Replace)
         {
-            // nullcheck
             if (source == null)
                 throw new ArgumentNullException(nameof(source), "Can't patch from null source data.");
 
+            // get normalized bounds
             this.GetPatchBounds(ref sourceArea, ref targetArea, source.Width, source.Height);
-
-            // check to see if the Data is sufficiently long.
-            // while SMAPI's impl is going to be, it's not necessarily the case for mod impl.
             if (source.Data.Length < (sourceArea.Value.Bottom - 1) * source.Width + sourceArea.Value.Right)
-                throw new ArgumentException("Source data insufficiently long for this operation.");
+                throw new ArgumentException("Can't apply image patch because the source image is smaller than the source area.", nameof(source));
+            int areaX = sourceArea.Value.X;
+            int areaY = sourceArea.Value.Y;
+            int areaWidth = sourceArea.Value.Width;
+            int areaHeight = sourceArea.Value.Height;
 
-            // get the pixels for the source area
-            Color[] sourceData;
+            // shortcut: if the area width matches the source image, we can apply the image as-is without needing
+            // to copy the pixels into a smaller subset. It's fine if the source is taller than the area, since we'll
+            // just ignore the extra data at the end of the pixel array.
+            if (areaWidth == source.Width)
             {
-                int areaX = sourceArea.Value.X;
-                int areaY = sourceArea.Value.Y;
-                int areaWidth = sourceArea.Value.Width;
-                int areaHeight = sourceArea.Value.Height;
+                this.PatchImageImpl(source.Data, source.Width, source.Height, sourceArea.Value, targetArea.Value, patchMode, areaY);
+                return;
+            }
 
-                if (areaWidth == source.Width)
+            // else copy the pixels within the smaller area & apply that
+            int pixelCount = areaWidth * areaHeight;
+            Color[] sourceData = ArrayPool<Color>.Shared.Rent(pixelCount);
+            try
+            {
+                for (int y = areaY, maxY = areaY + areaHeight; y < maxY; y++)
                 {
-                    // It's actually fine if the source is taller than the sourceArea
-                    // the "extra" bits on the end of the array can just be ignored.
-                    sourceData = source.Data;
-                    this.PatchImageImpl(sourceData, source.Width, source.Height, sourceArea.Value, targetArea.Value, patchMode, areaY);
+                    int sourceIndex = (y * source.Width) + areaX;
+                    int targetIndex = (y - areaY) * areaWidth;
+                    Array.Copy(source.Data, sourceIndex, sourceData, targetIndex, areaWidth);
                 }
-                else
-                {
-                    int pixelCount = areaWidth * areaHeight;
-                    sourceData = ArrayPool<Color>.Shared.Rent(pixelCount);
-                    try
-                    {
-                        // slower copying, line by line
-                        for (int y = areaY, maxY = areaY + areaHeight; y < maxY; y++)
-                        {
-                            int sourceIndex = (y * source.Width) + areaX;
-                            int targetIndex = (y - areaY) * areaWidth;
-                            Array.Copy(source.Data, sourceIndex, sourceData, targetIndex, areaWidth);
-                        }
 
-                        // apply
-                        this.PatchImageImpl(sourceData, source.Width, source.Height, sourceArea.Value, targetArea.Value, patchMode);
-                    }
-                    finally
-                    {
-                        ArrayPool<Color>.Shared.Return(sourceData);
-                    }
-                }
+                this.PatchImageImpl(sourceData, source.Width, source.Height, sourceArea.Value, targetArea.Value, patchMode);
+            }
+            finally
+            {
+                ArrayPool<Color>.Shared.Return(sourceData);
             }
         }
 
         /// <inheritdoc />
         public void PatchImage(Texture2D source, Rectangle? sourceArea = null, Rectangle? targetArea = null, PatchMode patchMode = PatchMode.Replace)
         {
-            // nullcheck
             if (source == null)
                 throw new ArgumentNullException(nameof(source), "Can't patch from a null source texture.");
 
+            // get normalized bounds
             this.GetPatchBounds(ref sourceArea, ref targetArea, source.Width, source.Height);
-
-            // validate source bounds
             if (!source.Bounds.Contains(sourceArea.Value))
                 throw new ArgumentOutOfRangeException(nameof(sourceArea), "The source area is outside the bounds of the source texture.");
 
-            // get source data
+            // get source data & apply
             int pixelCount = sourceArea.Value.Width * sourceArea.Value.Height;
             Color[] sourceData = ArrayPool<Color>.Shared.Rent(pixelCount);
             try
@@ -164,94 +152,91 @@ namespace StardewModdingAPI.Framework.Content
             if (sourceArea.Size != targetArea.Size)
                 throw new InvalidOperationException("The source and target areas must be the same size.");
 
+            // shortcut: replace the entire area
             if (patchMode == PatchMode.Replace)
-                target.SetData(0, targetArea, sourceData, startRow * sourceArea.Width, pixelCount);
-            else
             {
-                // merge data
+                target.SetData(0, targetArea, sourceData, startRow * sourceArea.Width, pixelCount);
+                return;
+            }
 
-                // Content packs have a habit of using large amounts of blank space.
-                // Adjusting bounds to ignore transparent pixels at the start and end.
-
-                int startIndex = -1;
+            // skip transparent pixels at the start & end (e.g. large spritesheet with a few sprites replaced)
+            int startIndex = -1;
+            int endIndex = -1;
+            {
                 for (int i = startRow * sourceArea.Width; i < pixelCount; i++)
                 {
-                    if (sourceData[i].A >= MinOpacity)
+                    if (sourceData[i].A >= AssetDataForImage.MinOpacity)
                     {
                         startIndex = i;
                         break;
                     }
                 }
-
                 if (startIndex == -1)
-                    return; // apparently a completely blank texture?
+                    return; // blank texture
 
-                int endIndex = -1;
                 for (int i = startRow * sourceArea.Width + pixelCount - 1; i >= startIndex; i--)
                 {
-                    if (sourceData[i].A >= MinOpacity)
+                    if (sourceData[i].A >= AssetDataForImage.MinOpacity)
                     {
                         endIndex = i;
                         break;
                     }
                 }
-
                 if (endIndex == -1)
-                    return; // should never happen
+                    return; // ???
+            }
 
-                // Calculate new Y bounds
-                int topoffset = startIndex / sourceArea.Width;
-                int bottomoffset = endIndex / sourceArea.Width;
+            // update target rectangle
+            int sourceOffset;
+            {
+                int topOffset = startIndex / sourceArea.Width;
+                int bottomOffset = endIndex / sourceArea.Width;
 
-                // Update target rectangle
-                targetArea = new(targetArea.X, targetArea.Y + topoffset, targetArea.Width, bottomoffset - topoffset + 1);
+                targetArea = new(targetArea.X, targetArea.Y + topOffset, targetArea.Width, bottomOffset - topOffset + 1);
                 pixelCount = targetArea.Width * targetArea.Height;
+                sourceOffset = topOffset * sourceArea.Width;
+            }
 
-                int sourceoffset = topoffset * sourceArea.Width;
+            // apply
+            Color[] mergedData = ArrayPool<Color>.Shared.Rent(pixelCount);
+            try
+            {
+                target.GetData(0, targetArea, mergedData, 0, pixelCount);
 
-                // get target data
-                Color[] mergedData = ArrayPool<Color>.Shared.Rent(pixelCount);
-                try
+                for (int i = startIndex; i <= endIndex; i++)
                 {
-                    target.GetData(0, targetArea, mergedData, 0, pixelCount);
+                    int targetIndex = i - sourceOffset;
+
+                    Color above = sourceData[i];
+                    Color below = mergedData[targetIndex];
+
+                    // shortcut transparency
+                    if (above.A < AssetDataForImage.MinOpacity)
+                        continue;
+                    if (below.A < AssetDataForImage.MinOpacity || above.A == byte.MaxValue)
+                        mergedData[targetIndex] = above;
 
                     // merge pixels
-                    for (int i = startIndex; i <= endIndex; i++)
+                    else
                     {
-                        int targetIndex = i - sourceoffset;
-
-                        // ref locals here? Not sure.
-                        Color above = sourceData[i];
-                        Color below = mergedData[targetIndex];
-
-                        // shortcut transparency
-                        if (above.A < MinOpacity)
-                            continue;
-                        if (below.A < MinOpacity || above.A == byte.MaxValue)
-                            mergedData[targetIndex] = above;
-
-                        // merge pixels
-                        else
-                        {
-                            // This performs a conventional alpha blend for the pixels, which are already
-                            // premultiplied by the content pipeline. The formula is derived from
-                            // https://blogs.msdn.microsoft.com/shawnhar/2009/11/06/premultiplied-alpha/.
-                            float alphaBelow = 1 - (above.A / 255f);
-                            mergedData[targetIndex] = new Color(
-                                r: (int)(above.R + (below.R * alphaBelow)),
-                                g: (int)(above.G + (below.G * alphaBelow)),
-                                b: (int)(above.B + (below.B * alphaBelow)),
-                                alpha: Math.Max(above.A, below.A)
-                            );
-                        }
+                        // This performs a conventional alpha blend for the pixels, which are already
+                        // premultiplied by the content pipeline. The formula is derived from
+                        // https://blogs.msdn.microsoft.com/shawnhar/2009/11/06/premultiplied-alpha/.
+                        float alphaBelow = 1 - (above.A / 255f);
+                        mergedData[targetIndex] = new Color(
+                            r: (int)(above.R + (below.R * alphaBelow)),
+                            g: (int)(above.G + (below.G * alphaBelow)),
+                            b: (int)(above.B + (below.B * alphaBelow)),
+                            alpha: Math.Max(above.A, below.A)
+                        );
                     }
+                }
 
-                    target.SetData(0, targetArea, mergedData, 0, pixelCount);
-                }
-                finally
-                {
-                    ArrayPool<Color>.Shared.Return(mergedData);
-                }
+                target.SetData(0, targetArea, mergedData, 0, pixelCount);
+            }
+            finally
+            {
+                ArrayPool<Color>.Shared.Return(mergedData);
             }
         }
     }
