@@ -25,10 +25,13 @@ namespace StardewModdingAPI.Framework
         private readonly LogFileManager LogFile;
 
         /// <summary>The maximum length of the <see cref="LogLevel"/> values.</summary>
-        private static readonly int MaxLevelLength = (from level in Enum.GetValues(typeof(LogLevel)).Cast<LogLevel>() select level.ToString().Length).Max();
+        private static readonly int MaxLevelLength = Enum.GetValues<LogLevel>().Max(level => level.ToString().Length);
+
+        /// <summary>The cached representation for each level when added to a log header.</summary>
+        private static readonly Dictionary<ConsoleLogLevel, string> LogStrings = Enum.GetValues<ConsoleLogLevel>().ToDictionary(level => level, level => level.ToString().ToUpper().PadRight(Monitor.MaxLevelLength));
 
         /// <summary>A cache of messages that should only be logged once.</summary>
-        private readonly HashSet<string> LogOnceCache = new();
+        private readonly HashSet<LogOnceCacheKey> LogOnceCache = new();
 
         /// <summary>Get the screen ID that should be logged to distinguish between players in split-screen mode, if any.</summary>
         private readonly Func<int?> GetScreenIdForLog;
@@ -84,7 +87,7 @@ namespace StardewModdingAPI.Framework
         /// <inheritdoc />
         public void LogOnce(string message, LogLevel level = LogLevel.Trace)
         {
-            if (this.LogOnceCache.Add($"{message}|{level}"))
+            if (this.LogOnceCache.Add(new LogOnceCacheKey(message, level)))
                 this.LogImpl(this.Source, message, (ConsoleLogLevel)level);
         }
 
@@ -147,7 +150,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="level">The log level.</param>
         private string GenerateMessagePrefix(string source, ConsoleLogLevel level)
         {
-            string levelStr = level.ToString().ToUpper().PadRight(Monitor.MaxLevelLength);
+            string levelStr = Monitor.LogStrings[level];
             int? playerIndex = this.GetScreenIdForLog();
 
             return $"[{DateTime.Now:HH:mm:ss} {levelStr}{(playerIndex != null ? $" screen_{playerIndex}" : "")} {source}]";

@@ -1,9 +1,11 @@
 using System;
+using System.Buffers;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using BmFont;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -111,7 +113,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
                 if (this.Coordinator.TryParseManagedAssetKey(assetName.Name, out string? contentManagerID, out IAssetName? relativePath))
                 {
                     if (contentManagerID != this.Name)
-                        throw this.GetLoadError(assetName, ContentLoadErrorType.AccessDenied, "can't load a different mod's managed asset key through this mod content manager.");
+                        this.ThrowLoadError(assetName, ContentLoadErrorType.AccessDenied, "can't load a different mod's managed asset key through this mod content manager.");
                     assetName = relativePath;
                 }
             }
@@ -123,7 +125,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
                 // get file
                 FileInfo file = this.GetModFile<T>(assetName.Name);
                 if (!file.Exists)
-                    throw this.GetLoadError(assetName, ContentLoadErrorType.AssetDoesNotExist, "the specified path doesn't exist.");
+                    this.ThrowLoadError(assetName, ContentLoadErrorType.AssetDoesNotExist, "the specified path doesn't exist.");
 
                 // load content
                 asset = file.Extension.ToLower() switch
@@ -141,7 +143,8 @@ namespace StardewModdingAPI.Framework.ContentManagers
                 if (ex is SContentLoadException)
                     throw;
 
-                throw this.GetLoadError(assetName, ContentLoadErrorType.Other, "an unexpected error occurred.", ex);
+                this.ThrowLoadError(assetName, ContentLoadErrorType.Other, "an unexpected error occurred.", ex);
+                return default;
             }
 
             // track & return asset
@@ -189,7 +192,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
         private T LoadDataFile<T>(IAssetName assetName, FileInfo file)
         {
             if (!this.JsonHelper.ReadJsonFileIfExists(file.FullName, out T? asset))
-                throw this.GetLoadError(assetName, ContentLoadErrorType.InvalidData, "the JSON file is invalid."); // should never happen since we check for file existence before calling this method
+                this.ThrowLoadError(assetName, ContentLoadErrorType.InvalidData, "the JSON file is invalid."); // should never happen since we check for file existence before calling this method
 
             return asset;
         }
@@ -238,7 +241,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             {
                 using FileStream stream = File.OpenRead(file.FullName);
                 Texture2D texture = Texture2D.FromStream(Game1.graphics.GraphicsDevice, stream);
-                texture = this.PremultiplyTransparency(texture);
+                this.PremultiplyTransparency(texture);
                 return (T)(object)texture;
             }
         }
@@ -301,7 +304,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
         private T LoadXnbFile<T>(IAssetName assetName)
         {
             if (typeof(IRawTextureData).IsAssignableFrom(typeof(T)))
-                throw this.GetLoadError(assetName, ContentLoadErrorType.Other, $"can't read XNB file as type {typeof(IRawTextureData)}; that type can only be read from a PNG file.");
+                this.ThrowLoadError(assetName, ContentLoadErrorType.Other, $"can't read XNB file as type {typeof(IRawTextureData)}; that type can only be read from a PNG file.");
 
             // the underlying content manager adds a .xnb extension implicitly, so
             // we need to strip it here to avoid trying to load a '.xnb.xnb' file.
@@ -326,7 +329,8 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <param name="file">The file to load.</param>
         private T HandleUnknownFileType<T>(IAssetName assetName, FileInfo file)
         {
-            throw this.GetLoadError(assetName, ContentLoadErrorType.InvalidName, $"unknown file extension '{file.Extension}'; must be one of '.fnt', '.json', '.png', '.tbin', '.tmx', or '.xnb'.");
+            this.ThrowLoadError(assetName, ContentLoadErrorType.InvalidName, $"unknown file extension '{file.Extension}'; must be one of '.fnt', '.json', '.png', '.tbin', '.tmx', or '.xnb'.");
+            return default;
         }
 
         /// <summary>Assert that the asset type is compatible with one of the allowed types.</summary>
@@ -338,18 +342,21 @@ namespace StardewModdingAPI.Framework.ContentManagers
         private void AssertValidType<TAsset>(IAssetName assetName, FileInfo file, params Type[] validTypes)
         {
             if (!validTypes.Any(validType => validType.IsAssignableFrom(typeof(TAsset))))
-                throw this.GetLoadError(assetName, ContentLoadErrorType.InvalidData, $"can't read file with extension '{file.Extension}' as type '{typeof(TAsset)}'; must be type '{string.Join("' or '", validTypes.Select(p => p.FullName))}'.");
+                this.ThrowLoadError(assetName, ContentLoadErrorType.InvalidData, $"can't read file with extension '{file.Extension}' as type '{typeof(TAsset)}'; must be type '{string.Join("' or '", validTypes.Select(p => p.FullName))}'.");
         }
 
-        /// <summary>Get an error which indicates that an asset couldn't be loaded.</summary>
+        /// <summary>Throw an error which indicates that an asset couldn't be loaded.</summary>
         /// <param name="errorType">Why loading an asset through the content pipeline failed.</param>
         /// <param name="assetName">The asset name that failed to load.</param>
         /// <param name="reasonPhrase">The reason the file couldn't be loaded.</param>
         /// <param name="exception">The underlying exception, if applicable.</param>
+        /// <exception cref="SContentLoadException" />
+        [DoesNotReturn]
         [DebuggerStepThrough, DebuggerHidden]
-        private SContentLoadException GetLoadError(IAssetName assetName, ContentLoadErrorType errorType, string reasonPhrase, Exception? exception = null)
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private void ThrowLoadError(IAssetName assetName, ContentLoadErrorType errorType, string reasonPhrase, Exception? exception = null)
         {
-            return new(errorType, $"Failed loading asset '{assetName}' from {this.Name}: {reasonPhrase}", exception);
+            throw new SContentLoadException(errorType, $"Failed loading asset '{assetName}' from {this.Name}: {reasonPhrase}", exception);
         }
 
         /// <summary>Get a file from the mod folder.</summary>
@@ -381,26 +388,32 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <param name="texture">The texture to premultiply.</param>
         /// <returns>Returns a premultiplied texture.</returns>
         /// <remarks>Based on <a href="https://gamedev.stackexchange.com/a/26037">code by David Gouveia</a>.</remarks>
-        private Texture2D PremultiplyTransparency(Texture2D texture)
+        private void PremultiplyTransparency(Texture2D texture)
         {
-            // premultiply pixels
-            Color[] data = GC.AllocateUninitializedArray<Color>(texture.Width * texture.Height);
-            texture.GetData(data);
-            bool changed = false;
-            for (int i = 0; i < data.Length; i++)
+            int count = texture.Width * texture.Height;
+            Color[] data = ArrayPool<Color>.Shared.Rent(count);
+            try
             {
-                Color pixel = data[i];
-                if (pixel.A is (byte.MinValue or byte.MaxValue))
-                    continue; // no need to change fully transparent/opaque pixels
+                texture.GetData(data, 0, count);
 
-                data[i] = new Color(pixel.R * pixel.A / byte.MaxValue, pixel.G * pixel.A / byte.MaxValue, pixel.B * pixel.A / byte.MaxValue, pixel.A); // slower version: Color.FromNonPremultiplied(data[i].ToVector4())
-                changed = true;
+                bool changed = false;
+                for (int i = 0; i < count; i++)
+                {
+                    ref Color pixel = ref data[i];
+                    if (pixel.A is (byte.MinValue or byte.MaxValue))
+                        continue; // no need to change fully transparent/opaque pixels
+
+                    data[i] = new Color(pixel.R * pixel.A / byte.MaxValue, pixel.G * pixel.A / byte.MaxValue, pixel.B * pixel.A / byte.MaxValue, pixel.A); // slower version: Color.FromNonPremultiplied(data[i].ToVector4())
+                    changed = true;
+                }
+
+                if (changed)
+                    texture.SetData(data, 0, count);
             }
-
-            if (changed)
-                texture.SetData(data);
-
-            return texture;
+            finally
+            {
+                ArrayPool<Color>.Shared.Return(data);
+            }
         }
 
         /// <summary>Fix custom map tilesheet paths so they can be found by the content manager.</summary>

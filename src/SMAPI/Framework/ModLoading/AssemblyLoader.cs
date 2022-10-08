@@ -221,7 +221,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// </remarks>
         public static Assembly? ResolveAssembly(string name)
         {
-            string shortName = name.Split(new[] { ',' }, 2).First(); // get simple name (without version and culture)
+            string shortName = name.Split(',', 2).First(); // get simple name (without version and culture)
             return AppDomain.CurrentDomain
                 .GetAssemblies()
                 .FirstOrDefault(p => p.GetName().Name == shortName);
