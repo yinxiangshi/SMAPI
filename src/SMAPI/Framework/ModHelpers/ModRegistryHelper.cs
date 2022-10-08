@@ -68,49 +68,43 @@ namespace StardewModdingAPI.Framework.ModHelpers
                 return null;
             }
 
-            // get our cached API if one is available
+            // get the target mod
             IModMetadata? mod = this.Registry.Get(uniqueID);
             if (mod == null)
                 return null;
 
-            if (this.AccessedModApis.ContainsKey(mod.Manifest.UniqueID))
+            // fetch API
+            if (!this.AccessedModApis.TryGetValue(mod.Manifest.UniqueID, out object? api))
             {
-                return this.AccessedModApis[mod.Manifest.UniqueID];
-            }
+                // if the target has a global API, this is mutually exclusive with per-mod APIs
+                if (mod.Api != null)
+                    api = mod.Api;
 
-            object? api;
-
-            // safely request a specific API instance
-            try
-            {
-                api = mod.Mod?.GetApi(this.Mod.Manifest);
-                if (api != null && !api.GetType().IsPublic)
+                // else try to get a per-mod API
+                else
                 {
-                    api = null;
-                    this.Monitor.Log($"{mod.DisplayName} provided a specific API instance with a non-public type. This isn't currently supported, so the specific API won't be available to the requesting mod.", LogLevel.Warn);
+                    try
+                    {
+                        api = mod.Mod?.GetApi(this.Mod.Manifest);
+                        if (api != null && !api.GetType().IsPublic)
+                        {
+                            api = null;
+                            this.Monitor.Log($"{mod.DisplayName} provides a per-mod API instance with a non-public type. This isn't currently supported, so the API won't be available to other mods.", LogLevel.Warn);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        this.Monitor.Log($"Failed loading the per-mod API instance from {mod.DisplayName}. Integrations with other mods may not work. Error: {ex.GetLogSummary()}", LogLevel.Error);
+                        api = null;
+                    }
                 }
 
+                // cache & log API access
+                this.AccessedModApis[mod.Manifest.UniqueID] = api;
                 if (api != null)
-                    this.Monitor.Log($"Accessed specific mod-provided API ({api.GetType().FullName}) for {mod.DisplayName}.");
-            }
-            catch (Exception ex)
-            {
-                this.Monitor.Log($"Failed loading specific mod-provided API for {mod.DisplayName}. Integrations with other mods may not work. Error: {ex.GetLogSummary()}", LogLevel.Error);
-                api = null;
+                    this.Monitor.Log($"Accessed mod-provided API ({api.GetType().FullName}) for {mod.DisplayName}.");
             }
 
-            // fall back to the generic API instance
-            if (api == null)
-            {
-                api = mod.Api;
-                if (api != null)
-                {
-                    this.Monitor.Log($"Accessed mod-provided API for {mod.DisplayName}.");
-                }
-            }
-
-            // cache the API instance and return it
-            this.AccessedModApis[mod.Manifest.UniqueID] = api;
             return api;
         }
 
