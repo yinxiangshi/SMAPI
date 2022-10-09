@@ -1681,15 +1681,18 @@ namespace StardewModdingAPI.Framework
             // initialize translations
             this.ReloadTranslations(loaded);
 
-#if SMAPI_DEPRECATED
             // set temporary PyTK compatibility mode
             // This is part of a three-part fix for PyTK 1.23.* and earlier. When removing this,
             // search 'Platonymous.Toolkit' to find the other part in SMAPI and Content Patcher.
             {
                 IModInfo? pyTk = this.ModRegistry.Get("Platonymous.Toolkit");
-                ModContentManager.EnablePyTkLegacyMode = pyTk is not null && pyTk.Manifest.Version.IsOlderThan("1.24.0");
-            }
+                if (pyTk is not null && pyTk.Manifest.Version.IsOlderThan("1.24.0"))
+#if SMAPI_DEPRECATED
+                    ModContentManager.EnablePyTkLegacyMode = true;
+#else
+                    this.Monitor.Log("PyTK's image scaling is not compatible with SMAPI strict mode.", LogLevel.Warn);
 #endif
+            }
 
             // initialize loaded non-content-pack mods
             this.Monitor.Log("Launching mods...", LogLevel.Debug);

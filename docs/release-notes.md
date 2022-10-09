@@ -9,6 +9,7 @@
 
 ## Upcoming release
 * For players:
+  * You can now download SMAPI 'strict mode' from the [Nexus optional files](https://www.nexusmods.com/stardewvalley/mods/2400/). This removes all deprecated APIs, which may significantly improve performance. However mods which still show deprecation warnings won't work.
   * The SMAPI installer now also detects game folders listed in Steam's `.vdf` library data on Windows (thanks to pizzaoverhead!).
   * SMAPI now prevents mods from enabling Harmony debug mode, which impacts performance and creates a file on your desktop.  
     _You can allow debug mode by editing `smapi-internal/config.json` in your game folder._

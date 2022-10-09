@@ -40,7 +40,7 @@
         <meta name="robots" content="noindex" />
     }
     <link rel="stylesheet" href="~/Content/css/file-upload.css" />
-    <link rel="stylesheet" href="~/Content/css/log-parser.css" />
+    <link rel="stylesheet" href="~/Content/css/log-parser.css?r=20221009" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tabbyjs@12.0.3/dist/css/tabby-ui-vertical.min.css" />
 
     <script src="https://cdn.jsdelivr.net/npm/tabbyjs@12.0.3" crossorigin="anonymous"></script>
@@ -243,7 +243,7 @@ else if (log?.IsValid == true)
 @if (log?.IsValid == true)
 {
     <div id="output">
-        @if (outdatedMods.Any() || errorHandler is null || hasOlderErrorHandler || isPyTkCompatibilityMode)
+        @if (outdatedMods.Any() || errorHandler is null || hasOlderErrorHandler || isPyTkCompatibilityMode || log.IsStrictMode)
         {
             <h2>Suggested fixes</h2>
             <ul id="fix-list">
@@ -257,7 +257,14 @@ else if (log?.IsValid == true)
                 }
                 @if (isPyTkCompatibilityMode)
                 {
-                    <li>PyTK 1.23.* or earlier isn't compatible with newer SMAPI performance optimizations. This may increase loading times or in-game lag.</li>
+                    if (log.IsStrictMode)
+                    {
+                        <li>PyTK's image scaling isn't compatible with SMAPI strict mode.</li>
+                    }
+                    else
+                    {
+                        <li>PyTK 1.23.* or earlier isn't compatible with newer SMAPI performance optimizations. This may increase loading times or in-game lag.</li>
+                    }
                 }
                 @if (outdatedMods.Any())
                 {
@@ -307,6 +314,10 @@ else if (log?.IsValid == true)
                         </table>
                     </li>
                 }
+                @if (log.IsStrictMode)
+                {
+                    <li class="notice">SMAPI is running in 'strict mode', which removes all deprecated APIs. This can significantly improve performance, but some mods may not work. You can <a href="https://stardewvalleywiki.com/Modding:Player_Guide#Install_SMAPI">reinstall SMAPI</a> to disable it if you run into problems.</li>
+                }
             </ul>
         }
 
@@ -329,7 +340,13 @@ else if (log?.IsValid == true)
             </tr>
             <tr>
                 <th>SMAPI:</th>
-                <td v-pre>@log.ApiVersion</td>
+                <td v-pre>
+                    @log.ApiVersion
+                    @if (log.IsStrictMode)
+                    {
+                        <strong>(strict mode)</strong>
+                    }
+                </td>
             </tr>
             <tr>
                 <th>Folder:</th>
