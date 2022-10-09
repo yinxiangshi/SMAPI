@@ -85,7 +85,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
                 {
                     try
                     {
-                        api = mod.Mod?.GetApi(this.Mod.Manifest);
+                        api = mod.Mod?.GetApi(this.Mod);
                         if (api != null && !api.GetType().IsPublic)
                         {
                             api = null;

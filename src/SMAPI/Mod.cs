@@ -31,7 +31,7 @@ namespace StardewModdingAPI
         }
 
         /// <inheritdoc />
-        public virtual object? GetApi(IManifest manifest)
+        public virtual object? GetApi(IModInfo mod)
         {
             return null;
         }

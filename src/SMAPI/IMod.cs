@@ -24,14 +24,14 @@ namespace StardewModdingAPI
         void Entry(IModHelper helper);
 
         /// <summary>Get an <a href="https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Integrations">API that other mods can access</a>. This is always called after <see cref="Entry"/>, and is only called once even if multiple mods access it.</summary>
-        /// <remarks>You can implement <see cref="GetApi()"/> to provide one instance to all mods, or <see cref="GetApi(IManifest)"/> to provide a separate instance per mod. These are mutually exclusive, so you can only implement one of them.</remarks>
+        /// <remarks>You can implement <see cref="GetApi()"/> to provide one instance to all mods, or <see cref="GetApi(IModInfo)"/> to provide a separate instance per mod. These are mutually exclusive, so you can only implement one of them.</remarks>
         /// <remarks>Returns the API instance, or <c>null</c> if the mod has no API.</remarks>
         object? GetApi();
 
         /// <summary>Get an <a href="https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Integrations">API that other mods can access</a>. This is always called after <see cref="Entry"/>, and is called once per mod that accesses the API (even if they access it multiple times).</summary>
-        /// <param name="manifest">The manifest for the mod accessing the API.</param>
+        /// <param name="mod">The mod accessing the API.</param>
         /// <remarks>Returns the API instance, or <c>null</c> if the mod has no API. Note that the manifest is provided for informational purposes only, and that denying API access to specific mods is strongly discouraged and may be considered abusive.</remarks>
         /// <inheritdoc cref="GetApi()" include="/Remarks" />
-        object? GetApi(IManifest manifest);
+        object? GetApi(IModInfo mod);
     }
 }
