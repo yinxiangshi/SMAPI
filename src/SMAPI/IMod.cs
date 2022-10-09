@@ -30,7 +30,7 @@ namespace StardewModdingAPI
 
         /// <summary>Get an <a href="https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Integrations">API that other mods can access</a>. This is always called after <see cref="Entry"/>, and is called once per mod that accesses the API (even if they access it multiple times).</summary>
         /// <param name="mod">The mod accessing the API.</param>
-        /// <remarks>Returns the API instance, or <c>null</c> if the mod has no API. Note that the manifest is provided for informational purposes only, and that denying API access to specific mods is strongly discouraged and may be considered abusive.</remarks>
+        /// <remarks>Returns the API instance, or <c>null</c> if the mod has no API. Note that <paramref name="mod"/> is provided for informational purposes only, and that denying API access to specific mods is strongly discouraged and may be considered abusive.</remarks>
         /// <inheritdoc cref="GetApi()" include="/Remarks" />
         object? GetApi(IModInfo mod);
     }

@@ -1686,12 +1686,16 @@ namespace StardewModdingAPI.Framework
             this.Monitor.Log("Launching mods...", LogLevel.Debug);
             foreach (IModMetadata metadata in loadedMods)
             {
+                IMod mod =
+                    metadata.Mod
+                    ?? throw new InvalidOperationException($"The '{metadata.DisplayName}' mod is not initialized correctly."); // should never happen, but avoids nullability warnings
+
 #if SMAPI_DEPRECATED
                 // add interceptors
-                if (metadata.Mod?.Helper is ModHelper helper)
+                if (mod.Helper is ModHelper helper)
                 {
                     // ReSharper disable SuspiciousTypeConversion.Global
-                    if (metadata.Mod is IAssetEditor editor)
+                    if (mod is IAssetEditor editor)
                     {
                         SCore.DeprecationManager.Warn(
                             source: metadata,
@@ -1704,7 +1708,7 @@ namespace StardewModdingAPI.Framework
                         this.ContentCore.Editors.Add(new ModLinked<IAssetEditor>(metadata, editor));
                     }
 
-                    if (metadata.Mod is IAssetLoader loader)
+                    if (mod is IAssetLoader loader)
                     {
                         SCore.DeprecationManager.Warn(
                             source: metadata,
@@ -1749,41 +1753,42 @@ namespace StardewModdingAPI.Framework
                 }
 #endif
 
-                // call entry method
+                // initialize mod
                 Context.HeuristicModsRunningCode.Push(metadata);
-                try
                 {
-                    IMod mod = metadata.Mod!;
-                    mod.Entry(mod.Helper!);
-                }
-                catch (Exception ex)
-                {
-                    metadata.LogAsMod($"Mod crashed on entry and might not work correctly. Technical details:\n{ex.GetLogSummary()}", LogLevel.Error);
-                }
-
-                // get mod API
-                try
-                {
-                    object? api = metadata.Mod!.GetApi();
-                    if (api != null && !api.GetType().IsPublic)
+                    // call entry method
+                    try
                     {
-                        api = null;
-                        this.Monitor.Log($"{metadata.DisplayName} provides an API instance with a non-public type. This isn't currently supported, so the API won't be available to other mods.", LogLevel.Warn);
+                        mod.Entry(mod.Helper!);
+                    }
+                    catch (Exception ex)
+                    {
+                        metadata.LogAsMod($"Mod crashed on entry and might not work correctly. Technical details:\n{ex.GetLogSummary()}", LogLevel.Error);
                     }
 
-                    if (api != null)
-                        this.Monitor.Log($"   Found mod-provided API ({api.GetType().FullName}).");
-                    metadata.SetApi(api);
-                }
-                catch (Exception ex)
-                {
-                    this.Monitor.Log($"Failed loading mod-provided API for {metadata.DisplayName}. Integrations with other mods may not work. Error: {ex.GetLogSummary()}", LogLevel.Error);
-                }
+                    // get mod API
+                    try
+                    {
+                        object? api = mod.GetApi();
+                        if (api != null && !api.GetType().IsPublic)
+                        {
+                            api = null;
+                            this.Monitor.Log($"{metadata.DisplayName} provides an API instance with a non-public type. This isn't currently supported, so the API won't be available to other mods.", LogLevel.Warn);
+                        }
 
-                // validate mod doesn't implement both GetApi() and GetApi(mod)
-                if (metadata.Api != null && metadata.Mod!.GetType().GetMethod(nameof(Mod.GetApi), new Type[] { typeof(IManifest) })!.DeclaringType != typeof(Mod))
-                    metadata.LogAsMod($"Mod implements both {nameof(Mod.GetApi)}() and {nameof(Mod.GetApi)}({nameof(IManifest)}), which isn't allowed. The latter will be ignored.", LogLevel.Error);
+                        if (api != null)
+                            this.Monitor.Log($"   Found mod-provided API ({api.GetType().FullName}).");
+                        metadata.SetApi(api);
+                    }
+                    catch (Exception ex)
+                    {
+                        this.Monitor.Log($"Failed loading mod-provided API for {metadata.DisplayName}. Integrations with other mods may not work. Error: {ex.GetLogSummary()}", LogLevel.Error);
+                    }
 
+                    // validate mod doesn't implement both GetApi() and GetApi(mod)
+                    if (metadata.Api != null && mod.GetType().GetMethod(nameof(Mod.GetApi), new Type[] { typeof(IModInfo) })!.DeclaringType != typeof(Mod))
+                        metadata.LogAsMod($"Mod implements both {nameof(Mod.GetApi)}() and {nameof(Mod.GetApi)}({nameof(IModInfo)}), which isn't allowed. The latter will be ignored.", LogLevel.Error);
+                }
                 Context.HeuristicModsRunningCode.TryPop(out _);
             }
 

@@ -52,7 +52,7 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
             ".zip",
             ".7z",
             ".tar",
-            ".tar.gz"
+            ".tar.gz",
 
             // backup files
             ".backup",

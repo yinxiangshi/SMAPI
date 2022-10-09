@@ -9,11 +9,16 @@
 
 ## Upcoming release
 * For players:
-  * Fixed update alert shown for a prerelease version on GitHub if it's not marked as prerelease.
+  * The SMAPI installer now also detects game folders listed in Steam's `.vdf` library data on Windows (thanks to pizzaoverhead!).
+  * Optimized performance and memory usage (thanks to atravita!).
+  * Added more file extensions to ignore when searching for mod folders: `.7z`, `.tar`, `.tar.gz`, and `.xcf` (thanks to atravita!).
+  * Fixed update alerts incorrectly shown for prerelease versions on GitHub that aren't marked as prerelease.
 
 * For mod authors:
+  * When [providing a mod API for a C# mod](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Integrations), you can now get an optional parameter with the mod requesting the API (thanks to KhloeLeclair!). This avoids needing the pattern where each method needs the requesting mod's manifest.
   * SMAPI now treats square brackets in the manifest `Name` field as round brackets, to avoid breaking tools which parse log files.
   * Updated to [FluentHttpClient](https://github.com/Pathoschild/FluentHttpClient#readme) 4.2.0 (see [changes](https://github.com/Pathoschild/FluentHttpClient/blob/develop/RELEASE-NOTES.md#420)).
+  * Fixed `LocationListChanged` event not raised & memory leak occurring when a generated mine/volcano is removed (thanks to tylergibbs2!).
 
 ## 3.16.2
 Released 31 August 2022 for Stardew Valley 1.5.6 or later.
