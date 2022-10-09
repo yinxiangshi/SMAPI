@@ -30,9 +30,6 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /*********
         ** Fields
         *********/
-        /// <summary>Whether to use raw image data when possible, instead of initializing an XNA Texture2D instance through the GPU.</summary>
-        private readonly bool UseRawImageLoading;
-
         /// <summary>Encapsulates SMAPI's JSON file parsing.</summary>
         private readonly JsonHelper JsonHelper;
 
@@ -74,15 +71,13 @@ namespace StardewModdingAPI.Framework.ContentManagers
         /// <param name="jsonHelper">Encapsulates SMAPI's JSON file parsing.</param>
         /// <param name="onDisposing">A callback to invoke when the content manager is being disposed.</param>
         /// <param name="fileLookup">A lookup for files within the <paramref name="rootDirectory"/>.</param>
-        /// <param name="useRawImageLoading">Whether to use raw image data when possible, instead of initializing an XNA Texture2D instance through the GPU.</param>
-        public ModContentManager(string name, IContentManager gameContentManager, IServiceProvider serviceProvider, string modName, string rootDirectory, CultureInfo currentCulture, ContentCoordinator coordinator, IMonitor monitor, Reflector reflection, JsonHelper jsonHelper, Action<BaseContentManager> onDisposing, IFileLookup fileLookup, bool useRawImageLoading)
+        public ModContentManager(string name, IContentManager gameContentManager, IServiceProvider serviceProvider, string modName, string rootDirectory, CultureInfo currentCulture, ContentCoordinator coordinator, IMonitor monitor, Reflector reflection, JsonHelper jsonHelper, Action<BaseContentManager> onDisposing, IFileLookup fileLookup)
             : base(name, serviceProvider, rootDirectory, currentCulture, coordinator, monitor, reflection, onDisposing, isNamespaced: true)
         {
             this.GameContentManager = gameContentManager;
             this.FileLookup = fileLookup;
             this.JsonHelper = jsonHelper;
             this.ModName = modName;
-            this.UseRawImageLoading = useRawImageLoading;
 
             this.TryLocalizeKeys = false;
         }
@@ -205,34 +200,25 @@ namespace StardewModdingAPI.Framework.ContentManagers
         {
             this.AssertValidType<T>(assetName, file, typeof(Texture2D), typeof(IRawTextureData));
             bool returnRawData = typeof(T).IsAssignableTo(typeof(IRawTextureData));
-            bool loadRawData =
-                returnRawData
-                || (
-                    this.UseRawImageLoading
+
 #if SMAPI_DEPRECATED
-                    && !this.ShouldDisableIntermediateRawDataLoad<T>(assetName, file)
-#endif
-                );
-
-            // load
-            if (loadRawData)
-            {
-                IRawTextureData raw = this.LoadRawImageData(file, returnRawData);
-
-                if (returnRawData)
-                    return (T)raw;
-                else
-                {
-                    Texture2D texture = new Texture2D(Game1.graphics.GraphicsDevice, raw.Width, raw.Height).SetName(assetName);
-                    texture.SetData(raw.Data);
-                    return (T)(object)texture;
-                }
-            }
-            else
+            if (!returnRawData && this.ShouldDisableIntermediateRawDataLoad<T>(assetName, file))
             {
                 using FileStream stream = File.OpenRead(file.FullName);
                 Texture2D texture = Texture2D.FromStream(Game1.graphics.GraphicsDevice, stream).SetName(assetName);
                 this.PremultiplyTransparency(texture);
+                return (T)(object)texture;
+            }
+#endif
+
+            IRawTextureData raw = this.LoadRawImageData(file, returnRawData);
+
+            if (returnRawData)
+                return (T)raw;
+            else
+            {
+                Texture2D texture = new Texture2D(Game1.graphics.GraphicsDevice, raw.Width, raw.Height).SetName(assetName);
+                texture.SetData(raw.Data);
                 return (T)(object)texture;
             }
         }

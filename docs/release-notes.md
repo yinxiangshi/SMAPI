@@ -16,6 +16,7 @@
   * Optimized performance and memory usage (thanks to atravita!).
   * Other internal optimizations.
   * Added more file extensions to ignore when searching for mod folders: `.7z`, `.tar`, `.tar.gz`, and `.xcf` (thanks to atravita!).
+  * Removed `UseRawImageLoading` option. This is now always enabled, except when PyTK is installed.
   * Fixed update alerts incorrectly shown for prerelease versions on GitHub that aren't marked as prerelease.
 
 * For mod authors:

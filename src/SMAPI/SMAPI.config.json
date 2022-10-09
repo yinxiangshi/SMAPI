@@ -55,12 +55,6 @@ copy all the settings, or you may cause bugs due to overridden changes in future
     "UseCaseInsensitivePaths": null,
 
     /**
-     * Whether to use raw image data when possible, instead of initializing an XNA Texture2D
-     * instance through the GPU.
-     */
-    "UseRawImageLoading": true,
-
-    /**
      * Whether to add a section to the 'mod issues' list for mods which directly use potentially
      * sensitive .NET APIs like file or shell access. Note that many mods do this legitimately as
      * part of their normal functionality, so these warnings are meaningless without further
