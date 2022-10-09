@@ -16,7 +16,8 @@
 
 * For mod authors:
   * When [providing a mod API for a C# mod](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Integrations), you can now get an optional parameter with the mod requesting the API (thanks to KhloeLeclair!). This avoids needing the pattern where each method needs the requesting mod's manifest.
-  * SMAPI now treats square brackets in the manifest `Name` field as round brackets, to avoid breaking tools which parse log files.
+  * SMAPI now treats square brackets in the manifest `Name` field as round ones to avoid breaking tools which parse log files.
+  * Made deprecation message wording stronger for the upcoming SMAPI 4.0.0 release.
   * Updated to [FluentHttpClient](https://github.com/Pathoschild/FluentHttpClient#readme) 4.2.0 (see [changes](https://github.com/Pathoschild/FluentHttpClient/blob/develop/RELEASE-NOTES.md#420)).
   * Fixed `LocationListChanged` event not raised & memory leak occurring when a generated mine/volcano is removed (thanks to tylergibbs2!).
 
