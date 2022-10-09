@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using StardewModdingAPI.Framework.Reflection;
+using StardewModdingAPI.Internal;
 
 namespace StardewModdingAPI.Framework.ModHelpers
 {
@@ -15,8 +17,8 @@ namespace StardewModdingAPI.Framework.ModHelpers
         /// <summary>Encapsulates monitoring and logging for the mod.</summary>
         private readonly IMonitor Monitor;
 
-        /// <summary>The mod IDs for APIs accessed by this instanced.</summary>
-        private readonly HashSet<string> AccessedModApis = new();
+        /// <summary>The APIs accessed by this instance.</summary>
+        private readonly Dictionary<string, object?> AccessedModApis = new();
 
         /// <summary>Generates proxy classes to access mod APIs through an arbitrary interface.</summary>
         private readonly IInterfaceProxyFactory ProxyFactory;
@@ -66,11 +68,44 @@ namespace StardewModdingAPI.Framework.ModHelpers
                 return null;
             }
 
-            // get raw API
+            // get the target mod
             IModMetadata? mod = this.Registry.Get(uniqueID);
-            if (mod?.Api != null && this.AccessedModApis.Add(mod.Manifest.UniqueID))
-                this.Monitor.Log($"Accessed mod-provided API for {mod.DisplayName}.");
-            return mod?.Api;
+            if (mod == null)
+                return null;
+
+            // fetch API
+            if (!this.AccessedModApis.TryGetValue(mod.Manifest.UniqueID, out object? api))
+            {
+                // if the target has a global API, this is mutually exclusive with per-mod APIs
+                if (mod.Api != null)
+                    api = mod.Api;
+
+                // else try to get a per-mod API
+                else
+                {
+                    try
+                    {
+                        api = mod.Mod?.GetApi(this.Mod);
+                        if (api != null && !api.GetType().IsPublic)
+                        {
+                            api = null;
+                            this.Monitor.Log($"{mod.DisplayName} provides a per-mod API instance with a non-public type. This isn't currently supported, so the API won't be available to other mods.", LogLevel.Warn);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        this.Monitor.Log($"Failed loading the per-mod API instance from {mod.DisplayName}. Integrations with other mods may not work. Error: {ex.GetLogSummary()}", LogLevel.Error);
+                        api = null;
+                    }
+                }
+
+                // cache & log API access
+                this.AccessedModApis[mod.Manifest.UniqueID] = api;
+                if (api != null)
+                    this.Monitor.Log($"Accessed mod-provided API ({api.GetType().FullName}) for {mod.DisplayName}.");
+            }
+
+            return api;
         }
 
         /// <inheritdoc />

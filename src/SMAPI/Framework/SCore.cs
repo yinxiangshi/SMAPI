@@ -1779,6 +1779,11 @@ namespace StardewModdingAPI.Framework
                 {
                     this.Monitor.Log($"Failed loading mod-provided API for {metadata.DisplayName}. Integrations with other mods may not work. Error: {ex.GetLogSummary()}", LogLevel.Error);
                 }
+
+                // validate mod doesn't implement both GetApi() and GetApi(mod)
+                if (metadata.Api != null && metadata.Mod!.GetType().GetMethod(nameof(Mod.GetApi), new Type[] { typeof(IManifest) })!.DeclaringType != typeof(Mod))
+                    metadata.LogAsMod($"Mod implements both {nameof(Mod.GetApi)}() and {nameof(Mod.GetApi)}({nameof(IManifest)}), which isn't allowed. The latter will be ignored.", LogLevel.Error);
+
                 Context.HeuristicModsRunningCode.TryPop(out _);
             }
 
