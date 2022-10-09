@@ -382,11 +382,11 @@ namespace SMAPI.Tests.Utilities
         {
             // act
             string json = JsonConvert.SerializeObject(new SemanticVersion(versionStr));
-            SemanticVersion after = JsonConvert.DeserializeObject<SemanticVersion>(json);
+            SemanticVersion? after = JsonConvert.DeserializeObject<SemanticVersion>(json);
 
             // assert
             Assert.IsNotNull(after, "The semantic version after deserialization is unexpectedly null.");
-            Assert.AreEqual(versionStr, after.ToString(), "The semantic version after deserialization doesn't match the input version.");
+            Assert.AreEqual(versionStr, after!.ToString(), "The semantic version after deserialization doesn't match the input version.");
         }
 
 

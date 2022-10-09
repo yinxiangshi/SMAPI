@@ -361,7 +361,7 @@ else if (log?.IsValid == true)
                         ContentPacks: contentPacks?.TryGetValue(mod.Name, out LogModInfo[]? contentPackList) == true ? contentPackList : Array.Empty<LogModInfo>()
                     ))
                     .ToList();
-                if (contentPacks?.TryGetValue("", out LogModInfo[] invalidPacks) == true)
+                if (contentPacks?.TryGetValue("", out LogModInfo[]? invalidPacks) == true)
                 {
                     modsWithContentPacks.Add((
                         Mod: new LogModInfo(ModType.CodeMod, "<invalid content packs>", "", "", ""),
