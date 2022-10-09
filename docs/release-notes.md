@@ -7,20 +7,22 @@
   _If needed, you can update to SMAPI 3.16.0 first and then install the latest version._
 -->
 
-## Upcoming release
+## 3.17.0
+Released 09 October 2022 for Stardew Valley 1.5.6 or later. See [release highlights](https://www.patreon.com/posts/73090322).
+
 * For players:
-  * You can now download SMAPI 'strict mode' from the [Nexus optional files](https://www.nexusmods.com/stardewvalley/mods/2400/). This removes all deprecated APIs, which may significantly improve performance. However mods which still show deprecation warnings won't work.
-  * The SMAPI installer now also detects game folders listed in Steam's `.vdf` library data on Windows (thanks to pizzaoverhead!).
+  * You can now download SMAPI 'strict mode' from [Nexus files](https://www.nexusmods.com/stardewvalley/mods/2400/?tab=files), which removes all deprecated APIs. This may significantly improve performance, but mods which still show deprecation warnings won't work.
+  * The SMAPI installer now also detects game folders in Steam's `.vdf` library data on Windows (thanks to pizzaoverhead!).
   * SMAPI now prevents mods from enabling Harmony debug mode, which impacts performance and creates a file on your desktop.  
     _You can allow debug mode by editing `smapi-internal/config.json` in your game folder._
   * Optimized performance and memory usage (thanks to atravita!).
   * Other internal optimizations.
   * Added more file extensions to ignore when searching for mod folders: `.7z`, `.tar`, `.tar.gz`, and `.xcf` (thanks to atravita!).
-  * Removed `UseRawImageLoading` option. This is now always enabled, except when PyTK is installed.
+  * Removed transitional `UseRawImageLoading` option added in 3.15.0. This is now always enabled, except when PyTK is installed.
   * Fixed update alerts incorrectly shown for prerelease versions on GitHub that aren't marked as prerelease.
 
 * For mod authors:
-  * When [providing a mod API for a C# mod](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Integrations), you can now get an optional parameter with the mod requesting the API (thanks to KhloeLeclair!). This avoids needing the pattern where each method needs the requesting mod's manifest.
+  * When [providing a mod API in a C# mod](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Integrations), you can now get the mod requesting it as an optional parameter (thanks to KhloeLeclair!).
   * SMAPI now treats square brackets in the manifest `Name` field as round ones to avoid breaking tools which parse log files.
   * Made deprecation message wording stronger for the upcoming SMAPI 4.0.0 release.
   * The `Texture2D.Name` field is now set earlier to support mods like SpriteMaster.
