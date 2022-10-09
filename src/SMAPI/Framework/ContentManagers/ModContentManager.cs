@@ -232,7 +232,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
                     return (T)raw;
                 else
                 {
-                    Texture2D texture = new(Game1.graphics.GraphicsDevice, raw.Width, raw.Height);
+                    Texture2D texture = new Texture2D(Game1.graphics.GraphicsDevice, raw.Width, raw.Height).SetName(assetName);
                     texture.SetData(raw.Data);
                     return (T)(object)texture;
                 }
@@ -240,7 +240,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
             else
             {
                 using FileStream stream = File.OpenRead(file.FullName);
-                Texture2D texture = Texture2D.FromStream(Game1.graphics.GraphicsDevice, stream);
+                Texture2D texture = Texture2D.FromStream(Game1.graphics.GraphicsDevice, stream).SetName(assetName);
                 this.PremultiplyTransparency(texture);
                 return (T)(object)texture;
             }
