@@ -24,6 +24,9 @@ namespace StardewModdingAPI.Toolkit.Framework.GameScanning
         /// <summary>The current OS.</summary>
         private readonly Platform Platform;
 
+        /// <summary>The Steam app ID for Stardew Valley.</summary>
+        private const string SteamAppId = "413150";
+
 
         /*********
         ** Public methods
@@ -146,7 +149,7 @@ namespace StardewModdingAPI.Toolkit.Framework.GameScanning
 #if SMAPI_FOR_WINDOWS
                         IDictionary<string, string> registryKeys = new Dictionary<string, string>
                         {
-                            [@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 413150"] = "InstallLocation", // Steam
+                            [@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App " + GameScanner.SteamAppId] = "InstallLocation", // Steam
                             [@"SOFTWARE\WOW6432Node\GOG.com\Games\1453375253"] = "PATH", // GOG on 64-bit Windows
                         };
                         foreach (var pair in registryKeys)
@@ -160,9 +163,10 @@ namespace StardewModdingAPI.Toolkit.Framework.GameScanning
                         string? steamPath = this.GetCurrentUserRegistryValue(@"Software\Valve\Steam", "SteamPath");
                         if (steamPath != null)
                         {
+                            // conventional path
                             yield return Path.Combine(steamPath.Replace('/', '\\'), @"steamapps\common\Stardew Valley");
 
-                            // Check for Steam libraries in other locations
+                            // from Steam's .vdf file
                             string? path = this.GetPathFromSteamLibrary(steamPath);
                             if (!string.IsNullOrWhiteSpace(path))
                                 yield return path;
@@ -257,26 +261,34 @@ namespace StardewModdingAPI.Toolkit.Framework.GameScanning
         /// <returns>The game directory, if found.</returns>
         private string? GetPathFromSteamLibrary(string? steamPath)
         {
-            string stardewAppId = "413150";
-            if (steamPath != null)
+            if (steamPath == null)
+                return null;
+
+            // get raw .vdf data
+            string libraryFoldersPath = Path.Combine(steamPath.Replace('/', '\\'), "steamapps\\libraryfolders.vdf");
+            using FileStream fileStream = File.OpenRead(libraryFoldersPath);
+            VdfDeserializer deserializer = new();
+            dynamic libraries = deserializer.Deserialize(fileStream);
+            if (libraries?.libraryfolders is null)
+                return null;
+
+            // get path from Stardew Valley app (if any)
+            foreach (dynamic pair in libraries.libraryfolders)
             {
-                string? libraryFoldersPath = Path.Combine(steamPath.Replace('/', '\\'), "steamapps\\libraryfolders.vdf");
-                using FileStream fs = File.OpenRead(libraryFoldersPath);
-                VdfDeserializer deserializer = new VdfDeserializer();
-                SteamLibraryCollection libraries = deserializer.Deserialize<SteamLibraryCollection>(fs);
-                if (libraries.libraryfolders != null)
+                dynamic library = pair.Value;
+
+                foreach (dynamic app in library.apps)
                 {
-                    var stardewLibrary = libraries.libraryfolders.FirstOrDefault(f =>
+                    string key = app.Key;
+                    if (key == GameScanner.SteamAppId)
                     {
-                        var apps = f.Value?.apps;
-                        return apps != null && apps.Any(a => a.Key.Equals(stardewAppId));
-                    });
-                    if (stardewLibrary.Value?.path != null)
-                    {
-                        return Path.Combine(stardewLibrary.Value.path.Replace("\\\\", "\\"), @"steamapps\common\Stardew Valley");
+                        string path = library.path;
+
+                        return Path.Combine(path.Replace("\\\\", "\\"), "steamapps", "common", "Stardew Valley");
                     }
                 }
             }
+
             return null;
         }
 #endif

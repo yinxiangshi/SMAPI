@@ -14,7 +14,7 @@
     <PackageReference Include="Pathoschild.Http.FluentClient" Version="4.1.1" />
     <PackageReference Include="System.Management" Version="5.0.0" Condition="'$(OS)' == 'Windows_NT'" />
     <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" Condition="'$(OS)' == 'Windows_NT'" />
-    <PackageReference Include="VdfConverter" Version="1.0.3" />
+    <PackageReference Include="VdfConverter" Version="1.0.3" Condition="'$(OS)' == 'Windows_NT'" />
   </ItemGroup>
 
   <ItemGroup>
