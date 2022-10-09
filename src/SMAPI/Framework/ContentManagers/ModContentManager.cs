@@ -204,31 +204,22 @@ namespace StardewModdingAPI.Framework.ContentManagers
         private T LoadImageFile<T>(IAssetName assetName, FileInfo file)
         {
             this.AssertValidType<T>(assetName, file, typeof(Texture2D), typeof(IRawTextureData));
-            bool expectsRawData = typeof(T).IsAssignableTo(typeof(IRawTextureData));
-            bool asRawData = expectsRawData || this.UseRawImageLoading;
-
+            bool returnRawData = typeof(T).IsAssignableTo(typeof(IRawTextureData));
+            bool loadRawData =
+                returnRawData
+                || (
+                    this.UseRawImageLoading
 #if SMAPI_DEPRECATED
-            // disable raw data if PyTK will rescale the image (until it supports raw data)
-            if (asRawData && !expectsRawData)
-            {
-                if (ModContentManager.EnablePyTkLegacyMode)
-                {
-                    // PyTK intercepts Texture2D file loads to rescale them (e.g. for HD portraits),
-                    // but doesn't support IRawTextureData loads yet. We can't just check if the
-                    // current file has a '.pytk.json' rescale file though, since PyTK may still
-                    // rescale it if the original asset or another edit gets rescaled.
-                    asRawData = false;
-                    this.Monitor.LogOnce("Enabled compatibility mode for PyTK 1.23.* or earlier. This won't cause any issues, but may impact performance. This will no longer be supported in the upcoming SMAPI 4.0.0.", LogLevel.Warn);
-                }
-            }
+                    && !this.ShouldDisableIntermediateRawDataLoad<T>(assetName, file)
 #endif
+                );
 
             // load
-            if (asRawData)
+            if (loadRawData)
             {
-                IRawTextureData raw = this.LoadRawImageData(file, expectsRawData);
+                IRawTextureData raw = this.LoadRawImageData(file, returnRawData);
 
-                if (expectsRawData)
+                if (returnRawData)
                     return (T)raw;
                 else
                 {
@@ -245,6 +236,28 @@ namespace StardewModdingAPI.Framework.ContentManagers
                 return (T)(object)texture;
             }
         }
+
+#if SMAPI_DEPRECATED
+        /// <summary>Get whether to disable loading an image as <see cref="IRawTextureData"/> before building a <see cref="Texture2D"/> instance. This isn't called if the mod requested <see cref="IRawTextureData"/> directly.</summary>
+        /// <typeparam name="T">The type of asset being loaded.</typeparam>
+        /// <param name="assetName">The asset name relative to the loader root directory.</param>
+        /// <param name="file">The file being loaded.</param>
+        private bool ShouldDisableIntermediateRawDataLoad<T>(IAssetName assetName, FileInfo file)
+        {
+            // disable raw data if PyTK will rescale the image (until it supports raw data)
+            if (ModContentManager.EnablePyTkLegacyMode)
+            {
+                // PyTK intercepts Texture2D file loads to rescale them (e.g. for HD portraits),
+                // but doesn't support IRawTextureData loads yet. We can't just check if the
+                // current file has a '.pytk.json' rescale file though, since PyTK may still
+                // rescale it if the original asset or another edit gets rescaled.
+                this.Monitor.LogOnce("Enabled compatibility mode for PyTK 1.23.* or earlier. This won't cause any issues, but may impact performance. This will no longer be supported in the upcoming SMAPI 4.0.0.", LogLevel.Warn);
+                return true;
+            }
+
+            return false;
+        }
+#endif
 
         /// <summary>Load the raw image data from a file on disk.</summary>
         /// <param name="file">The file whose data to load.</param>
