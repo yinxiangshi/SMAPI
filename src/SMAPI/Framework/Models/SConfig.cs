@@ -23,7 +23,8 @@ namespace StardewModdingAPI.Framework.Models
             [nameof(LogNetworkTraffic)] = false,
             [nameof(RewriteMods)] = true,
             [nameof(UseRawImageLoading)] = true,
-            [nameof(UseCaseInsensitivePaths)] = Constants.Platform is Platform.Android or Platform.Linux
+            [nameof(UseCaseInsensitivePaths)] = Constants.Platform is Platform.Android or Platform.Linux,
+            [nameof(SuppressHarmonyDebugMode)] = true
         };
 
         /// <summary>The default values for <see cref="SuppressUpdateChecks"/>, to log changes if different.</summary>
@@ -79,6 +80,9 @@ namespace StardewModdingAPI.Framework.Models
         /// <summary>The colors to use for text written to the SMAPI console.</summary>
         public ColorSchemeConfig ConsoleColors { get; set; }
 
+        /// <summary>Whether to prevent mods from enabling Harmony's debug mode, which impacts performance and creates a file on your desktop. Debug mode should never be enabled by a released mod.</summary>
+        public bool SuppressHarmonyDebugMode { get; set; }
+
         /// <summary>The mod IDs SMAPI should ignore when performing update checks or validating update keys.</summary>
         public HashSet<string> SuppressUpdateChecks { get; set; }
 
@@ -99,8 +103,9 @@ namespace StardewModdingAPI.Framework.Models
         /// <param name="useCaseInsensitivePaths">>Whether to make SMAPI file APIs case-insensitive, even on Linux.</param>
         /// <param name="logNetworkTraffic">Whether SMAPI should log network traffic.</param>
         /// <param name="consoleColors">The colors to use for text written to the SMAPI console.</param>
+        /// <param name="suppressHarmonyDebugMode">Whether to prevent mods from enabling Harmony's debug mode, which impacts performance and creates a file on your desktop. Debug mode should never be enabled by a released mod.</param>
         /// <param name="suppressUpdateChecks">The mod IDs SMAPI should ignore when performing update checks or validating update keys.</param>
-        public SConfig(bool developerMode, bool? checkForUpdates, bool? paranoidWarnings, bool? useBetaChannel, string gitHubProjectName, string webApiBaseUrl, string[]? verboseLogging, bool? rewriteMods, bool? useRawImageLoading, bool? useCaseInsensitivePaths, bool? logNetworkTraffic, ColorSchemeConfig consoleColors, string[]? suppressUpdateChecks)
+        public SConfig(bool developerMode, bool? checkForUpdates, bool? paranoidWarnings, bool? useBetaChannel, string gitHubProjectName, string webApiBaseUrl, string[]? verboseLogging, bool? rewriteMods, bool? useRawImageLoading, bool? useCaseInsensitivePaths, bool? logNetworkTraffic, ColorSchemeConfig consoleColors, bool? suppressHarmonyDebugMode, string[]? suppressUpdateChecks)
         {
             this.DeveloperMode = developerMode;
             this.CheckForUpdates = checkForUpdates ?? (bool)SConfig.DefaultValues[nameof(this.CheckForUpdates)];
@@ -114,6 +119,7 @@ namespace StardewModdingAPI.Framework.Models
             this.UseCaseInsensitivePaths = useCaseInsensitivePaths ?? (bool)SConfig.DefaultValues[nameof(this.UseCaseInsensitivePaths)];
             this.LogNetworkTraffic = logNetworkTraffic ?? (bool)SConfig.DefaultValues[nameof(this.LogNetworkTraffic)];
             this.ConsoleColors = consoleColors;
+            this.SuppressHarmonyDebugMode = suppressHarmonyDebugMode ?? (bool)SConfig.DefaultValues[nameof(this.SuppressHarmonyDebugMode)];
             this.SuppressUpdateChecks = new HashSet<string>(suppressUpdateChecks ?? Array.Empty<string>(), StringComparer.OrdinalIgnoreCase);
         }
 

@@ -501,6 +501,15 @@ namespace StardewModdingAPI.Framework
                     return;
                 }
 
+                /*********
+                ** Prevent Harmony debug mode
+                *********/
+                if (HarmonyLib.Harmony.DEBUG && this.Settings.SuppressHarmonyDebugMode)
+                {
+                    HarmonyLib.Harmony.DEBUG = false;
+                    this.Monitor.LogOnce("A mod enabled Harmony debug mode, which impacts performance and creates a file on your desktop. SMAPI will try to keep it disabled. (You can allow debug mode by editing the smapi-internal/config.json file.)", LogLevel.Warn);
+                }
+
 #if SMAPI_DEPRECATED
                 /*********
                 ** Reload assets when interceptors are added/removed

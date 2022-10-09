@@ -10,6 +10,8 @@
 ## Upcoming release
 * For players:
   * The SMAPI installer now also detects game folders listed in Steam's `.vdf` library data on Windows (thanks to pizzaoverhead!).
+  * SMAPI now prevents mods from enabling Harmony debug mode, which impacts performance and creates a file on your desktop.  
+    _You can allow debug mode by editing `smapi-internal/config.json` in your game folder._
   * Optimized performance and memory usage (thanks to atravita!).
   * Other internal optimizations.
   * Added more file extensions to ignore when searching for mod folders: `.7z`, `.tar`, `.tar.gz`, and `.xcf` (thanks to atravita!).
