@@ -121,10 +121,10 @@ namespace StardewModdingAPI.Web.Framework.Clients.Nexus
             HtmlNode? node = doc.DocumentNode.SelectSingleNode("//div[contains(@class, 'site-notice')][contains(@class, 'warning')]");
             if (node != null)
             {
-                string[] errorParts = node.InnerText.Trim().Split(new[] { '\n' }, 2, System.StringSplitOptions.RemoveEmptyEntries);
+                string[] errorParts = node.InnerText.Trim().Split('\n', 2, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
                 string errorCode = errorParts[0];
                 string? errorText = errorParts.Length > 1 ? errorParts[1] : null;
-                switch (errorCode.Trim().ToLower())
+                switch (errorCode.ToLower())
                 {
                     case "not found":
                         return null;

@@ -223,7 +223,7 @@ namespace StardewModdingAPI.Framework.Logging
             // show update alert
             if (File.Exists(Constants.UpdateMarker))
             {
-                string[] rawUpdateFound = File.ReadAllText(Constants.UpdateMarker).Split(new[] { '|' }, 2);
+                string[] rawUpdateFound = File.ReadAllText(Constants.UpdateMarker).Split('|', 2);
                 if (SemanticVersion.TryParse(rawUpdateFound[0], out ISemanticVersion? updateFound))
                 {
                     if (Constants.ApiVersion.IsPrerelease() && updateFound.IsNewerThan(Constants.ApiVersion))

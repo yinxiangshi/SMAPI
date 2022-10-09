@@ -1384,7 +1384,7 @@ namespace StardewModdingAPI.Framework
                     }
 
                     // check min length for specific types
-                    switch (fields[SObject.objectInfoTypeIndex].Split(new[] { ' ' }, 2)[0])
+                    switch (fields[SObject.objectInfoTypeIndex].Split(' ', 2)[0])
                     {
                         case "Cooking":
                             if (fields.Length < SObject.objectInfoBuffDurationIndex + 1)

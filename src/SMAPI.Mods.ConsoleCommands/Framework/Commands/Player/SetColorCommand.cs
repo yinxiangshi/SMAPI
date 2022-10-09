@@ -63,7 +63,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
         /// <param name="color">The color to set.</param>
         private bool TryParseColor(string input, out Color color)
         {
-            string[] colorHexes = input.Split(new[] { ',' }, 3);
+            string[] colorHexes = input.Split(',', 3);
             if (int.TryParse(colorHexes[0], out int r) && int.TryParse(colorHexes[1], out int g) && int.TryParse(colorHexes[2], out int b))
             {
                 color = new Color(r, g, b);
