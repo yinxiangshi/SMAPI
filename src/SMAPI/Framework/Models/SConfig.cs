@@ -22,8 +22,8 @@ namespace StardewModdingAPI.Framework.Models
             [nameof(WebApiBaseUrl)] = "https://smapi.io/api/",
             [nameof(LogNetworkTraffic)] = false,
             [nameof(RewriteMods)] = true,
-            [nameof(UseRawImageLoading)] = true,
-            [nameof(UseCaseInsensitivePaths)] = Constants.Platform is Platform.Android or Platform.Linux
+            [nameof(UseCaseInsensitivePaths)] = Constants.Platform is Platform.Android or Platform.Linux,
+            [nameof(SuppressHarmonyDebugMode)] = true
         };
 
         /// <summary>The default values for <see cref="SuppressUpdateChecks"/>, to log changes if different.</summary>
@@ -67,9 +67,6 @@ namespace StardewModdingAPI.Framework.Models
         /// <summary>Whether SMAPI should rewrite mods for compatibility.</summary>
         public bool RewriteMods { get; set; }
 
-        /// <summary>Whether to use raw image data when possible, instead of initializing an XNA Texture2D instance through the GPU.</summary>
-        public bool UseRawImageLoading { get; set; }
-
         /// <summary>Whether to make SMAPI file APIs case-insensitive, even on Linux.</summary>
         public bool UseCaseInsensitivePaths { get; set; }
 
@@ -78,6 +75,9 @@ namespace StardewModdingAPI.Framework.Models
 
         /// <summary>The colors to use for text written to the SMAPI console.</summary>
         public ColorSchemeConfig ConsoleColors { get; set; }
+
+        /// <summary>Whether to prevent mods from enabling Harmony's debug mode, which impacts performance and creates a file on your desktop. Debug mode should never be enabled by a released mod.</summary>
+        public bool SuppressHarmonyDebugMode { get; set; }
 
         /// <summary>The mod IDs SMAPI should ignore when performing update checks or validating update keys.</summary>
         public HashSet<string> SuppressUpdateChecks { get; set; }
@@ -95,12 +95,12 @@ namespace StardewModdingAPI.Framework.Models
         /// <param name="webApiBaseUrl">The base URL for SMAPI's web API, used to perform update checks.</param>
         /// <param name="verboseLogging">The log contexts for which to enable verbose logging, which may show a lot more information to simplify troubleshooting.</param>
         /// <param name="rewriteMods">Whether SMAPI should rewrite mods for compatibility.</param>
-        /// <param name="useRawImageLoading">Whether to use raw image data when possible, instead of initializing an XNA Texture2D instance through the GPU.</param>
         /// <param name="useCaseInsensitivePaths">>Whether to make SMAPI file APIs case-insensitive, even on Linux.</param>
         /// <param name="logNetworkTraffic">Whether SMAPI should log network traffic.</param>
         /// <param name="consoleColors">The colors to use for text written to the SMAPI console.</param>
+        /// <param name="suppressHarmonyDebugMode">Whether to prevent mods from enabling Harmony's debug mode, which impacts performance and creates a file on your desktop. Debug mode should never be enabled by a released mod.</param>
         /// <param name="suppressUpdateChecks">The mod IDs SMAPI should ignore when performing update checks or validating update keys.</param>
-        public SConfig(bool developerMode, bool? checkForUpdates, bool? paranoidWarnings, bool? useBetaChannel, string gitHubProjectName, string webApiBaseUrl, string[]? verboseLogging, bool? rewriteMods, bool? useRawImageLoading, bool? useCaseInsensitivePaths, bool? logNetworkTraffic, ColorSchemeConfig consoleColors, string[]? suppressUpdateChecks)
+        public SConfig(bool developerMode, bool? checkForUpdates, bool? paranoidWarnings, bool? useBetaChannel, string gitHubProjectName, string webApiBaseUrl, string[]? verboseLogging, bool? rewriteMods, bool? useCaseInsensitivePaths, bool? logNetworkTraffic, ColorSchemeConfig consoleColors, bool? suppressHarmonyDebugMode, string[]? suppressUpdateChecks)
         {
             this.DeveloperMode = developerMode;
             this.CheckForUpdates = checkForUpdates ?? (bool)SConfig.DefaultValues[nameof(this.CheckForUpdates)];
@@ -110,10 +110,10 @@ namespace StardewModdingAPI.Framework.Models
             this.WebApiBaseUrl = webApiBaseUrl;
             this.VerboseLogging = new HashSet<string>(verboseLogging ?? Array.Empty<string>(), StringComparer.OrdinalIgnoreCase);
             this.RewriteMods = rewriteMods ?? (bool)SConfig.DefaultValues[nameof(this.RewriteMods)];
-            this.UseRawImageLoading = useRawImageLoading ?? (bool)SConfig.DefaultValues[nameof(this.UseRawImageLoading)];
             this.UseCaseInsensitivePaths = useCaseInsensitivePaths ?? (bool)SConfig.DefaultValues[nameof(this.UseCaseInsensitivePaths)];
             this.LogNetworkTraffic = logNetworkTraffic ?? (bool)SConfig.DefaultValues[nameof(this.LogNetworkTraffic)];
             this.ConsoleColors = consoleColors;
+            this.SuppressHarmonyDebugMode = suppressHarmonyDebugMode ?? (bool)SConfig.DefaultValues[nameof(this.SuppressHarmonyDebugMode)];
             this.SuppressUpdateChecks = new HashSet<string>(suppressUpdateChecks ?? Array.Empty<string>(), StringComparer.OrdinalIgnoreCase);
         }
 

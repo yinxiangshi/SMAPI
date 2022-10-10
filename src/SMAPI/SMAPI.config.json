@@ -55,18 +55,6 @@ copy all the settings, or you may cause bugs due to overridden changes in future
     "UseCaseInsensitivePaths": null,
 
     /**
-     * Whether to use the experimental Pintail API proxying library, instead of the original
-     * proxying built into SMAPI itself.
-     */
-    "UsePintail": true,
-
-    /**
-     * Whether to use raw image data when possible, instead of initializing an XNA Texture2D
-     * instance through the GPU.
-     */
-    "UseRawImageLoading": true,
-
-    /**
      * Whether to add a section to the 'mod issues' list for mods which directly use potentially
      * sensitive .NET APIs like file or shell access. Note that many mods do this legitimately as
      * part of their normal functionality, so these warnings are meaningless without further
@@ -137,6 +125,14 @@ copy all the settings, or you may cause bugs due to overridden changes in future
             }
         }
     },
+
+    /**
+     * Whether to prevent mods from enabling Harmony's debug mode, which impacts performance and
+     * creates a file on your desktop. Debug mode should never be enabled by a released mod.
+     *
+     * If you actually need debug mode to test your own mod, set this to false.
+     */
+    "SuppressHarmonyDebugMode": true,
 
     /**
      * The mod IDs SMAPI should ignore when performing update checks or validating update keys.

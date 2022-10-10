@@ -159,11 +159,20 @@ namespace StardewModdingAPI.Web.Controllers
                     continue;
                 }
 
+                // if there's only a prerelease version (e.g. from GitHub), don't override the main version
+                ISemanticVersion? curMain = data.Version;
+                ISemanticVersion? curPreview = data.PreviewVersion;
+                if (curPreview == null && curMain?.IsPrerelease() == true)
+                {
+                    curPreview = curMain;
+                    curMain = null;
+                }
+
                 // handle versions
-                if (this.IsNewer(data.Version, main?.Version))
-                    main = new ModEntryVersionModel(data.Version, data.Url!);
-                if (this.IsNewer(data.PreviewVersion, optional?.Version))
-                    optional = new ModEntryVersionModel(data.PreviewVersion, data.Url!);
+                if (this.IsNewer(curMain, main?.Version))
+                    main = new ModEntryVersionModel(curMain, data.Url!);
+                if (this.IsNewer(curPreview, optional?.Version))
+                    optional = new ModEntryVersionModel(curPreview, data.Url!);
             }
 
             // get unofficial version

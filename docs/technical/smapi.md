@@ -78,8 +78,8 @@ the `SMAPI` project with debugging from Visual Studio or Rider should launch SMA
 debugger attached, so you can intercept errors and step through the code being executed.
 
 ### Custom Harmony build
-SMAPI uses [a custom build of Harmony](https://github.com/Pathoschild/Harmony#readme), which is
-included in the `build` folder. To use a different build, just replace `0Harmony.dll` in that
+SMAPI uses [a custom build of Harmony 2.2.2](https://github.com/Pathoschild/Harmony#readme), which
+is included in the `build` folder. To use a different build, just replace `0Harmony.dll` in that
 folder before compiling.
 
 ## Prepare a release

@@ -45,10 +45,14 @@ namespace StardewModdingAPI.Toolkit.Framework.ModScanning
             ".png",
             ".psd",
             ".tif",
+            ".xcf", // gimp files
 
             // archives
             ".rar",
             ".zip",
+            ".7z",
+            ".tar",
+            ".tar.gz",
 
             // backup files
             ".backup",

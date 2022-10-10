@@ -501,6 +501,15 @@ namespace StardewModdingAPI.Framework
                     return;
                 }
 
+                /*********
+                ** Prevent Harmony debug mode
+                *********/
+                if (HarmonyLib.Harmony.DEBUG && this.Settings.SuppressHarmonyDebugMode)
+                {
+                    HarmonyLib.Harmony.DEBUG = false;
+                    this.Monitor.LogOnce("A mod enabled Harmony debug mode, which impacts performance and creates a file on your desktop. SMAPI will try to keep it disabled. (You can allow debug mode by editing the smapi-internal/config.json file.)", LogLevel.Warn);
+                }
+
 #if SMAPI_DEPRECATED
                 /*********
                 ** Reload assets when interceptors are added/removed
@@ -1324,8 +1333,7 @@ namespace StardewModdingAPI.Framework
                     onAssetLoaded: this.OnAssetLoaded,
                     onAssetsInvalidated: this.OnAssetsInvalidated,
                     getFileLookup: this.GetFileLookup,
-                    requestAssetOperations: this.RequestAssetOperations,
-                    useRawImageLoading: this.Settings.UseRawImageLoading
+                    requestAssetOperations: this.RequestAssetOperations
                 );
                 if (this.ContentCore.Language != this.Translator.LocaleEnum)
                     this.Translator.SetLocale(this.ContentCore.GetLocale(), this.ContentCore.Language);
@@ -1384,7 +1392,7 @@ namespace StardewModdingAPI.Framework
                     }
 
                     // check min length for specific types
-                    switch (fields[SObject.objectInfoTypeIndex].Split(new[] { ' ' }, 2)[0])
+                    switch (fields[SObject.objectInfoTypeIndex].Split(' ', 2)[0])
                     {
                         case "Cooking":
                             if (fields.Length < SObject.objectInfoBuffDurationIndex + 1)
@@ -1672,26 +1680,33 @@ namespace StardewModdingAPI.Framework
             // initialize translations
             this.ReloadTranslations(loaded);
 
-#if SMAPI_DEPRECATED
             // set temporary PyTK compatibility mode
             // This is part of a three-part fix for PyTK 1.23.* and earlier. When removing this,
             // search 'Platonymous.Toolkit' to find the other part in SMAPI and Content Patcher.
             {
                 IModInfo? pyTk = this.ModRegistry.Get("Platonymous.Toolkit");
-                ModContentManager.EnablePyTkLegacyMode = pyTk is not null && pyTk.Manifest.Version.IsOlderThan("1.24.0");
-            }
+                if (pyTk is not null && pyTk.Manifest.Version.IsOlderThan("1.24.0"))
+#if SMAPI_DEPRECATED
+                    ModContentManager.EnablePyTkLegacyMode = true;
+#else
+                    this.Monitor.Log("PyTK's image scaling is not compatible with SMAPI strict mode.", LogLevel.Warn);
 #endif
+            }
 
             // initialize loaded non-content-pack mods
             this.Monitor.Log("Launching mods...", LogLevel.Debug);
             foreach (IModMetadata metadata in loadedMods)
             {
+                IMod mod =
+                    metadata.Mod
+                    ?? throw new InvalidOperationException($"The '{metadata.DisplayName}' mod is not initialized correctly."); // should never happen, but avoids nullability warnings
+
 #if SMAPI_DEPRECATED
                 // add interceptors
-                if (metadata.Mod?.Helper is ModHelper helper)
+                if (mod.Helper is ModHelper helper)
                 {
                     // ReSharper disable SuspiciousTypeConversion.Global
-                    if (metadata.Mod is IAssetEditor editor)
+                    if (mod is IAssetEditor editor)
                     {
                         SCore.DeprecationManager.Warn(
                             source: metadata,
@@ -1704,7 +1719,7 @@ namespace StardewModdingAPI.Framework
                         this.ContentCore.Editors.Add(new ModLinked<IAssetEditor>(metadata, editor));
                     }
 
-                    if (metadata.Mod is IAssetLoader loader)
+                    if (mod is IAssetLoader loader)
                     {
                         SCore.DeprecationManager.Warn(
                             source: metadata,
@@ -1749,35 +1764,41 @@ namespace StardewModdingAPI.Framework
                 }
 #endif
 
-                // call entry method
+                // initialize mod
                 Context.HeuristicModsRunningCode.Push(metadata);
-                try
                 {
-                    IMod mod = metadata.Mod!;
-                    mod.Entry(mod.Helper!);
-                }
-                catch (Exception ex)
-                {
-                    metadata.LogAsMod($"Mod crashed on entry and might not work correctly. Technical details:\n{ex.GetLogSummary()}", LogLevel.Error);
-                }
-
-                // get mod API
-                try
-                {
-                    object? api = metadata.Mod!.GetApi();
-                    if (api != null && !api.GetType().IsPublic)
+                    // call entry method
+                    try
                     {
-                        api = null;
-                        this.Monitor.Log($"{metadata.DisplayName} provides an API instance with a non-public type. This isn't currently supported, so the API won't be available to other mods.", LogLevel.Warn);
+                        mod.Entry(mod.Helper!);
+                    }
+                    catch (Exception ex)
+                    {
+                        metadata.LogAsMod($"Mod crashed on entry and might not work correctly. Technical details:\n{ex.GetLogSummary()}", LogLevel.Error);
                     }
 
-                    if (api != null)
-                        this.Monitor.Log($"   Found mod-provided API ({api.GetType().FullName}).");
-                    metadata.SetApi(api);
-                }
-                catch (Exception ex)
-                {
-                    this.Monitor.Log($"Failed loading mod-provided API for {metadata.DisplayName}. Integrations with other mods may not work. Error: {ex.GetLogSummary()}", LogLevel.Error);
+                    // get mod API
+                    try
+                    {
+                        object? api = mod.GetApi();
+                        if (api != null && !api.GetType().IsPublic)
+                        {
+                            api = null;
+                            this.Monitor.Log($"{metadata.DisplayName} provides an API instance with a non-public type. This isn't currently supported, so the API won't be available to other mods.", LogLevel.Warn);
+                        }
+
+                        if (api != null)
+                            this.Monitor.Log($"   Found mod-provided API ({api.GetType().FullName}).");
+                        metadata.SetApi(api);
+                    }
+                    catch (Exception ex)
+                    {
+                        this.Monitor.Log($"Failed loading mod-provided API for {metadata.DisplayName}. Integrations with other mods may not work. Error: {ex.GetLogSummary()}", LogLevel.Error);
+                    }
+
+                    // validate mod doesn't implement both GetApi() and GetApi(mod)
+                    if (metadata.Api != null && mod.GetType().GetMethod(nameof(Mod.GetApi), new Type[] { typeof(IModInfo) })!.DeclaringType != typeof(Mod))
+                        metadata.LogAsMod($"Mod implements both {nameof(Mod.GetApi)}() and {nameof(Mod.GetApi)}({nameof(IModInfo)}), which isn't allowed. The latter will be ignored.", LogLevel.Error);
                 }
                 Context.HeuristicModsRunningCode.TryPop(out _);
             }

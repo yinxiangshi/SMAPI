@@ -54,12 +54,12 @@ namespace StardewModdingAPI.Utilities
             }
 
             // parse buttons
-            string[] rawButtons = input.Split('+');
+            string[] rawButtons = input.Split('+', StringSplitOptions.TrimEntries);
             SButton[] buttons = new SButton[rawButtons.Length];
             List<string> rawErrors = new List<string>();
             for (int i = 0; i < buttons.Length; i++)
             {
-                string rawButton = rawButtons[i].Trim();
+                string rawButton = rawButtons[i];
                 if (string.IsNullOrWhiteSpace(rawButton))
                     rawErrors.Add("Invalid empty button value");
                 else if (!Enum.TryParse(rawButton, ignoreCase: true, out SButton button))

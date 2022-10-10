@@ -336,7 +336,7 @@ namespace StardewModdingAPI.Framework.ContentManagers
         {
             // track asset key
             if (value is Texture2D texture)
-                texture.Name = assetName.Name;
+                texture.SetName(assetName);
 
             // save to cache
             // Note: even if the asset was loaded and cached right before this method was called,

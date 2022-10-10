@@ -136,11 +136,11 @@ namespace SMAPI.Tests.Utilities
             foreach (string rawPair in stateMap.Split(','))
             {
                 // parse values
-                string[] parts = rawPair.Split(new[] { ':' }, 2);
+                string[] parts = rawPair.Split(':', 2, StringSplitOptions.TrimEntries);
                 if (!Enum.TryParse(parts[0], ignoreCase: true, out SButton curButton))
-                    Assert.Fail($"The state map is invalid: unknown button value '{parts[0].Trim()}'");
+                    Assert.Fail($"The state map is invalid: unknown button value '{parts[0]}'");
                 if (!Enum.TryParse(parts[1], ignoreCase: true, out SButtonState state))
-                    Assert.Fail($"The state map is invalid: unknown state value '{parts[1].Trim()}'");
+                    Assert.Fail($"The state map is invalid: unknown state value '{parts[1]}'");
 
                 // get state
                 if (curButton == button)

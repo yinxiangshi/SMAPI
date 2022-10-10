@@ -199,8 +199,15 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
                             log.ApiVersion = match.Groups["apiVersion"].Value;
                             log.GameVersion = match.Groups["gameVersion"].Value;
                             log.OperatingSystem = match.Groups["os"].Value;
-                            smapiMod.OverrideVersion(log.ApiVersion);
 
+                            const string strictModeSuffix = " (strict mode)";
+                            if (log.ApiVersion.EndsWith(strictModeSuffix))
+                            {
+                                log.IsStrictMode = true;
+                                log.ApiVersion = log.ApiVersion[..^strictModeSuffix.Length];
+                            }
+
+                            smapiMod.OverrideVersion(log.ApiVersion);
                             log.ApiVersionParsed = smapiMod.GetParsedVersion();
                         }
 

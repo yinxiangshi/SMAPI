@@ -73,6 +73,11 @@ table caption {
      margin-bottom: 0.5em;
 }
 
+#fix-list li.notice {
+    background: #EEFFEE;
+    border-color: #080;
+}
+
 #fix-list li.important {
     background: #FCC;
     border-color: #800;

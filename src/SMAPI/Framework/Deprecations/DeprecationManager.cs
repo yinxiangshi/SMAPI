@@ -101,7 +101,7 @@ namespace StardewModdingAPI.Framework.Deprecations
             foreach (DeprecationWarning warning in this.QueuedWarnings.OrderBy(p => p.ModName).ThenBy(p => p.NounPhrase))
             {
                 // build message
-                string message = $"{warning.ModName} uses deprecated code ({warning.NounPhrase} is deprecated since SMAPI {warning.Version}).";
+                string message = $"{warning.ModName} uses deprecated code ({warning.NounPhrase}) and will break in the upcoming SMAPI 4.0.0.";
 
                 // get log level
                 LogLevel level;

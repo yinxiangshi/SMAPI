@@ -158,6 +158,10 @@ foreach ($folder in $folders) {
         cp "$smapiBin/$name" "$bundlePath/smapi-internal"
     }
 
+    if ($folder -eq "windows") {
+        cp "$smapiBin/VdfConverter.dll" "$bundlePath/smapi-internal"
+    }
+
     cp "$smapiBin/SMAPI.config.json" "$bundlePath/smapi-internal/config.json"
     cp "$smapiBin/SMAPI.metadata.json" "$bundlePath/smapi-internal/metadata.json"
     if ($folder -eq "linux" -or $folder -eq "macOS") {
