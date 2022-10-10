@@ -264,8 +264,12 @@ namespace StardewModdingAPI.Toolkit.Framework.GameScanning
             if (steamPath == null)
                 return null;
 
-            // get raw .vdf data
+            // get .vdf file path
             string libraryFoldersPath = Path.Combine(steamPath.Replace('/', '\\'), "steamapps\\libraryfolders.vdf");
+            if (!File.Exists(libraryFoldersPath))
+                return null;
+
+            // read data
             using FileStream fileStream = File.OpenRead(libraryFoldersPath);
             VdfDeserializer deserializer = new();
             dynamic libraries = deserializer.Deserialize(fileStream);
