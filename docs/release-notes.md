@@ -7,6 +7,12 @@
   _If needed, you can update to SMAPI 3.16.0 first and then install the latest version._
 -->
 
+## 3.17.1
+Released 10 October 2022 for Stardew Valley 1.5.6 or later.
+
+* For players:
+  * Fixed installer error on Windows if the Steam library folder exists but doesn't contain Steam's `.vdf` library data file.
+
 ## 3.17.0
 Released 09 October 2022 for Stardew Valley 1.5.6 or later. See [release highlights](https://www.patreon.com/posts/73090322).
 
