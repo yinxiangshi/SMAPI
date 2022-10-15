@@ -1,6 +1,10 @@
 using System;
 using StardewModdingAPI.Toolkit.Utilities;
+using StardewModdingAPI.Utilities.AssetPathUtilities;
+
 using StardewValley;
+
+using ToolkitPathUtilities = StardewModdingAPI.Toolkit.Utilities.PathUtilities;
 
 namespace StardewModdingAPI.Framework.Content
 {
@@ -94,10 +98,28 @@ namespace StardewModdingAPI.Framework.Content
             if (string.IsNullOrWhiteSpace(assetName))
                 return false;
 
-            assetName = PathUtilities.NormalizeAssetName(assetName);
+            AssetPartYielder compareTo = new(useBaseName ? this.BaseName : this.Name);
+            AssetPartYielder compareFrom = new(assetName);
+            
+            while (true)
+            {
+                bool otherHasMore = compareFrom.MoveNext();
+                bool iHaveMore = compareTo.MoveNext();
 
-            string compareTo = useBaseName ? this.BaseName : this.Name;
-            return compareTo.Equals(assetName, StringComparison.OrdinalIgnoreCase);
+                // neither of us have any more to yield, I'm done.
+                if (!otherHasMore && !iHaveMore)
+                    return true;
+
+                // One of us has more but the other doesn't, this isn't a match.
+                if (otherHasMore ^ iHaveMore)
+                    return false;
+
+                // My next bit doesn't match their next bit, this isn't a match.
+                if (!compareTo.Current.Equals(compareFrom.Current, StringComparison.OrdinalIgnoreCase))
+                    return false;
+
+                // continue checking.
+            }
         }
 
         /// <inheritdoc />
@@ -119,42 +141,68 @@ namespace StardewModdingAPI.Framework.Content
             if (prefix is null)
                 return false;
 
-            string rawTrimmed = prefix.Trim();
+            ReadOnlySpan<char> trimmed = prefix.AsSpan().Trim();
 
-            // asset keys can't have a leading slash, but NormalizeAssetName will trim them
-            if (rawTrimmed.StartsWith('/') || rawTrimmed.StartsWith('\\'))
+            // just because most ReadOnlySpan/Span APIs expect a ReadOnlySpan/Span, easier to read.
+            ReadOnlySpan<char> seperators = new(ToolkitPathUtilities.PossiblePathSeparators);
+
+            // asset keys can't have a leading slash, but AssetPathYielder won't yield that.
+            if (seperators.Contains(trimmed[0]))
                 return false;
 
-            // normalize prefix
-            {
-                string normalized = PathUtilities.NormalizeAssetName(prefix);
-
-                // keep trailing slash
-                if (rawTrimmed.EndsWith('/') || rawTrimmed.EndsWith('\\'))
-                    normalized += PathUtilities.PreferredAssetSeparator;
-
-                prefix = normalized;
-            }
-
-            // compare
-            if (prefix.Length == 0)
+            if (trimmed.Length == 0)
                 return true;
 
-            return
-                this.Name.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)
-                && (
-                    allowPartialWord
-                    || this.Name.Length == prefix.Length
-                    || !char.IsLetterOrDigit(prefix[^1]) // last character in suffix is word separator
-                    || !char.IsLetterOrDigit(this.Name[prefix.Length]) // or first character after it is
-                )
-                && (
-                    allowSubfolder
-                    || this.Name.Length == prefix.Length
-                    || !this.Name[prefix.Length..].Contains(PathUtilities.PreferredAssetSeparator)
-                );
-        }
+            AssetPartYielder compareTo = new(this.Name);
+            AssetPartYielder compareFrom = new(trimmed);
 
+            while (true)
+            {
+                bool otherHasMore = compareFrom.MoveNext();
+                bool iHaveMore = compareTo.MoveNext();
+
+                // Neither of us have any more to yield, I'm done.
+                if (!otherHasMore && !iHaveMore)
+                    return true;
+
+                // the prefix is actually longer than the asset name, this can't be true.
+                if (otherHasMore && !iHaveMore)
+                    return false;
+
+                // they're done, I have more. (These are going to be word boundaries, I don't need to check that).
+                if (!otherHasMore && iHaveMore)
+                {
+                    return allowSubfolder || !compareTo.Remainder.Contains(seperators, StringComparison.Ordinal);
+                }
+
+                // check my next segment against theirs.
+                if (otherHasMore && iHaveMore)
+                {
+                    // my next segment doesn't match theirs.
+                    if (!compareTo.Current.StartsWith(compareFrom.Current, StringComparison.OrdinalIgnoreCase))
+                        return false;
+
+                    // my next segment starts with theirs but isn't an exact match.
+                    if (compareTo.Current.Length != compareFrom.Current.Length)
+                    {
+                        // something like "Maps/" would require an exact match.
+                        if (seperators.Contains(trimmed[^1]))
+                            return false;
+
+                        // check for partial word.
+                        if (!allowPartialWord
+                            && char.IsLetterOrDigit(compareFrom.Current[^1]) // last character in suffix is not word separator
+                            && char.IsLetterOrDigit(compareTo.Current[compareFrom.Current.Length]) // and the first character after it isn't either.
+                            )
+                            return false;
+
+                        return allowSubfolder || !compareTo.Remainder.Contains(seperators, StringComparison.Ordinal);
+                    }
+
+                    // exact matches should continue checking.
+                }
+            }
+        }
 
         /// <inheritdoc />
         public bool IsDirectlyUnderPath(string? assetFolder)
