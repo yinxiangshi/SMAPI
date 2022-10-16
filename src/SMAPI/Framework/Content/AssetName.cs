@@ -162,8 +162,8 @@ namespace StardewModdingAPI.Framework.Content
                     if (prefixHasMore)
                         return false;
 
-                    // possible match: all prefix segments matched
-                    return allowSubfolder || !curParts.Remainder.Contains(pathSeparators, StringComparison.Ordinal);
+                    // possible match: all prefix segments matched.
+                    return allowSubfolder || (pathSeparators.Contains(trimmed[^1]) ? curParts.Remainder.Length == 0 : curParts.Current.Length == 0);
                 }
 
                 // match: previous segments matched exactly and both reached the end
@@ -192,7 +192,7 @@ namespace StardewModdingAPI.Framework.Content
                         return false;
 
                     // possible match
-                    return allowSubfolder || !curParts.Remainder.Contains(pathSeparators, StringComparison.Ordinal);
+                    return allowSubfolder || (pathSeparators.Contains(trimmed[^1]) ? curParts.Remainder.IndexOfAny(ToolkitPathUtilities.PossiblePathSeparators) < 0 : curParts.Remainder.Length == 0);
                 }
             }
         }
@@ -203,7 +203,7 @@ namespace StardewModdingAPI.Framework.Content
             if (assetFolder is null)
                 return false;
 
-            return this.StartsWith(assetFolder + "/", allowPartialWord: false, allowSubfolder: false);
+            return this.StartsWith(assetFolder + ToolkitPathUtilities.PreferredPathSeparator, allowPartialWord: false, allowSubfolder: false);
         }
 
         /// <inheritdoc />

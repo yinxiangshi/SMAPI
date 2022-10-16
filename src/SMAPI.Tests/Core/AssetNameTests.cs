@@ -243,6 +243,20 @@ namespace SMAPI.Tests.Core
             return result;
         }
 
+        [TestCase("Mods/SomeMod/SomeSubdirectory", "Mods/Some", true, ExpectedResult = true)]
+        [TestCase("Mods/SomeMod/SomeSubdirectory", "Mods/Some", false, ExpectedResult = false)]
+        public bool StartsWith_SubfolderWithPartial(string mainAssetName, string otherAssetName, bool allowSubfolder)
+        {
+            // arrange
+            mainAssetName = PathUtilities.NormalizeAssetName(mainAssetName);
+
+            // act
+            AssetName name = AssetName.Parse(mainAssetName, _ => null);
+
+            // assert value
+            return name.StartsWith(otherAssetName, allowPartialWord: true, allowSubfolder: allowSubfolder);
+        }
+
 
         /****
         ** GetHashCode
