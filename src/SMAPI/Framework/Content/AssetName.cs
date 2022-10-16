@@ -97,7 +97,7 @@ namespace StardewModdingAPI.Framework.Content
                 return false;
 
             AssetNamePartEnumerator curParts = new(useBaseName ? this.BaseName : this.Name);
-            AssetNamePartEnumerator otherParts = new(assetName);
+            AssetNamePartEnumerator otherParts = new(assetName.AsSpan().Trim());
 
             while (true)
             {
