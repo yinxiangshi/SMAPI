@@ -101,22 +101,20 @@ namespace StardewModdingAPI.Framework.Content
 
             while (true)
             {
-                bool otherHasMore = otherParts.MoveNext();
                 bool curHasMore = curParts.MoveNext();
+                bool otherHasMore = otherParts.MoveNext();
 
-                // neither of us have any more to yield, I'm done.
-                if (!otherHasMore && !curHasMore)
+                // mismatch: lengths differ
+                if (otherHasMore != curHasMore)
+                    return false;
+
+                // match: both reached the end without a mismatch
+                if (!curHasMore)
                     return true;
 
-                // One of us has more but the other doesn't, this isn't a match.
-                if (otherHasMore ^ curHasMore)
-                    return false;
-
-                // My next bit doesn't match their next bit, this isn't a match.
+                // mismatch: current segment is different
                 if (!curParts.Current.Equals(otherParts.Current, StringComparison.OrdinalIgnoreCase))
                     return false;
-
-                // continue checking.
             }
         }
 
@@ -154,48 +152,47 @@ namespace StardewModdingAPI.Framework.Content
             AssetNamePartEnumerator prefixParts = new(trimmed);
             while (true)
             {
-                bool prefixHasMore = prefixParts.MoveNext();
                 bool curHasMore = curParts.MoveNext();
+                bool prefixHasMore = prefixParts.MoveNext();
 
-                // Neither of us have any more to yield, I'm done.
-                if (!prefixHasMore && !curHasMore)
-                    return true;
-
-                // the prefix is actually longer than the asset name, this can't be true.
-                if (prefixHasMore && !curHasMore)
-                    return false;
-
-                // they're done, I have more. (These are going to be word boundaries, I don't need to check that).
-                if (!prefixHasMore && curHasMore)
+                // reached end of prefix or asset name
+                if (prefixHasMore != curHasMore)
                 {
+                    // mismatch: prefix is longer
+                    if (prefixHasMore)
+                        return false;
+
+                    // possible match: all prefix segments matched
                     return allowSubfolder || !curParts.Remainder.Contains(pathSeparators, StringComparison.Ordinal);
                 }
 
-                // check my next segment against theirs.
-                if (prefixHasMore && curHasMore)
+                // match: previous segments matched exactly and both reached the end
+                if (!prefixHasMore)
+                    return true;
+
+                // compare segment
+                if (curParts.Current.Length == prefixParts.Current.Length)
                 {
-                    // my next segment doesn't match theirs.
+                    // mismatch: segments aren't equivalent
+                    if (!curParts.Current.Equals(prefixParts.Current, StringComparison.OrdinalIgnoreCase))
+                        return false;
+                }
+                else
+                {
+                    // mismatch: cur segment doesn't start with prefix
                     if (!curParts.Current.StartsWith(prefixParts.Current, StringComparison.OrdinalIgnoreCase))
                         return false;
 
-                    // my next segment starts with theirs but isn't an exact match.
-                    if (curParts.Current.Length != prefixParts.Current.Length)
-                    {
-                        // something like "Maps/" would require an exact match.
-                        if (pathSeparators.Contains(trimmed[^1]))
-                            return false;
+                    // mismatch: something like "Maps/" would need an exact match
+                    if (pathSeparators.Contains(trimmed[^1]))
+                        return false;
 
-                        // check for partial word.
-                        if (!allowPartialWord
-                            && char.IsLetterOrDigit(prefixParts.Current[^1]) // last character in suffix is not word separator
-                            && char.IsLetterOrDigit(curParts.Current[prefixParts.Current.Length]) // and the first character after it isn't either.
-                            )
-                            return false;
+                    // mismatch: partial word match not allowed, and the first or last letter of the suffix isn't a word separator
+                    if (!allowPartialWord && char.IsLetterOrDigit(prefixParts.Current[^1]) && char.IsLetterOrDigit(curParts.Current[prefixParts.Current.Length]))
+                        return false;
 
-                        return allowSubfolder || !curParts.Remainder.Contains(pathSeparators, StringComparison.Ordinal);
-                    }
-
-                    // exact matches should continue checking.
+                    // possible match
+                    return allowSubfolder || !curParts.Remainder.Contains(pathSeparators, StringComparison.Ordinal);
                 }
             }
         }
