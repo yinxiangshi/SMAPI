@@ -192,7 +192,7 @@ namespace StardewModdingAPI.Framework.Content
                 int topOffset = startIndex / sourceArea.Width;
                 int bottomOffset = endIndex / sourceArea.Width;
 
-                targetArea = new(targetArea.X, targetArea.Y + topOffset, targetArea.Width, bottomOffset - topOffset + 1);
+                targetArea = new(targetArea.X, targetArea.Y + topOffset - startRow, targetArea.Width, bottomOffset - topOffset + 1);
                 pixelCount = targetArea.Width * targetArea.Height;
                 sourceOffset = topOffset * sourceArea.Width;
             }
