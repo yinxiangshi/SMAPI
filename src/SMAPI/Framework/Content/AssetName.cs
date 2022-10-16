@@ -139,21 +139,19 @@ namespace StardewModdingAPI.Framework.Content
             if (prefix is null)
                 return false;
 
+            // get initial values
             ReadOnlySpan<char> trimmed = prefix.AsSpan().Trim();
+            if (trimmed.Length == 0)
+                return true;
+            ReadOnlySpan<char> pathSeparators = new(ToolkitPathUtilities.PossiblePathSeparators); // just to simplify calling other span APIs
 
-            // just because most ReadOnlySpan/Span APIs expect a ReadOnlySpan/Span, easier to read.
-            ReadOnlySpan<char> pathSeparators = new(ToolkitPathUtilities.PossiblePathSeparators);
-
-            // asset keys can't have a leading slash, but AssetPathYielder won't yield that.
+            // asset keys can't have a leading slash, but AssetPathYielder will trim them
             if (pathSeparators.Contains(trimmed[0]))
                 return false;
 
-            if (trimmed.Length == 0)
-                return true;
-
+            // compare segments
             AssetNamePartEnumerator curParts = new(this.Name);
             AssetNamePartEnumerator prefixParts = new(trimmed);
-
             while (true)
             {
                 bool prefixHasMore = prefixParts.MoveNext();
