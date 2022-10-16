@@ -7,6 +7,10 @@
   _If needed, you can update to SMAPI 3.16.0 first and then install the latest version._
 -->
 
+## Upcoming release
+* For mod authors:
+  * Fixed image patches sometimes applied one pixel higher than expected after 3.17.0 (thanks to atravita!).
+
 ## 3.17.1
 Released 10 October 2022 for Stardew Valley 1.5.6 or later.
 
