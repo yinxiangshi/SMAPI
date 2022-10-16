@@ -1,9 +1,7 @@
 using System;
 using StardewModdingAPI.Toolkit.Utilities;
 using StardewModdingAPI.Utilities.AssetPathUtilities;
-
 using StardewValley;
-
 using ToolkitPathUtilities = StardewModdingAPI.Toolkit.Utilities.PathUtilities;
 
 namespace StardewModdingAPI.Framework.Content
@@ -98,24 +96,24 @@ namespace StardewModdingAPI.Framework.Content
             if (string.IsNullOrWhiteSpace(assetName))
                 return false;
 
-            AssetPartYielder compareTo = new(useBaseName ? this.BaseName : this.Name);
-            AssetPartYielder compareFrom = new(assetName);
-            
+            AssetNamePartEnumerator curParts = new(useBaseName ? this.BaseName : this.Name);
+            AssetNamePartEnumerator otherParts = new(assetName);
+
             while (true)
             {
-                bool otherHasMore = compareFrom.MoveNext();
-                bool iHaveMore = compareTo.MoveNext();
+                bool otherHasMore = otherParts.MoveNext();
+                bool curHasMore = curParts.MoveNext();
 
                 // neither of us have any more to yield, I'm done.
-                if (!otherHasMore && !iHaveMore)
+                if (!otherHasMore && !curHasMore)
                     return true;
 
                 // One of us has more but the other doesn't, this isn't a match.
-                if (otherHasMore ^ iHaveMore)
+                if (otherHasMore ^ curHasMore)
                     return false;
 
                 // My next bit doesn't match their next bit, this isn't a match.
-                if (!compareTo.Current.Equals(compareFrom.Current, StringComparison.OrdinalIgnoreCase))
+                if (!curParts.Current.Equals(otherParts.Current, StringComparison.OrdinalIgnoreCase))
                     return false;
 
                 // continue checking.
@@ -144,59 +142,59 @@ namespace StardewModdingAPI.Framework.Content
             ReadOnlySpan<char> trimmed = prefix.AsSpan().Trim();
 
             // just because most ReadOnlySpan/Span APIs expect a ReadOnlySpan/Span, easier to read.
-            ReadOnlySpan<char> seperators = new(ToolkitPathUtilities.PossiblePathSeparators);
+            ReadOnlySpan<char> pathSeparators = new(ToolkitPathUtilities.PossiblePathSeparators);
 
             // asset keys can't have a leading slash, but AssetPathYielder won't yield that.
-            if (seperators.Contains(trimmed[0]))
+            if (pathSeparators.Contains(trimmed[0]))
                 return false;
 
             if (trimmed.Length == 0)
                 return true;
 
-            AssetPartYielder compareTo = new(this.Name);
-            AssetPartYielder compareFrom = new(trimmed);
+            AssetNamePartEnumerator curParts = new(this.Name);
+            AssetNamePartEnumerator prefixParts = new(trimmed);
 
             while (true)
             {
-                bool otherHasMore = compareFrom.MoveNext();
-                bool iHaveMore = compareTo.MoveNext();
+                bool prefixHasMore = prefixParts.MoveNext();
+                bool curHasMore = curParts.MoveNext();
 
                 // Neither of us have any more to yield, I'm done.
-                if (!otherHasMore && !iHaveMore)
+                if (!prefixHasMore && !curHasMore)
                     return true;
 
                 // the prefix is actually longer than the asset name, this can't be true.
-                if (otherHasMore && !iHaveMore)
+                if (prefixHasMore && !curHasMore)
                     return false;
 
                 // they're done, I have more. (These are going to be word boundaries, I don't need to check that).
-                if (!otherHasMore && iHaveMore)
+                if (!prefixHasMore && curHasMore)
                 {
-                    return allowSubfolder || !compareTo.Remainder.Contains(seperators, StringComparison.Ordinal);
+                    return allowSubfolder || !curParts.Remainder.Contains(pathSeparators, StringComparison.Ordinal);
                 }
 
                 // check my next segment against theirs.
-                if (otherHasMore && iHaveMore)
+                if (prefixHasMore && curHasMore)
                 {
                     // my next segment doesn't match theirs.
-                    if (!compareTo.Current.StartsWith(compareFrom.Current, StringComparison.OrdinalIgnoreCase))
+                    if (!curParts.Current.StartsWith(prefixParts.Current, StringComparison.OrdinalIgnoreCase))
                         return false;
 
                     // my next segment starts with theirs but isn't an exact match.
-                    if (compareTo.Current.Length != compareFrom.Current.Length)
+                    if (curParts.Current.Length != prefixParts.Current.Length)
                     {
                         // something like "Maps/" would require an exact match.
-                        if (seperators.Contains(trimmed[^1]))
+                        if (pathSeparators.Contains(trimmed[^1]))
                             return false;
 
                         // check for partial word.
                         if (!allowPartialWord
-                            && char.IsLetterOrDigit(compareFrom.Current[^1]) // last character in suffix is not word separator
-                            && char.IsLetterOrDigit(compareTo.Current[compareFrom.Current.Length]) // and the first character after it isn't either.
+                            && char.IsLetterOrDigit(prefixParts.Current[^1]) // last character in suffix is not word separator
+                            && char.IsLetterOrDigit(curParts.Current[prefixParts.Current.Length]) // and the first character after it isn't either.
                             )
                             return false;
 
-                        return allowSubfolder || !compareTo.Remainder.Contains(seperators, StringComparison.Ordinal);
+                        return allowSubfolder || !curParts.Remainder.Contains(pathSeparators, StringComparison.Ordinal);
                     }
 
                     // exact matches should continue checking.

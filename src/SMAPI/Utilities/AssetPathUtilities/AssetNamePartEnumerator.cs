@@ -1,5 +1,4 @@
 using System;
-
 using ToolkitPathUtilities = StardewModdingAPI.Toolkit.Utilities.PathUtilities;
 
 namespace StardewModdingAPI.Utilities.AssetPathUtilities;
@@ -7,23 +6,23 @@ namespace StardewModdingAPI.Utilities.AssetPathUtilities;
 /// <summary>
 /// A helper class that yields out each bit of an asset path
 /// </summary>
-internal ref struct AssetPartYielder
+internal ref struct AssetNamePartEnumerator
 {
-    private ReadOnlySpan<char> remainder;
+    private ReadOnlySpan<char> RemainderImpl;
 
     /// <summary>
     /// Construct an instance.
     /// </summary>
     /// <param name="assetName">The asset name.</param>
-    internal AssetPartYielder(ReadOnlySpan<char> assetName)
+    internal AssetNamePartEnumerator(ReadOnlySpan<char> assetName)
     {
-        this.remainder = AssetPartYielder.TrimLeadingPathSeperators(assetName);
+        this.RemainderImpl = AssetNamePartEnumerator.TrimLeadingPathSeparators(assetName);
     }
 
     /// <summary>
     /// The remainder of the assetName (that hasn't been yielded out yet.)
     /// </summary>
-    internal ReadOnlySpan<char> Remainder => this.remainder;
+    internal ReadOnlySpan<char> Remainder => this.RemainderImpl;
 
     /// <summary>
     /// The current segment.
@@ -31,7 +30,7 @@ internal ref struct AssetPartYielder
     public ReadOnlySpan<char> Current { get; private set; } = default;
 
     // this is just so it can be used in a foreach loop.
-    public AssetPartYielder GetEnumerator() => this;
+    public AssetNamePartEnumerator GetEnumerator() => this;
 
     /// <summary>
     /// Moves the enumerator to the next element.
@@ -39,28 +38,28 @@ internal ref struct AssetPartYielder
     /// <returns>True if there is a new</returns>
     public bool MoveNext()
     {
-        if (this.remainder.Length == 0)
+        if (this.RemainderImpl.Length == 0)
         {
             return false;
         }
 
-        int index = this.remainder.IndexOfAny(ToolkitPathUtilities.PossiblePathSeparators);
+        int index = this.RemainderImpl.IndexOfAny(ToolkitPathUtilities.PossiblePathSeparators);
 
-        // no more seperator characters found, I'm done.
+        // no more separator characters found, I'm done.
         if (index < 0)
         {
-            this.Current = this.remainder;
-            this.remainder = ReadOnlySpan<char>.Empty;
+            this.Current = this.RemainderImpl;
+            this.RemainderImpl = ReadOnlySpan<char>.Empty;
             return true;
         }
 
-        // Yield the next seperate character bit
-        this.Current = this.remainder[..index];
-        this.remainder = AssetPartYielder.TrimLeadingPathSeperators(this.remainder[(index + 1)..]);
+        // Yield the next separate character bit
+        this.Current = this.RemainderImpl[..index];
+        this.RemainderImpl = AssetNamePartEnumerator.TrimLeadingPathSeparators(this.RemainderImpl[(index + 1)..]);
         return true;
     }
 
-    private static ReadOnlySpan<char> TrimLeadingPathSeperators(ReadOnlySpan<char> span)
+    private static ReadOnlySpan<char> TrimLeadingPathSeparators(ReadOnlySpan<char> span)
     {
         return span.TrimStart(new ReadOnlySpan<char>(ToolkitPathUtilities.PossiblePathSeparators));
     }
