@@ -179,6 +179,10 @@ namespace StardewModdingAPI.Framework.Content
                 }
                 else
                 {
+                    // mismatch: prefix has more beyond this, and this segment isn't an exact match
+                    if (prefixParts.Remainder.Length != 0)
+                        return false;
+
                     // mismatch: cur segment doesn't start with prefix
                     if (!curParts.Current.StartsWith(prefixParts.Current, StringComparison.OrdinalIgnoreCase))
                         return false;

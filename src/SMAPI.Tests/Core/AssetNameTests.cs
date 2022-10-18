@@ -245,6 +245,8 @@ namespace SMAPI.Tests.Core
 
         [TestCase("Mods/SomeMod/SomeSubdirectory", "Mods/Some", true, ExpectedResult = true)]
         [TestCase("Mods/SomeMod/SomeSubdirectory", "Mods/Some", false, ExpectedResult = false)]
+        [TestCase("Mods/Jasper/Data", "Mods/Jas/Image", true, ExpectedResult = false)]
+        [TestCase("Mods/Jasper/Data", "Mods/Jas/Image", true, ExpectedResult = false)]
         public bool StartsWith_SubfolderWithPartial(string mainAssetName, string otherAssetName, bool allowSubfolder)
         {
             // arrange
