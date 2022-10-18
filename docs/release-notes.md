@@ -8,6 +8,9 @@
 -->
 
 ## Upcoming release
+* For players:
+  * Fixed installer crash if Steam's library data is invalid or in an old format; it'll now be ignored instead.
+
 * For mod authors:
   * Fixed image patches sometimes applied one pixel higher than expected after 3.17.0 (thanks to atravita!).
 
