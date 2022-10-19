@@ -7,7 +7,10 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
+using Newtonsoft.Json;
 using StardewModdingAPI.ModBuildConfig.Framework;
+using StardewModdingAPI.Toolkit.Serialization;
+using StardewModdingAPI.Toolkit.Serialization.Models;
 using StardewModdingAPI.Toolkit.Utilities;
 
 namespace StardewModdingAPI.ModBuildConfig
@@ -75,6 +78,34 @@ namespace StardewModdingAPI.ModBuildConfig
                 this.Log.LogMessage(MessageImportance.High, $"[mod build package] Handling build with options {string.Join(", ", properties)}");
             }
 
+            // check if manifest file exists
+            FileInfo manifestFile = new(Path.Combine(this.ProjectDir, "manifest.json"));
+            if (!manifestFile.Exists)
+            {
+                this.Log.LogError("[mod build package] The mod does not have a manifest.json file.");
+                return false;
+            }
+
+            // check if the json is valid
+            Manifest manifest;
+            try
+            {
+                new JsonHelper().ReadJsonFileIfExists(manifestFile.FullName, out manifest);
+            } catch (JsonReaderException ex)
+            {
+                // log the inner exception, otherwise the message will be generic
+                Exception exToShow = ex.InnerException ?? ex;
+                this.Log.LogError($"[mod build package] Failed to parse manifest.json: {exToShow.Message}");
+                return false;
+            }
+
+            // validate the manifest's fields
+            if (!manifest.TryValidate(out string error))
+            {
+                this.Log.LogError($"[mod build package] The mod manifest is invalid: {error}");
+                return false;
+            }
+
             if (!this.EnableModDeploy && !this.EnableModZip)
                 return true; // nothing to do
 
@@ -101,7 +132,7 @@ namespace StardewModdingAPI.ModBuildConfig
                 // create release zip
                 if (this.EnableModZip)
                 {
-                    string zipName = this.EscapeInvalidFilenameCharacters($"{this.ModFolderName} {package.GetManifestVersion()}.zip");
+                    string zipName = this.EscapeInvalidFilenameCharacters($"{this.ModFolderName} {manifest.Version}.zip");
                     string zipPath = Path.Combine(this.ModZipPath, zipName);
 
                     this.Log.LogMessage(MessageImportance.High, $"[mod build package] Generating the release zip at {zipPath}...");

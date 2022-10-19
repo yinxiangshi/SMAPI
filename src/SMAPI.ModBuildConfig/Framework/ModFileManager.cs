@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using StardewModdingAPI.Toolkit.Serialization;
-using StardewModdingAPI.Toolkit.Serialization.Models;
 using StardewModdingAPI.Toolkit.Utilities;
 
 namespace StardewModdingAPI.ModBuildConfig.Framework
@@ -111,16 +109,6 @@ namespace StardewModdingAPI.ModBuildConfig.Framework
         public IDictionary<string, FileInfo> GetFiles()
         {
             return new Dictionary<string, FileInfo>(this.Files, StringComparer.OrdinalIgnoreCase);
-        }
-
-        /// <summary>Get a semantic version from the mod manifest.</summary>
-        /// <exception cref="UserErrorException">The manifest is missing or invalid.</exception>
-        public string GetManifestVersion()
-        {
-            if (!this.Files.TryGetValue(this.ManifestFileName, out FileInfo manifestFile) || !new JsonHelper().ReadJsonFileIfExists(manifestFile.FullName, out Manifest manifest))
-                throw new InvalidOperationException($"The mod does not have a {this.ManifestFileName} file."); // shouldn't happen since we validate in constructor
-
-            return manifest.Version.ToString();
         }
 
 

@@ -8,7 +8,6 @@ using StardewModdingAPI.Toolkit.Framework.ModData;
 using StardewModdingAPI.Toolkit.Framework.ModScanning;
 using StardewModdingAPI.Toolkit.Framework.UpdateData;
 using StardewModdingAPI.Toolkit.Serialization.Models;
-using StardewModdingAPI.Toolkit.Utilities;
 using StardewModdingAPI.Toolkit.Utilities.PathLookups;
 
 namespace StardewModdingAPI.Framework.ModLoading
@@ -126,100 +125,23 @@ namespace StardewModdingAPI.Framework.ModLoading
                     continue;
                 }
 
-                // validate DLL / content pack fields
+                // check for dll if it's supposed to have one
+                if (!string.IsNullOrEmpty(mod.Manifest.EntryDll) && validateFilesExist)
                 {
-                    bool hasDll = !string.IsNullOrWhiteSpace(mod.Manifest.EntryDll);
-                    bool isContentPack = mod.Manifest.ContentPackFor != null;
-
-                    // validate field presence
-                    if (!hasDll && !isContentPack)
+                    IFileLookup pathLookup = getFileLookup(mod.DirectoryPath);
+                    FileInfo file = pathLookup.GetFile(mod.Manifest.EntryDll!);
+                    if (!file.Exists)
                     {
-                        mod.SetStatus(ModMetadataStatus.Failed, ModFailReason.InvalidManifest, $"its manifest has no {nameof(IManifest.EntryDll)} or {nameof(IManifest.ContentPackFor)} field; must specify one.");
-                        continue;
-                    }
-                    if (hasDll && isContentPack)
-                    {
-                        mod.SetStatus(ModMetadataStatus.Failed, ModFailReason.InvalidManifest, $"its manifest sets both {nameof(IManifest.EntryDll)} and {nameof(IManifest.ContentPackFor)}, which are mutually exclusive.");
-                        continue;
-                    }
-
-                    // validate DLL
-                    if (hasDll)
-                    {
-                        // invalid filename format
-                        if (mod.Manifest.EntryDll!.Intersect(Path.GetInvalidFileNameChars()).Any())
-                        {
-                            mod.SetStatus(ModMetadataStatus.Failed, ModFailReason.InvalidManifest, $"its manifest has invalid filename '{mod.Manifest.EntryDll}' for the EntryDLL field.");
-                            continue;
-                        }
-
-                        // file doesn't exist
-                        if (validateFilesExist)
-                        {
-                            IFileLookup pathLookup = getFileLookup(mod.DirectoryPath);
-                            FileInfo file = pathLookup.GetFile(mod.Manifest.EntryDll!);
-                            if (!file.Exists)
-                            {
-                                mod.SetStatus(ModMetadataStatus.Failed, ModFailReason.InvalidManifest, $"its DLL '{mod.Manifest.EntryDll}' doesn't exist.");
-                                continue;
-                            }
-                        }
-                    }
-
-                    // validate content pack
-                    else
-                    {
-                        // invalid content pack ID
-                        if (string.IsNullOrWhiteSpace(mod.Manifest.ContentPackFor!.UniqueID))
-                        {
-                            mod.SetStatus(ModMetadataStatus.Failed, ModFailReason.InvalidManifest, $"its manifest declares {nameof(IManifest.ContentPackFor)} without its required {nameof(IManifestContentPackFor.UniqueID)} field.");
-                            continue;
-                        }
-                    }
-                }
-
-                // validate required fields
-                {
-                    List<string> missingFields = new List<string>(3);
-
-                    if (string.IsNullOrWhiteSpace(mod.Manifest.Name))
-                        missingFields.Add(nameof(IManifest.Name));
-                    if (mod.Manifest.Version == null || mod.Manifest.Version.ToString() == "0.0.0")
-                        missingFields.Add(nameof(IManifest.Version));
-                    if (string.IsNullOrWhiteSpace(mod.Manifest.UniqueID))
-                        missingFields.Add(nameof(IManifest.UniqueID));
-
-                    if (missingFields.Any())
-                    {
-                        mod.SetStatus(ModMetadataStatus.Failed, ModFailReason.InvalidManifest, $"its manifest is missing required fields ({string.Join(", ", missingFields)}).");
+                        mod.SetStatus(ModMetadataStatus.Failed, ModFailReason.InvalidManifest, $"its DLL '{mod.Manifest.EntryDll}' doesn't exist.");
                         continue;
                     }
                 }
 
-                // validate ID format
-                if (!PathUtilities.IsSlug(mod.Manifest.UniqueID))
-                    mod.SetStatus(ModMetadataStatus.Failed, ModFailReason.InvalidManifest, "its manifest specifies an invalid ID (IDs must only contain letters, numbers, underscores, periods, or hyphens).");
-
-                // validate dependencies
-                foreach (IManifestDependency? dependency in mod.Manifest.Dependencies)
+                // validate manifest
+                if (mod.Manifest is Manifest manifest && !manifest.TryValidate(out string manifestError))
                 {
-                    // null dependency
-                    if (dependency == null)
-                    {
-                        mod.SetStatus(ModMetadataStatus.Failed, ModFailReason.InvalidManifest, $"its manifest has a null entry under {nameof(IManifest.Dependencies)}.");
-                        continue;
-                    }
-
-                    // missing ID
-                    if (string.IsNullOrWhiteSpace(dependency.UniqueID))
-                    {
-                        mod.SetStatus(ModMetadataStatus.Failed, ModFailReason.InvalidManifest, $"its manifest has a {nameof(IManifest.Dependencies)} entry with no {nameof(IManifestDependency.UniqueID)} field.");
-                        continue;
-                    }
-
-                    // invalid ID
-                    if (!PathUtilities.IsSlug(dependency.UniqueID))
-                        mod.SetStatus(ModMetadataStatus.Failed, ModFailReason.InvalidManifest, $"its manifest has a {nameof(IManifest.Dependencies)} entry with an invalid {nameof(IManifestDependency.UniqueID)} field (IDs must only contain letters, numbers, underscores, periods, or hyphens).");
+                    mod.SetStatus(ModMetadataStatus.Failed, ModFailReason.InvalidManifest, $"its {manifestError}");
+                    continue;
                 }
             }
 
