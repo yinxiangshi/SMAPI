@@ -134,15 +134,11 @@ namespace StardewModdingAPI.Toolkit.Serialization.Models
                 return false;
             }
 
-            // validate content pack
-            else if (isContentPack)
+            // validate content pack ID
+            else if (isContentPack && string.IsNullOrWhiteSpace(this.ContentPackFor!.UniqueID))
             {
-                // invalid content pack ID
-                if (string.IsNullOrWhiteSpace(this.ContentPackFor!.UniqueID))
-                {
-                    error = $"manifest declares {nameof(IManifest.ContentPackFor)} without its required {nameof(IManifestContentPackFor.UniqueID)} field.";
-                    return false;
-                }
+                error = $"manifest declares {nameof(IManifest.ContentPackFor)} without its required {nameof(IManifestContentPackFor.UniqueID)} field.";
+                return false;
             }
 
             // validate required fields
