@@ -261,39 +261,50 @@ namespace StardewModdingAPI.Toolkit.Framework.GameScanning
         /// <returns>The game directory, if found.</returns>
         private string? GetPathFromSteamLibrary(string? steamPath)
         {
-            if (steamPath == null)
-                return null;
-
-            // get .vdf file path
-            string libraryFoldersPath = Path.Combine(steamPath.Replace('/', '\\'), "steamapps\\libraryfolders.vdf");
-            if (!File.Exists(libraryFoldersPath))
-                return null;
-
-            // read data
-            using FileStream fileStream = File.OpenRead(libraryFoldersPath);
-            VdfDeserializer deserializer = new();
-            dynamic libraries = deserializer.Deserialize(fileStream);
-            if (libraries?.libraryfolders is null)
-                return null;
-
-            // get path from Stardew Valley app (if any)
-            foreach (dynamic pair in libraries.libraryfolders)
+            try
             {
-                dynamic library = pair.Value;
+                if (steamPath == null)
+                    return null;
 
-                foreach (dynamic app in library.apps)
+                // get .vdf file path
+                string libraryFoldersPath = Path.Combine(steamPath.Replace('/', '\\'), "steamapps\\libraryfolders.vdf");
+                if (!File.Exists(libraryFoldersPath))
+                    return null;
+
+                // read data
+                using FileStream fileStream = File.OpenRead(libraryFoldersPath);
+                VdfDeserializer deserializer = new();
+                dynamic libraries = deserializer.Deserialize(fileStream);
+                if (libraries?.libraryfolders is null)
+                    return null;
+
+                // get path from Stardew Valley app (if any)
+                foreach (dynamic pair in libraries.libraryfolders)
                 {
-                    string key = app.Key;
-                    if (key == GameScanner.SteamAppId)
-                    {
-                        string path = library.path;
+                    dynamic library = pair.Value;
 
-                        return Path.Combine(path.Replace("\\\\", "\\"), "steamapps", "common", "Stardew Valley");
+                    foreach (dynamic app in library.apps)
+                    {
+                        string key = app.Key;
+                        if (key == GameScanner.SteamAppId)
+                        {
+                            string path = library.path;
+
+                            return Path.Combine(path.Replace("\\\\", "\\"), "steamapps", "common", "Stardew Valley");
+                        }
                     }
                 }
-            }
 
-            return null;
+                return null;
+            }
+            catch
+            {
+                // The file might not be parseable in some cases (e.g. some players have an older Steam version using
+                // a different format). Ideally we'd log an error to know when it's actually an issue, but the SMAPI
+                // installer doesn't have a logging mechanism (and third-party code calling the toolkit may not either).
+                // So for now, just ignore the error and fallback to the other discovery mechanisms.
+                return null;
+            }
         }
 #endif
     }

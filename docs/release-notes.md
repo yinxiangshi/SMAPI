@@ -7,6 +7,14 @@
   _If needed, you can update to SMAPI 3.16.0 first and then install the latest version._
 -->
 
+## 3.17.2
+Released 21 October 2022 for Stardew Valley 1.5.6 or later.
+
+* For players:
+  * Fixed installer crash if Steam's library data is invalid or in an old format; it'll now be ignored instead.
+* For mod authors:
+  * Fixed image patches sometimes applied one pixel higher than expected after 3.17.0 (thanks to atravita!).
+
 ## 3.17.1
 Released 10 October 2022 for Stardew Valley 1.5.6 or later.
 
