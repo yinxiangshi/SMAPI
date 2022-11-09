@@ -245,7 +245,9 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <summary>Sort the given mods by the order they should be loaded.</summary>
         /// <param name="mods">The mods to process.</param>
         /// <param name="modDatabase">Handles access to SMAPI's internal mod metadata list.</param>
-        public IEnumerable<IModMetadata> ProcessDependencies(IEnumerable<IModMetadata> mods, ModDatabase modDatabase)
+        /// <param name="modIdsToLoadFirst">The mod IDs SMAPI should try to load first, before any other mods not included in this list.</param>
+        /// <param name="modIdsToLoadLast">The mod IDs SMAPI should try to load last, after all other mods not included in this list.</param>
+        public IEnumerable<IModMetadata> ProcessDependencies(IEnumerable<IModMetadata> mods, IReadOnlyList<string> modIdsToLoadFirst, IReadOnlyList<string> modIdsToLoadLast, ModDatabase modDatabase)
         {
             // initialize metadata
             mods = mods.ToArray();
@@ -260,8 +262,18 @@ namespace StardewModdingAPI.Framework.ModLoading
             }
 
             // sort mods
-            foreach (IModMetadata mod in mods)
-                this.ProcessDependencies(mods.ToArray(), modDatabase, mod, states, sortedMods, new List<IModMetadata>());
+            IModMetadata[] allMods = mods.ToArray();
+            IModMetadata[] modsToLoadFirst = allMods.Where(m => modIdsToLoadFirst.Contains(m.Manifest.UniqueID)).ToArray();
+            IModMetadata[] modsToLoadLast = allMods.Where(m => modIdsToLoadLast.Contains(m.Manifest.UniqueID)).ToArray();
+            IModMetadata[] modsToLoadAsUsual = allMods.Where(m => !modsToLoadFirst.Contains(m) && !modsToLoadLast.Contains(m)).ToArray();
+
+            List<IModMetadata> orderSortedMods = new();
+            orderSortedMods.AddRange(modsToLoadFirst);
+            orderSortedMods.AddRange(modsToLoadAsUsual);
+            orderSortedMods.AddRange(modsToLoadLast);
+
+            foreach (IModMetadata mod in orderSortedMods)
+                this.ProcessDependencies(orderSortedMods, modDatabase, mod, states, sortedMods, new List<IModMetadata>());
 
             return sortedMods.Reverse();
         }
@@ -278,7 +290,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <param name="sortedMods">The list in which to save mods sorted by dependency order.</param>
         /// <param name="currentChain">The current change of mod dependencies.</param>
         /// <returns>Returns the mod dependency status.</returns>
-        private ModDependencyStatus ProcessDependencies(IModMetadata[] mods, ModDatabase modDatabase, IModMetadata mod, IDictionary<IModMetadata, ModDependencyStatus> states, Stack<IModMetadata> sortedMods, ICollection<IModMetadata> currentChain)
+        private ModDependencyStatus ProcessDependencies(IReadOnlyList<IModMetadata> mods, ModDatabase modDatabase, IModMetadata mod, IDictionary<IModMetadata, ModDependencyStatus> states, Stack<IModMetadata> sortedMods, ICollection<IModMetadata> currentChain)
         {
             // check if already visited
             switch (states[mod])
@@ -409,7 +421,7 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <summary>Get the dependencies declared in a manifest.</summary>
         /// <param name="manifest">The mod manifest.</param>
         /// <param name="loadedMods">The loaded mods.</param>
-        private IEnumerable<ModDependency> GetDependenciesFrom(IManifest manifest, IModMetadata[] loadedMods)
+        private IEnumerable<ModDependency> GetDependenciesFrom(IManifest manifest, IReadOnlyList<IModMetadata> loadedMods)
         {
             IModMetadata? FindMod(string id) => loadedMods.FirstOrDefault(m => m.HasID(id));
 

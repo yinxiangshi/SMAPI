@@ -141,5 +141,15 @@ copy all the settings, or you may cause bugs due to overridden changes in future
         "SMAPI.ConsoleCommands",
         "SMAPI.ErrorHandler",
         "SMAPI.SaveBackup"
-    ]
+    ],
+
+    /**
+     * The mod IDs SMAPI should try to load first, before any other mods not included in this list.
+     */
+    "ModsToLoadFirst": [],
+
+    /**
+     * The mod IDs SMAPI should try to load last, after all other mods not included in this list.
+     */
+    "ModsToLoadLast": []
 }

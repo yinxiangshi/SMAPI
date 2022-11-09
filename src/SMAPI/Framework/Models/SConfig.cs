@@ -82,6 +82,12 @@ namespace StardewModdingAPI.Framework.Models
         /// <summary>The mod IDs SMAPI should ignore when performing update checks or validating update keys.</summary>
         public HashSet<string> SuppressUpdateChecks { get; set; }
 
+        /// <summary>The mod IDs SMAPI should try to load first, before any other mods not included in this list.</summary>
+        public List<string> ModsToLoadFirst { get; set; }
+
+        /// <summary>The mod IDs SMAPI should try to load last, after all other mods not included in this list.</summary>
+        public List<string> ModsToLoadLast { get; set; }
+
 
         /********
         ** Public methods
@@ -100,7 +106,9 @@ namespace StardewModdingAPI.Framework.Models
         /// <param name="consoleColors">The colors to use for text written to the SMAPI console.</param>
         /// <param name="suppressHarmonyDebugMode">Whether to prevent mods from enabling Harmony's debug mode, which impacts performance and creates a file on your desktop. Debug mode should never be enabled by a released mod.</param>
         /// <param name="suppressUpdateChecks">The mod IDs SMAPI should ignore when performing update checks or validating update keys.</param>
-        public SConfig(bool developerMode, bool? checkForUpdates, bool? paranoidWarnings, bool? useBetaChannel, string gitHubProjectName, string webApiBaseUrl, string[]? verboseLogging, bool? rewriteMods, bool? useCaseInsensitivePaths, bool? logNetworkTraffic, ColorSchemeConfig consoleColors, bool? suppressHarmonyDebugMode, string[]? suppressUpdateChecks)
+        /// <param name="modsToLoadFirst">The mod IDs SMAPI should try to load first, before any other mods not included in this list.</param>
+        /// <param name="modsToLoadLast">The mod IDs SMAPI should try to load last, after all other mods not included in this list.</param>
+        public SConfig(bool developerMode, bool? checkForUpdates, bool? paranoidWarnings, bool? useBetaChannel, string gitHubProjectName, string webApiBaseUrl, string[]? verboseLogging, bool? rewriteMods, bool? useCaseInsensitivePaths, bool? logNetworkTraffic, ColorSchemeConfig consoleColors, bool? suppressHarmonyDebugMode, string[]? suppressUpdateChecks, string[]? modsToLoadFirst, string[]? modsToLoadLast)
         {
             this.DeveloperMode = developerMode;
             this.CheckForUpdates = checkForUpdates ?? (bool)SConfig.DefaultValues[nameof(this.CheckForUpdates)];
@@ -115,6 +123,8 @@ namespace StardewModdingAPI.Framework.Models
             this.ConsoleColors = consoleColors;
             this.SuppressHarmonyDebugMode = suppressHarmonyDebugMode ?? (bool)SConfig.DefaultValues[nameof(this.SuppressHarmonyDebugMode)];
             this.SuppressUpdateChecks = new HashSet<string>(suppressUpdateChecks ?? Array.Empty<string>(), StringComparer.OrdinalIgnoreCase);
+            this.ModsToLoadFirst = new List<string>(modsToLoadFirst ?? Array.Empty<string>());
+            this.ModsToLoadLast = new List<string>(modsToLoadLast ?? Array.Empty<string>());
         }
 
         /// <summary>Override the value of <see cref="DeveloperMode"/>.</summary>

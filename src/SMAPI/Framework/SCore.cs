@@ -423,9 +423,17 @@ namespace StardewModdingAPI.Framework
                     this.Monitor.Log($"  Skipped {mod.GetRelativePathWithRoot()} (folder name starts with a dot).");
                 mods = mods.Where(p => !p.IsIgnored).ToArray();
 
+                // warn about mods that should load first or last which are not found at all
+                foreach (string modId in this.Settings.ModsToLoadFirst)
+                    if (!mods.Any(m => m.Manifest.UniqueID == modId))
+                        this.Monitor.Log($"  SMAPI configuration specifies a mod {modId} that should load first, but it could not be found.", LogLevel.Warn);
+                foreach (string modId in this.Settings.ModsToLoadLast)
+                    if (!mods.Any(m => m.Manifest.UniqueID == modId))
+                        this.Monitor.Log($"  SMAPI configuration specifies a mod {modId} that should load last, but it could not be found.", LogLevel.Warn);
+
                 // load mods
                 resolver.ValidateManifests(mods, Constants.ApiVersion, toolkit.GetUpdateUrl, getFileLookup: this.GetFileLookup);
-                mods = resolver.ProcessDependencies(mods, modDatabase).ToArray();
+                mods = resolver.ProcessDependencies(mods, this.Settings.ModsToLoadFirst, this.Settings.ModsToLoadLast, modDatabase).ToArray();
                 this.LoadMods(mods, this.Toolkit.JsonHelper, this.ContentCore, modDatabase);
 
                 // check for software likely to cause issues
