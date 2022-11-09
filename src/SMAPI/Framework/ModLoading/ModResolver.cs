@@ -263,8 +263,18 @@ namespace StardewModdingAPI.Framework.ModLoading
 
             // sort mods
             IModMetadata[] allMods = mods.ToArray();
-            IModMetadata[] modsToLoadEarly = allMods.Where(m => modIdsToLoadEarly.Contains(m.Manifest.UniqueID) && !modIdsToLoadLate.Contains(m.Manifest.UniqueID)).ToArray();
-            IModMetadata[] modsToLoadLate = allMods.Where(m => modIdsToLoadLate.Contains(m.Manifest.UniqueID) && !modIdsToLoadEarly.Contains(m.Manifest.UniqueID)).ToArray();
+            IModMetadata[] modsToLoadEarly = modIdsToLoadEarly
+                .Where(modId => !modIdsToLoadLate.Contains(modId))
+                .Select(modId => allMods.FirstOrDefault(m => m.Manifest.UniqueID == modId))
+                .Where(m => m != null)
+                .Select(m => m!)
+                .ToArray();
+            IModMetadata[] modsToLoadLate = modIdsToLoadLate
+                .Where(modId => !modIdsToLoadEarly.Contains(modId))
+                .Select(modId => allMods.FirstOrDefault(m => m.Manifest.UniqueID == modId))
+                .Where(m => m != null)
+                .Select(m => m!)
+                .ToArray();
             IModMetadata[] modsToLoadAsUsual = allMods.Where(m => !modsToLoadEarly.Contains(m) && !modsToLoadLate.Contains(m)).ToArray();
 
             List<IModMetadata> orderSortedMods = new();

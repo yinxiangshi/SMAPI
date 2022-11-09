@@ -426,10 +426,10 @@ namespace StardewModdingAPI.Framework
                 // warn about mods that should load early or late which are not found at all, or both
                 foreach (string modId in this.Settings.ModsToLoadEarly)
                     if (!mods.Any(m => m.Manifest.UniqueID == modId))
-                        this.Monitor.Log($"  SMAPI configuration specifies a mod {modId} that should load early, but it could not be found.", LogLevel.Warn);
+                        this.Monitor.Log($"  SMAPI configuration specifies a mod {modId} that should load early, but it could not be found or was skipped.", LogLevel.Warn);
                 foreach (string modId in this.Settings.ModsToLoadLate)
                     if (!mods.Any(m => m.Manifest.UniqueID == modId))
-                        this.Monitor.Log($"  SMAPI configuration specifies a mod {modId} that should load late, but it could not be found.", LogLevel.Warn);
+                        this.Monitor.Log($"  SMAPI configuration specifies a mod {modId} that should load late, but it could not be found or was skipped.", LogLevel.Warn);
                 foreach (string modId in this.Settings.ModsToLoadEarly)
                     if (this.Settings.ModsToLoadLate.Contains(modId))
                         this.Monitor.Log($"  SMAPI configuration specifies a mod {modId} that should load both early and late - this will be ignored.", LogLevel.Warn);
