@@ -245,9 +245,9 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <summary>Sort the given mods by the order they should be loaded.</summary>
         /// <param name="mods">The mods to process.</param>
         /// <param name="modDatabase">Handles access to SMAPI's internal mod metadata list.</param>
-        /// <param name="modIdsToLoadFirst">The mod IDs SMAPI should try to load first, before any other mods not included in this list.</param>
-        /// <param name="modIdsToLoadLast">The mod IDs SMAPI should try to load last, after all other mods not included in this list.</param>
-        public IEnumerable<IModMetadata> ProcessDependencies(IEnumerable<IModMetadata> mods, IReadOnlyList<string> modIdsToLoadFirst, IReadOnlyList<string> modIdsToLoadLast, ModDatabase modDatabase)
+        /// <param name="modIdsToLoadEarly">The mod IDs SMAPI should try to load early, before any other mods not included in this list.</param>
+        /// <param name="modIdsToLoadLate">The mod IDs SMAPI should try to load late, after all other mods not included in this list.</param>
+        public IEnumerable<IModMetadata> ProcessDependencies(IEnumerable<IModMetadata> mods, IReadOnlyList<string> modIdsToLoadEarly, IReadOnlyList<string> modIdsToLoadLate, ModDatabase modDatabase)
         {
             // initialize metadata
             mods = mods.ToArray();
@@ -263,14 +263,14 @@ namespace StardewModdingAPI.Framework.ModLoading
 
             // sort mods
             IModMetadata[] allMods = mods.ToArray();
-            IModMetadata[] modsToLoadFirst = allMods.Where(m => modIdsToLoadFirst.Contains(m.Manifest.UniqueID)).ToArray();
-            IModMetadata[] modsToLoadLast = allMods.Where(m => modIdsToLoadLast.Contains(m.Manifest.UniqueID)).ToArray();
-            IModMetadata[] modsToLoadAsUsual = allMods.Where(m => !modsToLoadFirst.Contains(m) && !modsToLoadLast.Contains(m)).ToArray();
+            IModMetadata[] modsToLoadEarly = allMods.Where(m => modIdsToLoadEarly.Contains(m.Manifest.UniqueID) && !modIdsToLoadLate.Contains(m.Manifest.UniqueID)).ToArray();
+            IModMetadata[] modsToLoadLate = allMods.Where(m => modIdsToLoadLate.Contains(m.Manifest.UniqueID) && !modIdsToLoadEarly.Contains(m.Manifest.UniqueID)).ToArray();
+            IModMetadata[] modsToLoadAsUsual = allMods.Where(m => !modsToLoadEarly.Contains(m) && !modsToLoadLate.Contains(m)).ToArray();
 
             List<IModMetadata> orderSortedMods = new();
-            orderSortedMods.AddRange(modsToLoadFirst);
+            orderSortedMods.AddRange(modsToLoadEarly);
             orderSortedMods.AddRange(modsToLoadAsUsual);
-            orderSortedMods.AddRange(modsToLoadLast);
+            orderSortedMods.AddRange(modsToLoadLate);
 
             foreach (IModMetadata mod in orderSortedMods)
                 this.ProcessDependencies(orderSortedMods, modDatabase, mod, states, sortedMods, new List<IModMetadata>());
