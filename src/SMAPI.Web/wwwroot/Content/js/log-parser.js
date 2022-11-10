@@ -424,10 +424,6 @@ smapi.logParser = function (state) {
     Vue.component("log-line", {
         functional: true,
         props: {
-            showScreenId: {
-                type: Boolean,
-                required: true
-            },
             message: {
                 type: Object,
                 required: true
@@ -456,7 +452,7 @@ smapi.logParser = function (state) {
                             "td",
                             {
                                 attrs: {
-                                    colspan: context.props.showScreenId ? 4 : 3
+                                    colspan: state.isSplitScreen ? 4 : 3
                                 }
                             },
                             ""
@@ -541,7 +537,7 @@ smapi.logParser = function (state) {
                 },
                 [
                     createElement("td", message.Time),
-                    context.props.showScreenId ? createElement("td", message.ScreenId) : null,
+                    state.isSplitScreen ? createElement("td", { attrs: { title: (message.ScreenId == 0 ? "main screen" : "screen #" + (message.ScreenId + 1)) + " in split-screen mode" } }, `🖵${message.ScreenId + 1}`) : null,
                     createElement("td", level.toUpperCase()),
                     createElement(
                         "td",
@@ -587,9 +583,6 @@ smapi.logParser = function (state) {
             },
             anyModsShown: function () {
                 return stats.modsShown > 0;
-            },
-            showScreenId: function () {
-                return this.data.screenIds.length > 1;
             },
 
             // Maybe not strictly necessary, but the Vue template is being

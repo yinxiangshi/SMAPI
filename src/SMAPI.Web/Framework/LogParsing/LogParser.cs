@@ -108,6 +108,10 @@ namespace StardewModdingAPI.Web.Framework.LogParsing
                         }
                     }
 
+                    // detect split-screen mode
+                    if (message.ScreenId != 0)
+                        log.IsSplitScreen = true;
+
                     // collect SMAPI metadata
                     if (message.Mod == "SMAPI")
                     {

@@ -7,6 +7,10 @@
   _If needed, you can update to SMAPI 3.16.0 first and then install the latest version._
 -->
 
+## Upcoming release
+* For the web UI:
+  * Fixed log parser not showing screen IDs in split-screen mode, and improved screen display.
+
 ## 3.17.2
 Released 21 October 2022 for Stardew Valley 1.5.6 or later.
 
