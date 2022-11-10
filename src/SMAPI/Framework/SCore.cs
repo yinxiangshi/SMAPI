@@ -447,14 +447,17 @@ namespace StardewModdingAPI.Framework
                 this.Monitor.Log("SMAPI found problems in your game's content files which are likely to cause errors or crashes. Consider uninstalling XNB mods or reinstalling the game.", LogLevel.Error);
 
             // start SMAPI console
-            new Thread(
-                () => this.LogManager.RunConsoleInputLoop(
-                    commandManager: this.CommandManager,
-                    reloadTranslations: this.ReloadTranslations,
-                    handleInput: input => this.RawCommandQueue.Add(input),
-                    continueWhile: () => this.IsGameRunning && !this.IsExiting
-                )
-            ).Start();
+            if (this.Settings.ListenForConsoleInput)
+            {
+                new Thread(
+                    () => this.LogManager.RunConsoleInputLoop(
+                        commandManager: this.CommandManager,
+                        reloadTranslations: this.ReloadTranslations,
+                        handleInput: input => this.RawCommandQueue.Add(input),
+                        continueWhile: () => this.IsGameRunning && !this.IsExiting
+                    )
+                ).Start();
+            }
         }
 
         /// <summary>Raised after an instance finishes loading its initial content.</summary>

@@ -8,6 +8,9 @@
 -->
 
 ## Upcoming release
+* For players:
+  * Added config option to disable console input. This may reduce CPU usage on some Linux systems.
+
 * For the web UI:
   * Fixed log parser not showing screen IDs in split-screen mode, and improved screen display.
 

@@ -16,6 +16,7 @@ namespace StardewModdingAPI.Framework.Models
         private static readonly IDictionary<string, object> DefaultValues = new Dictionary<string, object>
         {
             [nameof(CheckForUpdates)] = true,
+            [nameof(ListenForConsoleInput)] = true,
             [nameof(ParanoidWarnings)] = Constants.IsDebugBuild,
             [nameof(UseBetaChannel)] = Constants.ApiVersion.IsPrerelease(),
             [nameof(GitHubProjectName)] = "Pathoschild/SMAPI",
@@ -47,6 +48,9 @@ namespace StardewModdingAPI.Framework.Models
 
         /// <summary>Whether to check for newer versions of SMAPI and mods on startup.</summary>
         public bool CheckForUpdates { get; set; }
+
+        /// <summary>Whether SMAPI should listen for console input to support console commands.</summary>
+        public bool ListenForConsoleInput { get; set; }
 
         /// <summary>Whether to add a section to the 'mod issues' list for mods which which directly use potentially sensitive .NET APIs like file or shell access.</summary>
         public bool ParanoidWarnings { get; set; }
@@ -87,23 +91,25 @@ namespace StardewModdingAPI.Framework.Models
         ** Public methods
         ********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="developerMode">Whether to enable development features.</param>
-        /// <param name="checkForUpdates">Whether to check for newer versions of SMAPI and mods on startup.</param>
-        /// <param name="paranoidWarnings">Whether to add a section to the 'mod issues' list for mods which which directly use potentially sensitive .NET APIs like file or shell access.</param>
-        /// <param name="useBetaChannel">Whether to show beta versions as valid updates.</param>
-        /// <param name="gitHubProjectName">SMAPI's GitHub project name, used to perform update checks.</param>
-        /// <param name="webApiBaseUrl">The base URL for SMAPI's web API, used to perform update checks.</param>
-        /// <param name="verboseLogging">The log contexts for which to enable verbose logging, which may show a lot more information to simplify troubleshooting.</param>
-        /// <param name="rewriteMods">Whether SMAPI should rewrite mods for compatibility.</param>
-        /// <param name="useCaseInsensitivePaths">>Whether to make SMAPI file APIs case-insensitive, even on Linux.</param>
-        /// <param name="logNetworkTraffic">Whether SMAPI should log network traffic.</param>
-        /// <param name="consoleColors">The colors to use for text written to the SMAPI console.</param>
-        /// <param name="suppressHarmonyDebugMode">Whether to prevent mods from enabling Harmony's debug mode, which impacts performance and creates a file on your desktop. Debug mode should never be enabled by a released mod.</param>
-        /// <param name="suppressUpdateChecks">The mod IDs SMAPI should ignore when performing update checks or validating update keys.</param>
-        public SConfig(bool developerMode, bool? checkForUpdates, bool? paranoidWarnings, bool? useBetaChannel, string gitHubProjectName, string webApiBaseUrl, string[]? verboseLogging, bool? rewriteMods, bool? useCaseInsensitivePaths, bool? logNetworkTraffic, ColorSchemeConfig consoleColors, bool? suppressHarmonyDebugMode, string[]? suppressUpdateChecks)
+        /// <param name="developerMode"><inheritdoc cref="DeveloperMode" path="/summary" /></param>
+        /// <param name="checkForUpdates"><inheritdoc cref="CheckForUpdates" path="/summary" /></param>
+        /// <param name="listenForConsoleInput"><inheritdoc cref="ListenForConsoleInput" path="/summary" /></param>
+        /// <param name="paranoidWarnings"><inheritdoc cref="ParanoidWarnings" path="/summary" /></param>
+        /// <param name="useBetaChannel"><inheritdoc cref="UseBetaChannel" path="/summary" /></param>
+        /// <param name="gitHubProjectName"><inheritdoc cref="GitHubProjectName" path="/summary" /></param>
+        /// <param name="webApiBaseUrl"><inheritdoc cref="WebApiBaseUrl" path="/summary" /></param>
+        /// <param name="verboseLogging"><inheritdoc cref="VerboseLogging" path="/summary" /></param>
+        /// <param name="rewriteMods"><inheritdoc cref="RewriteMods" path="/summary" /></param>
+        /// <param name="useCaseInsensitivePaths"><inheritdoc cref="UseCaseInsensitivePaths" path="/summary" /></param>
+        /// <param name="logNetworkTraffic"><inheritdoc cref="LogNetworkTraffic" path="/summary" /></param>
+        /// <param name="consoleColors"><inheritdoc cref="ConsoleColors" path="/summary" /></param>
+        /// <param name="suppressHarmonyDebugMode"><inheritdoc cref="SuppressHarmonyDebugMode" path="/summary" /></param>
+        /// <param name="suppressUpdateChecks"><inheritdoc cref="SuppressUpdateChecks" path="/summary" /></param>
+        public SConfig(bool developerMode, bool? checkForUpdates, bool? listenForConsoleInput, bool? paranoidWarnings, bool? useBetaChannel, string gitHubProjectName, string webApiBaseUrl, string[]? verboseLogging, bool? rewriteMods, bool? useCaseInsensitivePaths, bool? logNetworkTraffic, ColorSchemeConfig consoleColors, bool? suppressHarmonyDebugMode, string[]? suppressUpdateChecks)
         {
             this.DeveloperMode = developerMode;
             this.CheckForUpdates = checkForUpdates ?? (bool)SConfig.DefaultValues[nameof(this.CheckForUpdates)];
+            this.ListenForConsoleInput = listenForConsoleInput ?? (bool)SConfig.DefaultValues[nameof(this.ListenForConsoleInput)];
             this.ParanoidWarnings = paranoidWarnings ?? (bool)SConfig.DefaultValues[nameof(this.ParanoidWarnings)];
             this.UseBetaChannel = useBetaChannel ?? (bool)SConfig.DefaultValues[nameof(this.UseBetaChannel)];
             this.GitHubProjectName = gitHubProjectName;
