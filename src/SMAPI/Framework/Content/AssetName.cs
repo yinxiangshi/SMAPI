@@ -163,7 +163,7 @@ namespace StardewModdingAPI.Framework.Content
                         return false;
 
                     // match if subfolder paths are fine (e.g. prefix 'Data/Events' with target 'Data/Events/Beach')
-                    return allowSubfolder;
+                    return allowSubfolder || (pathSeparators.Contains(trimmedPrefix[^1]) && curParts.Remainder.Length == 0);
                 }
 
                 // previous segments matched exactly and both reached the end
