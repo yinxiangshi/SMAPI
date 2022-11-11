@@ -1166,6 +1166,13 @@ namespace StardewModdingAPI.Metadata
             GameLocation location = locationInfo.Location;
             Vector2? playerPos = Game1.player?.Position;
 
+            // clear cachedMultiplayerMaps so Asset Propegation works on farmhands and Map edits can be applied after an initial load
+            if (!Game1.IsMasterGame)
+            {
+                var multiplayer = this.Reflection.GetField<Multiplayer>(typeof(Game1), "multiplayer").GetValue();
+                multiplayer.cachedMultiplayerMaps.Remove(locationInfo.Location.NameOrUniqueName);
+            }
+
             // reload map
             location.interiorDoors.Clear(); // prevent errors when doors try to update tiles which no longer exist
             location.reloadMap();
