@@ -1,12 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
 using StardewModdingAPI.Toolkit.Serialization.Converters;
-using StardewModdingAPI.Toolkit.Utilities;
 
 namespace StardewModdingAPI.Toolkit.Serialization.Models
 {
@@ -104,95 +101,6 @@ namespace StardewModdingAPI.Toolkit.Serialization.Models
             this.ContentPackFor = contentPackFor;
             this.Dependencies = dependencies ?? Array.Empty<IManifestDependency>();
             this.UpdateKeys = updateKeys ?? Array.Empty<string>();
-        }
-
-        /// <summary>Try to validate a manifest's fields. Fails if any invalid field is found.</summary>
-        /// <param name="error">The error message to display to the user.</param>
-        /// <returns>Returns whether the manifest was validated successfully.</returns>
-        public bool TryValidate(out string error)
-        {
-            // validate DLL / content pack fields
-            bool hasDll = !string.IsNullOrWhiteSpace(this.EntryDll);
-            bool isContentPack = this.ContentPackFor != null;
-
-            // validate field presence
-            if (!hasDll && !isContentPack)
-            {
-                error = $"manifest has no {nameof(IManifest.EntryDll)} or {nameof(IManifest.ContentPackFor)} field; must specify one.";
-                return false;
-            }
-            if (hasDll && isContentPack)
-            {
-                error = $"manifest sets both {nameof(IManifest.EntryDll)} and {nameof(IManifest.ContentPackFor)}, which are mutually exclusive.";
-                return false;
-            }
-
-            // validate DLL filename format
-            if (hasDll && this.EntryDll!.Intersect(Path.GetInvalidFileNameChars()).Any())
-            {
-                error = $"manifest has invalid filename '{this.EntryDll}' for the EntryDLL field.";
-                return false;
-            }
-
-            // validate content pack ID
-            else if (isContentPack && string.IsNullOrWhiteSpace(this.ContentPackFor!.UniqueID))
-            {
-                error = $"manifest declares {nameof(IManifest.ContentPackFor)} without its required {nameof(IManifestContentPackFor.UniqueID)} field.";
-                return false;
-            }
-
-            // validate required fields
-            {
-                List<string> missingFields = new List<string>(3);
-
-                if (string.IsNullOrWhiteSpace(this.Name))
-                    missingFields.Add(nameof(IManifest.Name));
-                if (this.Version == null || this.Version.ToString() == "0.0.0")
-                    missingFields.Add(nameof(IManifest.Version));
-                if (string.IsNullOrWhiteSpace(this.UniqueID))
-                    missingFields.Add(nameof(IManifest.UniqueID));
-
-                if (missingFields.Any())
-                {
-                    error = $"manifest is missing required fields ({string.Join(", ", missingFields)}).";
-                    return false;
-                }
-            }
-
-            // validate ID format
-            if (!PathUtilities.IsSlug(this.UniqueID))
-            {
-                error = "manifest specifies an invalid ID (IDs must only contain letters, numbers, underscores, periods, or hyphens).";
-                return false;
-            }
-
-            // validate dependencies
-            foreach (IManifestDependency? dependency in this.Dependencies)
-            {
-                // null dependency
-                if (dependency == null)
-                {
-                    error = $"manifest has a null entry under {nameof(IManifest.Dependencies)}.";
-                    return false;
-                }
-
-                // missing ID
-                if (string.IsNullOrWhiteSpace(dependency.UniqueID))
-                {
-                    error = $"manifest has a {nameof(IManifest.Dependencies)} entry with no {nameof(IManifestDependency.UniqueID)} field.";
-                    return false;
-                }
-
-                // invalid ID
-                if (!PathUtilities.IsSlug(dependency.UniqueID))
-                {
-                    error = $"manifest has a {nameof(IManifest.Dependencies)} entry with an invalid {nameof(IManifestDependency.UniqueID)} field (IDs must only contain letters, numbers, underscores, periods, or hyphens).";
-                    return false;
-                }
-            }
-
-            error = "";
-            return true;
         }
 
         /// <summary>Override the update keys loaded from the mod info.</summary>

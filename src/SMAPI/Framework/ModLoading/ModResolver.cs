@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using StardewModdingAPI.Toolkit;
+using StardewModdingAPI.Toolkit.Framework;
 using StardewModdingAPI.Toolkit.Framework.ModData;
 using StardewModdingAPI.Toolkit.Framework.ModScanning;
 using StardewModdingAPI.Toolkit.Framework.UpdateData;
@@ -138,7 +139,7 @@ namespace StardewModdingAPI.Framework.ModLoading
                 }
 
                 // validate manifest
-                if (mod.Manifest is Manifest manifest && !manifest.TryValidate(out string manifestError))
+                if (!ManifestValidator.TryValidate(mod.Manifest, out string manifestError))
                 {
                     mod.SetStatus(ModMetadataStatus.Failed, ModFailReason.InvalidManifest, $"its {manifestError}");
                     continue;

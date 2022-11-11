@@ -9,6 +9,7 @@ using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using Newtonsoft.Json;
 using StardewModdingAPI.ModBuildConfig.Framework;
+using StardewModdingAPI.Toolkit.Framework;
 using StardewModdingAPI.Toolkit.Serialization;
 using StardewModdingAPI.Toolkit.Serialization.Models;
 using StardewModdingAPI.Toolkit.Utilities;
@@ -91,7 +92,8 @@ namespace StardewModdingAPI.ModBuildConfig
             try
             {
                 new JsonHelper().ReadJsonFileIfExists(manifestFile.FullName, out manifest);
-            } catch (JsonReaderException ex)
+            }
+            catch (JsonReaderException ex)
             {
                 // log the inner exception, otherwise the message will be generic
                 Exception exToShow = ex.InnerException ?? ex;
@@ -100,7 +102,7 @@ namespace StardewModdingAPI.ModBuildConfig
             }
 
             // validate the manifest's fields
-            if (!manifest.TryValidate(out string error))
+            if (!ManifestValidator.TryValidate(manifest, out string error))
             {
                 this.Log.LogError($"[mod build package] The mod manifest is invalid: {error}");
                 return false;
