@@ -424,19 +424,27 @@ namespace StardewModdingAPI.Framework
                 mods = mods.Where(p => !p.IsIgnored).ToArray();
 
                 // warn about mods that should load early or late which are not found at all, or both
-                foreach (string modId in this.Settings.ModsToLoadEarly)
-                    if (!mods.Any(m => m.Manifest.UniqueID == modId))
-                        this.Monitor.Log($"  SMAPI configuration specifies a mod {modId} that should load early, but it could not be found or was skipped.", LogLevel.Warn);
-                foreach (string modId in this.Settings.ModsToLoadLate)
-                    if (!mods.Any(m => m.Manifest.UniqueID == modId))
-                        this.Monitor.Log($"  SMAPI configuration specifies a mod {modId} that should load late, but it could not be found or was skipped.", LogLevel.Warn);
-                foreach (string modId in this.Settings.ModsToLoadEarly)
-                    if (this.Settings.ModsToLoadLate.Contains(modId))
-                        this.Monitor.Log($"  SMAPI configuration specifies a mod {modId} that should load both early and late - this will be ignored.", LogLevel.Warn);
+                {
+                    HashSet<string> installedIds = new HashSet<string>(mods.Select(p => p.Manifest.UniqueID), StringComparer.OrdinalIgnoreCase);
+
+                    foreach (string modId in this.Settings.ModsToLoadEarly)
+                    {
+                        if (!installedIds.Contains(modId))
+                            this.Monitor.Log($"  SMAPI configuration specifies a mod {modId} that should load early, but it could not be found or was skipped.", LogLevel.Warn);
+                    }
+                    foreach (string modId in this.Settings.ModsToLoadLate)
+                    {
+                        if (this.Settings.ModsToLoadEarly.Contains(modId))
+                            this.Monitor.Log($"  SMAPI configuration specifies a mod {modId} that should load both early and late - this will be ignored.", LogLevel.Warn);
+                        else if (!installedIds.Contains(modId))
+                            this.Monitor.Log($"  SMAPI configuration specifies a mod {modId} that should load late, but it could not be found or was skipped.", LogLevel.Warn);
+                    }
+                }
 
                 // load mods
                 resolver.ValidateManifests(mods, Constants.ApiVersion, toolkit.GetUpdateUrl, getFileLookup: this.GetFileLookup);
-                mods = resolver.ProcessDependencies(mods, this.Settings.ModsToLoadEarly, this.Settings.ModsToLoadLate, modDatabase).ToArray();
+                mods = resolver.ApplyLoadOrderOverrides(mods, this.Settings.ModsToLoadEarly, this.Settings.ModsToLoadLate);
+                mods = resolver.ProcessDependencies(mods, modDatabase).ToArray();
                 this.LoadMods(mods, this.Toolkit.JsonHelper, this.ContentCore, modDatabase);
 
                 // check for software likely to cause issues
