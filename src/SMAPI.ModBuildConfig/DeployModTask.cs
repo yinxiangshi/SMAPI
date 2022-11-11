@@ -79,38 +79,44 @@ namespace StardewModdingAPI.ModBuildConfig
                 this.Log.LogMessage(MessageImportance.High, $"[mod build package] Handling build with options {string.Join(", ", properties)}");
             }
 
-            // check if manifest file exists
-            FileInfo manifestFile = new(Path.Combine(this.ProjectDir, "manifest.json"));
-            if (!manifestFile.Exists)
-            {
-                this.Log.LogError("[mod build package] The mod does not have a manifest.json file.");
-                return false;
-            }
-
-            // check if the json is valid
-            Manifest manifest;
-            try
-            {
-                new JsonHelper().ReadJsonFileIfExists(manifestFile.FullName, out manifest);
-            }
-            catch (JsonReaderException ex)
-            {
-                // log the inner exception, otherwise the message will be generic
-                Exception exToShow = ex.InnerException ?? ex;
-                this.Log.LogError($"[mod build package] Failed to parse manifest.json: {exToShow.Message}");
-                return false;
-            }
-
-            // validate the manifest's fields
-            if (!ManifestValidator.TryValidate(manifest, out string error))
-            {
-                this.Log.LogError($"[mod build package] The mod manifest is invalid: {error}");
-                return false;
-            }
-
+            // skip if nothing to do
+            // (This must be checked before the manifest validation, to allow cases like unit test projects.)
             if (!this.EnableModDeploy && !this.EnableModZip)
-                return true; // nothing to do
+                return true;
 
+            // validate the manifest file
+            Manifest manifest;
+            {
+                // check if manifest file exists
+                FileInfo manifestFile = new(Path.Combine(this.ProjectDir, "manifest.json"));
+                if (!manifestFile.Exists)
+                {
+                    this.Log.LogError("[mod build package] The mod does not have a manifest.json file.");
+                    return false;
+                }
+
+                // check if the json is valid
+                try
+                {
+                    new JsonHelper().ReadJsonFileIfExists(manifestFile.FullName, out manifest);
+                }
+                catch (JsonReaderException ex)
+                {
+                    // log the inner exception, otherwise the message will be generic
+                    Exception exToShow = ex.InnerException ?? ex;
+                    this.Log.LogError($"[mod build package] Failed to parse manifest.json: {exToShow.Message}");
+                    return false;
+                }
+
+                // validate the manifest's fields
+                if (!ManifestValidator.TryValidate(manifest, out string error))
+                {
+                    this.Log.LogError($"[mod build package] The mod manifest is invalid: {error}");
+                    return false;
+                }
+            }
+
+            // deploy files
             try
             {
                 // parse extra DLLs to bundle
