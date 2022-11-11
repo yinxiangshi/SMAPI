@@ -85,33 +85,30 @@ namespace StardewModdingAPI.ModBuildConfig
                 return true;
 
             // validate the manifest file
-            Manifest manifest;
+            IManifest manifest;
             {
-                // check if manifest file exists
-                FileInfo manifestFile = new(Path.Combine(this.ProjectDir, "manifest.json"));
-                if (!manifestFile.Exists)
-                {
-                    this.Log.LogError("[mod build package] The mod does not have a manifest.json file.");
-                    return false;
-                }
-
-                // check if the json is valid
                 try
                 {
-                    new JsonHelper().ReadJsonFileIfExists(manifestFile.FullName, out manifest);
+                    string manifestPath = Path.Combine(this.ProjectDir, "manifest.json");
+                    if (!new JsonHelper().ReadJsonFileIfExists(manifestPath, out Manifest rawManifest))
+                    {
+                        this.Log.LogError("[mod build package] The mod's manifest.json file doesn't exist.");
+                        return false;
+                    }
+                    manifest = rawManifest;
                 }
                 catch (JsonReaderException ex)
                 {
                     // log the inner exception, otherwise the message will be generic
                     Exception exToShow = ex.InnerException ?? ex;
-                    this.Log.LogError($"[mod build package] Failed to parse manifest.json: {exToShow.Message}");
+                    this.Log.LogError($"[mod build package] The mod's manifest.json file isn't valid JSON: {exToShow.Message}");
                     return false;
                 }
 
-                // validate the manifest's fields
-                if (!ManifestValidator.TryValidate(manifest, out string error))
+                // validate manifest fields
+                if (!ManifestValidator.TryValidateFields(manifest, out string error))
                 {
-                    this.Log.LogError($"[mod build package] The mod manifest is invalid: {error}");
+                    this.Log.LogError($"[mod build package] The mod's manifest.json file is invalid: {error}");
                     return false;
                 }
             }

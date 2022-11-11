@@ -126,7 +126,14 @@ namespace StardewModdingAPI.Framework.ModLoading
                     continue;
                 }
 
-                // check for dll if it's supposed to have one
+                // validate manifest format
+                if (!ManifestValidator.TryValidateFields(mod.Manifest, out string manifestError))
+                {
+                    mod.SetStatus(ModMetadataStatus.Failed, ModFailReason.InvalidManifest, $"its {manifestError}");
+                    continue;
+                }
+
+                // check that DLL exists if applicable
                 if (!string.IsNullOrEmpty(mod.Manifest.EntryDll) && validateFilesExist)
                 {
                     IFileLookup pathLookup = getFileLookup(mod.DirectoryPath);
@@ -136,13 +143,6 @@ namespace StardewModdingAPI.Framework.ModLoading
                         mod.SetStatus(ModMetadataStatus.Failed, ModFailReason.InvalidManifest, $"its DLL '{mod.Manifest.EntryDll}' doesn't exist.");
                         continue;
                     }
-                }
-
-                // validate manifest
-                if (!ManifestValidator.TryValidate(mod.Manifest, out string manifestError))
-                {
-                    mod.SetStatus(ModMetadataStatus.Failed, ModFailReason.InvalidManifest, $"its {manifestError}");
-                    continue;
                 }
             }
 
