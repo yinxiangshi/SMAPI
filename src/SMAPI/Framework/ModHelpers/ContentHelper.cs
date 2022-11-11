@@ -62,7 +62,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
                     source: this.Mod,
                     nounPhrase: $"{nameof(IContentHelper)}.{nameof(IContentHelper.AssetLoaders)}",
                     version: "3.14.0",
-                    severity: DeprecationLevel.Info
+                    severity: DeprecationLevel.PendingRemoval
                 );
 
                 return this.ObservableAssetLoaders;
@@ -78,7 +78,7 @@ namespace StardewModdingAPI.Framework.ModHelpers
                     source: this.Mod,
                     nounPhrase: $"{nameof(IContentHelper)}.{nameof(IContentHelper.AssetEditors)}",
                     version: "3.14.0",
-                    severity: DeprecationLevel.Info
+                    severity: DeprecationLevel.PendingRemoval
                 );
 
                 return this.ObservableAssetEditors;

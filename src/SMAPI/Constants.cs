@@ -90,7 +90,7 @@ namespace StardewModdingAPI
                     source: null,
                     nounPhrase: $"{nameof(Constants)}.{nameof(Constants.ExecutionPath)}",
                     version: "3.14.0",
-                    severity: DeprecationLevel.Info
+                    severity: DeprecationLevel.PendingRemoval
                 );
 
                 return Constants.GamePath;

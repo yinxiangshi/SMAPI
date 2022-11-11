@@ -59,7 +59,7 @@ namespace StardewModdingAPI.Utilities
                     null,
                     $"calling the {nameof(PerScreen<T>)} constructor with null",
                     "3.14.0",
-                    DeprecationLevel.Info
+                    DeprecationLevel.PendingRemoval
                 );
 #else
                 throw new ArgumentNullException(nameof(createNewState));

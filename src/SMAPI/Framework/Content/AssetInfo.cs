@@ -45,7 +45,7 @@ namespace StardewModdingAPI.Framework.Content
                     source: null,
                     nounPhrase: $"{nameof(IAssetInfo)}.{nameof(IAssetInfo.AssetName)}",
                     version: "3.14.0",
-                    severity: DeprecationLevel.Info,
+                    severity: DeprecationLevel.PendingRemoval,
                     unlessStackIncludes: new[]
                     {
                         $"{typeof(AssetInterceptorChange).FullName}.{nameof(AssetInterceptorChange.CanIntercept)}",
@@ -84,7 +84,7 @@ namespace StardewModdingAPI.Framework.Content
                 source: null,
                 nounPhrase: $"{nameof(IAssetInfo)}.{nameof(IAssetInfo.AssetNameEquals)}",
                 version: "3.14.0",
-                severity: DeprecationLevel.Info,
+                severity: DeprecationLevel.PendingRemoval,
                 unlessStackIncludes: new[]
                 {
                     $"{typeof(AssetInterceptorChange).FullName}.{nameof(AssetInterceptorChange.CanIntercept)}",

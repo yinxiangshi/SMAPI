@@ -15,6 +15,7 @@
 
 * For mod authors:
   * Optimized asset name comparisons (thanks to atravita!).
+  * Raised all deprecation messages to the final 'pending removal' level.
 
 * For the web UI:
   * Fixed log parser not showing screen IDs in split-screen mode, and improved screen display.

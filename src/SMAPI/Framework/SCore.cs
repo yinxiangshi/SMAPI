@@ -1736,7 +1736,7 @@ namespace StardewModdingAPI.Framework
                             source: metadata,
                             nounPhrase: $"{nameof(IAssetEditor)}",
                             version: "3.14.0",
-                            severity: DeprecationLevel.Info,
+                            severity: DeprecationLevel.PendingRemoval,
                             logStackTrace: false
                         );
 
@@ -1749,7 +1749,7 @@ namespace StardewModdingAPI.Framework
                             source: metadata,
                             nounPhrase: $"{nameof(IAssetLoader)}",
                             version: "3.14.0",
-                            severity: DeprecationLevel.Info,
+                            severity: DeprecationLevel.PendingRemoval,
                             logStackTrace: false
                         );
 
@@ -1781,7 +1781,7 @@ namespace StardewModdingAPI.Framework
                             metadata,
                             $"using {name} without bundling it",
                             "3.14.7",
-                            DeprecationLevel.Info,
+                            DeprecationLevel.PendingRemoval,
                             logStackTrace: false
                         );
                     }
