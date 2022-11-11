@@ -11,6 +11,7 @@
 * For players:
   * Added config options to override the mod load order, for the rare cases where that's needed (thanks to Shockah!).
   * Added config option to disable console input, which may reduce CPU usage on some Linux systems.
+  * Set the max game version to 1.5.6 (since 1.6 will need a SMAPI update).
 
 * For mod authors:
   * Optimized asset name comparisons (thanks to atravita!).
