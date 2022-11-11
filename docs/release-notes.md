@@ -9,7 +9,11 @@
 
 ## Upcoming release
 * For players:
-  * Added config option to disable console input. This may reduce CPU usage on some Linux systems.
+  * Added config options to override the mod load order, for the rare cases where that's needed (thanks to Shockah!).
+  * Added config option to disable console input, which may reduce CPU usage on some Linux systems.
+
+* For mod authors:
+  * Optimized asset name comparisons (thanks to atravita!).
 
 * For the web UI:
   * Fixed log parser not showing screen IDs in split-screen mode, and improved screen display.
