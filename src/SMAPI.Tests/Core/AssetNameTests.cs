@@ -151,6 +151,12 @@ namespace SMAPI.Tests.Core
 
         // with locale codes
         [TestCase("Data/Achievements.fr-FR", "Data/Achievements", ExpectedResult = true)]
+
+        // prefix ends with path separator
+        [TestCase("Data/Events/Boop", "Data/Events/", ExpectedResult = true)]
+        [TestCase("Data/Events/Boop", "Data/Events\\", ExpectedResult = true)]
+        [TestCase("Data/Events", "Data/Events/", ExpectedResult = false)]
+        [TestCase("Data/Events", "Data/Events\\", ExpectedResult = false)]
         public bool StartsWith_SimpleCases(string mainAssetName, string prefix)
         {
             // arrange
@@ -247,7 +253,7 @@ namespace SMAPI.Tests.Core
         [TestCase("Mods/SomeMod/SomeSubdirectory", "Mods/Some", false, ExpectedResult = false)]
         [TestCase("Mods/Jasper/Data", "Mods/Jas/Image", true, ExpectedResult = false)]
         [TestCase("Mods/Jasper/Data", "Mods/Jas/Image", true, ExpectedResult = false)]
-        public bool StartsWith_SubfolderWithPartial(string mainAssetName, string otherAssetName, bool allowSubfolder)
+        public bool StartsWith_PartialMatchInPathSegment(string mainAssetName, string otherAssetName, bool allowSubfolder)
         {
             // arrange
             mainAssetName = PathUtilities.NormalizeAssetName(mainAssetName);

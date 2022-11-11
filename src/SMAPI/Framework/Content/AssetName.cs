@@ -138,37 +138,38 @@ namespace StardewModdingAPI.Framework.Content
                 return false;
 
             // get initial values
-            ReadOnlySpan<char> trimmed = prefix.AsSpan().Trim();
-            if (trimmed.Length == 0)
+            ReadOnlySpan<char> trimmedPrefix = prefix.AsSpan().Trim();
+            if (trimmedPrefix.Length == 0)
                 return true;
             ReadOnlySpan<char> pathSeparators = new(ToolkitPathUtilities.PossiblePathSeparators); // just to simplify calling other span APIs
 
             // asset keys can't have a leading slash, but AssetPathYielder will trim them
-            if (pathSeparators.Contains(trimmed[0]))
+            if (pathSeparators.Contains(trimmedPrefix[0]))
                 return false;
 
             // compare segments
             AssetNamePartEnumerator curParts = new(this.Name);
-            AssetNamePartEnumerator prefixParts = new(trimmed);
+            AssetNamePartEnumerator prefixParts = new(trimmedPrefix);
             while (true)
             {
                 bool curHasMore = curParts.MoveNext();
                 bool prefixHasMore = prefixParts.MoveNext();
 
-                // reached end of prefix or asset name
+                // reached end for one side
                 if (prefixHasMore != curHasMore)
                 {
                     // mismatch: prefix is longer
                     if (prefixHasMore)
                         return false;
 
-                    // possible match: all prefix segments matched.
-                    return allowSubfolder || (pathSeparators.Contains(trimmed[^1]) ? curParts.Remainder.Length == 0 : curParts.Current.Length == 0);
+                    // match if subfolder paths are fine (e.g. prefix 'Data/Events' with target 'Data/Events/Beach')
+                    return allowSubfolder;
                 }
 
-                // match: previous segments matched exactly and both reached the end
+                // previous segments matched exactly and both reached the end
+                // match if prefix doesn't end with '/' (which should only match subfolders)
                 if (!prefixHasMore)
-                    return true;
+                    return !pathSeparators.Contains(trimmedPrefix[^1]);
 
                 // compare segment
                 if (curParts.Current.Length == prefixParts.Current.Length)
@@ -188,7 +189,7 @@ namespace StardewModdingAPI.Framework.Content
                         return false;
 
                     // mismatch: something like "Maps/" would need an exact match
-                    if (pathSeparators.Contains(trimmed[^1]))
+                    if (pathSeparators.Contains(trimmedPrefix[^1]))
                         return false;
 
                     // mismatch: partial word match not allowed, and the first or last letter of the suffix isn't a word separator
@@ -196,7 +197,7 @@ namespace StardewModdingAPI.Framework.Content
                         return false;
 
                     // possible match
-                    return allowSubfolder || (pathSeparators.Contains(trimmed[^1]) ? curParts.Remainder.IndexOfAny(ToolkitPathUtilities.PossiblePathSeparators) < 0 : curParts.Remainder.Length == 0);
+                    return allowSubfolder || (pathSeparators.Contains(trimmedPrefix[^1]) ? curParts.Remainder.IndexOfAny(ToolkitPathUtilities.PossiblePathSeparators) < 0 : curParts.Remainder.Length == 0);
                 }
             }
         }
