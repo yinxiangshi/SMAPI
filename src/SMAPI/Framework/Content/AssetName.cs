@@ -1,6 +1,8 @@
 using System;
 using StardewModdingAPI.Toolkit.Utilities;
+using StardewModdingAPI.Utilities.AssetPathUtilities;
 using StardewValley;
+using ToolkitPathUtilities = StardewModdingAPI.Toolkit.Utilities.PathUtilities;
 
 namespace StardewModdingAPI.Framework.Content
 {
@@ -94,10 +96,26 @@ namespace StardewModdingAPI.Framework.Content
             if (string.IsNullOrWhiteSpace(assetName))
                 return false;
 
-            assetName = PathUtilities.NormalizeAssetName(assetName);
+            AssetNamePartEnumerator curParts = new(useBaseName ? this.BaseName : this.Name);
+            AssetNamePartEnumerator otherParts = new(assetName.AsSpan().Trim());
 
-            string compareTo = useBaseName ? this.BaseName : this.Name;
-            return compareTo.Equals(assetName, StringComparison.OrdinalIgnoreCase);
+            while (true)
+            {
+                bool curHasMore = curParts.MoveNext();
+                bool otherHasMore = otherParts.MoveNext();
+
+                // mismatch: lengths differ
+                if (otherHasMore != curHasMore)
+                    return false;
+
+                // match: both reached the end without a mismatch
+                if (!curHasMore)
+                    return true;
+
+                // mismatch: current segment is different
+                if (!curParts.Current.Equals(otherParts.Current, StringComparison.OrdinalIgnoreCase))
+                    return false;
+            }
         }
 
         /// <inheritdoc />
@@ -119,42 +137,70 @@ namespace StardewModdingAPI.Framework.Content
             if (prefix is null)
                 return false;
 
-            string rawTrimmed = prefix.Trim();
+            // get initial values
+            ReadOnlySpan<char> trimmedPrefix = prefix.AsSpan().Trim();
+            if (trimmedPrefix.Length == 0)
+                return true;
+            ReadOnlySpan<char> pathSeparators = new(ToolkitPathUtilities.PossiblePathSeparators); // just to simplify calling other span APIs
 
-            // asset keys can't have a leading slash, but NormalizeAssetName will trim them
-            if (rawTrimmed.StartsWith('/') || rawTrimmed.StartsWith('\\'))
+            // asset keys can't have a leading slash, but AssetPathYielder will trim them
+            if (pathSeparators.Contains(trimmedPrefix[0]))
                 return false;
 
-            // normalize prefix
+            // compare segments
+            AssetNamePartEnumerator curParts = new(this.Name);
+            AssetNamePartEnumerator prefixParts = new(trimmedPrefix);
+            while (true)
             {
-                string normalized = PathUtilities.NormalizeAssetName(prefix);
+                bool curHasMore = curParts.MoveNext();
+                bool prefixHasMore = prefixParts.MoveNext();
 
-                // keep trailing slash
-                if (rawTrimmed.EndsWith('/') || rawTrimmed.EndsWith('\\'))
-                    normalized += PathUtilities.PreferredAssetSeparator;
+                // reached end for one side
+                if (prefixHasMore != curHasMore)
+                {
+                    // mismatch: prefix is longer
+                    if (prefixHasMore)
+                        return false;
 
-                prefix = normalized;
+                    // match if subfolder paths are fine (e.g. prefix 'Data/Events' with target 'Data/Events/Beach')
+                    return allowSubfolder;
+                }
+
+                // previous segments matched exactly and both reached the end
+                // match if prefix doesn't end with '/' (which should only match subfolders)
+                if (!prefixHasMore)
+                    return !pathSeparators.Contains(trimmedPrefix[^1]);
+
+                // compare segment
+                if (curParts.Current.Length == prefixParts.Current.Length)
+                {
+                    // mismatch: segments aren't equivalent
+                    if (!curParts.Current.Equals(prefixParts.Current, StringComparison.OrdinalIgnoreCase))
+                        return false;
+                }
+                else
+                {
+                    // mismatch: prefix has more beyond this, and this segment isn't an exact match
+                    if (prefixParts.Remainder.Length != 0)
+                        return false;
+
+                    // mismatch: cur segment doesn't start with prefix
+                    if (!curParts.Current.StartsWith(prefixParts.Current, StringComparison.OrdinalIgnoreCase))
+                        return false;
+
+                    // mismatch: something like "Maps/" would need an exact match
+                    if (pathSeparators.Contains(trimmedPrefix[^1]))
+                        return false;
+
+                    // mismatch: partial word match not allowed, and the first or last letter of the suffix isn't a word separator
+                    if (!allowPartialWord && char.IsLetterOrDigit(prefixParts.Current[^1]) && char.IsLetterOrDigit(curParts.Current[prefixParts.Current.Length]))
+                        return false;
+
+                    // possible match
+                    return allowSubfolder || (pathSeparators.Contains(trimmedPrefix[^1]) ? curParts.Remainder.IndexOfAny(ToolkitPathUtilities.PossiblePathSeparators) < 0 : curParts.Remainder.Length == 0);
+                }
             }
-
-            // compare
-            if (prefix.Length == 0)
-                return true;
-
-            return
-                this.Name.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)
-                && (
-                    allowPartialWord
-                    || this.Name.Length == prefix.Length
-                    || !char.IsLetterOrDigit(prefix[^1]) // last character in suffix is word separator
-                    || !char.IsLetterOrDigit(this.Name[prefix.Length]) // or first character after it is
-                )
-                && (
-                    allowSubfolder
-                    || this.Name.Length == prefix.Length
-                    || !this.Name[prefix.Length..].Contains(PathUtilities.PreferredAssetSeparator)
-                );
         }
-
 
         /// <inheritdoc />
         public bool IsDirectlyUnderPath(string? assetFolder)
@@ -162,7 +208,7 @@ namespace StardewModdingAPI.Framework.Content
             if (assetFolder is null)
                 return false;
 
-            return this.StartsWith(assetFolder + "/", allowPartialWord: false, allowSubfolder: false);
+            return this.StartsWith(assetFolder + ToolkitPathUtilities.PreferredPathSeparator, allowPartialWord: false, allowSubfolder: false);
         }
 
         /// <inheritdoc />
