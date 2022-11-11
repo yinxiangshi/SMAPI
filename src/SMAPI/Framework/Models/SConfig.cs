@@ -146,6 +146,12 @@ namespace StardewModdingAPI.Framework.Models
                     custom[name] = value;
             }
 
+            if (this.ModsToLoadEarly.Any())
+                custom[nameof(this.ModsToLoadEarly)] = $"[{string.Join(", ", this.ModsToLoadEarly)}]";
+
+            if (this.ModsToLoadLate.Any())
+                custom[nameof(this.ModsToLoadLate)] = $"[{string.Join(", ", this.ModsToLoadLate)}]";
+
             if (!this.SuppressUpdateChecks.SetEquals(SConfig.DefaultSuppressUpdateChecks))
                 custom[nameof(this.SuppressUpdateChecks)] = $"[{string.Join(", ", this.SuppressUpdateChecks)}]";
 

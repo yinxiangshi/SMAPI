@@ -427,18 +427,16 @@ namespace StardewModdingAPI.Framework
                 {
                     HashSet<string> installedIds = new HashSet<string>(mods.Select(p => p.Manifest.UniqueID), StringComparer.OrdinalIgnoreCase);
 
-                    foreach (string modId in this.Settings.ModsToLoadEarly)
-                    {
-                        if (!installedIds.Contains(modId))
-                            this.Monitor.Log($"  SMAPI configuration specifies a mod {modId} that should load early, but it could not be found or was skipped.", LogLevel.Warn);
-                    }
-                    foreach (string modId in this.Settings.ModsToLoadLate)
-                    {
-                        if (this.Settings.ModsToLoadEarly.Contains(modId))
-                            this.Monitor.Log($"  SMAPI configuration specifies a mod {modId} that should load both early and late - this will be ignored.", LogLevel.Warn);
-                        else if (!installedIds.Contains(modId))
-                            this.Monitor.Log($"  SMAPI configuration specifies a mod {modId} that should load late, but it could not be found or was skipped.", LogLevel.Warn);
-                    }
+                    string[] missingEarlyMods = this.Settings.ModsToLoadEarly.Where(id => !installedIds.Contains(id)).OrderBy(p => p, StringComparer.OrdinalIgnoreCase).ToArray();
+                    string[] missingLateMods = this.Settings.ModsToLoadLate.Where(id => !installedIds.Contains(id)).OrderBy(p => p, StringComparer.OrdinalIgnoreCase).ToArray();
+                    string[] duplicateMods = this.Settings.ModsToLoadLate.Where(id => this.Settings.ModsToLoadEarly.Contains(id)).OrderBy(p => p, StringComparer.OrdinalIgnoreCase).ToArray();
+
+                    if (missingEarlyMods.Any())
+                        this.Monitor.Log($"  The 'smapi-internal/config.json' file lists mod IDs in {nameof(this.Settings.ModsToLoadEarly)} which aren't installed: '{string.Join("', '", missingEarlyMods)}'.", LogLevel.Warn);
+                    if (missingLateMods.Any())
+                        this.Monitor.Log($"  The 'smapi-internal/config.json' file lists mod IDs in {nameof(this.Settings.ModsToLoadLate)} which aren't installed: '{string.Join("', '", missingLateMods)}'.", LogLevel.Warn);
+                    if (duplicateMods.Any())
+                        this.Monitor.Log($"  The 'smapi-internal/config.json' file lists mod IDs which are in both {nameof(this.Settings.ModsToLoadEarly)} and {nameof(this.Settings.ModsToLoadLate)}: '{string.Join("', '", duplicateMods)}'. These will be loaded early.", LogLevel.Warn);
                 }
 
                 // load mods
