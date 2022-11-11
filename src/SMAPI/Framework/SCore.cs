@@ -423,8 +423,29 @@ namespace StardewModdingAPI.Framework
                     this.Monitor.Log($"  Skipped {mod.GetRelativePathWithRoot()} (folder name starts with a dot).");
                 mods = mods.Where(p => !p.IsIgnored).ToArray();
 
-                // load mods
+                // validate manifests
                 resolver.ValidateManifests(mods, Constants.ApiVersion, toolkit.GetUpdateUrl, getFileLookup: this.GetFileLookup);
+
+                // apply load order customizations
+                if (this.Settings.ModsToLoadEarly.Any() || this.Settings.ModsToLoadLate.Any())
+                {
+                    HashSet<string> installedIds = new HashSet<string>(mods.Select(p => p.Manifest.UniqueID), StringComparer.OrdinalIgnoreCase);
+
+                    string[] missingEarlyMods = this.Settings.ModsToLoadEarly.Where(id => !installedIds.Contains(id)).OrderBy(p => p, StringComparer.OrdinalIgnoreCase).ToArray();
+                    string[] missingLateMods = this.Settings.ModsToLoadLate.Where(id => !installedIds.Contains(id)).OrderBy(p => p, StringComparer.OrdinalIgnoreCase).ToArray();
+                    string[] duplicateMods = this.Settings.ModsToLoadLate.Where(id => this.Settings.ModsToLoadEarly.Contains(id)).OrderBy(p => p, StringComparer.OrdinalIgnoreCase).ToArray();
+
+                    if (missingEarlyMods.Any())
+                        this.Monitor.Log($"  The 'smapi-internal/config.json' file lists mod IDs in {nameof(this.Settings.ModsToLoadEarly)} which aren't installed: '{string.Join("', '", missingEarlyMods)}'.", LogLevel.Warn);
+                    if (missingLateMods.Any())
+                        this.Monitor.Log($"  The 'smapi-internal/config.json' file lists mod IDs in {nameof(this.Settings.ModsToLoadLate)} which aren't installed: '{string.Join("', '", missingLateMods)}'.", LogLevel.Warn);
+                    if (duplicateMods.Any())
+                        this.Monitor.Log($"  The 'smapi-internal/config.json' file lists mod IDs which are in both {nameof(this.Settings.ModsToLoadEarly)} and {nameof(this.Settings.ModsToLoadLate)}: '{string.Join("', '", duplicateMods)}'. These will be loaded early.", LogLevel.Warn);
+
+                    mods = resolver.ApplyLoadOrderOverrides(mods, this.Settings.ModsToLoadEarly, this.Settings.ModsToLoadLate);
+                }
+
+                // load mods
                 mods = resolver.ProcessDependencies(mods, modDatabase).ToArray();
                 this.LoadMods(mods, this.Toolkit.JsonHelper, this.ContentCore, modDatabase);
 

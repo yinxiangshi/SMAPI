@@ -86,6 +86,12 @@ namespace StardewModdingAPI.Framework.Models
         /// <summary>The mod IDs SMAPI should ignore when performing update checks or validating update keys.</summary>
         public HashSet<string> SuppressUpdateChecks { get; set; }
 
+        /// <summary>The mod IDs SMAPI should load before any other mods (except those needed to load them).</summary>
+        public HashSet<string> ModsToLoadEarly { get; set; }
+
+        /// <summary>The mod IDs SMAPI should load after any other mods.</summary>
+        public HashSet<string> ModsToLoadLate { get; set; }
+
 
         /********
         ** Public methods
@@ -105,7 +111,9 @@ namespace StardewModdingAPI.Framework.Models
         /// <param name="consoleColors"><inheritdoc cref="ConsoleColors" path="/summary" /></param>
         /// <param name="suppressHarmonyDebugMode"><inheritdoc cref="SuppressHarmonyDebugMode" path="/summary" /></param>
         /// <param name="suppressUpdateChecks"><inheritdoc cref="SuppressUpdateChecks" path="/summary" /></param>
-        public SConfig(bool developerMode, bool? checkForUpdates, bool? listenForConsoleInput, bool? paranoidWarnings, bool? useBetaChannel, string gitHubProjectName, string webApiBaseUrl, string[]? verboseLogging, bool? rewriteMods, bool? useCaseInsensitivePaths, bool? logNetworkTraffic, ColorSchemeConfig consoleColors, bool? suppressHarmonyDebugMode, string[]? suppressUpdateChecks)
+        /// <param name="modsToLoadEarly"><inheritdoc cref="ModsToLoadEarly" path="/summary" /></param>
+        /// <param name="modsToLoadLate"><inheritdoc cref="ModsToLoadLate" path="/summary" /></param>
+        public SConfig(bool developerMode, bool? checkForUpdates, bool? listenForConsoleInput, bool? paranoidWarnings, bool? useBetaChannel, string gitHubProjectName, string webApiBaseUrl, string[]? verboseLogging, bool? rewriteMods, bool? useCaseInsensitivePaths, bool? logNetworkTraffic, ColorSchemeConfig consoleColors, bool? suppressHarmonyDebugMode, string[]? suppressUpdateChecks, string[]? modsToLoadEarly, string[]? modsToLoadLate)
         {
             this.DeveloperMode = developerMode;
             this.CheckForUpdates = checkForUpdates ?? (bool)SConfig.DefaultValues[nameof(this.CheckForUpdates)];
@@ -121,6 +129,8 @@ namespace StardewModdingAPI.Framework.Models
             this.ConsoleColors = consoleColors;
             this.SuppressHarmonyDebugMode = suppressHarmonyDebugMode ?? (bool)SConfig.DefaultValues[nameof(this.SuppressHarmonyDebugMode)];
             this.SuppressUpdateChecks = new HashSet<string>(suppressUpdateChecks ?? Array.Empty<string>(), StringComparer.OrdinalIgnoreCase);
+            this.ModsToLoadEarly = new HashSet<string>(modsToLoadEarly ?? Array.Empty<string>(), StringComparer.OrdinalIgnoreCase);
+            this.ModsToLoadLate = new HashSet<string>(modsToLoadLate ?? Array.Empty<string>(), StringComparer.OrdinalIgnoreCase);
         }
 
         /// <summary>Override the value of <see cref="DeveloperMode"/>.</summary>
@@ -141,6 +151,12 @@ namespace StardewModdingAPI.Framework.Models
                 if (!defaultValue.Equals(value))
                     custom[name] = value;
             }
+
+            if (this.ModsToLoadEarly.Any())
+                custom[nameof(this.ModsToLoadEarly)] = $"[{string.Join(", ", this.ModsToLoadEarly)}]";
+
+            if (this.ModsToLoadLate.Any())
+                custom[nameof(this.ModsToLoadLate)] = $"[{string.Join(", ", this.ModsToLoadLate)}]";
 
             if (!this.SuppressUpdateChecks.SetEquals(SConfig.DefaultSuppressUpdateChecks))
                 custom[nameof(this.SuppressUpdateChecks)] = $"[{string.Join(", ", this.SuppressUpdateChecks)}]";
