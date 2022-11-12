@@ -1171,9 +1171,8 @@ namespace StardewModdingAPI.Metadata
             GameLocation location = locationInfo.Location;
             Vector2? playerPos = Game1.player?.Position;
 
-            // clear multiplayer cache for farmhands
-            if (!Context.IsMainPlayer)
-                this.Multiplayer.cachedMultiplayerMaps.Remove(location.NameOrUniqueName);
+            // remove from multiplayer cache
+            this.Multiplayer.cachedMultiplayerMaps.Remove(location.NameOrUniqueName);
 
             // reload map
             location.interiorDoors.Clear(); // prevent errors when doors try to update tiles which no longer exist
