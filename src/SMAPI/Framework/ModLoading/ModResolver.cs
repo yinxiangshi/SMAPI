@@ -174,14 +174,20 @@ namespace StardewModdingAPI.Framework.ModLoading
             if (!modIdsToLoadEarly.Any() && !modIdsToLoadLate.Any())
                 return mods;
 
+            string[] earlyArray = modIdsToLoadEarly.ToArray();
+            string[] lateArray = modIdsToLoadLate.ToArray();
+
             return mods
                 .OrderBy(mod =>
                 {
                     string id = mod.Manifest.UniqueID;
-                    if (modIdsToLoadEarly.Contains(id))
-                        return -1;
-                    if (modIdsToLoadLate.Contains(id))
-                        return 1;
+
+                    if (modIdsToLoadEarly.TryGetValue(id, out string? actualId))
+                        return -int.MaxValue + Array.IndexOf(earlyArray, actualId);
+
+                    if (modIdsToLoadLate.TryGetValue(id, out actualId))
+                        return int.MaxValue - Array.IndexOf(lateArray, actualId);
+
                     return 0;
                 })
                 .ToArray();
