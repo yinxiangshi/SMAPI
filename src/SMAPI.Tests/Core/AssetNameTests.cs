@@ -265,15 +265,14 @@ namespace SMAPI.Tests.Core
             return name.StartsWith(otherAssetName, allowPartialWord: true, allowSubfolder: allowSubfolder);
         }
 
-        // the enumerator strips the trailing path seperator
-        // so each of these cases has to be handled on each branch.
+        // The enumerator strips the trailing path separator, so each of these cases has to be handled on each branch.
         [TestCase("Mods/SomeMod", "Mods/", false, ExpectedResult = true)]
         [TestCase("Mods/SomeMod", "Mods", false, ExpectedResult = false)]
         [TestCase("Mods/Jasper/Data", "Mods/Jas/", false, ExpectedResult = false)]
         [TestCase("Mods/Jasper/Data", "Mods/Jas", false, ExpectedResult = false)]
         [TestCase("Mods/Jas", "Mods/Jas/", false, ExpectedResult = false)]
         [TestCase("Mods/Jas", "Mods/Jas", false, ExpectedResult = true)]
-        public bool StartsWith_PrefixHasSeperator(string mainAssetName, string otherAssetName, bool allowSubfolder)
+        public bool StartsWith_PrefixHasSeparator(string mainAssetName, string otherAssetName, bool allowSubfolder)
         {
             // arrange
             mainAssetName = PathUtilities.NormalizeAssetName(mainAssetName);
