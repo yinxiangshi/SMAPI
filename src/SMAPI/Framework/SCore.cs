@@ -1327,6 +1327,7 @@ namespace StardewModdingAPI.Framework
                     rootDirectory: rootDirectory,
                     currentCulture: Thread.CurrentThread.CurrentUICulture,
                     monitor: this.Monitor,
+                    multiplayer: this.Multiplayer,
                     reflection: this.Reflection,
                     jsonHelper: this.Toolkit.JsonHelper,
                     onLoadingFirstAsset: this.InitializeBeforeFirstAssetLoaded,
