@@ -22,6 +22,9 @@ namespace StardewModdingAPI.Web.Framework.LogParsing.Models
         /// <summary>The raw log text.</summary>
         public string? RawText { get; set; }
 
+        /// <summary>Whether there are messages from multiple screens in the log.</summary>
+        public bool IsSplitScreen { get; set; }
+
         /****
         ** Log data
         ****/

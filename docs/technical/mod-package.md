@@ -412,6 +412,9 @@ The NuGet package is generated automatically in `StardewModdingAPI.ModBuildConfi
 when you compile it.
 
 ## Release notes
+## Upcoming release
+* Added `manifest.json` format validation on build (thanks to tylergibbs2!).
+
 ### 4.0.2
 Released 09 October 2022.
 

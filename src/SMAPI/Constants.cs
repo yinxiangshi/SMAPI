@@ -52,7 +52,7 @@ namespace StardewModdingAPI
         internal static int? LogScreenId { get; set; }
 
         /// <summary>SMAPI's current raw semantic version.</summary>
-        internal static string RawApiVersion = "3.17.2";
+        internal static string RawApiVersion = "3.18.0";
     }
 
     /// <summary>Contains SMAPI's constants and assumptions.</summary>
@@ -71,7 +71,7 @@ namespace StardewModdingAPI
         public static ISemanticVersion MinimumGameVersion { get; } = new GameVersion("1.5.6");
 
         /// <summary>The maximum supported version of Stardew Valley, if any.</summary>
-        public static ISemanticVersion? MaximumGameVersion { get; } = null;
+        public static ISemanticVersion? MaximumGameVersion { get; } = new GameVersion("1.5.6");
 
         /// <summary>The target game platform.</summary>
         public static GamePlatform TargetPlatform { get; } = EarlyConstants.Platform;
@@ -90,7 +90,7 @@ namespace StardewModdingAPI
                     source: null,
                     nounPhrase: $"{nameof(Constants)}.{nameof(Constants.ExecutionPath)}",
                     version: "3.14.0",
-                    severity: DeprecationLevel.Info
+                    severity: DeprecationLevel.PendingRemoval
                 );
 
                 return Constants.GamePath;

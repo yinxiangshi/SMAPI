@@ -7,7 +7,11 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
+using Newtonsoft.Json;
 using StardewModdingAPI.ModBuildConfig.Framework;
+using StardewModdingAPI.Toolkit.Framework;
+using StardewModdingAPI.Toolkit.Serialization;
+using StardewModdingAPI.Toolkit.Serialization.Models;
 using StardewModdingAPI.Toolkit.Utilities;
 
 namespace StardewModdingAPI.ModBuildConfig
@@ -75,9 +79,41 @@ namespace StardewModdingAPI.ModBuildConfig
                 this.Log.LogMessage(MessageImportance.High, $"[mod build package] Handling build with options {string.Join(", ", properties)}");
             }
 
+            // skip if nothing to do
+            // (This must be checked before the manifest validation, to allow cases like unit test projects.)
             if (!this.EnableModDeploy && !this.EnableModZip)
-                return true; // nothing to do
+                return true;
 
+            // validate the manifest file
+            IManifest manifest;
+            {
+                try
+                {
+                    string manifestPath = Path.Combine(this.ProjectDir, "manifest.json");
+                    if (!new JsonHelper().ReadJsonFileIfExists(manifestPath, out Manifest rawManifest))
+                    {
+                        this.Log.LogError("[mod build package] The mod's manifest.json file doesn't exist.");
+                        return false;
+                    }
+                    manifest = rawManifest;
+                }
+                catch (JsonReaderException ex)
+                {
+                    // log the inner exception, otherwise the message will be generic
+                    Exception exToShow = ex.InnerException ?? ex;
+                    this.Log.LogError($"[mod build package] The mod's manifest.json file isn't valid JSON: {exToShow.Message}");
+                    return false;
+                }
+
+                // validate manifest fields
+                if (!ManifestValidator.TryValidateFields(manifest, out string error))
+                {
+                    this.Log.LogError($"[mod build package] The mod's manifest.json file is invalid: {error}");
+                    return false;
+                }
+            }
+
+            // deploy files
             try
             {
                 // parse extra DLLs to bundle
@@ -101,7 +137,7 @@ namespace StardewModdingAPI.ModBuildConfig
                 // create release zip
                 if (this.EnableModZip)
                 {
-                    string zipName = this.EscapeInvalidFilenameCharacters($"{this.ModFolderName} {package.GetManifestVersion()}.zip");
+                    string zipName = this.EscapeInvalidFilenameCharacters($"{this.ModFolderName} {manifest.Version}.zip");
                     string zipPath = Path.Combine(this.ModZipPath, zipName);
 
                     this.Log.LogMessage(MessageImportance.High, $"[mod build package] Generating the release zip at {zipPath}...");

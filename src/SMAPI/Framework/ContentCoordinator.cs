@@ -129,6 +129,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="rootDirectory">The root directory to search for content.</param>
         /// <param name="currentCulture">The current culture for which to localize content.</param>
         /// <param name="monitor">Encapsulates monitoring and logging.</param>
+        /// <param name="multiplayer">The multiplayer instance whose map cache to update during asset propagation.</param>
         /// <param name="reflection">Simplifies access to private code.</param>
         /// <param name="jsonHelper">Encapsulates SMAPI's JSON file parsing.</param>
         /// <param name="onLoadingFirstAsset">A callback to invoke the first time *any* game content manager loads an asset.</param>
@@ -136,7 +137,7 @@ namespace StardewModdingAPI.Framework
         /// <param name="getFileLookup">Get a file lookup for the given directory.</param>
         /// <param name="onAssetsInvalidated">A callback to invoke when any asset names have been invalidated from the cache.</param>
         /// <param name="requestAssetOperations">Get the load/edit operations to apply to an asset by querying registered <see cref="IContentEvents.AssetRequested"/> event handlers.</param>
-        public ContentCoordinator(IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, IMonitor monitor, Reflector reflection, JsonHelper jsonHelper, Action onLoadingFirstAsset, Action<BaseContentManager, IAssetName> onAssetLoaded, Func<string, IFileLookup> getFileLookup, Action<IList<IAssetName>> onAssetsInvalidated, Func<IAssetInfo, AssetOperationGroup?> requestAssetOperations)
+        public ContentCoordinator(IServiceProvider serviceProvider, string rootDirectory, CultureInfo currentCulture, IMonitor monitor, Multiplayer multiplayer, Reflector reflection, JsonHelper jsonHelper, Action onLoadingFirstAsset, Action<BaseContentManager, IAssetName> onAssetLoaded, Func<string, IFileLookup> getFileLookup, Action<IList<IAssetName>> onAssetsInvalidated, Func<IAssetInfo, AssetOperationGroup?> requestAssetOperations)
         {
             this.GetFileLookup = getFileLookup;
             this.Monitor = monitor ?? throw new ArgumentNullException(nameof(monitor));
@@ -177,7 +178,7 @@ namespace StardewModdingAPI.Framework
             this.ContentManagers.Add(contentManagerForAssetPropagation);
 
             this.VanillaContentManager = new LocalizedContentManager(serviceProvider, rootDirectory);
-            this.CoreAssets = new CoreAssetPropagator(this.MainContentManager, contentManagerForAssetPropagation, this.Monitor, reflection, name => this.ParseAssetName(name, allowLocales: true));
+            this.CoreAssets = new CoreAssetPropagator(this.MainContentManager, contentManagerForAssetPropagation, this.Monitor, multiplayer, reflection, name => this.ParseAssetName(name, allowLocales: true));
             this.LocaleCodes = new Lazy<Dictionary<string, LocalizedContentManager.LanguageCode>>(() => this.GetLocaleCodes(customLanguages: Enumerable.Empty<ModLanguage>()));
         }
 

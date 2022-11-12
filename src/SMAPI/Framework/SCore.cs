@@ -423,8 +423,29 @@ namespace StardewModdingAPI.Framework
                     this.Monitor.Log($"  Skipped {mod.GetRelativePathWithRoot()} (folder name starts with a dot).");
                 mods = mods.Where(p => !p.IsIgnored).ToArray();
 
-                // load mods
+                // validate manifests
                 resolver.ValidateManifests(mods, Constants.ApiVersion, toolkit.GetUpdateUrl, getFileLookup: this.GetFileLookup);
+
+                // apply load order customizations
+                if (this.Settings.ModsToLoadEarly.Any() || this.Settings.ModsToLoadLate.Any())
+                {
+                    HashSet<string> installedIds = new HashSet<string>(mods.Select(p => p.Manifest.UniqueID), StringComparer.OrdinalIgnoreCase);
+
+                    string[] missingEarlyMods = this.Settings.ModsToLoadEarly.Where(id => !installedIds.Contains(id)).OrderBy(p => p, StringComparer.OrdinalIgnoreCase).ToArray();
+                    string[] missingLateMods = this.Settings.ModsToLoadLate.Where(id => !installedIds.Contains(id)).OrderBy(p => p, StringComparer.OrdinalIgnoreCase).ToArray();
+                    string[] duplicateMods = this.Settings.ModsToLoadLate.Where(id => this.Settings.ModsToLoadEarly.Contains(id)).OrderBy(p => p, StringComparer.OrdinalIgnoreCase).ToArray();
+
+                    if (missingEarlyMods.Any())
+                        this.Monitor.Log($"  The 'smapi-internal/config.json' file lists mod IDs in {nameof(this.Settings.ModsToLoadEarly)} which aren't installed: '{string.Join("', '", missingEarlyMods)}'.", LogLevel.Warn);
+                    if (missingLateMods.Any())
+                        this.Monitor.Log($"  The 'smapi-internal/config.json' file lists mod IDs in {nameof(this.Settings.ModsToLoadLate)} which aren't installed: '{string.Join("', '", missingLateMods)}'.", LogLevel.Warn);
+                    if (duplicateMods.Any())
+                        this.Monitor.Log($"  The 'smapi-internal/config.json' file lists mod IDs which are in both {nameof(this.Settings.ModsToLoadEarly)} and {nameof(this.Settings.ModsToLoadLate)}: '{string.Join("', '", duplicateMods)}'. These will be loaded early.", LogLevel.Warn);
+
+                    mods = resolver.ApplyLoadOrderOverrides(mods, this.Settings.ModsToLoadEarly, this.Settings.ModsToLoadLate);
+                }
+
+                // load mods
                 mods = resolver.ProcessDependencies(mods, modDatabase).ToArray();
                 this.LoadMods(mods, this.Toolkit.JsonHelper, this.ContentCore, modDatabase);
 
@@ -447,14 +468,17 @@ namespace StardewModdingAPI.Framework
                 this.Monitor.Log("SMAPI found problems in your game's content files which are likely to cause errors or crashes. Consider uninstalling XNB mods or reinstalling the game.", LogLevel.Error);
 
             // start SMAPI console
-            new Thread(
-                () => this.LogManager.RunConsoleInputLoop(
-                    commandManager: this.CommandManager,
-                    reloadTranslations: this.ReloadTranslations,
-                    handleInput: input => this.RawCommandQueue.Add(input),
-                    continueWhile: () => this.IsGameRunning && !this.IsExiting
-                )
-            ).Start();
+            if (this.Settings.ListenForConsoleInput)
+            {
+                new Thread(
+                    () => this.LogManager.RunConsoleInputLoop(
+                        commandManager: this.CommandManager,
+                        reloadTranslations: this.ReloadTranslations,
+                        handleInput: input => this.RawCommandQueue.Add(input),
+                        continueWhile: () => this.IsGameRunning && !this.IsExiting
+                    )
+                ).Start();
+            }
         }
 
         /// <summary>Raised after an instance finishes loading its initial content.</summary>
@@ -1327,6 +1351,7 @@ namespace StardewModdingAPI.Framework
                     rootDirectory: rootDirectory,
                     currentCulture: Thread.CurrentThread.CurrentUICulture,
                     monitor: this.Monitor,
+                    multiplayer: this.Multiplayer,
                     reflection: this.Reflection,
                     jsonHelper: this.Toolkit.JsonHelper,
                     onLoadingFirstAsset: this.InitializeBeforeFirstAssetLoaded,
@@ -1712,7 +1737,7 @@ namespace StardewModdingAPI.Framework
                             source: metadata,
                             nounPhrase: $"{nameof(IAssetEditor)}",
                             version: "3.14.0",
-                            severity: DeprecationLevel.Info,
+                            severity: DeprecationLevel.PendingRemoval,
                             logStackTrace: false
                         );
 
@@ -1725,7 +1750,7 @@ namespace StardewModdingAPI.Framework
                             source: metadata,
                             nounPhrase: $"{nameof(IAssetLoader)}",
                             version: "3.14.0",
-                            severity: DeprecationLevel.Info,
+                            severity: DeprecationLevel.PendingRemoval,
                             logStackTrace: false
                         );
 
@@ -1757,7 +1782,7 @@ namespace StardewModdingAPI.Framework
                             metadata,
                             $"using {name} without bundling it",
                             "3.14.7",
-                            DeprecationLevel.Info,
+                            DeprecationLevel.PendingRemoval,
                             logStackTrace: false
                         );
                     }
