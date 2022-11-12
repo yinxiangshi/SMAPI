@@ -162,8 +162,14 @@ namespace StardewModdingAPI.Framework.Content
                     if (prefixHasMore)
                         return false;
 
-                    // match if subfolder paths are fine (e.g. prefix 'Data/Events' with target 'Data/Events/Beach')
-                    return allowSubfolder;
+                    // match: every segment in the prefix matched and subfolders are allowed (e.g. prefix 'Data/Events' with target 'Data/Events/Beach')
+                    if (allowSubfolder)
+                        return true;
+
+                    // Special case: the prefix ends with a path separator, but subfolders aren't allowed. This case
+                    // matches if there's no further path separator in the asset name *after* the current separator.
+                    // For example, the prefix 'A/B/' matches 'A/B/C' but not 'A/B/C/D'.
+                    return pathSeparators.Contains(trimmedPrefix[^1]) && curParts.Remainder.Length == 0;
                 }
 
                 // previous segments matched exactly and both reached the end
