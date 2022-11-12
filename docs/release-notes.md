@@ -7,17 +7,19 @@
   _If needed, you can update to SMAPI 3.16.0 first and then install the latest version._
 -->
 
-## Upcoming release
+## 3.18.0
+Released 12 November 2022 for Stardew Valley 1.5.6 or later. See [release highlights](https://www.patreon.com/posts/74565278).
+
 * For players:
-  * Added config options to override the mod load order for specific mods (thanks to Shockah!).
-  * Added config option to disable console input, which may reduce CPU usage on some Linux systems.
-  * Set the max game version to 1.5.6 (since 1.6 will need a SMAPI update).
+  * You can now override the mod load order in `smapi-internal/config.json` (thanks to Shockah!).
+  * You can now disable console input in `smapi-internal/config.json`, which may reduce CPU usage on some Linux systems.
   * Fixed map edits not always applied for farmhands in multiplayer (thanks to SinZ163!).
+  * Internal changes to prepare for the upcoming Stardew Valley 1.6 and SMAPI 4.0.
 
 * For mod authors:
   * Optimized asset name comparisons (thanks to atravita!).
-  * Raised all deprecation messages to the final 'pending removal' level.
-  * **This is the last non-bugfix update before SMAPI 4.0.0, which will drop all deprecated APIs.** If you haven't [fixed deprecation warnings in your mod code](https://stardewvalleywiki.com/Modding:Migrate_to_SMAPI_4.0) (if any), you should do it soon. SMAPI 4.0.0 will release alongside the upcoming Stardew Valley 1.6.
+  * Raised all deprecation messages to the 'pending removal' level.
+  * **This is the last major update before SMAPI 4.0.0, which will drop all deprecated APIs.** If you haven't [fixed deprecation warnings in your mod code](https://stardewvalleywiki.com/Modding:Migrate_to_SMAPI_4.0) (if any), you should do it soon. SMAPI 4.0.0 will release alongside the upcoming Stardew Valley 1.6.
 
 * For the web UI:
   * The log parser now detects split-screen mode and shows which screen logged each message.
