@@ -40,6 +40,9 @@ namespace StardewModdingAPI.Metadata
         /// <summary>Writes messages to the console.</summary>
         private readonly IMonitor Monitor;
 
+        /// <summary>The multiplayer instance whose map cache to update.</summary>
+        private readonly Multiplayer Multiplayer;
+
         /// <summary>Simplifies access to private game code.</summary>
         private readonly Reflector Reflection;
 
@@ -70,13 +73,15 @@ namespace StardewModdingAPI.Metadata
         /// <param name="mainContent">The main content manager through which to reload assets.</param>
         /// <param name="disposableContent">An internal content manager used only for asset propagation.</param>
         /// <param name="monitor">Writes messages to the console.</param>
+        /// <param name="multiplayer">The multiplayer instance whose map cache to update.</param>
         /// <param name="reflection">Simplifies access to private code.</param>
         /// <param name="parseAssetName">Parse a raw asset name.</param>
-        public CoreAssetPropagator(LocalizedContentManager mainContent, GameContentManagerForAssetPropagation disposableContent, IMonitor monitor, Reflector reflection, Func<string, IAssetName> parseAssetName)
+        public CoreAssetPropagator(LocalizedContentManager mainContent, GameContentManagerForAssetPropagation disposableContent, IMonitor monitor, Multiplayer multiplayer, Reflector reflection, Func<string, IAssetName> parseAssetName)
         {
             this.MainContentManager = mainContent;
             this.DisposableContentManager = disposableContent;
             this.Monitor = monitor;
+            this.Multiplayer = multiplayer;
             this.Reflection = reflection;
             this.ParseAssetName = parseAssetName;
         }
@@ -1165,6 +1170,10 @@ namespace StardewModdingAPI.Metadata
         {
             GameLocation location = locationInfo.Location;
             Vector2? playerPos = Game1.player?.Position;
+
+            // clear multiplayer cache for farmhands
+            if (!Context.IsMainPlayer)
+                this.Multiplayer.cachedMultiplayerMaps.Remove(location.NameOrUniqueName);
 
             // reload map
             location.interiorDoors.Clear(); // prevent errors when doors try to update tiles which no longer exist
