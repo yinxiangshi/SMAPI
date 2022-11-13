@@ -18,7 +18,7 @@
     LogModInfo? errorHandler = log?.Mods.FirstOrDefault(p => p.IsCodeMod && p.Name == "Error Handler");
     bool missingErrorHandler = errorHandler is null && log?.OperatingSystem?.Contains("Android Unix", StringComparison.OrdinalIgnoreCase) != true;
     bool hasOlderErrorHandler = errorHandler?.GetParsedVersion() is not null && log?.ApiVersionParsed is not null && log.ApiVersionParsed.IsNewerThan(errorHandler.GetParsedVersion());
-    bool isPyTkCompatibilityMode = log?.ApiVersionParsed?.IsOlderThan("3.15.0") is false && log.Mods.Any(p => p.IsCodeMod && p.Name == "PyTK" && p.GetParsedVersion()?.IsOlderThan("1.24.0") is true);
+    bool isPyTkCompatibilityMode = log?.ApiVersionParsed?.IsBetween("3.15.0", "3.19.0") is true && log.Mods.Any(p => p.IsCodeMod && p.Name == "PyTK" && p.GetParsedVersion()?.IsOlderThan("1.24.0") is true);
 
     // get filters
     IDictionary<string, bool> defaultFilters = Enum
