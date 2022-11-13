@@ -248,7 +248,7 @@ else if (log?.IsValid == true)
         {
             <h2>Suggested fixes</h2>
             <ul id="fix-list">
-                @if (errorHandler is null)
+                @if (errorHandler is null && log.ApiVersionParsed?.IsNewerThan("3.8.4") is true)
                 {
                     <li class="important">You don't have the <strong>Error Handler</strong> mod installed. This automatically prevents many game or mod errors. You can <a href="https://stardewvalleywiki.com/Modding:Player_Guide#Install_SMAPI">reinstall SMAPI</a> to re-add it.</li>
                 }
