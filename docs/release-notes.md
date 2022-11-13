@@ -7,6 +7,10 @@
   _If needed, you can update to SMAPI 3.16.0 first and then install the latest version._
 -->
 
+## Upcoming release
+* For the web UI:
+  * The log parser no longer warns about missing Error Handler on Android, where it doesn't exist yet (thanks to AnotherPillow!).
+
 ## 3.18.0
 Released 12 November 2022 for Stardew Valley 1.5.6 or later. See [release highlights](https://www.patreon.com/posts/74565278).
 
