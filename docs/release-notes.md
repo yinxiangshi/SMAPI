@@ -7,6 +7,10 @@
   _If needed, you can update to SMAPI 3.16.0 first and then install the latest version._
 -->
 
+## Upcoming release for Stardew Valley 1.6
+* For players:
+  * Updated for Stardew Valley 1.6.
+
 ## Upcoming release
 * For players:
   * Added support for overriding SMAPI configuration per `Mods` folder (thanks to Shockah!).
