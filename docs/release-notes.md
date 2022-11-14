@@ -8,6 +8,9 @@
 -->
 
 ## Upcoming release
+* For players:
+  * Fixed mod texture edits sometimes cut off (thanks to atravita!).
+
 * For the web UI:
   * The log parser no longer warns about missing Error Handler on Android, where it doesn't exist yet (thanks to AnotherPillow!).
 
