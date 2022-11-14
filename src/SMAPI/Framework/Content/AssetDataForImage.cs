@@ -140,9 +140,11 @@ namespace StardewModdingAPI.Framework.Content
         /// <exception cref="InvalidOperationException">The content being read isn't an image.</exception>
         private void PatchImageImpl(Color[] sourceData, int sourceWidth, int sourceHeight, Rectangle sourceArea, Rectangle targetArea, PatchMode patchMode, int startRow = 0)
         {
-            // get texture
+            // get texture info
             Texture2D target = this.Data;
             int pixelCount = sourceArea.Width * sourceArea.Height;
+            int firstPixel = startRow * sourceArea.Width;
+            int lastPixel = firstPixel + pixelCount - 1;
 
             // validate
             if (sourceArea.X < 0 || sourceArea.Y < 0 || sourceArea.Right > sourceWidth || sourceArea.Bottom > sourceHeight)
@@ -155,36 +157,34 @@ namespace StardewModdingAPI.Framework.Content
             // shortcut: replace the entire area
             if (patchMode == PatchMode.Replace)
             {
-                target.SetData(0, targetArea, sourceData, startRow * sourceArea.Width, pixelCount);
+                target.SetData(0, targetArea, sourceData, firstPixel, pixelCount);
                 return;
             }
 
             // skip transparent pixels at the start & end (e.g. large spritesheet with a few sprites replaced)
             int startIndex = -1;
             int endIndex = -1;
+            for (int i = firstPixel; i <= lastPixel; i++)
             {
-                for (int i = startRow * sourceArea.Width; i < pixelCount; i++)
+                if (sourceData[i].A >= AssetDataForImage.MinOpacity)
                 {
-                    if (sourceData[i].A >= AssetDataForImage.MinOpacity)
-                    {
-                        startIndex = i;
-                        break;
-                    }
+                    startIndex = i;
+                    break;
                 }
-                if (startIndex == -1)
-                    return; // blank texture
-
-                for (int i = startRow * sourceArea.Width + pixelCount - 1; i >= startIndex; i--)
-                {
-                    if (sourceData[i].A >= AssetDataForImage.MinOpacity)
-                    {
-                        endIndex = i;
-                        break;
-                    }
-                }
-                if (endIndex == -1)
-                    return; // ???
             }
+            if (startIndex == -1)
+                return; // blank texture
+
+            for (int i = lastPixel; i >= startIndex; i--)
+            {
+                if (sourceData[i].A >= AssetDataForImage.MinOpacity)
+                {
+                    endIndex = i;
+                    break;
+                }
+            }
+            if (endIndex == -1)
+                return; // ???
 
             // update target rectangle
             int sourceOffset;
