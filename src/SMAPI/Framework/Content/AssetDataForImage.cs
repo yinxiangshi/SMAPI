@@ -163,7 +163,8 @@ namespace StardewModdingAPI.Framework.Content
             int startIndex = -1;
             int endIndex = -1;
             {
-                for (int i = startRow * sourceArea.Width; i < pixelCount; i++)
+                int endPixel = pixelCount + startRow * sourceArea.Width;
+                for (int i = startRow * sourceArea.Width; i < endPixel; i++)
                 {
                     if (sourceData[i].A >= AssetDataForImage.MinOpacity)
                     {
@@ -174,7 +175,7 @@ namespace StardewModdingAPI.Framework.Content
                 if (startIndex == -1)
                     return; // blank texture
 
-                for (int i = startRow * sourceArea.Width + pixelCount - 1; i >= startIndex; i--)
+                for (int i = endPixel - 1; i >= startIndex; i--)
                 {
                     if (sourceData[i].A >= AssetDataForImage.MinOpacity)
                     {
