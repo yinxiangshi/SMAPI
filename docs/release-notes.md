@@ -11,6 +11,9 @@
 * For players:
   * Updated for Stardew Valley 1.6.
 
+* For mod authors:
+  * Updated to .NET 6.
+
 ## Upcoming release
 * For players:
   * Added support for overriding SMAPI configuration per `Mods` folder (thanks to Shockah!).
