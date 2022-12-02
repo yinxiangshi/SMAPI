@@ -7,7 +7,9 @@
   _If needed, you can update to SMAPI 3.16.0 first and then install the latest version._
 -->
 
-## Upcoming release
+## 3.18.1
+Released 01 December 2022 for Stardew Valley 1.5.6 or later.
+
 * For players:
   * Fixed mod texture edits sometimes cut off (thanks to atravita!).
 
