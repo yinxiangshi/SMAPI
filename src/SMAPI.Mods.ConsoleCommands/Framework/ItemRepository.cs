@@ -104,13 +104,18 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework
                 // weapons
                 if (ShouldGet(ItemType.Weapon))
                 {
-					var weaponsData = this.TryLoad<int, string>("Data\\weapons");
-                    foreach (int id in weaponsData.Keys)
+                    Dictionary<int, string> weaponsData = this.TryLoad<int, string>("Data\\weapons");
+                    foreach (KeyValuePair<int, string> pair in weaponsData)
                     {
-                        yield return this.TryCreate(ItemType.Weapon, id, p => weaponsData[p.ID].Split('/')[8] == "4"
-                            ? new Slingshot(p.ID)
-                            : new MeleeWeapon(p.ID)
-                        );
+                        string rawFields = pair.Value;
+                        yield return this.TryCreate(ItemType.Weapon, pair.Key, p =>
+                        {
+                            string[] fields = rawFields.Split('/');
+                            bool isSlingshot = fields.Length > 8 && fields[8] == "4";
+                            return isSlingshot
+                                ? new Slingshot(p.ID)
+                                : new MeleeWeapon(p.ID);
+                        });
                     }
                 }
 
