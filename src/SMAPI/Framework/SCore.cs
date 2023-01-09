@@ -197,6 +197,8 @@ namespace StardewModdingAPI.Framework
             this.Settings = JsonConvert.DeserializeObject<SConfig>(File.ReadAllText(Constants.ApiConfigPath)) ?? throw new InvalidOperationException("The 'smapi-internal/config.json' file is missing or invalid. You can reinstall SMAPI to fix this.");
             if (File.Exists(Constants.ApiUserConfigPath))
                 JsonConvert.PopulateObject(File.ReadAllText(Constants.ApiUserConfigPath), this.Settings);
+            if (File.Exists(Constants.ApiModGroupConfigPath))
+                JsonConvert.PopulateObject(File.ReadAllText(Constants.ApiModGroupConfigPath), this.Settings);
             if (developerMode.HasValue)
                 this.Settings.OverrideDeveloperMode(developerMode.Value);
 
