@@ -12,6 +12,7 @@
   * Fixed save backups being empty in rare cases on macOS.
 
 * For mod authors:
+  * Added `DelegatingModHooks` utility for rare cases where a mod needs to override SMAPI's mod hooks in the game directly.
   * Updated to Newtonsoft.Json 13.0.2 (see [changes](https://github.com/JamesNK/Newtonsoft.Json/releases/tag/13.0.2)) and Pintail 2.2.1 (see [changes](https://github.com/Nanoray-pl/Pintail/blob/master/docs/release-notes.md#222)).
 
 ## 3.18.1
