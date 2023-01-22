@@ -7,6 +7,10 @@
   _If needed, you can update to SMAPI 3.16.0 first and then install the latest version._
 -->
 
+## Upcoming release
+* For players:
+  * Fixed `findstr` error in installer for some players.
+
 ## 3.18.2
 Released 09 January 2023 for Stardew Valley 1.5.6 or later.
 
