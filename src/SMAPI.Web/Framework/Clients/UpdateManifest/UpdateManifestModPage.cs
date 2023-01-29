@@ -1,4 +1,3 @@
-// Copyright 2022 Jamie Taylor
 using System.Collections.Generic;
 using System.Linq;
 using StardewModdingAPI.Toolkit.Framework.UpdateData;

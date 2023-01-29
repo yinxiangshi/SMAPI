@@ -1,4 +1,3 @@
-// Copyright 2022 Jamie Taylor
 using System.Collections.Generic;
 
 namespace StardewModdingAPI.Web.Framework.Clients.UpdateManifest.ResponseModels

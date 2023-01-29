@@ -1,4 +1,3 @@
-// Copyright 2022 Jamie Taylor
 using System;
 
 namespace StardewModdingAPI.Web.Framework.Clients.UpdateManifest

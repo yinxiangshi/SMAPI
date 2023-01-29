@@ -1,4 +1,3 @@
-// Copyright 2022 Jamie Taylor
 namespace StardewModdingAPI.Web.Framework.Clients.UpdateManifest
 {
     /// <summary>Metadata about a mod download in an update manifest file.</summary>
