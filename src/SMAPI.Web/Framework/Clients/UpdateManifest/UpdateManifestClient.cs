@@ -1,5 +1,6 @@
 // Copyright 2022 Jamie Taylor
 using System.Net;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Pathoschild.Http.Client;
 using StardewModdingAPI.Toolkit.Framework.UpdateData;
@@ -32,7 +33,8 @@ namespace StardewModdingAPI.Web.Framework.Clients.UpdateManifest
         {
             this.Client = new FluentClient()
                 .SetUserAgent(userAgent);
-            this.Client.Formatters.Add(new TextAsJsonMediaTypeFormatter());
+
+            this.Client.Formatters.JsonFormatter.SupportedMediaTypes.Add(new MediaTypeHeaderValue("text/plain"));
         }
 
         /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
