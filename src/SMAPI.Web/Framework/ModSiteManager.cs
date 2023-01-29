@@ -64,27 +64,26 @@ namespace StardewModdingAPI.Web.Framework
         /// <param name="allowNonStandardVersions">Whether to allow non-standard versions.</param>
         public ModInfoModel GetPageVersions(IModPage page, UpdateKey updateKey, bool allowNonStandardVersions, ChangeDescriptor? mapRemoteVersions)
         {
-            bool isManifest = updateKey.Site == ModSiteKey.UpdateManifest;
+            // get ID to show in errors
+            string displayId = page.RequireSubkey
+                ? page.Id + updateKey.Subkey
+                : page.Id;
 
-            // get base model
+            // validate
             ModInfoModel model = new();
             if (!page.IsValid)
-            {
-                model.SetError(page.Status, page.Error);
-                return model;
-            }
-            else if (!isManifest) // if this is a manifest, the 'mod page' is the JSON file
+                return model.SetError(page.Status, page.Error);
+            if (page.RequireSubkey && updateKey.Subkey is null)
+                return model.SetError(RemoteModStatus.RequiredSubkeyMissing, $"The {page.Site} mod with ID '{displayId}' requires an update subkey indicating which mod to fetch.");
+
+            // add basic info (unless it's a manifest, in which case the 'mod page' is the JSON file)
+            if (updateKey.Site != ModSiteKey.UpdateManifest)
                 model.SetBasicInfo(page.Name, page.Url);
 
             // fetch versions
             bool hasVersions = this.TryGetLatestVersions(page, updateKey.Subkey, allowNonStandardVersions, mapRemoteVersions, out ISemanticVersion? mainVersion, out ISemanticVersion? previewVersion, out string? mainModPageUrl, out string? previewModPageUrl);
             if (!hasVersions)
-            {
-                string displayId = isManifest
-                    ? page.Id + updateKey.Subkey
-                    : page.Id;
                 return model.SetError(RemoteModStatus.InvalidData, $"The {page.Site} mod with ID '{displayId}' has no valid versions.");
-            }
 
             // apply mod page info
             model.SetBasicInfo(
@@ -212,14 +211,10 @@ namespace StardewModdingAPI.Web.Framework
 
             // get versions for subkey
             if (subkey is not null)
-            {
                 TryGetVersions(out main, out preview, out mainModPageUrl, out previewModPageUrl, filter: entry => entry.download?.MatchesSubkey(subkey) == true);
-                if (mod.IsSubkeyStrict)
-                    return main != null;
-            }
 
             // fallback to non-subkey versions
-            if (main is null)
+            if (main is null && !mod.RequireSubkey)
                 TryGetVersions(out main, out preview, out mainModPageUrl, out previewModPageUrl);
             return main != null;
         }

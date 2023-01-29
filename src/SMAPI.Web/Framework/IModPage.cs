@@ -39,8 +39,8 @@ namespace StardewModdingAPI.Web.Framework
         [MemberNotNullWhen(false, nameof(IModPage.Error))]
         bool IsValid { get; }
 
-        /// <summary>Whether this mod page requires string subkey matching, in which case a subkey that isn't found will return no update instead of falling back to one without.</summary>
-        bool IsSubkeyStrict { get; }
+        /// <summary>Whether this mod page requires update subkeys and does not allow matching downloads without them.</summary>
+        bool RequireSubkey { get; }
 
 
         /*********

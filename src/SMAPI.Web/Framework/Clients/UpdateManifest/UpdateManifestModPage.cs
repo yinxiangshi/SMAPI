@@ -24,7 +24,7 @@ namespace StardewModdingAPI.Web.Framework.Clients.UpdateManifest
         public UpdateManifestModPage(string url, UpdateManifestModel manifest)
             : base(ModSiteKey.UpdateManifest, url)
         {
-            this.IsSubkeyStrict = true;
+            this.RequireSubkey = true;
             this.Mods = manifest.Mods ?? new Dictionary<string, UpdateManifestModModel>();
             this.SetInfo(name: url, url: url, version: null, downloads: this.ParseDownloads(manifest.Mods).ToArray());
         }
