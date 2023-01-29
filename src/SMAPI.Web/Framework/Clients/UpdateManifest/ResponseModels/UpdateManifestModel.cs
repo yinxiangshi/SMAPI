@@ -13,7 +13,7 @@ namespace StardewModdingAPI.Web.Framework.Clients.UpdateManifest.ResponseModels
         public string Format { get; }
 
         /// <summary>The mod info in this update manifest.</summary>
-        public IDictionary<string, UpdateManifestModModel>? Mods { get; }
+        public IDictionary<string, UpdateManifestModModel> Mods { get; }
 
 
         /*********
@@ -22,10 +22,10 @@ namespace StardewModdingAPI.Web.Framework.Clients.UpdateManifest.ResponseModels
         /// <summary>Construct an instance.</summary>
         /// <param name="format">The manifest format version.</param>
         /// <param name="mods">The mod info in this update manifest.</param>
-        public UpdateManifestModel(string format, IDictionary<string, UpdateManifestModModel> mods)
+        public UpdateManifestModel(string format, IDictionary<string, UpdateManifestModModel>? mods)
         {
             this.Format = format;
-            this.Mods = mods;
+            this.Mods = mods ?? new Dictionary<string, UpdateManifestModModel>();
         }
     }
 }

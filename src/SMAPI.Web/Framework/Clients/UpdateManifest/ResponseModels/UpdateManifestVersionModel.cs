@@ -10,11 +10,8 @@ namespace StardewModdingAPI.Web.Framework.Clients.UpdateManifest.ResponseModels
         /// <summary>The mod's semantic version.</summary>
         public string? Version { get; }
 
-        /// <summary>The URL for this version's download page (if any).</summary>
-        public string? DownloadPageUrl { get; }
-
-        /// <summary>The URL for this version's direct file download (if any).</summary>
-        public string? DownloadFileUrl { get; }
+        /// <summary>The mod page URL from which to download updates, if different from <see cref="UpdateManifestModModel.ModPageUrl"/>.</summary>
+        public string? ModPageUrl { get; }
 
 
         /*********
@@ -22,13 +19,11 @@ namespace StardewModdingAPI.Web.Framework.Clients.UpdateManifest.ResponseModels
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="version">The mod's semantic version.</param>
-        /// <param name="downloadPageUrl">This version's download page URL, if any.</param>
-        /// <param name="downloadFileUrl">This version's direct file download URL, if any.</param>
-        public UpdateManifestVersionModel(string version, string? downloadPageUrl, string? downloadFileUrl)
+        /// <param name="modPageUrl">The mod page URL from which to download updates, if different from <see cref="UpdateManifestModModel.ModPageUrl"/>.</param>
+        public UpdateManifestVersionModel(string version, string? modPageUrl)
         {
             this.Version = version;
-            this.DownloadPageUrl = downloadPageUrl;
-            this.DownloadFileUrl = downloadFileUrl;
+            this.ModPageUrl = modPageUrl;
         }
     }
 }

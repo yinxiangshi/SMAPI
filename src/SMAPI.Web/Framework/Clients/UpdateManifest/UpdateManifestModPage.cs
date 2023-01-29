@@ -26,7 +26,7 @@ namespace StardewModdingAPI.Web.Framework.Clients.UpdateManifest
             : base(ModSiteKey.UpdateManifest, url)
         {
             this.RequireSubkey = true;
-            this.Mods = manifest.Mods ?? new Dictionary<string, UpdateManifestModModel>();
+            this.Mods = manifest.Mods;
             this.SetInfo(name: url, url: url, version: null, downloads: this.ParseDownloads(manifest.Mods).ToArray());
         }
 
@@ -35,8 +35,8 @@ namespace StardewModdingAPI.Web.Framework.Clients.UpdateManifest
         /// <returns>The mod name for the given subkey, or <see langword="null"/> if this manifest does not contain the given subkey.</returns>
         public override string? GetName(string? subkey)
         {
-            return subkey is not null && this.Mods.TryGetValue(subkey.TrimStart('@'), out UpdateManifestModModel? modModel)
-                ? modModel.Name
+            return subkey is not null && this.Mods.TryGetValue(subkey.TrimStart('@'), out UpdateManifestModModel? mod)
+                ? mod.Name
                 : null;
         }
 
@@ -45,8 +45,8 @@ namespace StardewModdingAPI.Web.Framework.Clients.UpdateManifest
         /// <returns>The mod URL for the given subkey, or <see langword="null"/> if this manifest does not contain the given subkey.</returns>
         public override string? GetUrl(string? subkey)
         {
-            return subkey is not null && this.Mods.TryGetValue(subkey.TrimStart('@'), out UpdateManifestModModel? modModel)
-                ? modModel.Url
+            return subkey is not null && this.Mods.TryGetValue(subkey.TrimStart('@'), out UpdateManifestModModel? mod)
+                ? mod.ModPageUrl
                 : null;
         }
 
@@ -63,11 +63,8 @@ namespace StardewModdingAPI.Web.Framework.Clients.UpdateManifest
 
             foreach ((string modKey, UpdateManifestModModel mod) in mods)
             {
-                if (mod.Versions is null)
-                    continue;
-
                 foreach (UpdateManifestVersionModel version in mod.Versions)
-                    yield return new UpdateManifestModDownload(modKey, mod.Name ?? modKey, version.Version, version.DownloadFileUrl ?? version.DownloadPageUrl);
+                    yield return new UpdateManifestModDownload(modKey, mod.Name ?? modKey, version.Version, version.ModPageUrl);
             }
         }
 

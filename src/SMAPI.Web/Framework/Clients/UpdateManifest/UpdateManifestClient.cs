@@ -72,6 +72,17 @@ namespace StardewModdingAPI.Web.Framework.Clients.UpdateManifest
             // validate
             if (!SemanticVersion.TryParse(manifest.Format, out _))
                 return new GenericModPage(this.SiteKey, id).SetError(RemoteModStatus.InvalidData, $"The update manifest at {id} has invalid format version '{manifest.Format}'");
+            foreach ((string modKey, UpdateManifestModModel mod) in manifest.Mods)
+            {
+                if (string.IsNullOrWhiteSpace(mod.ModPageUrl))
+                {
+                    foreach (UpdateManifestVersionModel download in mod.Versions)
+                    {
+                        if (string.IsNullOrWhiteSpace(download.ModPageUrl))
+                            return new GenericModPage(this.SiteKey, id).SetError(RemoteModStatus.InvalidData, $"The update manifest at {id} is invalid (all mod downloads must have a mod page URL)");
+                    }
+                }
+            }
 
             // build model
             return new UpdateManifestModPage(id, manifest);
