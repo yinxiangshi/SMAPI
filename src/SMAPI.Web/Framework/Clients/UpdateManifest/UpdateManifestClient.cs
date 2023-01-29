@@ -1,8 +1,12 @@
 // Copyright 2022 Jamie Taylor
+
+using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Pathoschild.Http.Client;
+using StardewModdingAPI.Toolkit;
 using StardewModdingAPI.Toolkit.Framework.UpdateData;
 using StardewModdingAPI.Web.Framework.Clients.UpdateManifest.ResponseModels;
 
@@ -45,21 +49,32 @@ namespace StardewModdingAPI.Web.Framework.Clients.UpdateManifest
         }
 
         /// <inheritdoc/>
+        [SuppressMessage("ReSharper", "ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract", Justification = "This is the method which ensures the annotations are correct.")]
         public async Task<IModPage?> GetModData(string id)
         {
+            // get raw update manifest
             UpdateManifestModel? manifest;
             try
             {
                 manifest = await this.Client.GetAsync(id).As<UpdateManifestModel?>();
+                if (manifest is null)
+                    return new GenericModPage(this.SiteKey, id).SetError(RemoteModStatus.InvalidData, $"The update manifest at {id} is empty");
             }
             catch (ApiException ex) when (ex.Status == HttpStatusCode.NotFound)
             {
                 return new GenericModPage(this.SiteKey, id).SetError(RemoteModStatus.DoesNotExist, $"No update manifest found at {id}");
             }
+            catch (Exception ex)
+            {
+                return new GenericModPage(this.SiteKey, id).SetError(RemoteModStatus.InvalidData, $"The update manifest at {id} has an invalid format: {ex.Message}");
+            }
 
-            return manifest is not null
-                ? new UpdateManifestModPage(id, manifest)
-                : new GenericModPage(this.SiteKey, id).SetError(RemoteModStatus.DoesNotExist, $"The update manifest at {id} has an invalid format");
+            // validate
+            if (!SemanticVersion.TryParse(manifest.Format, out _))
+                return new GenericModPage(this.SiteKey, id).SetError(RemoteModStatus.InvalidData, $"The update manifest at {id} has invalid format version '{manifest.Format}'");
+
+            // build model
+            return new UpdateManifestModPage(id, manifest);
         }
     }
 }

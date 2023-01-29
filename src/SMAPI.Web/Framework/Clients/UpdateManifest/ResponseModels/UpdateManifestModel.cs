@@ -9,8 +9,8 @@ namespace StardewModdingAPI.Web.Framework.Clients.UpdateManifest.ResponseModels
         /*********
         ** Accessors
         *********/
-        /// <summary>The manifest format version.</summary>
-        public string? ManifestVersion { get; }
+        /// <summary>The manifest format version. This is equivalent to the SMAPI version, and is used to parse older manifests correctly if later versions of SMAPI change the expected format.</summary>
+        public string Format { get; }
 
         /// <summary>The mod info in this update manifest.</summary>
         public IDictionary<string, UpdateManifestModModel>? Mods { get; }
@@ -20,11 +20,11 @@ namespace StardewModdingAPI.Web.Framework.Clients.UpdateManifest.ResponseModels
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="manifestVersion">The manifest format version.</param>
+        /// <param name="format">The manifest format version.</param>
         /// <param name="mods">The mod info in this update manifest.</param>
-        public UpdateManifestModel(string manifestVersion, IDictionary<string, UpdateManifestModModel> mods)
+        public UpdateManifestModel(string format, IDictionary<string, UpdateManifestModModel> mods)
         {
-            this.ManifestVersion = manifestVersion;
+            this.Format = format;
             this.Mods = mods;
         }
     }
