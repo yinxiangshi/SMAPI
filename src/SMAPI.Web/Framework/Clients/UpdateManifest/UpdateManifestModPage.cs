@@ -34,7 +34,7 @@ namespace StardewModdingAPI.Web.Framework.Clients.UpdateManifest
         /// <returns>The mod name for the given subkey, or <see langword="null"/> if this manifest does not contain the given subkey.</returns>
         public override string? GetName(string? subkey)
         {
-            return subkey is not null && this.Mods.TryGetValue(subkey, out UpdateManifestModModel? modModel)
+            return subkey is not null && this.Mods.TryGetValue(subkey.TrimStart('@'), out UpdateManifestModModel? modModel)
                 ? modModel.Name
                 : null;
         }
@@ -44,7 +44,7 @@ namespace StardewModdingAPI.Web.Framework.Clients.UpdateManifest
         /// <returns>The mod URL for the given subkey, or <see langword="null"/> if this manifest does not contain the given subkey.</returns>
         public override string? GetUrl(string? subkey)
         {
-            return subkey is not null && this.Mods.TryGetValue(subkey, out UpdateManifestModModel? modModel)
+            return subkey is not null && this.Mods.TryGetValue(subkey.TrimStart('@'), out UpdateManifestModModel? modModel)
                 ? modModel.Url
                 : null;
         }

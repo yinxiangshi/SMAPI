@@ -22,7 +22,7 @@ namespace StardewModdingAPI.Web.Framework.Clients.UpdateManifest
         public UpdateManifestModDownload(string fieldName, string name, string? version, string? url)
             : base(name, null, version, url)
         {
-            this.Subkey = fieldName;
+            this.Subkey = '@' + fieldName;
         }
 
         /// <summary>Get whether the subkey matches this download.</summary>

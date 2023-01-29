@@ -59,11 +59,13 @@ namespace StardewModdingAPI.Web.Framework
 
         /// <summary>Parse version info for the given mod page info.</summary>
         /// <param name="page">The mod page info.</param>
-        /// <param name="subkey">The optional update subkey to match in available files. (If no file names or descriptions contain the subkey, it'll be ignored.)</param>
+        /// <param name="updateKey">The update key to match in available files.</param>
         /// <param name="mapRemoteVersions">The changes to apply to remote versions for update checks.</param>
         /// <param name="allowNonStandardVersions">Whether to allow non-standard versions.</param>
-        public ModInfoModel GetPageVersions(IModPage page, string? subkey, bool allowNonStandardVersions, ChangeDescriptor? mapRemoteVersions)
+        public ModInfoModel GetPageVersions(IModPage page, UpdateKey updateKey, bool allowNonStandardVersions, ChangeDescriptor? mapRemoteVersions)
         {
+            bool isManifest = updateKey.Site == ModSiteKey.UpdateManifest;
+
             // get base model
             ModInfoModel model = new();
             if (!page.IsValid)
@@ -71,23 +73,23 @@ namespace StardewModdingAPI.Web.Framework
                 model.SetError(page.Status, page.Error);
                 return model;
             }
-
-            // trim subkey in strict mode
-            if (page.IsSubkeyStrict && subkey is not null)
-            {
-                if (subkey.StartsWith('@'))
-                    subkey = subkey.Substring(1);
-            }
+            else if (!isManifest) // if this is a manifest, the 'mod page' is the JSON file
+                model.SetBasicInfo(page.Name, page.Url);
 
             // fetch versions
-            bool hasVersions = this.TryGetLatestVersions(page, subkey, allowNonStandardVersions, mapRemoteVersions, out ISemanticVersion? mainVersion, out ISemanticVersion? previewVersion, out string? mainModPageUrl, out string? previewModPageUrl);
+            bool hasVersions = this.TryGetLatestVersions(page, updateKey.Subkey, allowNonStandardVersions, mapRemoteVersions, out ISemanticVersion? mainVersion, out ISemanticVersion? previewVersion, out string? mainModPageUrl, out string? previewModPageUrl);
             if (!hasVersions)
-                return model.SetError(RemoteModStatus.InvalidData, $"The {page.Site} mod with ID '{page.Id}{subkey ?? ""}' has no valid versions.");
+            {
+                string displayId = isManifest
+                    ? page.Id + updateKey.Subkey
+                    : page.Id;
+                return model.SetError(RemoteModStatus.InvalidData, $"The {page.Site} mod with ID '{displayId}' has no valid versions.");
+            }
 
             // apply mod page info
             model.SetBasicInfo(
-                name: page.GetName(subkey) ?? page.Name,
-                url: page.GetUrl(subkey) ?? page.Url
+                name: page.GetName(updateKey.Subkey) ?? page.Name,
+                url: page.GetUrl(updateKey.Subkey) ?? page.Url
             );
 
             // return info
@@ -132,30 +134,29 @@ namespace StardewModdingAPI.Web.Framework
             preview = null;
             mainModPageUrl = null;
             previewModPageUrl = null;
+            if (mod is null)
+                return false;
 
             // parse all versions from the mod page
             IEnumerable<(IModDownload? download, ISemanticVersion? version)> GetAllVersions()
             {
-                if (mod != null)
+                ISemanticVersion? ParseAndMapVersion(string? raw)
                 {
-                    ISemanticVersion? ParseAndMapVersion(string? raw)
-                    {
-                        raw = this.NormalizeVersion(raw);
-                        return this.GetMappedVersion(raw, mapRemoteVersions, allowNonStandardVersions);
-                    }
+                    raw = this.NormalizeVersion(raw);
+                    return this.GetMappedVersion(raw, mapRemoteVersions, allowNonStandardVersions);
+                }
 
-                    // get mod version
-                    ISemanticVersion? modVersion = ParseAndMapVersion(mod.Version);
-                    if (modVersion != null)
-                        yield return (download: null, version: modVersion);
+                // get mod version
+                ISemanticVersion? modVersion = ParseAndMapVersion(mod.Version);
+                if (modVersion != null)
+                    yield return (download: null, version: modVersion);
 
-                    // get file versions
-                    foreach (IModDownload download in mod.Downloads)
-                    {
-                        ISemanticVersion? cur = ParseAndMapVersion(download.Version);
-                        if (cur != null)
-                            yield return (download, cur);
-                    }
+                // get file versions
+                foreach (IModDownload download in mod.Downloads)
+                {
+                    ISemanticVersion? cur = ParseAndMapVersion(download.Version);
+                    if (cur != null)
+                        yield return (download, cur);
                 }
             }
             var versions = GetAllVersions()
@@ -213,7 +214,7 @@ namespace StardewModdingAPI.Web.Framework
             if (subkey is not null)
             {
                 TryGetVersions(out main, out preview, out mainModPageUrl, out previewModPageUrl, filter: entry => entry.download?.MatchesSubkey(subkey) == true);
-                if (mod?.IsSubkeyStrict == true)
+                if (mod.IsSubkeyStrict)
                     return main != null;
             }
 

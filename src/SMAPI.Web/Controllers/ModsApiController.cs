@@ -301,7 +301,7 @@ namespace StardewModdingAPI.Web.Controllers
             }
 
             // get version info
-            return this.ModSites.GetPageVersions(page, updateKey.Subkey, allowNonStandardVersions, mapRemoteVersions);
+            return this.ModSites.GetPageVersions(page, updateKey, allowNonStandardVersions, mapRemoteVersions);
         }
 
         /// <summary>Get update keys based on the available mod metadata, while maintaining the precedence order.</summary>

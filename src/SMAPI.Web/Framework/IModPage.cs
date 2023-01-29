@@ -39,7 +39,7 @@ namespace StardewModdingAPI.Web.Framework
         [MemberNotNullWhen(false, nameof(IModPage.Error))]
         bool IsValid { get; }
 
-        /// <summary>Whether this mod page requires string subkey matching, in which case a subkey that isn't found will return no update instead of falling back to one without. Additionally, the leading <c>@</c> is stripped from the subkey value before searching for matches.</summary>
+        /// <summary>Whether this mod page requires string subkey matching, in which case a subkey that isn't found will return no update instead of falling back to one without.</summary>
         bool IsSubkeyStrict { get; }
 
 

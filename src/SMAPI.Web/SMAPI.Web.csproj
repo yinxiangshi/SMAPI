@@ -12,7 +12,6 @@
     <None Remove="Properties\PublishProfiles\**" />
     <None Remove="Properties\ServiceDependencies\**" />
     <Content Remove="aws-beanstalk-tools-defaults.json" />
-    <None Remove="Framework\Clients\UpdateManifest\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -48,8 +47,5 @@
     <Content Update="wwwroot\SMAPI.metadata.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Framework\Clients\UpdateManifest\" />
   </ItemGroup>
 </Project>
