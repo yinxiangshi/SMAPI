@@ -1,5 +1,5 @@
 // Copyright 2022 Jamie Taylor
-namespace StardewModdingAPI.Web.Framework.Clients.UpdateManifest
+namespace StardewModdingAPI.Web.Framework.Clients.UpdateManifest.ResponseModels
 {
     /// <summary>Data model for a Version in an update manifest.</summary>
     internal class UpdateManifestVersionModel

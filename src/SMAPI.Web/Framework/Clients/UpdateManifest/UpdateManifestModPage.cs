@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using StardewModdingAPI.Toolkit.Framework.UpdateData;
+using StardewModdingAPI.Web.Framework.Clients.UpdateManifest.ResponseModels;
 
 namespace StardewModdingAPI.Web.Framework.Clients.UpdateManifest
 {

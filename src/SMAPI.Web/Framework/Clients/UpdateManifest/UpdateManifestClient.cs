@@ -4,6 +4,7 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Pathoschild.Http.Client;
 using StardewModdingAPI.Toolkit.Framework.UpdateData;
+using StardewModdingAPI.Web.Framework.Clients.UpdateManifest.ResponseModels;
 
 namespace StardewModdingAPI.Web.Framework.Clients.UpdateManifest
 {

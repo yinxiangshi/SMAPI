@@ -1,7 +1,7 @@
 // Copyright 2022 Jamie Taylor
 using System.Collections.Generic;
 
-namespace StardewModdingAPI.Web.Framework.Clients.UpdateManifest
+namespace StardewModdingAPI.Web.Framework.Clients.UpdateManifest.ResponseModels
 {
     /// <summary>The data model for an update manifest file.</summary>
     internal class UpdateManifestModel
