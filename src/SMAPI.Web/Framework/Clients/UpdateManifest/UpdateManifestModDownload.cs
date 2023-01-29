@@ -1,27 +1,35 @@
 // Copyright 2022 Jamie Taylor
-using System;
-namespace StardewModdingAPI.Web.Framework.Clients.UpdateManifest {
+namespace StardewModdingAPI.Web.Framework.Clients.UpdateManifest
+{
     /// <summary>Metadata about a mod download in an update manifest file.</summary>
-    internal class UpdateManifestModDownload : GenericModDownload {
-        /// <summary>The subkey for this mod download</summary>
-        private readonly string subkey;
+    internal class UpdateManifestModDownload : GenericModDownload
+    {
+        /*********
+        ** Fields
+        *********/
+        /// <summary>The update subkey for this mod download.</summary>
+        private readonly string Subkey;
+
+
+        /*********
+        ** Public methods
+        *********/
         /// <summary>Construct an instance.</summary>
-        /// <param name="subkey">The subkey for this download.</param>
+        /// <param name="fieldName">The field name for this mod download in the manifest.</param>
         /// <param name="name">The mod name for this download.</param>
         /// <param name="version">The download's version.</param>
         /// <param name="url">The download's URL.</param>
-        public UpdateManifestModDownload(string subkey, string name, string? version, string? url) : base(name, null, version, url) {
-            this.subkey = subkey;
+        public UpdateManifestModDownload(string fieldName, string name, string? version, string? url)
+            : base(name, null, version, url)
+        {
+            this.Subkey = fieldName;
         }
 
-        /// <summary>
-        ///   Returns <see langword="true"/> iff the given subkey is the same as the subkey for this download.
-        /// </summary>
-        /// <param name="subkey">The subkey to match</param>
-        /// <returns><see langword="true"/> if <paramref name="subkey"/> is the same as the subkey for this download, <see langword="false"/> otherwise.</returns>
-        public override bool MatchesSubkey(string subkey) {
-            return this.subkey == subkey;
+        /// <summary>Get whether the subkey matches this download.</summary>
+        /// <param name="subkey">The update subkey to check.</param>
+        public override bool MatchesSubkey(string subkey)
+        {
+            return subkey == this.Subkey;
         }
     }
 }
-

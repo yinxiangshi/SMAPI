@@ -54,29 +54,6 @@ namespace StardewModdingAPI.Toolkit.Framework.UpdateData
         public UpdateKey(ModSiteKey site, string? id, string? subkey)
             : this(UpdateKey.GetString(site, id, subkey), site, id, subkey) { }
 
-        /// <summary>
-        ///   Split a string into two at a delimiter.  If the delimiter does not appear in the string then the second
-        ///   value of the returned tuple is null.  Both returned strings are trimmed of whitespace.
-        /// </summary>
-        /// <param name="s">The string to split.</param>
-        /// <param name="delimiter">The character on which to split.</param>
-        /// <param name="keepDelimiter">
-        ///   If <c>true</c> then the second string returned will include the delimiter character
-        ///   (provided that the string is not <c>null</c>)
-        /// </param>
-        /// <returns>
-        ///   A pair containing the string consisting of all characters in <paramref name="s"/> before the first
-        ///   occurrence of <paramref name="delimiter"/>, and a string consisting of all characters in <paramref name="s"/>
-        ///   after the first occurrence of <paramref name="delimiter"/> or <c>null</c> if the delimiter does not
-        ///   exist in s.  Both strings are trimmed of whitespace.
-        /// </returns>
-        private static (string, string?) Bifurcate(string s, char delimiter, bool keepDelimiter = false) {
-            int pos = s.IndexOf(delimiter);
-            if (pos < 0)
-                return (s.Trim(), null);
-            return (s.Substring(0, pos).Trim(), s.Substring(pos + (keepDelimiter ? 0 : 1)).Trim());
-        }
-
         /// <summary>Parse a raw update key.</summary>
         /// <param name="raw">The raw update key to parse.</param>
         public static UpdateKey Parse(string? raw)
@@ -84,14 +61,14 @@ namespace StardewModdingAPI.Toolkit.Framework.UpdateData
             if (raw is null)
                 return new UpdateKey(raw, ModSiteKey.Unknown, null, null);
             // extract site + ID
-            (string rawSite, string? id) = Bifurcate(raw, ':');
-            if (string.IsNullOrWhiteSpace(id))
+            (string rawSite, string? id) = UpdateKey.SplitTwoParts(raw, ':');
+            if (string.IsNullOrEmpty(id))
                 id = null;
 
             // extract subkey
             string? subkey = null;
             if (id != null)
-                (id, subkey) = Bifurcate(id, '@', true);
+                (id, subkey) = UpdateKey.SplitTwoParts(id, '@', true);
 
             // parse
             if (!Enum.TryParse(rawSite, true, out ModSiteKey site))
@@ -159,6 +136,24 @@ namespace StardewModdingAPI.Toolkit.Framework.UpdateData
         public static string GetString(ModSiteKey site, string? id, string? subkey = null)
         {
             return $"{site}:{id}{subkey}".Trim();
+        }
+
+
+        /*********
+        ** Private methods
+        *********/
+        /// <summary>Split a string into two parts at a delimiter and trim whitespace.</summary>
+        /// <param name="str">The string to split.</param>
+        /// <param name="delimiter">The character on which to split.</param>
+        /// <param name="keepDelimiter">Whether to include the delimiter in the second string.</param>
+        /// <returns>Returns a tuple containing the two strings, with the second value <c>null</c> if the delimiter wasn't found.</returns>
+        private static (string, string?) SplitTwoParts(string str, char delimiter, bool keepDelimiter = false)
+        {
+            int splitIndex = str.IndexOf(delimiter);
+
+            return splitIndex >= 0
+                ? (str.Substring(0, splitIndex).Trim(), str.Substring(splitIndex + (keepDelimiter ? 0 : 1)).Trim())
+                : (str.Trim(), null);
         }
     }
 }

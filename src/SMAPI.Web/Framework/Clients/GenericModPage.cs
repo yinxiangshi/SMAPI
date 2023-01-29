@@ -40,8 +40,9 @@ namespace StardewModdingAPI.Web.Framework.Clients
         [MemberNotNullWhen(true, nameof(IModPage.Name), nameof(IModPage.Url))]
         public bool IsValid => this.Status == RemoteModStatus.Ok;
 
-        /// <summary>Whether to use strict subkey matching or not.</summary>
+        /// <summary>Whether this mod page requires string subkey matching, in which case a subkey that isn't found will return no update instead of falling back to one without.</summary>
         public bool IsSubkeyStrict { get; set; } = false;
+
 
         /*********
         ** Public methods
@@ -82,17 +83,17 @@ namespace StardewModdingAPI.Web.Framework.Clients
             return this;
         }
 
-        /// <summary>Returns the mod page name.</summary>
-        /// <param name="subkey">ignored</param>
-        /// <returns>The mod page name.</returns>
-        public virtual string? GetName(string? subkey) {
+        /// <summary>Get the mod name for an update subkey, if different from the mod page name.</summary>
+        /// <param name="subkey">The update subkey.</param>
+        public virtual string? GetName(string? subkey)
+        {
             return this.Name;
         }
 
-        /// <summary>Returns the mod page URL.</summary>
-        /// <param name="subkey">ignored</param>
-        /// <returns>The mod page URL.</returns>
-        public virtual string? GetUrl(string? subkey) {
+        /// <summary>Get the mod page URL for an update subkey, if different from the mod page it was fetched from.</summary>
+        /// <param name="subkey">The update subkey.</param>
+        public virtual string? GetUrl(string? subkey)
+        {
             return this.Url;
         }
     }

@@ -64,7 +64,7 @@ namespace StardewModdingAPI.Web.Controllers
         /// <param name="github">The GitHub API client.</param>
         /// <param name="modDrop">The ModDrop API client.</param>
         /// <param name="nexus">The Nexus API client.</param>
-        /// <param name="updateManifest">The UpdateManifest client.</param>
+        /// <param name="updateManifest">The API client for arbitrary update manifest URLs.</param>
         public ModsApiController(IWebHostEnvironment environment, IWikiCacheRepository wikiCache, IModCacheRepository modCache, IOptions<ModUpdateCheckConfig> config, IChucklefishClient chucklefish, ICurseForgeClient curseForge, IGitHubClient github, IModDropClient modDrop, INexusClient nexus, IUpdateManifestClient updateManifest)
         {
             this.ModDatabase = new ModToolkit().GetModDatabase(Path.Combine(environment.WebRootPath, "SMAPI.metadata.json"));
@@ -163,9 +163,9 @@ namespace StardewModdingAPI.Web.Controllers
 
                 // if there's only a prerelease version (e.g. from GitHub), don't override the main version
                 ISemanticVersion? curMain = data.Version;
-                string? curMainUrl = data.MainVersionUrl;
                 ISemanticVersion? curPreview = data.PreviewVersion;
-                string? curPreviewUrl = data.PreviewVersionUrl;
+                string? curMainUrl = data.MainModPageUrl;
+                string? curPreviewUrl = data.PreviewModPageUrl;
                 if (curPreview == null && curMain?.IsPrerelease() == true)
                 {
                     curPreview = curMain;

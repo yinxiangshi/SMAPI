@@ -39,25 +39,19 @@ namespace StardewModdingAPI.Web.Framework
         [MemberNotNullWhen(false, nameof(IModPage.Error))]
         bool IsValid { get; }
 
-        /// <summary>
-        ///   Does this page use strict subkey matching.  Pages that use string subkey matching do not fall back
-        ///   to searching for versions without a subkey if there are no versions found when given a subkey.
-        ///   Additionally, the leading <c>@</c> is stripped from the subkey value before searching for matches.
-        /// </summary>
+        /// <summary>Whether this mod page requires string subkey matching, in which case a subkey that isn't found will return no update instead of falling back to one without. Additionally, the leading <c>@</c> is stripped from the subkey value before searching for matches.</summary>
         bool IsSubkeyStrict { get; }
+
 
         /*********
         ** Methods
         *********/
-
-        /// <summary>Get the mod name associated with the given subkey, if any.</summary>
-        /// <param name="subkey">The subkey.</param>
-        /// <returns>The mod name associated with the given subkey (if any)</returns>
+        /// <summary>Get the mod name for an update subkey, if different from the mod page name.</summary>
+        /// <param name="subkey">The update subkey.</param>
         string? GetName(string? subkey);
 
-        /// <summary>Get the URL for the mod associated with the given subkey, if any.</summary>
-        /// <param name="subkey">The subkey.</param>
-        /// <returns>The URL for the mod associated with the given subkey (if any)</returns>
+        /// <summary>Get the mod page URL for an update subkey, if different from the mod page it was fetched from.</summary>
+        /// <param name="subkey">The update subkey.</param>
         string? GetUrl(string? subkey);
 
         /// <summary>Set the fetched mod info.</summary>
