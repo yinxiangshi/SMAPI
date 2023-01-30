@@ -57,7 +57,7 @@ namespace StardewModdingAPI.Web.Framework.Clients.UpdateManifest
             {
                 manifest = await this.Client.GetAsync(id).As<UpdateManifestModel?>();
                 if (manifest is null)
-                    return new GenericModPage(this.SiteKey, id).SetError(RemoteModStatus.InvalidData, $"The update manifest at {id} is empty");
+                    return this.GetFormatError(id, "manifest can't be empty");
             }
             catch (ApiException ex) when (ex.Status == HttpStatusCode.NotFound)
             {
@@ -65,26 +65,43 @@ namespace StardewModdingAPI.Web.Framework.Clients.UpdateManifest
             }
             catch (Exception ex)
             {
-                return new GenericModPage(this.SiteKey, id).SetError(RemoteModStatus.InvalidData, $"The update manifest at {id} has an invalid format: {ex.Message}");
+                return this.GetFormatError(id, ex.Message);
             }
 
             // validate
             if (!SemanticVersion.TryParse(manifest.Format, out _))
-                return new GenericModPage(this.SiteKey, id).SetError(RemoteModStatus.InvalidData, $"The update manifest at {id} has invalid format version '{manifest.Format}'");
-            foreach ((string modKey, UpdateManifestModModel mod) in manifest.Mods)
+                return this.GetFormatError(id, $"invalid format version '{manifest.Format}'");
+            foreach (UpdateManifestModModel mod in manifest.Mods.Values)
             {
+                if (mod is null)
+                    return this.GetFormatError(id, "a mod record can't be null");
                 if (string.IsNullOrWhiteSpace(mod.ModPageUrl))
+                    return this.GetFormatError(id, $"all mods must have a {nameof(mod.ModPageUrl)} value");
+                foreach (UpdateManifestVersionModel? version in mod.Versions)
                 {
-                    foreach (UpdateManifestVersionModel download in mod.Versions)
-                    {
-                        if (string.IsNullOrWhiteSpace(download.ModPageUrl))
-                            return new GenericModPage(this.SiteKey, id).SetError(RemoteModStatus.InvalidData, $"The update manifest at {id} is invalid (all mod downloads must have a mod page URL)");
-                    }
+                    if (version is null)
+                        return this.GetFormatError(id, "a version record can't be null");
+                    if (string.IsNullOrWhiteSpace(version.Version))
+                        return this.GetFormatError(id, $"all version records must have a {nameof(version.Version)} field");
+                    if (!SemanticVersion.TryParse(version.Version, out _))
+                        return this.GetFormatError(id, $"invalid mod version '{version.Version}'");
                 }
             }
 
             // build model
             return new UpdateManifestModPage(id, manifest);
+        }
+
+
+        /*********
+        ** Private methods
+        *********/
+        /// <summary>Get a mod page instance with an error indicating the update manifest is invalid.</summary>
+        /// <param name="url">The full URL to the update manifest.</param>
+        /// <param name="reason">A human-readable reason phrase indicating why it's invalid.</param>
+        private IModPage GetFormatError(string url, string reason)
+        {
+            return new GenericModPage(this.SiteKey, url).SetError(RemoteModStatus.InvalidData, $"The update manifest at {url} is invalid ({reason})");
         }
     }
 }
