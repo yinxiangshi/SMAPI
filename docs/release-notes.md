@@ -10,6 +10,7 @@
 ## Upcoming release
 * For players:
   * Fixed `findstr` error in installer for some players.
+  * Removed `LargeAddressAware` flag on SMAPI (no longer needed since it's 64-bit now).
 
 ## 3.18.2
 Released 09 January 2023 for Stardew Valley 1.5.6 or later.
