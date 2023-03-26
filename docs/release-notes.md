@@ -9,12 +9,15 @@
 
 ## Upcoming release
 * For players:
-  * Fixed `findstr` error in installer for some players.
-  * Updated to [FluentHttpClient](https://github.com/Pathoschild/FluentHttpClient#readme) 4.3.0 (see [changes](https://github.com/Pathoschild/FluentHttpClient/blob/develop/RELEASE-NOTES.md#430)).
+  * Fixed `findstr` installer error for some players.
+  * Fixed installer error for some Linux users due to a non-portable shebang (thanks to freyacoded!).
+  * Fixed error using load order overrides when there are broken mods installed (thanks to atravita!).
   * Removed `LargeAddressAware` flag on SMAPI (no longer needed since it's 64-bit now).
+  * Improved translations. Thganks to stylemate (updated Korean)!
 
 * For mod authors:
   * Added `IsActiveForScreen()` method to `PerScreen<T>`.
+  * Updated to [FluentHttpClient](https://github.com/Pathoschild/FluentHttpClient#readme) 4.3.0 (see [changes](https://github.com/Pathoschild/FluentHttpClient/blob/develop/RELEASE-NOTES.md#430)).
 
 ## 3.18.2
 Released 09 January 2023 for Stardew Valley 1.5.6 or later.
