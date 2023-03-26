@@ -18,6 +18,7 @@
 * For mod authors:
   * Added `IsActiveForScreen()` method to `PerScreen<T>`.
   * Updated to [FluentHttpClient](https://github.com/Pathoschild/FluentHttpClient#readme) 4.3.0 (see [changes](https://github.com/Pathoschild/FluentHttpClient/blob/develop/RELEASE-NOTES.md#430)).
+  * Fixed `Context.IsWorldReady` being editable by mods.
 
 ## 3.18.2
 Released 09 January 2023 for Stardew Valley 1.5.6 or later.
