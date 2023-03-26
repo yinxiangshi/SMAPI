@@ -47,8 +47,8 @@ namespace StardewModdingApi.Installer
             yield return GetInstallPath("StardewModdingAPI.dll");
             yield return GetInstallPath("StardewModdingAPI.exe");
             yield return GetInstallPath("StardewModdingAPI.exe.config");
-            yield return GetInstallPath("StardewModdingAPI.exe.mdb");  // Linux/macOS only
-            yield return GetInstallPath("StardewModdingAPI.pdb");      // Windows only
+            yield return GetInstallPath("StardewModdingAPI.exe.mdb");  // before 3.18.4 (Linux/macOS only)
+            yield return GetInstallPath("StardewModdingAPI.pdb");      // before 3.18.4 (Windows only)
             yield return GetInstallPath("StardewModdingAPI.runtimeconfig.json");
             yield return GetInstallPath("StardewModdingAPI.xml");
             yield return GetInstallPath("smapi-internal");
