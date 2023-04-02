@@ -180,7 +180,10 @@ namespace StardewModdingAPI.Framework.ModLoading
             return mods
                 .OrderBy(mod =>
                 {
-                    string id = mod.Manifest.UniqueID;
+                    string? id = mod.Manifest?.UniqueID;
+
+                    if (id is null)
+                        return 0;
 
                     if (modIdsToLoadEarly.TryGetValue(id, out string? actualId))
                         return -int.MaxValue + Array.IndexOf(earlyArray, actualId);
