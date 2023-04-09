@@ -7,10 +7,12 @@
   _If needed, you can update to SMAPI 3.16.0 first and then install the latest version._
 -->
 
-## Upcoming release
+## 3.18.3
+Released 09 April 2023 for Stardew Valley 1.5.6 or later.
+
 * For players:
   * Fixed `findstr` installer error for some players.
-  * Fixed installer error for some Linux users due to a non-portable shebang (thanks to freyacoded!).
+  * Fixed installer error for some Linux players due to a non-portable shebang (thanks to freyacoded!).
   * Fixed error using load order overrides when there are broken mods installed (thanks to atravita!).
   * Removed `LargeAddressAware` flag on SMAPI (no longer needed since it's 64-bit now).
   * Improved translations. Thganks to stylemate (updated Korean)!
