@@ -9,6 +9,7 @@
 
 ## Upcoming release
 * For players:
+  * In multiplayer, the game/SMAPI window titles now show whether you're the main player or a farmhand.
   * Fixed logged SMAPI errors not having line numbers on Linux/macOS.
 
 ## 3.18.3
