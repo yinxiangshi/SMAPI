@@ -12,6 +12,9 @@
   * In multiplayer, the game/SMAPI window titles now show whether you're the main player or a farmhand.
   * Fixed logged SMAPI errors not having line numbers on Linux/macOS.
 
+* For mod authors:
+  * Fixed error loading a mod if it sets `"MinimumApiVersion": null` explicitly.
+
 * For SMAPI toolkit users:
   * Fixed `ModFolder` not being JSON-serializable.
 
@@ -23,7 +26,7 @@ Released 09 April 2023 for Stardew Valley 1.5.6 or later.
   * Fixed installer error for some Linux players due to a non-portable shebang (thanks to freyacoded!).
   * Fixed error using load order overrides when there are broken mods installed (thanks to atravita!).
   * Removed `LargeAddressAware` flag on SMAPI (no longer needed since it's 64-bit now).
-  * Improved translations. Thganks to stylemate (updated Korean)!
+  * Improved translations. Thanks to stylemate (updated Korean)!
 
 * For mod authors:
   * Added `IsActiveForScreen()` method to `PerScreen<T>`.
