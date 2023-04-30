@@ -12,6 +12,9 @@
   * In multiplayer, the game/SMAPI window titles now show whether you're the main player or a farmhand.
   * Fixed logged SMAPI errors not having line numbers on Linux/macOS.
 
+* For SMAPI toolkit users:
+  * Fixed `ModFolder` not being JSON-serializable.
+
 ## 3.18.3
 Released 09 April 2023 for Stardew Valley 1.5.6 or later.
 
