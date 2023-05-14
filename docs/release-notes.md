@@ -11,6 +11,7 @@
 * For players:
   * In multiplayer, the game/SMAPI window titles now show whether you're the main player or a farmhand.
   * Fixed logged SMAPI errors not having line numbers on Linux/macOS.
+  * Fixed install error if a game folder has an invalid symlink.
 
 * For mod authors:
   * Fixed error loading a mod if it sets `"MinimumApiVersion": null` explicitly.
