@@ -33,6 +33,9 @@ namespace StardewModdingApi.Installer
             "SMAPI.ErrorHandler"
         };
 
+        /// <summary>If the installer should run headless, does not ask the user for any input when true.</summary>
+        private readonly bool Headless;
+
         /// <summary>Get the absolute file or folder paths to remove when uninstalling SMAPI.</summary>
         /// <param name="installDir">The folder for Stardew Valley and SMAPI.</param>
         /// <param name="modsDir">The folder for SMAPI mods.</param>
@@ -97,10 +100,11 @@ namespace StardewModdingApi.Installer
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="bundlePath">The absolute path to the directory containing the files to copy into the game folder.</param>
-        public InteractiveInstaller(string bundlePath)
+        public InteractiveInstaller(string bundlePath, bool headless)
         {
             this.BundlePath = bundlePath;
             this.ConsoleWriter = new ColorfulConsoleWriter(EnvironmentUtility.DetectPlatform());
+            this.Headless = headless;
         }
 
         /// <summary>Run the install or uninstall script.</summary>
@@ -142,14 +146,14 @@ namespace StardewModdingApi.Installer
             if (context.IsUnix)
             {
                 this.PrintError($"This is the installer for Windows. Run the 'install on {context.Platform}.{(context.Platform == Platform.Mac ? "command" : "sh")}' file instead.");
-                Console.ReadLine();
+                this.AwaitConfirmation();
                 return;
             }
 #else
             if (context.IsWindows)
             {
                 this.PrintError($"This is the installer for Linux/macOS. Run the 'install on Windows.exe' file instead.");
-                Console.ReadLine();
+                this.AwaitConfirmation();
                 return;
             }
 #endif
@@ -163,7 +167,12 @@ namespace StardewModdingApi.Installer
             if (installArg && uninstallArg)
             {
                 this.PrintError("You can't specify both --install and --uninstall command-line flags.");
-                Console.ReadLine();
+                this.AwaitConfirmation();
+                return;
+            }
+            if (!installArg && !uninstallArg && Headless)
+            {
+                this.PrintError("Either --install or --uninstall is required when running with --headless.");
                 return;
             }
 
@@ -180,7 +189,7 @@ namespace StardewModdingApi.Installer
             ** Step 2: choose a theme (can't auto-detect on Linux/macOS)
             *********/
             MonitorColorScheme scheme = MonitorColorScheme.AutoDetect;
-            if (context.IsUnix)
+            if (context.IsUnix && !Headless)
             {
                 /****
                 ** print header
@@ -245,7 +254,7 @@ namespace StardewModdingApi.Installer
                 if (installDir == null)
                 {
                     this.PrintError("Failed finding your game path.");
-                    Console.ReadLine();
+                    this.AwaitConfirmation();
                     return;
                 }
 
@@ -262,7 +271,7 @@ namespace StardewModdingApi.Installer
             if (!File.Exists(paths.GameDllPath))
             {
                 this.PrintError("The detected game install path doesn't contain a Stardew Valley executable.");
-                Console.ReadLine();
+                this.AwaitConfirmation();
                 return;
             }
             Console.Clear();
@@ -513,7 +522,7 @@ namespace StardewModdingApi.Installer
                 );
             }
 
-            Console.ReadKey();
+            this.AwaitConfirmation();
         }
 
 
@@ -594,7 +603,7 @@ namespace StardewModdingApi.Installer
                 {
                     this.PrintError($"Oops! The installer couldn't delete {path}: [{ex.GetType().Name}] {ex.Message}.");
                     this.PrintError("Try rebooting your computer and then run the installer again. If that doesn't work, try deleting it yourself then press any key to retry.");
-                    Console.ReadKey();
+                    this.AwaitConfirmation();
                 }
             }
         }
@@ -905,6 +914,15 @@ namespace StardewModdingApi.Installer
                 "Mods" => false, // Mods folder handled separately
                 _ => true
             };
+        }
+
+        /// <summary>Await confirmation (pressing enter) from the User.</summary>
+        private void AwaitConfirmation()
+        {
+            if (!this.Headless)
+            {
+                Console.ReadLine();
+            }
         }
     }
 }
