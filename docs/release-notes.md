@@ -14,6 +14,7 @@
   * Fixed install error if a game folder has an invalid symlink.
 
 * For mod authors:
+  * Fixed `Context.HasRemotePlayers` being true when there's no farmhands connected.
   * Fixed error loading a mod if it sets `"MinimumApiVersion": null` explicitly.
 
 * For SMAPI toolkit users:
