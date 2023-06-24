@@ -4,7 +4,6 @@ using System.IO;
 using System.IO.Compression;
 using System.Reflection;
 using System.Threading;
-using System.Linq;
 
 namespace StardewModdingApi.Installer
 {
@@ -48,9 +47,8 @@ namespace StardewModdingApi.Installer
             // set up assembly resolution
             AppDomain.CurrentDomain.AssemblyResolve += Program.CurrentDomain_AssemblyResolve;
 
-            var headless = args.Contains("--headless");
             // launch installer
-            var installer = new InteractiveInstaller(bundleDir.FullName, headless);
+            var installer = new InteractiveInstaller(bundleDir.FullName);
 
             try
             {

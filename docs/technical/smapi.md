@@ -32,7 +32,7 @@ argument | purpose
 `--install` | Preselects the install action, skipping the prompt asking what the user wants to do.
 `--uninstall` | Preselects the uninstall action, skipping the prompt asking what the user wants to do.
 `--game-path "path"` | Specifies the full path to the folder containing the Stardew Valley executable, skipping automatic detection and any prompt to choose a path. If the path is not valid, the installer displays an error.
-`--headless` | Installs or Uninstalls SMAPI without any user interaction. Should only be used in scripts, tools or if you know what you're doing.
+`--no-prompt` | Don't let the installer wait for user input (e.g. for cases where it's being run by a script). If the installer is unable to continue without user input, it'll fail instead.
 
 SMAPI itself recognises five arguments, but these are meant for internal use or testing, and might
 change without warning. **On Linux/macOS**, command-line arguments won't work; see _environment
@@ -97,7 +97,7 @@ Windows](#on-windows)_ section below to create a build that retains the icon.**
    2. Run `sudo apt update` in WSL to update the package list.
    3. The rest of the instructions below should be run in WSL.
 2. Install the required software:
-   1. Install the [.NET 5 SDK](https://docs.microsoft.com/en-us/dotnet/core/install/linux-ubuntu).
+   1. Install the [.NET 5 SDK](https://docs.microsoft.com/en-us/dotnet/core/install/linux-ubuntu).  
       _For Ubuntu-based systems, you can run `lsb_release -a` to get the Ubuntu version number._
    2. [Install Steam](https://linuxconfig.org/how-to-install-steam-on-ubuntu-20-04-focal-fossa-linux).
    3. Launch `steam` and install the game like usual.
