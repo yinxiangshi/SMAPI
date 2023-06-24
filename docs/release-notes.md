@@ -7,20 +7,22 @@
   _If needed, you can update to SMAPI 3.16.0 first and then install the latest version._
 -->
 
-## Upcoming release
+## 3.18.4
+Released 24 June 2023 for Stardew Valley 1.5.6 or later.
+
 * For players:
   * In multiplayer, the game/SMAPI window titles now show whether you're the main player or a farmhand.
-  * The `test_input` console command now logs player input until the command is run again, instead of only 30 seconds.
-  * Fixed wezterm terminal support on Linux/macoS (thanks to romangraef!).
+  * The `test_input` console command now logs input until the command is run again (instead of for 30 seconds).
   * Fixed logged SMAPI errors not having line numbers on Linux/macOS.
+  * Fixed wezterm terminal support on Linux/macoS (thanks to romangraef!).
   * Fixed install error if a game folder has an invalid symlink.
 
 * For mod authors:
-  * Added `--no-prompt` command-line argument for the installer, to better support running it automatically (thanks to NyCodeGHG!).
+  * Added `--no-prompt` installer command-line argument for automated tools (thanks to NyCodeGHG!).
   * Added clearer error message when a map tilesheet has no image source (thanks to atravita!).
   * Fixed `Context.HasRemotePlayers` being true when there's no farmhands connected.
-  * Fixed error loading a mod if it sets `"MinimumApiVersion": null` explicitly.
-  * Updated Newtonsoft.Json 13.0.2 &rarr; 13.0.3 (see [changes](https://github.com/JamesNK/Newtonsoft.Json/releases/tag/13.0.3)) and Pintail 2.2.2 &rarr; 2.3.0 (see [changes](https://github.com/Nanoray-pl/Pintail/blob/master/docs/release-notes.md#230)).
+  * Fixed error loading a mod if it explicitly sets `"MinimumApiVersion": null`.
+  * Updated Newtonsoft.Json 13.0.2 → 13.0.3 (see [changes](https://github.com/JamesNK/Newtonsoft.Json/releases/tag/13.0.3)) and Pintail 2.2.2 → 2.3.0 (see [changes](https://github.com/Nanoray-pl/Pintail/blob/master/docs/release-notes.md#230)).
 
 * For SMAPI toolkit users:
   * Fixed `ModFolder` not being JSON-serializable.
