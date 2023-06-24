@@ -10,6 +10,7 @@
 ## Upcoming release
 * For players:
   * In multiplayer, the game/SMAPI window titles now show whether you're the main player or a farmhand.
+  * The `test_input` console command now logs player input until the command is run again, instead of only 30 seconds.
   * Fixed wezterm terminal support on Linux/macoS (thanks to romangraef!).
   * Fixed logged SMAPI errors not having line numbers on Linux/macOS.
   * Fixed install error if a game folder has an invalid symlink.
