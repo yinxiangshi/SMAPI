@@ -432,15 +432,13 @@ namespace StardewModdingAPI.Framework.ContentManagers
             this.Monitor.VerboseLog($"Fixing tilesheet paths for map '{relativeMapPath}' from mod '{this.ModName}'...");
             foreach (TileSheet tilesheet in map.TileSheets)
             {
-                // validate image source
-                if (string.IsNullOrWhiteSpace(tilesheet.ImageSource))
-                {
-                    throw new SContentLoadException(ContentLoadErrorType.InvalidData, $"Could not load tilesheet '{tilesheet.Id}' for mod {this.ModName} - no image source found.");
-                }
-
                 // get image source
                 tilesheet.ImageSource = this.NormalizePathSeparators(tilesheet.ImageSource);
                 string imageSource = tilesheet.ImageSource;
+
+                // validate image source
+                if (string.IsNullOrWhiteSpace(imageSource))
+                    throw new SContentLoadException(ContentLoadErrorType.InvalidData, $"{this.ModName} loaded map '{relativeMapPath}' with invalid tilesheet '{tilesheet.Id}'. This tilesheet has no image source.");
 
                 // reverse incorrect eager tilesheet path prefixing
                 if (fixEagerPathPrefixes && relativeMapFolder.Length > 0 && imageSource.StartsWith(relativeMapFolder))
