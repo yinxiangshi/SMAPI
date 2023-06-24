@@ -178,7 +178,7 @@ namespace StardewModdingApi.Installer
             if (context.IsWindows)
             {
                 this.PrintError($"This is the installer for Linux/macOS. Run the 'install on Windows.exe' file instead.");
-                this.AwaitConfirmation();
+                this.AwaitConfirmation(allowUserInput);
                 return;
             }
 #endif
