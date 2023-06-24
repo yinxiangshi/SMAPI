@@ -10,16 +10,22 @@
 ## Upcoming release
 * For players:
   * In multiplayer, the game/SMAPI window titles now show whether you're the main player or a farmhand.
+  * Fixed wezterm terminal support on Linux/macoS (thanks to romangraef!).
   * Fixed logged SMAPI errors not having line numbers on Linux/macOS.
   * Fixed install error if a game folder has an invalid symlink.
 
 * For mod authors:
+  * Added `--no-prompt` command-line argument for the installer, to better support running it automatically (thanks to NyCodeGHG!).
+  * Added clearer error message when a map tilesheet has no image source (thanks to atravita!).
   * Fixed `Context.HasRemotePlayers` being true when there's no farmhands connected.
   * Fixed error loading a mod if it sets `"MinimumApiVersion": null` explicitly.
   * Updated Newtonsoft.Json 13.0.2 &rarr; 13.0.3 (see [changes](https://github.com/JamesNK/Newtonsoft.Json/releases/tag/13.0.3)) and Pintail 2.2.2 &rarr; 2.3.0 (see [changes](https://github.com/Nanoray-pl/Pintail/blob/master/docs/release-notes.md#230)).
 
 * For SMAPI toolkit users:
   * Fixed `ModFolder` not being JSON-serializable.
+
+* For the web API:
+  * Fixed manifest schema format for the `examples` field (thanks to boneskull!).
 
 ## 3.18.3
 Released 09 April 2023 for Stardew Valley 1.5.6 or later.
