@@ -416,6 +416,9 @@ The NuGet package is generated automatically in `StardewModdingAPI.ModBuildConfi
 when you compile it.
 
 ## Release notes
+## Upcoming release
+* Replaced `.pdb` files with embedded symbols by default. This fixes logged SMAPI errors not having line numbers on Linux/macOS.
+
 ### 4.1.0
 Released 08 January 2023.
 
