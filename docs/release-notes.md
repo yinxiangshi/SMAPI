@@ -16,6 +16,7 @@
 * For mod authors:
   * Fixed `Context.HasRemotePlayers` being true when there's no farmhands connected.
   * Fixed error loading a mod if it sets `"MinimumApiVersion": null` explicitly.
+  * Updated Newtonsoft.Json 13.0.2 &rarr; 13.0.3 (see [changes](https://github.com/JamesNK/Newtonsoft.Json/releases/tag/13.0.3)) and Pintail 2.2.2 &rarr; 2.3.0 (see [changes](https://github.com/Nanoray-pl/Pintail/blob/master/docs/release-notes.md#230)).
 
 * For SMAPI toolkit users:
   * Fixed `ModFolder` not being JSON-serializable.
