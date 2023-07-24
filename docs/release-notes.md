@@ -7,6 +7,10 @@
   _If needed, you can update to SMAPI 3.16.0 first and then install the latest version._
 -->
 
+## Upcoming release
+* For players:
+  * Fixed error if you copy null fields from `smapi-internal/config.json` into `config.user.json`.
+
 ## 3.18.4
 Released 24 June 2023 for Stardew Valley 1.5.6 or later.
 
