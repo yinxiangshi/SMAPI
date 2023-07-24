@@ -11,6 +11,9 @@
 * For players:
   * Fixed error if you copy null fields from `smapi-internal/config.json` into `config.user.json`.
 
+* For the web UI:
+  * Fixed log parser summary not showing all mods if some have no description.
+
 ## 3.18.4
 Released 24 June 2023 for Stardew Valley 1.5.6 or later.
 
