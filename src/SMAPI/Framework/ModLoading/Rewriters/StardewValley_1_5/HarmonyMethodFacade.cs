@@ -11,7 +11,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_5
     /// <summary>Maps Harmony 1.x <see cref="HarmonyMethod"/> methods to Harmony 2.x to avoid breaking older mods.</summary>
     /// <remarks>This is public to support SMAPI rewriting and should never be referenced directly by mods. See <see cref="HarmonyRewriter"/> for more info.</remarks>
     [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = SuppressReasons.UsedViaRewriting)]
-    public class HarmonyMethodFacade : HarmonyMethod
+    public class HarmonyMethodFacade : HarmonyMethod, IRewriteFacade
     {
         /*********
         ** Public methods
