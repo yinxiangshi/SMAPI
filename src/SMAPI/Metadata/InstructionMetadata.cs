@@ -37,7 +37,7 @@ namespace StardewModdingAPI.Metadata
             if (rewriteMods)
             {
                 // rewrite for Stardew Valley 1.5
-                yield return new FieldReplaceRewriter()
+                yield return new ReplaceReferencesRewriter()
                     .AddField(typeof(DecoratableLocation), "furniture", typeof(GameLocation), nameof(GameLocation.furniture))
                     .AddField(typeof(Farm), "resourceClumps", typeof(GameLocation), nameof(GameLocation.resourceClumps))
                     .AddField(typeof(MineShaft), "resourceClumps", typeof(GameLocation), nameof(GameLocation.resourceClumps));

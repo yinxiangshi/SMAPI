@@ -8,7 +8,7 @@ using StardewModdingAPI.Framework.ModLoading.Framework;
 namespace StardewModdingAPI.Framework.ModLoading.Rewriters
 {
     /// <summary>Rewrites references to one field with another.</summary>
-    internal class FieldReplaceRewriter : BaseInstructionHandler
+    internal class ReplaceReferencesRewriter : BaseInstructionHandler
     {
         /*********
         ** Fields
@@ -21,7 +21,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         ** Public methods
         *********/
         /// <summary>Construct an instance.</summary>
-        public FieldReplaceRewriter()
+        public ReplaceReferencesRewriter()
             : base(defaultPhrase: "field replacement") { } // will be overridden when a field is replaced
 
         /// <summary>Add a field to replace.</summary>
@@ -29,7 +29,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         /// <param name="fromFieldName">The field name to rewrite.</param>
         /// <param name="toType">The new type which will have the field.</param>
         /// <param name="toFieldName">The new field name to reference.</param>
-        public FieldReplaceRewriter AddField(Type fromType, string fromFieldName, Type toType, string toFieldName)
+        public ReplaceReferencesRewriter AddField(Type fromType, string fromFieldName, Type toType, string toFieldName)
         {
             // validate parameters
             if (fromType == null)
