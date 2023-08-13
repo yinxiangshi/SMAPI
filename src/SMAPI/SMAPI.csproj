@@ -58,6 +58,10 @@
     <None Update="steam_appid.txt" CopyToOutputDirectory="PreserveNewest" />
 
     <Compile Include="..\SMAPI.Toolkit\Framework\LowLevelEnvironmentUtility.cs" Link="Framework\Utilities\LowLevelEnvironmentUtility.cs" />
+
+    <EmbeddedResource Include="Icon.bmp">
+      <LogicalName>Icon.bmp</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
 
   <Import Project="..\SMAPI.Internal\SMAPI.Internal.projitems" Label="Shared" />
