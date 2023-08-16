@@ -203,9 +203,14 @@ namespace StardewModdingAPI.Metadata
                         {
                             static ISet<string> GetWarpSet(GameLocation location)
                             {
-                                return new HashSet<string>(
+                                HashSet<string> ret =  new HashSet<string>(
                                     location.warps.Select(p => p.TargetName)
                                 );
+
+                                if (location.doors?.Count() is not null or 0)
+                                    foreach (var door in location.doors.Values)
+                                        ret.Add(door);
+                                return ret;
                             }
 
                             var oldWarps = GetWarpSet(location);
