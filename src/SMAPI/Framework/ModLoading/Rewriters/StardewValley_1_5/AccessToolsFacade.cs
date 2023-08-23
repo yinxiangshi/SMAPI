@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using HarmonyLib;
+using StardewModdingAPI.Framework.ModLoading.Framework;
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member: This is internal code to support rewriters and shouldn't be called directly.
 
@@ -38,6 +39,15 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_5
             return
                 AccessTools.GetDeclaredConstructors(type, searchForStatic: false)
                 ?? AccessTools.GetDeclaredConstructors(type, searchForStatic: true);
+        }
+
+
+        /*********
+        ** Private methods
+        *********/
+        private AccessToolsFacade()
+        {
+            RewriteHelper.ThrowFakeConstructorCalled();
         }
     }
 }

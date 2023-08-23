@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using StardewModdingAPI.Framework.ModLoading.Framework;
 
 #pragma warning disable CS0109 // Member does not hide an inherited member, new keyword is not required: This is deliberate to support legacy XNA Framework platforms.
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member: This is internal code to support rewriters that shouldn't be called directly.
@@ -44,7 +45,10 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_5
         /*********
         ** Private methods
         *********/
-        private SpriteBatchFacade(GraphicsDevice graphicsDevice)
-            : base(graphicsDevice) { }
+        private SpriteBatchFacade()
+            : base(null)
+        {
+            RewriteHelper.ThrowFakeConstructorCalled();
+        }
     }
 }

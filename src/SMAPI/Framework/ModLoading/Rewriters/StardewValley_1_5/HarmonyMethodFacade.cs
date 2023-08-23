@@ -29,6 +29,9 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_5
         /*********
         ** Private methods
         *********/
+        // note: we deliberately don't use RewriteHelper.ThrowFakeConstructorCalled() here, since the constructors are
+        // used via HarmonyRewriter.
+
         /// <summary>Import a method directly using the internal HarmonyMethod code.</summary>
         /// <param name="methodInfo">The method to import.</param>
         private void ImportMethodImpl(MethodInfo methodInfo)

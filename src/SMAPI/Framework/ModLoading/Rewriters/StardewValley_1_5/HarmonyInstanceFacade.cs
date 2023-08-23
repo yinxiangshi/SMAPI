@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
+using StardewModdingAPI.Framework.ModLoading.Framework;
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member: This is internal code to support rewriters and shouldn't be called directly.
 
@@ -17,11 +18,6 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_5
         /*********
         ** Public methods
         *********/
-        /// <summary>Construct an instance.</summary>
-        /// <param name="id">The unique patch identifier.</param>
-        public HarmonyInstanceFacade(string id)
-            : base(id) { }
-
         public static Harmony Create(string id)
         {
             return new Harmony(id);
@@ -54,6 +50,12 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_5
         /*********
         ** Private methods
         *********/
+        private HarmonyInstanceFacade()
+            : base(null)
+        {
+            RewriteHelper.ThrowFakeConstructorCalled();
+        }
+
         /// <summary>Get a human-readable label for the patch types being applies.</summary>
         /// <param name="prefix">The prefix method, if any.</param>
         /// <param name="postfix">The postfix method, if any.</param>
