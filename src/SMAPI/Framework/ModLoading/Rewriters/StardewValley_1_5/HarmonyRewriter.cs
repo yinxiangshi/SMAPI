@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using HarmonyLib;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -51,6 +52,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_5
         }
 
         /// <inheritdoc />
+        [SuppressMessage("ReSharper", "StringLiteralTypo", Justification = SuppressReasons.MatchesOriginal)]
         public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction)
         {
             if (this.ShouldRewrite)

@@ -10,7 +10,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_5
 {
     /// <summary>Provides <see cref="SpriteBatch"/> method signatures that can be injected into mod code for compatibility with mods written for XNA Framework before Stardew Valley 1.5.5.</summary>
     /// <remarks>This is public to support SMAPI rewriting and should never be referenced directly by mods. See remarks on <see cref="ReplaceReferencesRewriter"/> for more info.</remarks>
-    [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "Used via assembly rewriting.")]
+    [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = SuppressReasons.UsedViaRewriting)]
     public class SpriteBatchFacade : SpriteBatch
     {
         /****

@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using HarmonyLib;
+using StardewModdingAPI.Framework.ModLoading.Framework;
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member: This is internal code to support rewriters and shouldn't be called directly.
 
@@ -9,7 +10,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_5
 {
     /// <summary>Maps Harmony 1.x <see cref="HarmonyMethod"/> methods to Harmony 2.x to avoid breaking older mods.</summary>
     /// <remarks>This is public to support SMAPI rewriting and should never be referenced directly by mods. See <see cref="HarmonyRewriter"/> for more info.</remarks>
-    [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "Used via assembly rewriting.")]
+    [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = SuppressReasons.UsedViaRewriting)]
     public class HarmonyMethodFacade : HarmonyMethod
     {
         /*********
