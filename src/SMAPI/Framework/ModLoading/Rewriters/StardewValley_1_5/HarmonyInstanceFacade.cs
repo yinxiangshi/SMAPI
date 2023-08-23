@@ -5,14 +5,13 @@ using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
 
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member: This is internal code to support rewriters that shouldn't be called directly.
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member: This is internal code to support rewriters and shouldn't be called directly.
 
-namespace StardewModdingAPI.Framework.ModLoading.RewriteFacades
+namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_5
 {
-    /// <summary>Maps Harmony 1.x <code>HarmonyInstance</code> methods to Harmony 2.x's <see cref="Harmony"/> to avoid breaking older mods.</summary>
-    /// <remarks>This is public to support SMAPI rewriting and should not be referenced directly by mods.</remarks>
-    [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "Used via assembly rewriting")]
-    [SuppressMessage("ReSharper", "CS1591", Justification = "Documentation not needed for facade classes.")]
+    /// <summary>Maps Harmony 1.x <c>HarmonyInstance</c> methods to Harmony 2.x's <see cref="Harmony"/> to avoid breaking older mods.</summary>
+    /// <remarks>This is public to support SMAPI rewriting and should never be referenced directly by mods. See <see cref="HarmonyRewriter"/> for more info.</remarks>
+    [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "Used via assembly rewriting.")]
     public class HarmonyInstanceFacade : Harmony
     {
         /*********

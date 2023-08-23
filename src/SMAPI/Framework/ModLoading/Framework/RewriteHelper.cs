@@ -79,6 +79,19 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
             };
         }
 
+        /// <summary>Get the full name for a type in the Mono.Cecil format, like <c>Netcode.NetCollection`1&lt;StardewValley.Objects.Furniture&gt;</c>.</summary>
+        /// <param name="type">The type info.</param>
+        public static string GetFullCecilName(Type type)
+        {
+            if (type.IsGenericType)
+            {
+                Type[] genericTypes = type.GetGenericArguments();
+                return $"{type.Namespace}.{type.Name}<{string.Join(",", genericTypes.Select(RewriteHelper.GetFullCecilName))}>";
+            }
+
+            return $"{type.Namespace}.{type.Name}";
+        }
+
         /// <summary>Get whether a type matches a type reference.</summary>
         /// <param name="type">The defined type.</param>
         /// <param name="reference">The type reference.</param>
