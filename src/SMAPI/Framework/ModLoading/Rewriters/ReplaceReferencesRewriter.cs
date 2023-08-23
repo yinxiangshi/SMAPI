@@ -8,14 +8,44 @@ using StardewModdingAPI.Framework.ModLoading.Framework;
 
 namespace StardewModdingAPI.Framework.ModLoading.Rewriters
 {
-    /// <summary>Rewrites references to types or type members to point to a different type or member.</summary>
+    /// <summary>Rewrites references to types or type members so they point to a different type or member.</summary>
     /// <remarks>
-    ///   This supports mapping...
-    ///   <list type="bullet">
-    ///     <item>types to another type;</item>
-    ///     <item>constructors, methods, fields, and properties to their exact equivalents on another type;</item>
-    ///     <item>and fields to properties with the same type and name (either on the same or different type).</item>
-    ///   </list>
+    ///   <para>
+    ///     When a type or member was moved/renamed as-is in the game code, you can map it directly using methods like
+    ///     <see cref="MapField"/>.
+    ///   </para>
+    ///
+    ///   <para>
+    ///     Otherwise you can use <see cref="MapFacade"/> to create a 'facade' type. This is a type which subclasses
+    ///     the original type (if needed), and provides any number of members with the old signatures which internally
+    ///     call the new members.
+    ///   </para>
+    ///
+    ///   <para>
+    ///     To auto-map members to a facade type:
+    ///     <list type="bullet">
+    ///       <item>
+    ///         <strong>Field</strong>: add a public property with the old name and type. Field reads/writes will be
+    ///         auto-mapped to the property's get/set methods, if present. If a get/set method isn't present, that
+    ///         reference will be kept as-is (so you can rewrite only reads or only writes if needed).
+    ///       </item>
+    ///       <item>
+    ///         <strong>Property</strong> or <strong>Method</strong>: add a public property/method with the old name
+    ///         and signature.
+    ///       </item>
+    ///       <item>
+    ///         <strong>Constructor:</strong> add a public constructor with the old signature, <em>OR</em> a public
+    ///         static method named 'Constructor' with the old signature which returns an instance of the intended
+    ///         type. The latter avoids returning a facade instance to the calling code, which can cause errors (e.g.
+    ///         when trying to write it to the save file).</item>
+    ///     </list>
+    ///   </para>
+    ///
+    ///   <para>
+    ///     When adding a facade for a type with a required constructor, you'll need a constructor on the facade type.
+    ///     This should be private and will never be called (unless you want to rewrite references to the original
+    ///     constructors per the above).
+    ///   </para>
     /// </remarks>
     internal class ReplaceReferencesRewriter : BaseInstructionHandler
     {
@@ -193,9 +223,18 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
                 if (method.Name.StartsWith("get_") || method.Name.StartsWith("set_"))
                     continue; // handled via properties above
 
-                string fromFullName = $"{this.FormatCecilType(method.ReturnType)} {fromTypeName}::{method.Name}({this.FormatCecilParameterList(method.GetParameters())})";
+                // map method
+                {
+                    string fromFullName = $"{this.FormatCecilType(method.ReturnType)} {fromTypeName}::{method.Name}({this.FormatCecilParameterList(method.GetParameters())})";
+                    this.MapMember(fromFullName, method, "method");
+                }
 
-                this.MapMember(fromFullName, method, "method");
+                // map constructor to static methods
+                if (method.IsStatic && method.Name == "Constructor")
+                {
+                    string fromFullName = $"System.Void {fromTypeName}::.ctor({this.FormatCecilParameterList(method.GetParameters())})";
+                    this.MapMember(fromFullName, method, "method");
+                }
             }
 
             // constructors
@@ -247,6 +286,10 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
                 // method
                 case MethodInfo toMethod:
                     instruction.Operand = module.ImportReference(toMethod);
+
+                    if (instruction.OpCode == OpCodes.Newobj) // rewriting constructor to static method
+                        instruction.OpCode = OpCodes.Call;
+
                     return this.OnRewritten(fromMember, "method");
 
                 // field
