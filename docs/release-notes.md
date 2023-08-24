@@ -11,6 +11,7 @@
 * For players:
   * Fixed app icon on Linux/macOS (thanks to Datrio!).
   * Fixed error if you copy null fields from `smapi-internal/config.json` into `config.user.json`.
+  * Fixed installer creating a `null` file in its folder.
 
 * For mod authors:
   * Fixed map edits not updating NPC warp cache if door warps changed (thanks to atravita!).
