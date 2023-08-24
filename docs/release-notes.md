@@ -12,6 +12,7 @@
   * Fixed app icon on Linux/macOS (thanks to Datrio!).
   * Fixed error if you copy null fields from `smapi-internal/config.json` into `config.user.json`.
   * Fixed installer creating a `null` file in its folder.
+  * Fixed installer moving bundled mods back to their default location on update. It now correctly updates their existing folder instead.
 
 * For mod authors:
   * Updated dependencies: [Mono.Cecil](https://github.com/jbevain/cecil) 0.11.4 → 0.11.5 (see [changes](https://github.com/jbevain/cecil/releases/tag/0.11.5)).

@@ -460,22 +460,51 @@ namespace StardewModdingApi.Installer
                                 continue;
                             }
 
-                            // find target folder
+                            // get mod info
+                            string modId = sourceMod.Manifest.UniqueID;
+                            string modName = sourceMod.Manifest.Name;
+                            DirectoryInfo fromDir = sourceMod.Directory;
+
+                            // get target path
                             // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract -- avoid error if the Mods folder has invalid mods, since they're not validated yet
-                            ModFolder? targetMod = targetMods.FirstOrDefault(p => p.Manifest?.UniqueID?.Equals(sourceMod.Manifest.UniqueID, StringComparison.OrdinalIgnoreCase) == true);
-                            DirectoryInfo defaultTargetFolder = new(Path.Combine(paths.ModsPath, sourceMod.Directory.Name));
-                            DirectoryInfo targetFolder = targetMod?.Directory ?? defaultTargetFolder;
-                            this.PrintDebug(targetFolder.FullName == defaultTargetFolder.FullName
-                                ? $"   adding {sourceMod.Manifest.Name}..."
-                                : $"   adding {sourceMod.Manifest.Name} to {Path.Combine(paths.ModsDir.Name, PathUtilities.GetRelativePath(paths.ModsPath, targetFolder.FullName))}..."
-                            );
+                            ModFolder? targetMod = targetMods.FirstOrDefault(p => p.Manifest?.UniqueID?.Equals(modId, StringComparison.OrdinalIgnoreCase) == true);
+                            DirectoryInfo targetDir = new(Path.Combine(paths.ModsPath, fromDir.Name)); // replace existing folder if possible
 
-                            // remove existing folder
-                            if (targetFolder.Exists)
-                                this.InteractivelyDelete(targetFolder.FullName, allowUserInput);
+                            // if we found the mod in a custom location, replace that copy
+                            if (targetMod != null && targetMod.Directory.FullName != targetDir.FullName)
+                            {
+                                targetDir = targetMod.Directory;
+                                DirectoryInfo parentDir = targetDir.Parent!;
 
-                            // copy files
-                            this.RecursiveCopy(sourceMod.Directory, paths.ModsDir, filter: this.ShouldCopy);
+                                this.PrintDebug($"   adding {modName} to {Path.Combine(paths.ModsDir.Name, PathUtilities.GetRelativePath(paths.ModsPath, targetDir.FullName))}...");
+
+                                if (targetDir.Name != fromDir.Name)
+                                {
+                                    // in case the user does weird things like swap folder names, rename the bundled
+                                    // mod in a unique staging folder within the temporary package:
+                                    string stagingPath = Path.Combine(fromDir.Parent!.Parent!.FullName, $"renamed-mod-{fromDir.Name}");
+                                    Directory.CreateDirectory(stagingPath);
+                                    fromDir.MoveTo(
+                                        Path.Combine(stagingPath, targetDir.Name)
+                                    );
+                                }
+
+                                this.InteractivelyDelete(targetDir.FullName, allowUserInput);
+                                this.RecursiveCopy(fromDir, parentDir, filter: this.ShouldCopy);
+                            }
+
+                            // else add it to default location
+                            else
+                            {
+                                DirectoryInfo parentDir = targetDir.Parent!;
+
+                                this.PrintDebug($"   adding {modName}...");
+
+                                if (targetDir.Exists)
+                                    this.InteractivelyDelete(targetDir.FullName, allowUserInput);
+
+                                this.RecursiveCopy(fromDir, parentDir, filter: this.ShouldCopy);
+                            }
                         }
                     }
 
