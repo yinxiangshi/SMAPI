@@ -16,6 +16,7 @@
     // detect suggested fixes
     LogModInfo[] outdatedMods = log?.Mods.Where(mod => mod.HasUpdate).ToArray() ?? Array.Empty<LogModInfo>();
     LogModInfo? errorHandler = log?.Mods.FirstOrDefault(p => p.IsCodeMod && p.Name == "Error Handler");
+    bool missingErrorHandler = errorHandler is null && log?.OperatingSystem?.Contains("Android Unix", StringComparison.OrdinalIgnoreCase) != true;
     bool hasOlderErrorHandler = errorHandler?.GetParsedVersion() is not null && log?.ApiVersionParsed is not null && log.ApiVersionParsed.IsNewerThan(errorHandler.GetParsedVersion());
     bool isPyTkCompatibilityMode = log?.ApiVersionParsed?.IsOlderThan("3.15.0") is false && log.Mods.Any(p => p.IsCodeMod && p.Name == "PyTK" && p.GetParsedVersion()?.IsOlderThan("1.24.0") is true);
 
@@ -244,11 +245,11 @@ else if (log?.IsValid == true)
 @if (log?.IsValid == true)
 {
     <div id="output">
-        @if (outdatedMods.Any() || errorHandler is null || hasOlderErrorHandler || isPyTkCompatibilityMode || log.IsStrictMode)
+        @if (outdatedMods.Any() || missingErrorHandler || hasOlderErrorHandler || isPyTkCompatibilityMode || log.IsStrictMode)
         {
             <h2>Suggested fixes</h2>
             <ul id="fix-list">
-                @if (errorHandler is null && log.OperatingSystem?.Contains("Android Unix", StringComparison.OrdinalIgnoreCase) != true)
+                @if (missingErrorHandler)
                 {
                     <li class="important">You don't have the <strong>Error Handler</strong> mod installed. This automatically prevents many game or mod errors. You can <a href="https://stardewvalleywiki.com/Modding:Player_Guide#Install_SMAPI">reinstall SMAPI</a> to re-add it.</li>
                 }
