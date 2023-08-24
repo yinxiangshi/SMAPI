@@ -21,7 +21,7 @@
   <Import Project="..\..\build\common.targets" />
 
   <ItemGroup>
-    <PackageReference Include="Mono.Cecil" Version="0.11.4" />
+    <PackageReference Include="Mono.Cecil" Version="0.11.5" />
     <PackageReference Include="MonoMod.Common" Version="22.3.5.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Pathoschild.Http.FluentClient" Version="4.3.0" />

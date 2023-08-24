@@ -14,6 +14,7 @@
   * Fixed installer creating a `null` file in its folder.
 
 * For mod authors:
+  * Updated dependencies: [Mono.Cecil](https://github.com/jbevain/cecil) 0.11.4 → 0.11.5 (see [changes](https://github.com/jbevain/cecil/releases/tag/0.11.5)).
   * Fixed map edits not updating NPC warp cache if door warps changed (thanks to atravita!).
 
 * For the web UI:
