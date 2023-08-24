@@ -59,9 +59,8 @@
 
     <Compile Include="..\SMAPI.Toolkit\Framework\LowLevelEnvironmentUtility.cs" Link="Framework\Utilities\LowLevelEnvironmentUtility.cs" />
 
-    <EmbeddedResource Include="Icon.bmp">
-      <LogicalName>Icon.bmp</LogicalName>
-    </EmbeddedResource>
+    <!-- app icon on Linux/macOS -->
+    <EmbeddedResource Include="Icon.bmp" LogicalName="Icon.bmp" />
   </ItemGroup>
 
   <Import Project="..\SMAPI.Internal\SMAPI.Internal.projitems" Label="Shared" />

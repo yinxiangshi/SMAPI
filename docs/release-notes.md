@@ -9,10 +9,15 @@
 
 ## Upcoming release
 * For players:
+  * Fixed app icon on Linux/macOS (thanks to Datrio!).
   * Fixed error if you copy null fields from `smapi-internal/config.json` into `config.user.json`.
+
+* For mod authors:
+  * Fixed map edits not updating NPC warp cache if door warps changed (thanks to atravita!).
 
 * For the web UI:
   * Fixed log parser summary not showing all mods if some have no description.
+  * Fixed log parser no longer ignoring Error Handler with newer versions on Android, where it doesn't exist (thanks to AnotherPillow!).
 
 ## 3.18.4
 Released 24 June 2023 for Stardew Valley 1.5.6 or later.
