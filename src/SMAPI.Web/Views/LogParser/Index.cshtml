@@ -9,7 +9,7 @@
     ViewData["Title"] = "SMAPI log parser";
 
     // get log info
-    ParsedLog? log = Model!.ParsedLog;
+    ParsedLog? log = Model.ParsedLog;
     IDictionary<string, LogModInfo[]> contentPacks = Model.GetContentPacksByMod();
     ISet<int> screenIds = new HashSet<int>(log?.Messages.Select(p => p.ScreenId) ?? Array.Empty<int>());
 
@@ -144,7 +144,7 @@ else if (log?.IsValid == true)
 }
 
 @* save warnings *@
-@if (Model.UploadWarning != null || Model.Expiry != null)
+@if (Model.UploadWarning != null || Model.NewExpiry.HasValue)
 {
     @if (Model.UploadWarning != null)
     {
@@ -152,9 +152,21 @@ else if (log?.IsValid == true)
     }
 
     <div class="save-metadata" v-pre>
-        @if (Model.Expiry != null)
+        @if (Model.NewExpiry.HasValue)
         {
-            <text>This log will expire in @((DateTime.UtcNow - Model.Expiry.Value).Humanize()) (<a href="@(this.Url.PlainAction("Index", "LogParser", new { id = this.Model.PasteID, renew = true }))">renew</a>).</text>
+            string? oldExpiryText = Model.OldExpiry.HasValue
+                ? (DateTime.UtcNow - Model.OldExpiry.Value).Humanize()
+                : null;
+            string? newExpiryText = Model.NewExpiry.HasValue
+                ? (DateTime.UtcNow - Model.NewExpiry.Value).Humanize()
+                : null;
+
+            <text>This log will expire in </text>
+            @if (oldExpiryText != null && oldExpiryText != newExpiryText)
+            {
+                <text><s>@(oldExpiryText)</s> </text>
+            }
+            <text>@(newExpiryText) (<a href="@(this.Url.PlainAction("Index", "LogParser", new { id = this.Model.PasteID, renew = true }))">renew</a>).</text>
         }
     </div>
 }

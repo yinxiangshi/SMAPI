@@ -19,6 +19,7 @@
   * Fixed map edits not updating NPC warp cache if door warps changed (thanks to atravita!).
 
 * For the web UI:
+  * The expiry for an uploaded log/JSON file now auto-renews if it's accessed within 15 days of expiry, to allow for discussions that last longer than the default 30-day expiry.
   * Fixed log parser summary not showing all mods if some have no description.
   * Fixed log parser no longer ignoring Error Handler with newer versions on Android, where it doesn't exist (thanks to AnotherPillow!).
 
