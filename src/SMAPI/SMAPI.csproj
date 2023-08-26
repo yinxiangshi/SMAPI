@@ -59,7 +59,7 @@
 
     <Compile Include="..\SMAPI.Toolkit\Framework\LowLevelEnvironmentUtility.cs" Link="Framework\Utilities\LowLevelEnvironmentUtility.cs" />
 
-    <!-- app icon on Linux/macOS -->
+    <!-- app icon on Linux/macOS, and for some Windows users -->
     <EmbeddedResource Include="Icon.bmp" LogicalName="Icon.bmp" />
   </ItemGroup>
 

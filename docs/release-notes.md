@@ -7,21 +7,28 @@
   _If needed, you can update to SMAPI 3.16.0 first and then install the latest version._
 -->
 
-## Upcoming release
+## 3.18.5
+Released 26 August 2023 for Stardew Valley 1.5.6 or later.
+
 * For players:
-  * Fixed app icon on Linux/macOS (thanks to Datrio!).
-  * Fixed error if you copy null fields from `smapi-internal/config.json` into `config.user.json`.
-  * Fixed installer creating a `null` file in its folder.
+  * Reduced startup time when many mods are rewritten for compatibility.
+  * Fixed app icon on Linux/macOS, and for some players on Windows (thanks to Datrio!).
+  * Fixed error if you copy a null field into `config.user.json`.
+  * Fixed installer creating a "null" file in its folder.
   * Fixed installer moving bundled mods back to their default location on update. It now correctly updates their existing folder instead.
 
 * For mod authors:
-  * Updated dependencies: [Mono.Cecil](https://github.com/jbevain/cecil) 0.11.4 → 0.11.5 (see [changes](https://github.com/jbevain/cecil/releases/tag/0.11.5)).
-  * Fixed map edits not updating NPC warp cache if door warps changed (thanks to atravita!).
+  * Updated dependencies, including [Mono.Cecil](https://github.com/jbevain/cecil) 0.11.4 → 0.11.5 (see [changes](https://github.com/jbevain/cecil/releases/tag/0.11.5)).
+  * Fixed NPC warp cache not updated when a map edit changes door warps (thanks to atravita!).
 
 * For the web UI:
-  * The expiry for an uploaded log/JSON file now auto-renews if it's accessed within 15 days of expiry, to allow for discussions that last longer than the default 30-day expiry.
-  * Fixed log parser summary not showing all mods if some have no description.
-  * Fixed log parser no longer ignoring Error Handler with newer versions on Android, where it doesn't exist (thanks to AnotherPillow!).
+  * Viewing an uploaded log/JSON file within 15 days of expiry now auto-renews it, to allow for discussions that last longer than the default 30-day expiry.
+  * Fixed log parser's summary skipping mods if some have no description.
+  * Fixed log parser no longer ignoring Error Handler in newer SMAPI-on-Android versions (thanks to AnotherPillow!).
+
+* For SMAPI developers:
+  * Overhauled compatibility rewriters.  
+    _This allows simpler, more robust, and more flexible crossplatform rewrites (e.g. on Android) and prepares for the upcoming Stardew Valley 1.6. See remarks on the new `ReplaceReferencesRewriter` for more info._
 
 ## 3.18.4
 Released 24 June 2023 for Stardew Valley 1.5.6 or later.
