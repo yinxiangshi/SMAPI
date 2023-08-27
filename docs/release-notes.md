@@ -7,6 +7,10 @@
   _If needed, you can update to SMAPI 3.16.0 first and then install the latest version._
 -->
 
+## Upcoming release
+* For the web UI:
+  * Fixed uploaded log/JSON file expiry alway shown as renewed.
+
 ## 3.18.5
 Released 26 August 2023 for Stardew Valley 1.5.6 or later.
 

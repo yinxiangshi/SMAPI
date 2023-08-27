@@ -107,9 +107,12 @@ namespace StardewModdingAPI.Web.Framework.Storage
                         string content = this.GzipHelper.DecompressString(await reader.ReadToEndAsync());
 
                         // extend expiry if needed
+                        DateTimeOffset newExpiry = oldExpiry;
                         if (forceRenew || this.IsWithinAutoRenewalWindow(result.Details.LastModified))
+                        {
                             await blob.SetMetadataAsync(new Dictionary<string, string> { ["expiryRenewed"] = DateTime.UtcNow.ToString("O") }); // change the blob's last-modified date (the specific property set doesn't matter)
-                        DateTimeOffset newExpiry = this.GetExpiry(DateTimeOffset.UtcNow);
+                            newExpiry = this.GetExpiry(DateTimeOffset.UtcNow);
+                        }
 
                         // build model
                         return new StoredFileInfo(content, oldExpiry, newExpiry);
