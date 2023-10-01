@@ -8,6 +8,9 @@
 -->
 
 ## Upcoming release
+* For players:
+  * Fixed `player_add` and `list_items` console commands not including Pickled Ginger, and returning Honey instead of Wild Honey _(in Console Commands)_.
+
 * For the web UI:
   * Fixed uploaded log/JSON file expiry alway shown as renewed.
 
@@ -81,7 +84,7 @@ Released 09 January 2023 for Stardew Valley 1.5.6 or later.
 
 * For players:
   * Fixed empty save backups for some macOS players.
-  * Fixed `player_add` console command not handling custom slingshots correctly (thanks too DaLion!).
+  * Fixed `player_add` console command not handling custom slingshots correctly (thanks to DaLion!).
 
 * For mod authors:
   * Added `DelegatingModHooks` utility for mods which need to override SMAPI's mod hooks directly.
