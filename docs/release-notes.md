@@ -11,6 +11,9 @@
 * For players:
   * Fixed `player_add` and `list_items` console commands not including Pickled Ginger, and returning Honey instead of Wild Honey _(in Console Commands)_.
 
+* For mod authors:
+  * Added asset propagation for `LooseSprites/chatBox` and `LooseSprites/emojis`.
+
 * For the web UI:
   * Fixed uploaded log/JSON file expiry alway shown as renewed.
 
