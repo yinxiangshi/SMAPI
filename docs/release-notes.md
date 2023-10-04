@@ -10,6 +10,7 @@
 ## Upcoming release
 * For players:
   * Fixed `player_add` and `list_items` console commands not including Pickled Ginger, and returning Honey instead of Wild Honey _(in Console Commands)_.
+  * Fixed compatibility with SpriteMaster in SMAPI 3.18.5.
 
 * For mod authors:
   * Added asset propagation for `LooseSprites/chatBox` and `LooseSprites/emojis`.
