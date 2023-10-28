@@ -117,8 +117,9 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
             // If its not resolvable, don't rewrite
             if (fieldDefinition == null)
                 return false;
-            // If same they don't need rewriting
-            if (fieldRef.DeclaringType.FullName == fieldDefinition.DeclaringType.FullName)
+            // If same they don't need rewriting, avoidingFullName as fieldRef and fieldDefinition resolve generics differently
+            if (fieldRef.DeclaringType.Namespace == fieldDefinition.DeclaringType.Namespace &&
+                fieldRef.DeclaringType.Name == fieldDefinition.DeclaringType.Name)
                 return false;
             // If static, it is less intuitive that rewriting should happen
             if (instruction.OpCode != OpCodes.Ldfld)
