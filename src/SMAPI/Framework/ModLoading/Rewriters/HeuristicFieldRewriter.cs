@@ -38,7 +38,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
 
             // skip if not broken
             FieldDefinition? fieldDefinition = fieldRef.Resolve();
-            if (fieldDefinition?.HasConstant == false)
+            if (fieldDefinition?.HasConstant == false && fieldDefinition?.DeclaringType.FullName == fieldRef.DeclaringType.FullName)
                 return false;
 
             // rewrite if possible
@@ -46,7 +46,8 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
             bool isRead = instruction.OpCode == OpCodes.Ldsfld || instruction.OpCode == OpCodes.Ldfld;
             return
                 this.TryRewriteToProperty(module, instruction, fieldRef, declaringType, isRead)
-                || this.TryRewriteToConstField(instruction, fieldDefinition);
+                || this.TryRewriteToConstField(instruction, fieldDefinition)
+                || this.TryRewriteToInheritedField(module, instruction, fieldRef, fieldDefinition);
         }
 
 
@@ -101,6 +102,33 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
             instruction.Operand = loadInstruction.Operand;
 
             this.Phrases.Add($"{field.DeclaringType.Name}.{field.Name} (field => const)");
+            return this.MarkRewritten();
+        }
+
+        /// <summary>Try rewriting the field into an inherited field.</summary>
+        /// <param name="module"></param>
+        /// <param name="instruction"></param>
+        /// <param name="fieldRef"></param>
+        /// <param name="fieldDefinition"></param>
+        /// <returns></returns>
+
+        private bool TryRewriteToInheritedField(ModuleDefinition module, Instruction instruction, FieldReference fieldRef, FieldDefinition? fieldDefinition)
+        {
+            // If its not resolvable, don't rewrite
+            if (fieldDefinition == null)
+                return false;
+            // If same they don't need rewriting
+            if (fieldRef.DeclaringType.FullName == fieldDefinition.DeclaringType.FullName)
+                return false;
+            // If static, it is less intuitive that rewriting should happen
+            if (instruction.OpCode != OpCodes.Ldfld)
+                return false;
+
+            instruction.Operand = module.ImportReference(fieldDefinition);
+
+            fieldRef.FieldType = fieldDefinition.FieldType;
+            this.Phrases.Add($"{fieldRef.DeclaringType.Name}.{fieldRef.Name} -> {fieldDefinition.DeclaringType.Name}.{fieldRef.Name} (field => inherited field)");
+
             return this.MarkRewritten();
         }
     }
