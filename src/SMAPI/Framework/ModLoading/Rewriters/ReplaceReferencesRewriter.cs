@@ -306,8 +306,22 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         /// <inheritdoc />
         public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction)
         {
-            if (instruction.Operand is not MemberReference fromMember || !this.MemberMap.TryGetValue(fromMember.FullName, out MemberInfo? toMember))
+            if (instruction.Operand is not MemberReference fromMember)
                 return false;
+            if (!this.MemberMap.TryGetValue(fromMember.FullName, out MemberInfo? toMember))
+            {
+                if (fromMember.DeclaringType is GenericInstanceType genericType)
+                {
+                    if (!this.MemberMap.TryGetValue(fromMember.DeclaringType.GetElementType().FullName + "::" + fromMember.Name, out toMember)) {
+
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
 
             switch (toMember)
             {
@@ -318,6 +332,16 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
 
                 // method
                 case MethodInfo toMethod:
+                    if (toMethod.DeclaringType!.IsGenericTypeDefinition && fromMember.DeclaringType is GenericInstanceType generic)
+                    {
+                        Type[] arguments = generic.GenericArguments.Select(RewriteHelper.GetCSharpType).ToArray()!;
+                        foreach (var argument in arguments)
+                        {
+                            if (argument == null) return false;
+                        }
+                        toMethod = toMethod.DeclaringType?.MakeGenericType(arguments)?.GetMethod(toMethod.Name);
+                        if (toMethod == null) return false;
+                    }
                     instruction.Operand = module.ImportReference(toMethod);
 
                     if (instruction.OpCode == OpCodes.Newobj) // rewriting constructor to static method

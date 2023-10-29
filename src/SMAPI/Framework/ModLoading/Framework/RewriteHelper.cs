@@ -97,6 +97,21 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
 
             return $"{type.Namespace}.{type.Name}";
         }
+        public static Type? GetCSharpType(TypeReference type)
+        {
+            string typeName = GetReflectionName(type);
+            return Type.GetType(typeName, false);
+        }
+
+        public static string GetReflectionName(TypeReference type)
+        {
+            if (type.IsGenericInstance)
+            {
+                var genericInstance = (GenericInstanceType)type;
+                return string.Format("{0}.{1}[{2}],{3}", genericInstance.Namespace, type.Name, string.Join(",", genericInstance.GenericArguments.Select(row => "[" + GetReflectionName(row) + "]").ToArray()), type.Scope.Name);
+            }
+            return type.FullName + "," + type.Scope.Name;
+        }
 
         /// <summary>Get whether a type matches a type reference.</summary>
         /// <param name="type">The defined type.</param>
