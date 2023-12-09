@@ -12,7 +12,6 @@ using StardewModdingAPI.Toolkit.Serialization;
 using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.Network;
-using StardewValley.SDKs;
 
 namespace StardewModdingAPI.Framework
 {
@@ -103,36 +102,31 @@ namespace StardewModdingAPI.Framework
         /// <param name="client">The client to initialize.</param>
         public override Client InitClient(Client client)
         {
-            switch (client)
+            client = base.InitClient(client);
+
+            if (client is IHookableClient hookClient)
             {
-                case LidgrenClient lidgrenClient:
-                    return new SLidgrenClient(lidgrenClient.address, this.OnClientProcessingMessage, this.OnClientSendingMessage);
-
-                case GalaxyNetClient galaxyClient:
-                    return new SGalaxyNetClient(galaxyClient.lobbyId, this.OnClientProcessingMessage, this.OnClientSendingMessage);
-
-                default:
-                    this.Monitor.Log($"Unknown multiplayer client type: {client.GetType().AssemblyQualifiedName}");
-                    return client;
+                hookClient.OnProcessingMessage = this.OnClientProcessingMessage;
+                hookClient.OnSendingMessage = this.OnClientSendingMessage;
             }
+            else
+                this.Monitor.Log($"Multiplayer client type '{client.GetType().AssemblyQualifiedName}' doesn't implement {nameof(IHookableClient)}, so SMAPI is unable to hook into it. This may cause mod issues in multiplayer.");
+
+            return client;
         }
 
         /// <summary>Initialize a server before the game connects to an incoming player.</summary>
         /// <param name="server">The server to initialize.</param>
         public override Server InitServer(Server server)
         {
-            switch (server)
-            {
-                case LidgrenServer:
-                    return new SLidgrenServer(server.gameServer, this, this.OnServerProcessingMessage);
+            server = base.InitServer(server);
 
-                case GalaxyNetServer:
-                    return new SGalaxyNetServer(server.gameServer, this, this.OnServerProcessingMessage);
+            if (server is IHookableServer hookServer)
+                hookServer.OnProcessingMessage = this.OnServerProcessingMessage;
+            else
+                this.Monitor.Log($"Multiplayer server type '{server.GetType().AssemblyQualifiedName}' doesn't implement {nameof(IHookableServer)}, so SMAPI is unable to hook into it. This may cause mod issues in multiplayer.");
 
-                default:
-                    this.Monitor.Log($"Unknown multiplayer server type: {server.GetType().AssemblyQualifiedName}");
-                    return server;
-            }
+            return server;
         }
 
         /// <summary>A callback raised when sending a message as a farmhand.</summary>
