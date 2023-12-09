@@ -29,8 +29,7 @@ namespace StardewModdingApi.Installer
         /// <summary>The mod IDs which the installer should allow as bundled mods.</summary>
         private readonly string[] BundledModIDs = {
             "SMAPI.SaveBackup",
-            "SMAPI.ConsoleCommands",
-            "SMAPI.ErrorHandler"
+            "SMAPI.ConsoleCommands"
         };
 
         /// <summary>Get the absolute file or folder paths to remove when uninstalling SMAPI.</summary>

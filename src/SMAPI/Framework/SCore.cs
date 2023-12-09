@@ -154,7 +154,7 @@ namespace StardewModdingAPI.Framework
         internal static DeprecationManager DeprecationManager { get; private set; } = null!; // initialized in constructor, which happens before other code can access it
 
         /// <summary>The singleton instance.</summary>
-        /// <remarks>This is only intended for use by external code like the Error Handler mod.</remarks>
+        /// <remarks>This is only intended for use by external code.</remarks>
         internal static SCore Instance { get; private set; } = null!; // initialized in constructor, which happens before other code can access it
 
         /// <summary>The number of game update ticks which have already executed. This is similar to <see cref="Game1.ticks"/>, but incremented more consistently for every tick.</summary>
@@ -313,7 +313,6 @@ namespace StardewModdingAPI.Framework
         }
 
         /// <summary>Get the core logger and monitor on behalf of the game.</summary>
-        /// <remarks>This method is called using reflection by the ErrorHandler mod to log game errors.</remarks>
         [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = "Used via reflection")]
         public IMonitor GetMonitorForGame()
         {

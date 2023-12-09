@@ -17,7 +17,7 @@
 ##########
 # paths
 $gamePath = "C:\Program Files (x86)\Steam\steamapps\common\Stardew Valley"
-$bundleModNames = "ConsoleCommands", "ErrorHandler", "SaveBackup"
+$bundleModNames = "ConsoleCommands", "SaveBackup"
 
 # build configuration
 $buildConfig = "Release"

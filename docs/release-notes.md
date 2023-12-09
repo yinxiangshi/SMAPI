@@ -5,6 +5,7 @@
 * For players:
   * Updated for Stardew Valley 1.6.
   * Improved performance.
+  * Removed the bundled `ErrorHandler` mod (now integrated into Stardew Valley 1.6).
   * Removed support for seamlessly updating from SMAPI 2.11.3 and earlier (released in 2019).  
     _If needed, you can update to SMAPI 3.18.0 first and then install the latest version._
 

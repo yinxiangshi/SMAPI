@@ -13,7 +13,7 @@
 ##########
 # paths
 gamePath="/home/pathoschild/Stardew Valley"
-bundleModNames=("ConsoleCommands" "ErrorHandler" "SaveBackup")
+bundleModNames=("ConsoleCommands" "SaveBackup")
 
 # build configuration
 buildConfig="Release"

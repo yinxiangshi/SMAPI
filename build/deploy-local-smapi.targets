@@ -55,7 +55,7 @@ This assumes `find-game-folder.targets` has already been imported and validated.
   </Target>
 
   <!-- bundled mods -->
-  <Target Name="CopyDefaultMods" Condition="'$(MSBuildProjectName)' == 'SMAPI.Mods.ConsoleCommands' OR '$(MSBuildProjectName)' == 'SMAPI.Mods.ErrorHandler' OR '$(MSBuildProjectName)' == 'SMAPI.Mods.SaveBackup'">
+  <Target Name="CopyDefaultMods" Condition="'$(MSBuildProjectName)' == 'SMAPI.Mods.ConsoleCommands' OR '$(MSBuildProjectName)' == 'SMAPI.Mods.SaveBackup'">
     <ItemGroup>
       <TranslationFiles Include="$(TargetDir)\i18n\*.json" />
     </ItemGroup>

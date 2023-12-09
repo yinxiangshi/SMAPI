@@ -31,7 +31,6 @@ namespace StardewModdingAPI.Framework.Models
         private static readonly HashSet<string> DefaultSuppressUpdateChecks = new(StringComparer.OrdinalIgnoreCase)
         {
             "SMAPI.ConsoleCommands",
-            "SMAPI.ErrorHandler",
             "SMAPI.SaveBackup"
         };
 

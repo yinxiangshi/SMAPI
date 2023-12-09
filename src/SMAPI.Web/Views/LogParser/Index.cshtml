@@ -15,10 +15,12 @@
 
     // detect suggested fixes
     LogModInfo[] outdatedMods = log?.Mods.Where(mod => mod.HasUpdate).ToArray() ?? Array.Empty<LogModInfo>();
-    LogModInfo? errorHandler = log?.Mods.FirstOrDefault(p => p.IsCodeMod && p.Name == "Error Handler");
-    bool missingErrorHandler = errorHandler is null && log?.OperatingSystem?.Contains("Android Unix", StringComparison.OrdinalIgnoreCase) != true;
-    bool hasOlderErrorHandler = errorHandler?.GetParsedVersion() is not null && log?.ApiVersionParsed is not null && log.ApiVersionParsed.IsNewerThan(errorHandler.GetParsedVersion());
     bool isPyTkCompatibilityMode = log?.ApiVersionParsed?.IsBetween("3.15.0", "3.19.0") is true && log.Mods.Any(p => p.IsCodeMod && p.Name == "PyTK" && p.GetParsedVersion()?.IsOlderThan("1.24.0") is true);
+
+    LogModInfo? errorHandler = log?.Mods.FirstOrDefault(p => p.IsCodeMod && p.Name == "Error Handler");
+    bool errorHandlerNeeded = log?.ApiVersionParsed?.IsOlderThan("4.0.0-alpha") == true && log.OperatingSystem?.Contains("Android Unix", StringComparison.OrdinalIgnoreCase) != true;
+    bool missingErrorHandler = errorHandlerNeeded && errorHandler is null;
+    bool hasOlderErrorHandler = errorHandlerNeeded && errorHandler?.GetParsedVersion() is not null && log?.ApiVersionParsed is not null && log.ApiVersionParsed.IsNewerThan(errorHandler.GetParsedVersion());
 
     // get filters
     IDictionary<string, bool> defaultFilters = Enum

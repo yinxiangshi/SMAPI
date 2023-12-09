@@ -145,7 +145,6 @@ in future SMAPI versions.
      */
     "SuppressUpdateChecks": [
         "SMAPI.ConsoleCommands",
-        "SMAPI.ErrorHandler",
         "SMAPI.SaveBackup"
     ],
 

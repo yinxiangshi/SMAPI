@@ -52,14 +52,6 @@
      */
     "ModData": {
         /*********
-        ** Mods bundles with SMAPI
-        *********/
-        "Error Handler": {
-            "ID": "SMAPI.ErrorHandler",
-            "SuppressWarnings": "PatchesGame"
-        },
-
-        /*********
         ** Common dependencies for friendly errors
         *********/
         "Advanced Location Loader": {
@@ -141,6 +133,12 @@
             "ID": "4befde5c-731c-4853-8e4b-c5cdf946805f",
             "~ | Status": "Obsolete",
             "~ | StatusReasonPhrase": "colored chests were added in Stardew Valley 1.1."
+        },
+
+        "Error Handler": {
+            "ID": "SMAPI.ErrorHandler",
+            "~ | Status": "Obsolete",
+            "~ | StatusReasonPhrase": "its error handling was integrated into Stardew Valley 1.6."
         },
 
         "Modder Serialization Utility": {
