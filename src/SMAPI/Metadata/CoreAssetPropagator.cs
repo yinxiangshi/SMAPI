@@ -11,20 +11,6 @@ using StardewModdingAPI.Framework.Utilities;
 using StardewModdingAPI.Internal;
 using StardewValley;
 using StardewValley.Buildings;
-using StardewValley.GameData.BigCraftables;
-using StardewValley.GameData.Buildings;
-using StardewValley.GameData.Characters;
-using StardewValley.GameData.Crops;
-using StardewValley.GameData.FarmAnimals;
-using StardewValley.GameData.FloorsAndPaths;
-using StardewValley.GameData.FruitTrees;
-using StardewValley.GameData.LocationContexts;
-using StardewValley.GameData.Objects;
-using StardewValley.GameData.Pants;
-using StardewValley.GameData.Pets;
-using StardewValley.GameData.Shirts;
-using StardewValley.GameData.Tools;
-using StardewValley.GameData.Weapons;
 using StardewValley.Locations;
 using StardewValley.Pathfinding;
 using StardewValley.TerrainFeatures;
@@ -281,7 +267,7 @@ namespace StardewModdingAPI.Metadata
                 ** Content\Data
                 ****/
                 case "data/achievements": // Game1.LoadContent
-                    Game1.achievements = content.Load<Dictionary<int, string>>(key);
+                    Game1.achievements = DataLoader.Achievements(content);
                     return true;
 
                 case "data/audiochanges":
@@ -289,7 +275,7 @@ namespace StardewModdingAPI.Metadata
                     return true;
 
                 case "data/bigcraftables": // Game1.LoadContent
-                    Game1.bigCraftableData = content.Load<Dictionary<string, BigCraftableData>>(key);
+                    Game1.bigCraftableData = DataLoader.BigCraftables(content);
                     ItemRegistry.ResetCache();
                     return true;
 
@@ -298,7 +284,7 @@ namespace StardewModdingAPI.Metadata
                     return true;
 
                 case "data/buildings": // Game1.LoadContent
-                    Game1.buildingData = content.Load<Dictionary<string, BuildingData>>(key);
+                    Game1.buildingData = DataLoader.Buildings(content);
                     if (!ignoreWorld)
                     {
                         Utility.ForEachBuilding(building =>
@@ -310,7 +296,7 @@ namespace StardewModdingAPI.Metadata
                     return true;
 
                 case "data/characters": // Game1.LoadContent
-                    Game1.characterData = content.Load<Dictionary<string, CharacterData>>(key);
+                    Game1.characterData = DataLoader.Characters(content);
                     if (!ignoreWorld)
                         this.UpdateCharacterData();
                     return true;
@@ -324,25 +310,25 @@ namespace StardewModdingAPI.Metadata
                     return true;
 
                 case "data/cookingrecipes": // CraftingRecipe.InitShared
-                    CraftingRecipe.cookingRecipes = content.Load<Dictionary<string, string>>(key);
+                    CraftingRecipe.cookingRecipes = DataLoader.CookingRecipes(content);
                     return true;
 
                 case "data/craftingrecipes": // CraftingRecipe.InitShared
-                    CraftingRecipe.craftingRecipes = content.Load<Dictionary<string, string>>(key);
+                    CraftingRecipe.craftingRecipes = DataLoader.CraftingRecipes(content);
                     return true;
 
                 case "data/crops": // Game1.LoadContent
-                    Game1.cropData = content.Load<Dictionary<string, CropData>>(key);
+                    Game1.cropData = DataLoader.Crops(content);
                     return true;
 
                 case "data/farmanimals": // FarmAnimal constructor
-                    Game1.farmAnimalData = content.Load<Dictionary<string, FarmAnimalData>>(key);
+                    Game1.farmAnimalData = DataLoader.FarmAnimals(content);
                     if (!ignoreWorld)
                         this.UpdateFarmAnimalData();
                     return true;
 
                 case "data/floorsandpaths": // Game1.LoadContent
-                    Game1.floorPathData = content.Load<Dictionary<string, FloorPathData>>("Data\\FloorsAndPaths");
+                    Game1.floorPathData = DataLoader.FloorsAndPaths(content);
                     return true;
 
                 case "data/furniture": // FurnitureDataDefinition
@@ -350,7 +336,7 @@ namespace StardewModdingAPI.Metadata
                     return true;
 
                 case "data/fruittrees": // Game1.LoadContent
-                    Game1.fruitTreeData = content.Load<Dictionary<string, FruitTreeData>>("Data\\FruitTrees");
+                    Game1.fruitTreeData = DataLoader.FruitTrees(content);
                     return true;
 
                 case "data/hairdata": // Farmer.GetHairStyleMetadataFile
@@ -361,7 +347,7 @@ namespace StardewModdingAPI.Metadata
                     return true;
 
                 case "data/locationcontexts": // Game1.LoadContent
-                    Game1.locationContextData = content.Load<Dictionary<string, LocationContextData>>("Data\\LocationContexts");
+                    Game1.locationContextData = DataLoader.LocationContexts(content);
                     return true;
 
                 case "data/movies": // MovieTheater.GetMovieData
@@ -370,36 +356,36 @@ namespace StardewModdingAPI.Metadata
                     return true;
 
                 case "data/npcgifttastes": // Game1.LoadContent
-                    Game1.NPCGiftTastes = content.Load<Dictionary<string, string>>(key);
+                    Game1.NPCGiftTastes = DataLoader.NpcGiftTastes(content);
                     return true;
 
                 case "data/objects": // Game1.LoadContent
-                    Game1.objectData = content.Load<Dictionary<string, ObjectData>>(key);
+                    Game1.objectData = DataLoader.Objects(content);
                     ItemRegistry.ResetCache();
                     return true;
 
                 case "data/pants": // Game1.LoadContent
-                    Game1.pantsData = content.Load<Dictionary<string, PantsData>>(key);
+                    Game1.pantsData = DataLoader.Pants(content);
                     ItemRegistry.ResetCache();
                     return true;
 
                 case "data/pets": // Game1.LoadContent
-                    Game1.petData = content.Load<Dictionary<string, PetData>>(key);
+                    Game1.petData = DataLoader.Pets(content);
                     ItemRegistry.ResetCache();
                     return true;
 
                 case "data/shirts": // Game1.LoadContent
-                    Game1.shirtData = content.Load<Dictionary<string, ShirtData>>(key);
+                    Game1.shirtData = DataLoader.Shirts(content);
                     ItemRegistry.ResetCache();
                     return true;
 
                 case "data/tools": // Game1.LoadContent
-                    Game1.toolData = content.Load<Dictionary<string, ToolData>>(key);
+                    Game1.toolData = DataLoader.Tools(content);
                     ItemRegistry.ResetCache();
                     return true;
 
                 case "data/weapons": // Game1.LoadContent
-                    Game1.weaponData = Game1.content.Load<Dictionary<string, WeaponData>>(@"Data\Weapons");
+                    Game1.weaponData = DataLoader.Weapons(content);
                     ItemRegistry.ResetCache();
                     return true;
 

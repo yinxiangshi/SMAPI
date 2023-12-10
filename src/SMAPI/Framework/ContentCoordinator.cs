@@ -221,7 +221,7 @@ namespace StardewModdingAPI.Framework
         public void OnAdditionalLanguagesInitialized()
         {
             // update locale cache for custom languages, and load it now (since languages added later won't work)
-            var customLanguages = this.MainContentManager.Load<List<ModLanguage?>>("Data/AdditionalLanguages");
+            var customLanguages = DataLoader.AdditionalLanguages(this.MainContentManager);
             this.LocaleCodes = new Lazy<Dictionary<string, LocalizedContentManager.LanguageCode>>(() => this.GetLocaleCodes(customLanguages));
             _ = this.LocaleCodes.Value;
         }

@@ -210,7 +210,7 @@ namespace StardewModdingAPI.Mods.ConsoleCommands.Framework.Commands.Player
         {
             IDictionary<string, ModFarmType> farmTypes = new Dictionary<string, ModFarmType>(StringComparer.OrdinalIgnoreCase);
 
-            foreach (ModFarmType farmType in Game1.content.Load<List<ModFarmType>>("Data\\AdditionalFarms"))
+            foreach (ModFarmType farmType in DataLoader.AdditionalFarms(Game1.content))
             {
                 if (string.IsNullOrWhiteSpace(farmType.ID))
                     continue;
