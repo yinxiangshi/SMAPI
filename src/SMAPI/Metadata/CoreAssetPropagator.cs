@@ -14,6 +14,7 @@ using StardewValley.Buildings;
 using StardewValley.Locations;
 using StardewValley.Pathfinding;
 using StardewValley.TerrainFeatures;
+using StardewValley.Triggers;
 using StardewValley.WorldMaps;
 using xTile;
 
@@ -391,6 +392,10 @@ namespace StardewModdingAPI.Metadata
                 case "data/tools": // Game1.LoadContent
                     Game1.toolData = DataLoader.Tools(content);
                     ItemRegistry.ResetCache();
+                    return true;
+
+                case "data/triggeractions":
+                    TriggerActionManager.ResetDataCache();
                     return true;
 
                 case "data/weapons": // Game1.LoadContent
