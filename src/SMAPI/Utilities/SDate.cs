@@ -85,7 +85,6 @@ namespace StardewModdingAPI.Utilities
         /// <param name="season">The season name.</param>
         /// <param name="year">The year.</param>
         /// <exception cref="ArgumentException">One of the arguments has an invalid value (like day 35).</exception>
-        [JsonConstructor]
         public SDate(int day, Season season, int year)
             : this(day, season, year, allowDayZero: false) { }
 
