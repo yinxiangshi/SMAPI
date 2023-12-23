@@ -36,7 +36,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
             if (fieldRef != null && this.ShouldValidate(fieldRef.DeclaringType))
             {
                 FieldDefinition? target = fieldRef.Resolve();
-                if (target == null || target.HasConstant)
+                if (target == null || target.HasConstant || !RewriteHelper.HasSameNamespaceAndName(fieldRef.DeclaringType, target.DeclaringType))
                 {
                     this.MarkFlag(InstructionHandleResult.NotCompatible, $"reference to {fieldRef.DeclaringType.FullName}.{fieldRef.Name} (no such field)");
                     return false;
