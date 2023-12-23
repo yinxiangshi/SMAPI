@@ -98,6 +98,26 @@ namespace StardewModdingAPI.Framework.ModLoading.Framework
             return $"{type.Namespace}.{type.Name}";
         }
 
+        /// <summary>Get the resolved type for a Cecil type reference.</summary>
+        /// <param name="type">The type reference.</param>
+        public static Type? GetCSharpType(TypeReference type)
+        {
+            string typeName = RewriteHelper.GetReflectionName(type);
+            return Type.GetType(typeName, false);
+        }
+
+        /// <summary>Get the .NET reflection full name for a Cecil type reference.</summary>
+        /// <param name="type">The type reference.</param>
+        public static string GetReflectionName(TypeReference type)
+        {
+            if (!type.IsGenericInstance)
+                return $"{type.FullName},{type.Scope.Name}";
+
+            var genericInstance = (GenericInstanceType) type;
+            var genericArgs = genericInstance.GenericArguments.Select(row => "[" + RewriteHelper.GetReflectionName(row) + "]");
+            return $"{genericInstance.Namespace}.{type.Name}[{string.Join(",", genericArgs)}],{type.Scope.Name}";
+        }
+
         /// <summary>Get whether a type matches a type reference.</summary>
         /// <param name="type">The defined type.</param>
         /// <param name="reference">The type reference.</param>

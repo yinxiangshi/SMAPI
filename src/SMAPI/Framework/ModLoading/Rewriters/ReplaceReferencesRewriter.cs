@@ -306,9 +306,27 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         /// <inheritdoc />
         public override bool Handle(ModuleDefinition module, ILProcessor cil, Instruction instruction)
         {
-            if (instruction.Operand is not MemberReference fromMember || !this.MemberMap.TryGetValue(fromMember.FullName, out MemberInfo? toMember))
+            if (instruction.Operand is not MemberReference fromMember)
                 return false;
 
+            // get target member
+            if (!this.MemberMap.TryGetValue(fromMember.FullName, out MemberInfo? toMember))
+            {
+                // If this is a generic type, there's two cases where the above might not match:
+                //   1. we mapped an open generic type like "Netcode.NetFieldBase`2::op_Implicit" without specific
+                //      generic types;
+                //   2. or due to Cecil's odd generic type handling, which can result in type names like
+                //      "Netcode.NetFieldBase`2<!0,!1>".
+                //
+                // In either case, we can check for a mapping registered using the simple generic name like
+                // "Netcode.NetFieldBase`2" (without type args) by using `GetElementType().FullName` instead.
+                if (fromMember.DeclaringType is not GenericInstanceType)
+                    return false;
+                if (!this.MemberMap.TryGetValue($"{fromMember.DeclaringType.GetElementType().FullName}::{fromMember.Name}", out toMember))
+                    return false;
+            }
+
+            // apply
             switch (toMember)
             {
                 // constructor
@@ -318,6 +336,24 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
 
                 // method
                 case MethodInfo toMethod:
+                    // resolve generic method to a specific implementation
+                    if (toMethod.DeclaringType?.IsGenericTypeDefinition is true && fromMember.DeclaringType is GenericInstanceType generic)
+                    {
+                        Type?[] arguments = generic.GenericArguments.Select(RewriteHelper.GetCSharpType).ToArray();
+                        foreach (Type? argument in arguments)
+                        {
+                            if (argument is null)
+                                return false;
+                        }
+
+                        MethodInfo? newMethod = toMethod.DeclaringType.MakeGenericType(arguments!)?.GetMethod(toMethod.Name);
+                        if (newMethod is null)
+                            return false;
+
+                        toMethod = newMethod;
+                    }
+
+                    // rewrite
                     instruction.Operand = module.ImportReference(toMethod);
 
                     if (instruction.OpCode == OpCodes.Newobj) // rewriting constructor to static method
