@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using StardewModdingAPI.Framework.Logging;
 using StardewModdingAPI.Internal.ConsoleWriting;
 
@@ -25,7 +26,7 @@ namespace StardewModdingAPI.Framework
         private static readonly int MaxLevelLength = Enum.GetValues<LogLevel>().Max(level => level.ToString().Length);
 
         /// <summary>The cached representation for each level when added to a log header.</summary>
-        private static readonly Dictionary<ConsoleLogLevel, string> LogStrings = Enum.GetValues<ConsoleLogLevel>().ToDictionary(level => level, level => level.ToString().ToUpper().PadRight(Monitor.MaxLevelLength));
+        private static readonly Dictionary<ConsoleLogLevel, string> LogStrings = Enum.GetValues<ConsoleLogLevel>().ToDictionary(level => level, level => level.ToString().ToUpperInvariant().PadRight(Monitor.MaxLevelLength));
 
         /// <summary>A cache of messages that should only be logged once.</summary>
         private readonly HashSet<LogOnceCacheKey> LogOnceCache = new();
@@ -91,6 +92,13 @@ namespace StardewModdingAPI.Framework
         {
             if (this.IsVerbose)
                 this.Log(message);
+        }
+
+        /// <inheritdoc />
+        public void VerboseLog([InterpolatedStringHandlerArgument("")] ref VerboseLogStringHandler message)
+        {
+            if (this.IsVerbose)
+                this.Log(message.ToString());
         }
 
         /// <summary>Write a newline to the console and log file.</summary>
