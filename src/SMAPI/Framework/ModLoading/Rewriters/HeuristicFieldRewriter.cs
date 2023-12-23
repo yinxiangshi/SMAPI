@@ -105,31 +105,30 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
             return this.MarkRewritten();
         }
 
-        /// <summary>Try rewriting the field into an inherited field.</summary>
-        /// <param name="module"></param>
-        /// <param name="instruction"></param>
-        /// <param name="fieldRef"></param>
-        /// <param name="fieldDefinition"></param>
-        /// <returns></returns>
-
+        /// <summary>Try rewriting the field into a matching inherited field.</summary>
+        /// <param name="module">The assembly module containing the instruction.</param>
+        /// <param name="instruction">The CIL instruction to rewrite.</param>
+        /// <param name="fieldRef">The field reference.</param>
+        /// <param name="fieldDefinition">The actual field resolved by Cecil.</param>
         private bool TryRewriteToInheritedField(ModuleDefinition module, Instruction instruction, FieldReference fieldRef, FieldDefinition? fieldDefinition)
         {
-            // If its not resolvable, don't rewrite
+            // skip if not resolvable
             if (fieldDefinition == null)
                 return false;
-            // If same they don't need rewriting, avoidingFullName as fieldRef and fieldDefinition resolve generics differently
-            if (fieldRef.DeclaringType.Namespace == fieldDefinition.DeclaringType.Namespace &&
-                fieldRef.DeclaringType.Name == fieldDefinition.DeclaringType.Name)
+
+            // skip if no rewrite needed
+            if (RewriteHelper.HasSameNamespaceAndName(fieldRef.DeclaringType, fieldDefinition.DeclaringType))
                 return false;
-            // If static, it is less intuitive that rewriting should happen
+
+            // skip if static (it's less intuitive that rewriting should happen)
             if (instruction.OpCode != OpCodes.Ldfld)
                 return false;
 
+            // rewrite reference
             instruction.Operand = module.ImportReference(fieldDefinition);
-
             fieldRef.FieldType = fieldDefinition.FieldType;
-            this.Phrases.Add($"{fieldRef.DeclaringType.Name}.{fieldRef.Name} -> {fieldDefinition.DeclaringType.Name}.{fieldRef.Name} (field => inherited field)");
 
+            this.Phrases.Add($"{fieldRef.DeclaringType.Name}.{fieldRef.Name} -> {fieldDefinition.DeclaringType.Name}.{fieldRef.Name} (field => inherited field)");
             return this.MarkRewritten();
         }
     }
