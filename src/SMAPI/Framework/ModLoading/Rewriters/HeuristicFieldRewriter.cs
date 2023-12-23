@@ -38,7 +38,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
 
             // skip if not broken
             FieldDefinition? fieldDefinition = fieldRef.Resolve();
-            if (fieldDefinition?.HasConstant == false && fieldDefinition?.DeclaringType.FullName == fieldRef.DeclaringType.FullName)
+            if (fieldDefinition?.HasConstant == false && RewriteHelper.HasSameNamespaceAndName(fieldRef.DeclaringType, fieldDefinition.DeclaringType))
                 return false;
 
             // rewrite if possible
