@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-
 using StardewModdingAPI.Framework.Logging;
 using StardewModdingAPI.Internal.ConsoleWriting;
 
@@ -95,6 +94,7 @@ namespace StardewModdingAPI.Framework
                 this.Log(message);
         }
 
+        /// <inheritdoc />
         public void VerboseLog([InterpolatedStringHandlerArgument("")] ref VerboseLogStringHandler message)
         {
             if (this.IsVerbose)
