@@ -128,7 +128,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
             instruction.Operand = module.ImportReference(fieldDefinition);
             fieldRef.FieldType = fieldDefinition.FieldType;
 
-            this.Phrases.Add($"{fieldRef.DeclaringType.Name}.{fieldRef.Name} -> {fieldDefinition.DeclaringType.Name}.{fieldRef.Name} (field => inherited field)");
+            this.Phrases.Add($"{fieldRef.DeclaringType.Name}.{fieldRef.Name} -> {fieldDefinition.DeclaringType.Name}.{fieldRef.Name} (field now inherited)");
             return this.MarkRewritten();
         }
     }
