@@ -13,6 +13,9 @@ using StardewValley.Audio;
 using StardewValley.BellsAndWhistles;
 using StardewValley.Buildings;
 using StardewValley.Enchantments;
+using StardewValley.GameData;
+using StardewValley.GameData.FloorsAndPaths;
+using StardewValley.GameData.Movies;
 using StardewValley.Locations;
 using StardewValley.Menus;
 using StardewValley.Mods;
@@ -138,6 +141,15 @@ namespace StardewModdingAPI.Metadata
                     .MapType("StardewValley.ModHooks", typeof(ModHooks))
                     .MapType("StardewValley.Network.NetAudio/SoundContext", typeof(SoundContext))
                     .MapType("StardewValley.PathFindController", typeof(PathFindController))
+
+                    // field renames
+                    .MapFieldName(typeof(FloorPathData), "ID", nameof(FloorPathData.Id))
+                    .MapFieldName(typeof(ModFarmType), "ID", nameof(ModFarmType.Id))
+                    .MapFieldName(typeof(ModLanguage), "ID", nameof(ModLanguage.Id))
+                    .MapFieldName(typeof(ModWallpaperOrFlooring), "ID", nameof(ModWallpaperOrFlooring.Id))
+                    .MapFieldName(typeof(MovieData), "ID", nameof(MovieData.Id))
+                    .MapFieldName(typeof(MovieReaction), "ID", nameof(MovieReaction.Id))
+                    .MapFieldName(typeof(MovieScene), "ID", nameof(MovieScene.Id))
 
                     // general API changes
                     // note: types are mapped before members, regardless of the order listed here

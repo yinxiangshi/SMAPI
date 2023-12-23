@@ -87,7 +87,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
             return this;
         }
 
-        /// <summary>Rewrite field references to point to another field with the same field type.</summary>
+        /// <summary>Rewrite field references to point to another field with the same field type (not necessarily on the same parent).</summary>
         /// <param name="fromFullName">The full field name, like <c>Microsoft.Xna.Framework.Vector2 StardewValley.Character::Tile</c>.</param>
         /// <param name="toType">The new type which will have the field.</param>
         /// <param name="toName">The new field name to reference.</param>
@@ -99,22 +99,54 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
             if (toType is null)
                 throw new ArgumentException("Can't replace a field given a null target type.", nameof(toType));
             if (string.IsNullOrWhiteSpace(toName))
-                throw new ArgumentException("Can't replace a field given an empty target name.", nameof(toType));
+                throw new ArgumentException("Can't replace a field given an empty target name.", nameof(toName));
 
             // get field
             FieldInfo? toField;
             try
             {
                 toField = toType.GetField(toName);
-                if (toField is null)
-                    throw new InvalidOperationException($"Required field {toType.FullName}::{toName} could not be loaded.");
             }
             catch (Exception ex)
             {
                 throw new InvalidOperationException($"Required field {toType.FullName}::{toName} could not be loaded.", ex);
             }
+            if (toField is null)
+                throw new InvalidOperationException($"Required field {toType.FullName}::{toName} could not be found.");
 
             // add mapping
+            return this.MapMember(fromFullName, toField, "field");
+        }
+
+        /// <summary>Rewrite field references to point to another field with the field and parent type.</summary>
+        /// <param name="type">The type which has the old and new fields.</param>
+        /// <param name="fromName">The field name.</param>
+        /// <param name="toName">The new field name to reference.</param>
+        public ReplaceReferencesRewriter MapFieldName(Type type, string fromName, string toName)
+        {
+            // validate parameters
+            if (type is null)
+                throw new ArgumentException("Can't replace a field given a null target type.", nameof(type));
+            if (string.IsNullOrWhiteSpace(fromName))
+                throw new ArgumentException("Can't replace a field given an empty name.", nameof(fromName));
+            if (string.IsNullOrWhiteSpace(toName))
+                throw new ArgumentException("Can't replace a field given an empty target name.", nameof(toName));
+
+            // get field
+            FieldInfo? toField;
+            try
+            {
+                toField = type.GetField(toName);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Required field {type.FullName}::{toName} could not be loaded.", ex);
+            }
+            if (toField is null)
+                throw new InvalidOperationException($"Required field {type.FullName}::{toName} could not be found.");
+
+            // add mapping
+            string fromFullName = $"{this.FormatCecilType(toField.FieldType)} {this.FormatCecilType(type)}::{fromName}";
             return this.MapMember(fromFullName, toField, "field");
         }
 
@@ -137,13 +169,13 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
             try
             {
                 toProperty = toType.GetProperty(toName);
-                if (toProperty is null)
-                    throw new InvalidOperationException($"Required property {toType.FullName}::{toName} could not be loaded.");
             }
             catch (Exception ex)
             {
                 throw new InvalidOperationException($"Required property {toType.FullName}::{toName} could not be loaded.", ex);
             }
+            if (toProperty is null)
+                throw new InvalidOperationException($"Required property {toType.FullName}::{toName} could not be found.");
 
             // add mapping
             return this.MapMember(fromFullName, toProperty, "field-to-property");
@@ -171,13 +203,13 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
                 method = parameterTypes != null
                     ? toType.GetMethod(toName, parameterTypes)
                     : toType.GetMethod(toName);
-                if (method is null)
-                    throw new InvalidOperationException($"Required method {toType.FullName}::{toName} could not be loaded.");
             }
             catch (Exception ex)
             {
                 throw new InvalidOperationException($"Required method {toType.FullName}::{toName} could not be loaded.", ex);
             }
+            if (method is null)
+                throw new InvalidOperationException($"Required method {toType.FullName}::{toName} could not be found.");
 
             // add mapping
             return this.MapMember(fromFullName, method, "method");
