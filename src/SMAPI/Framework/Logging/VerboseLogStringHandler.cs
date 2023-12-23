@@ -8,7 +8,8 @@ namespace StardewModdingAPI.Framework.Logging;
 [InterpolatedStringHandler]
 public ref struct VerboseLogStringHandler
 {
-    private readonly DefaultInterpolatedStringHandler _handler;
+    /// <summary>The underlying interpolated string handler.</summary>
+    private DefaultInterpolatedStringHandler _handler;
 
     /// <summary>
     /// Construct an instance.
