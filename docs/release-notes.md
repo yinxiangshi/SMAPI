@@ -5,6 +5,7 @@
 * For players:
   * Updated for Stardew Valley 1.6.
   * Improved performance.
+  * Improved compatibility rewriting to handle more cases (thanks to SinZ!).
   * Removed the bundled `ErrorHandler` mod (now integrated into Stardew Valley 1.6).
   * Removed obsolete console commands: `list_item_types` (no longer needed) and `player_setimmunity` (broke in 1.6 and rarely used).
   * Removed support for seamlessly updating from SMAPI 2.11.3 and earlier (released in 2019).  
@@ -15,6 +16,7 @@
   * Added `RenderingStep` and `RenderedStep` events, which let you handle a specific step in the game's render cycle.
   * Removed all deprecated APIs.
   * SMAPI no longer intercepts output written to the console. Mods which directly access `Console` will be listed under mod warnings.
+  * Calling `Monitor.VerboseLog` with an interpolated string no longer evaluates the string if verbose mode is disabled (thanks to atravita!). This only applies to mods compiled in SMAPI 4.0.0 or later.
 
 ## Upcoming release
 * For players:
