@@ -142,40 +142,59 @@ namespace StardewModdingAPI.Metadata
         [SuppressMessage("ReSharper", "StringLiteralTypo", Justification = "These deliberately match the asset names.")]
         private bool PropagateTexture(IAssetName assetName, LocalizedContentManager.LanguageCode language, IList<IContentManager> contentManagers, bool ignoreWorld)
         {
-            /****
-            ** Update textures in-place
-            ****/
-            assetName = assetName.GetBaseAssetName();
             bool changed = false;
-            {
-                Lazy<Texture2D> newTexture = new(() => this.DisposableContentManager.LoadLocalized<Texture2D>(assetName, language, useCache: false));
 
+            // get asset names to replace
+            // We propagate non-textures by comparing base asset names, to update any localized version like
+            // `asset.fr-FR` too. We need to check every content manager for in-place texture edits though, so we
+            // should avoid iterating their assets if possible. So here we just check for the current localized name
+            // and base name, which should cover normal cases.
+            IAssetName[] assetNames = assetName.LocaleCode != null
+                ? new[] { assetName, assetName.GetBaseAssetName() }
+                : new[] { assetName };
+
+            // update textures in-place
+            {
+                // get new textures to copy
+                Lazy<Texture2D>[] newTextures = new Lazy<Texture2D>[assetNames.Length];
+                newTextures[0] = new Lazy<Texture2D>(() => this.DisposableContentManager.LoadLocalized<Texture2D>(assetName, language, useCache: false));
+                if (assetNames.Length > 1)
+                    newTextures[1] = new Lazy<Texture2D>(() => this.DisposableContentManager.LoadLocalized<Texture2D>(assetNames[1], language, useCache: false));
+
+                // apply to content managers
                 foreach (IContentManager contentManager in contentManagers)
                 {
-                    if (contentManager.IsLoaded(assetName))
+                    for (int i = 0; i < assetNames.Length; i++)
                     {
-                        if (this.DisposableContentManager.DoesAssetExist<Texture2D>(assetName))
-                        {
-                            changed = true;
+                        IAssetName name = assetNames[i];
 
-                            Texture2D texture = contentManager.LoadLocalized<Texture2D>(assetName, language, useCache: true);
-                            texture.CopyFromTexture(newTexture.Value);
-                        }
-                        else
+                        if (contentManager.IsLoaded(name))
                         {
-                            this.Monitor.Log($"Skipped reload for '{assetName.Name}' because the underlying asset no longer exists.", LogLevel.Warn);
-                            break;
+                            if (this.DisposableContentManager.DoesAssetExist<Texture2D>(name))
+                            {
+                                changed = true;
+
+                                Texture2D texture = contentManager.LoadLocalized<Texture2D>(name, language, useCache: true);
+                                texture.CopyFromTexture(newTextures[i].Value);
+                            }
+                            else
+                            {
+                                this.Monitor.Log($"Skipped reload for '{name.Name}' because the underlying asset no longer exists.", LogLevel.Warn);
+                                break;
+                            }
                         }
                     }
                 }
 
-                if (newTexture.IsValueCreated)
-                    newTexture.Value.Dispose();
+                // drop temporary textures
+                foreach (Lazy<Texture2D> newTexture in newTextures)
+                {
+                    if (newTexture.IsValueCreated)
+                        newTexture.Value.Dispose();
+                }
             }
 
-            /****
-            ** Update game state if needed
-            ****/
+            // update game state if needed
             if (changed)
             {
                 switch (assetName.Name.ToLower().Replace("\\", "/")) // normalized key so we can compare statically
