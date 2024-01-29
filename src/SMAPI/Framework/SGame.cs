@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using StardewModdingAPI.Enums;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Framework.Input;
 using StardewModdingAPI.Framework.Reflection;
@@ -12,6 +13,8 @@ using StardewModdingAPI.Internal;
 using StardewModdingAPI.Utilities;
 using StardewValley;
 using StardewValley.Logging;
+using StardewValley.Menus;
+using StardewValley.Minigames;
 
 namespace StardewModdingAPI.Framework
 {
@@ -44,6 +47,9 @@ namespace StardewModdingAPI.Framework
 
         /// <summary>Raised after the instance finishes loading its initial content.</summary>
         private readonly Action OnContentLoaded;
+
+        /// <summary>Raised invoke when the load stage changes through a method like <see cref="Game1.CleanupReturningToTitle"/>.</summary>
+        private readonly Action<LoadStage> OnLoadStageChanged;
 
         /// <summary>Raised after the instance finishes a draw loop.</summary>
         private readonly Action<RenderTarget2D> OnRendered;
@@ -98,8 +104,9 @@ namespace StardewModdingAPI.Framework
         /// <param name="exitGameImmediately">Immediately exit the game without saving. This should only be invoked when an irrecoverable fatal error happens that risks save corruption or game-breaking bugs.</param>
         /// <param name="onUpdating">Raised when the instance is updating its state (roughly 60 times per second).</param>
         /// <param name="onContentLoaded">Raised after the game finishes loading its initial content.</param>
+        /// <param name="onLoadStageChanged">Raised invoke when the load stage changes through a method like <see cref="Game1.CleanupReturningToTitle"/>.</param>
         /// <param name="onRendered">Raised after the instance finishes a draw loop.</param>
-        public SGame(PlayerIndex playerIndex, int instanceIndex, Monitor monitor, Reflector reflection, SInputState input, SModHooks modHooks, IGameLogger gameLogger, SMultiplayer multiplayer, Action<string> exitGameImmediately, Action<SGame, GameTime, Action> onUpdating, Action onContentLoaded, Action<RenderTarget2D> onRendered)
+        public SGame(PlayerIndex playerIndex, int instanceIndex, Monitor monitor, Reflector reflection, SInputState input, SModHooks modHooks, IGameLogger gameLogger, SMultiplayer multiplayer, Action<string> exitGameImmediately, Action<SGame, GameTime, Action> onUpdating, Action onContentLoaded, Action<LoadStage> onLoadStageChanged, Action<RenderTarget2D> onRendered)
             : base(playerIndex, instanceIndex)
         {
             // init XNA
@@ -118,6 +125,7 @@ namespace StardewModdingAPI.Framework
             this.ExitGameImmediately = exitGameImmediately;
             this.OnUpdating = onUpdating;
             this.OnContentLoaded = onContentLoaded;
+            this.OnLoadStageChanged = onLoadStageChanged;
             this.OnRendered = onRendered;
         }
 
@@ -166,6 +174,20 @@ namespace StardewModdingAPI.Framework
             // The Initial* fields should no longer be used after this point, since mods may further override them after initialization.
             this.InitialInput = null;
             this.InitialMultiplayer = null;
+        }
+
+        /// <summary>The method called when loading or creating a save.</summary>
+        /// <param name="loadedGame">Whether this is being called from the game's load enumerator.</param>
+        public override void loadForNewGame(bool loadedGame = false)
+        {
+            base.loadForNewGame(loadedGame);
+
+            bool isCreating =
+                (Game1.currentMinigame is Intro) // creating save with intro
+                || (Game1.activeClickableMenu is TitleMenu menu && menu.transitioningCharacterCreationMenu); // creating save, skipped intro
+
+            if (isCreating)
+                this.OnLoadStageChanged(LoadStage.CreatedLocations);
         }
 
         /// <summary>The method called when the instance is updating its state (roughly 60 times per second).</summary>
@@ -235,6 +257,14 @@ namespace StardewModdingAPI.Framework
                 }
             }
             Context.IsInDrawLoop = false;
+        }
+
+        /// <summary>The method called when the game is returning to the title screen from a loaded save.</summary>
+        public override void CleanupReturningToTitle()
+        {
+            this.OnLoadStageChanged(LoadStage.ReturningToTitle);
+
+            base.CleanupReturningToTitle();
         }
     }
 }

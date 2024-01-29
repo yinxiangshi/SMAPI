@@ -34,8 +34,6 @@ using StardewModdingAPI.Framework.Serialization;
 using StardewModdingAPI.Framework.StateTracking.Snapshots;
 using StardewModdingAPI.Framework.Utilities;
 using StardewModdingAPI.Internal;
-using StardewModdingAPI.Internal.Patching;
-using StardewModdingAPI.Patches;
 using StardewModdingAPI.Toolkit;
 using StardewModdingAPI.Toolkit.Framework.Clients.WebApi;
 using StardewModdingAPI.Toolkit.Framework.ModData;
@@ -273,19 +271,17 @@ namespace StardewModdingAPI.Framework
                     exitGameImmediately: this.ExitGameImmediately,
 
                     onGameContentLoaded: this.OnInstanceContentLoaded,
+                    onLoadStageChanged: this.OnLoadStageChanged,
                     onGameUpdating: this.OnGameUpdating,
                     onPlayerInstanceUpdating: this.OnPlayerInstanceUpdating,
                     onPlayerInstanceRendered: this.OnRendered,
                     onGameExiting: this.OnGameExiting
                 );
-                StardewValley.GameRunner.instance = this.Game;
+                GameRunner.instance = this.Game;
+                TitleMenu.OnCreatedNewCharacter += () => this.OnLoadStageChanged(LoadStage.CreatedBasicInfo);
 
-                // apply game patches
+                // fix Harmony for mods
                 MiniMonoModHotfix.Apply();
-                HarmonyPatcher.Apply("SMAPI", this.Monitor,
-                    new Game1Patcher(this.OnLoadStageChanged),
-                    new TitleMenuPatcher(this.OnLoadStageChanged)
-                );
 
                 // set window titles
                 this.UpdateWindowTitles();
