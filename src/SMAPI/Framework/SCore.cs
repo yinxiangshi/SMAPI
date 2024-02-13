@@ -278,7 +278,6 @@ namespace StardewModdingAPI.Framework
                     onGameExiting: this.OnGameExiting
                 );
                 GameRunner.instance = this.Game;
-                TitleMenu.OnCreatedNewCharacter += () => this.OnLoadStageChanged(LoadStage.CreatedBasicInfo);
 
                 // fix Harmony for mods
                 MiniMonoModHotfix.Apply();

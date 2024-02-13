@@ -170,6 +170,8 @@ namespace StardewModdingAPI.Framework
             // The game resets public static fields after the class is constructed (see GameRunner.SetInstanceDefaults), so SMAPI needs to re-override them here.
             Game1.input = this.InitialInput;
             Game1.multiplayer = this.InitialMultiplayer;
+            if (this.IsMainInstance)
+                TitleMenu.OnCreatedNewCharacter += () => this.OnLoadStageChanged(LoadStage.CreatedBasicInfo); // event is static and shared between screens
 
             // The Initial* fields should no longer be used after this point, since mods may further override them after initialization.
             this.InitialInput = null;
