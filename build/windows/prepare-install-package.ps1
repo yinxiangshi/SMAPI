@@ -21,6 +21,7 @@ $bundleModNames = "ConsoleCommands", "SaveBackup"
 
 # build configuration
 $buildConfig = "Release"
+$framework = "net6.0"
 $folders = "linux", "macOS", "windows"
 $runtimes = @{ linux = "linux-x64"; macOS = "osx-x64"; windows = "win-x64" }
 $msBuildPlatformNames = @{ linux = "Unix"; macOS = "OSX"; windows = "Windows_NT" }
@@ -72,20 +73,20 @@ foreach ($folder in $folders) {
 
     echo "Compiling SMAPI for $folder..."
     echo "-------------------------------------------------"
-    dotnet publish src/SMAPI --configuration $buildConfig -v minimal --runtime "$runtime" -p:OS="$msbuildPlatformName" -p:GamePath="$gamePath" -p:CopyToGameFolder="false" --self-contained true
+    dotnet publish src/SMAPI --configuration $buildConfig -v minimal --runtime "$runtime" --framework "$framework" -p:OS="$msbuildPlatformName" -p:TargetFrameworks="$framework" -p:GamePath="$gamePath" -p:CopyToGameFolder="false" --self-contained true
     echo ""
     echo ""
 
     echo "Compiling installer for $folder..."
     echo "-------------------------------------------------"
-    dotnet publish src/SMAPI.Installer --configuration $buildConfig -v minimal --runtime "$runtime" -p:OS="$msbuildPlatformName" -p:GamePath="$gamePath" -p:CopyToGameFolder="false" -p:PublishTrimmed=True -p:TrimMode=Link --self-contained true
+    dotnet publish src/SMAPI.Installer --configuration $buildConfig -v minimal --runtime "$runtime" --framework "$framework" -p:OS="$msbuildPlatformName" -p:TargetFrameworks="$framework" -p:GamePath="$gamePath" -p:CopyToGameFolder="false" -p:PublishTrimmed=True -p:TrimMode=Link --self-contained true
     echo ""
     echo ""
 
     foreach ($modName in $bundleModNames) {
         echo "Compiling $modName for $folder..."
         echo "-------------------------------------------------"
-        dotnet publish src/SMAPI.Mods.$modName --configuration $buildConfig -v minimal --runtime "$runtime" -p:OS="$msbuildPlatformName" -p:GamePath="$gamePath" -p:CopyToGameFolder="false" --self-contained false
+        dotnet publish src/SMAPI.Mods.$modName --configuration $buildConfig -v minimal --runtime "$runtime" --framework "$framework" -p:OS="$msbuildPlatformName" -p:TargetFrameworks="$framework" -p:GamePath="$gamePath" -p:CopyToGameFolder="false" --self-contained false
         echo ""
         echo ""
     }
