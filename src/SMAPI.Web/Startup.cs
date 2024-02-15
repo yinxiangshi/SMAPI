@@ -226,8 +226,11 @@ namespace StardewModdingAPI.Web
                     [@"^/xnb\.?$"] = "https://stardewvalleywiki.com/Modding:Using_XNB_mods",
 
                     // GitHub docs
-                    [@"^/package(?:/?(.*))$"] = "https://github.com/Pathoschild/SMAPI/blob/develop/docs/technical/mod-package.md#$1",
-                    [@"^/release(?:/?(.*))$"] = "https://github.com/Pathoschild/SMAPI/blob/develop/docs/release-notes.md#$1",
+                    ["^/package(?:/?(.*))$"] = "https://github.com/Pathoschild/SMAPI/blob/develop/docs/technical/mod-package.md#$1",
+                    ["^/release(?:/?(.*))$"] = "https://github.com/Pathoschild/SMAPI/blob/develop/docs/release-notes.md#$1",
+
+                    // Content Patcher docs
+                    ["/cp-migrate(?:/?(.*))$"] = "https://github.com/Pathoschild/StardewMods/blob/develop/ContentPatcher/docs/author-migration-guide.md#$1",
 
                     // legacy redirects
                     [@"^/compat\.?$"] = "https://smapi.io/mods"
