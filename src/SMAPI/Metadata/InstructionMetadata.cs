@@ -240,8 +240,7 @@ namespace StardewModdingAPI.Metadata
             ** detect mod issues
             ****/
             // broken code
-            yield return new ReferenceToMissingMemberFinder(this.ValidateReferencesToAssemblies);
-            yield return new ReferenceToMemberWithUnexpectedTypeFinder(this.ValidateReferencesToAssemblies);
+            yield return new ReferenceToInvalidMemberFinder(this.ValidateReferencesToAssemblies);
 
             // code which may impact game stability
             yield return new FieldFinder(typeof(SaveGame).FullName!, new[] { nameof(SaveGame.serializer), nameof(SaveGame.farmerSerializer), nameof(SaveGame.locationSerializer) }, InstructionHandleResult.DetectedSaveSerializer);

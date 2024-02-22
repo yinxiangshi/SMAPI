@@ -4,6 +4,7 @@
 ## Upcoming release for Stardew Valley 1.6
 * For players:
   * Updated for Stardew Valley 1.6.
+  * Added support for overriding SMAPI configuration per `Mods` folder (thanks to Shockah!).
   * Improved performance.
   * Improved compatibility rewriting to handle more cases (thanks to SinZ!).
   * Removed the bundled `ErrorHandler` mod (now integrated into Stardew Valley 1.6).
@@ -14,16 +15,11 @@
 * For mod authors:
   * Updated to .NET 6.
   * Added `RenderingStep` and `RenderedStep` events, which let you handle a specific step in the game's render cycle.
+  * Added support for [custom update manifests](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Update_checks#Custom_update_manifest) (thanks to Jamie Taylor!).
   * Removed all deprecated APIs.
   * SMAPI no longer intercepts output written to the console. Mods which directly access `Console` will be listed under mod warnings.
   * Calling `Monitor.VerboseLog` with an interpolated string no longer evaluates the string if verbose mode is disabled (thanks to atravita!). This only applies to mods compiled in SMAPI 4.0.0 or later.
-
-## Upcoming release
-* For players:
-  * Added support for overriding SMAPI configuration per `Mods` folder (thanks to Shockah!).
-
-* For mod authors:
-  * Added support for [custom update manifests](https://stardewvalleywiki.com/Modding:Modder_Guide/APIs/Update_checks#Custom_update_manifest) (thanks to Jamie Taylor!).
+  * Fixed redundant `TRACE` logs for a broken mod which references members with the wrong types.
 
 * For the web UI:
   * Fixed uploaded log/JSON file expiry alway shown as renewed.

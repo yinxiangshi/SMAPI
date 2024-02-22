@@ -1,14 +1,15 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using StardewModdingAPI.Framework.ModLoading.Framework;
 
 namespace StardewModdingAPI.Framework.ModLoading.Finders
 {
-    /// <summary>Finds references to a field, property, or method which no longer exists.</summary>
+    /// <summary>Finds references to a field, property, or method which either doesn't exist or returns a different type than the code expects.</summary>
     /// <remarks>This implementation is purely heuristic. It should never return a false positive, but won't detect all cases.</remarks>
-    internal class ReferenceToMissingMemberFinder : BaseInstructionHandler
+    internal class ReferenceToInvalidMemberFinder : BaseInstructionHandler
     {
         /*********
         ** Fields
@@ -22,7 +23,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
         *********/
         /// <summary>Construct an instance.</summary>
         /// <param name="validateReferencesToAssemblies">The assembly names to which to heuristically detect broken references.</param>
-        public ReferenceToMissingMemberFinder(ISet<string> validateReferencesToAssemblies)
+        public ReferenceToInvalidMemberFinder(ISet<string> validateReferencesToAssemblies)
             : base(defaultPhrase: "")
         {
             this.ValidateReferencesToAssemblies = validateReferencesToAssemblies;
@@ -35,20 +36,35 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
             FieldReference? fieldRef = RewriteHelper.AsFieldReference(instruction);
             if (fieldRef != null && this.ShouldValidate(fieldRef.DeclaringType))
             {
-                FieldDefinition? target = fieldRef.Resolve();
-                if (target == null || target.HasConstant || !RewriteHelper.HasSameNamespaceAndName(fieldRef.DeclaringType, target.DeclaringType))
-                {
+                FieldDefinition? targetField = fieldRef.DeclaringType.Resolve()?.Fields.FirstOrDefault(p => p.Name == fieldRef.Name);
+
+                // wrong return type
+                if (targetField != null && !RewriteHelper.LooksLikeSameType(fieldRef.FieldType, targetField.FieldType))
+                    this.MarkFlag(InstructionHandleResult.NotCompatible, $"reference to {fieldRef.DeclaringType.FullName}.{fieldRef.Name} (field returns {this.GetFriendlyTypeName(targetField.FieldType)}, not {this.GetFriendlyTypeName(fieldRef.FieldType)})");
+
+                // missing
+                else if (targetField == null || targetField.HasConstant || !RewriteHelper.HasSameNamespaceAndName(fieldRef.DeclaringType, targetField.DeclaringType))
                     this.MarkFlag(InstructionHandleResult.NotCompatible, $"reference to {fieldRef.DeclaringType.FullName}.{fieldRef.Name} (no such field)");
-                    return false;
-                }
+
+                return false;
             }
 
             // method reference
             MethodReference? methodRef = RewriteHelper.AsMethodReference(instruction);
-            if (methodRef != null && this.ShouldValidate(methodRef.DeclaringType) && !this.IsUnsupported(methodRef))
+            if (methodRef != null && !this.IsUnsupported(methodRef))
             {
-                MethodDefinition? target = methodRef.Resolve();
-                if (target == null)
+                MethodDefinition? methodDef = methodRef.Resolve();
+
+                // wrong return type
+                if (methodDef != null && this.ShouldValidate(methodRef.DeclaringType))
+                {
+                    MethodDefinition[]? candidateMethods = methodRef.DeclaringType.Resolve()?.Methods.Where(found => found.Name == methodRef.Name).ToArray();
+                    if (candidateMethods?.Any() is true && candidateMethods.All(method => !RewriteHelper.LooksLikeSameType(method.ReturnType, methodDef.ReturnType)))
+                        this.MarkFlag(InstructionHandleResult.NotCompatible, $"reference to {methodDef.DeclaringType.FullName}.{methodDef.Name} (no such method returns {this.GetFriendlyTypeName(methodDef.ReturnType)})");
+                }
+
+                // missing
+                else if (methodDef is null)
                 {
                     string phrase;
                     if (this.IsProperty(methodRef))
@@ -59,7 +75,6 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
                         phrase = $"reference to {methodRef.DeclaringType.FullName}.{methodRef.Name} (no such method)";
 
                     this.MarkFlag(InstructionHandleResult.NotCompatible, phrase);
-                    return false;
                 }
             }
 
@@ -83,6 +98,31 @@ namespace StardewModdingAPI.Framework.ModLoading.Finders
         {
             return
                 method.DeclaringType.Name.Contains("["); // array methods
+        }
+
+        /// <summary>Get a shorter type name for display.</summary>
+        /// <param name="type">The type reference.</param>
+        private string GetFriendlyTypeName(TypeReference type)
+        {
+            // most common built-in types
+            switch (type.FullName)
+            {
+                case "System.Boolean":
+                    return "bool";
+                case "System.Int32":
+                    return "int";
+                case "System.String":
+                    return "string";
+            }
+
+            // most common unambiguous namespaces
+            foreach (string @namespace in new[] { "Microsoft.Xna.Framework", "Netcode", "System", "System.Collections.Generic" })
+            {
+                if (type.Namespace == @namespace)
+                    return type.Name;
+            }
+
+            return type.FullName;
         }
 
         /// <summary>Get whether a method reference is a property getter or setter.</summary>
