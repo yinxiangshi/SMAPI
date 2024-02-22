@@ -17,7 +17,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
         *********/
         public void toggleGate(GameLocation location, bool open, bool is_toggling_counterpart = false, Farmer? who = null)
         {
-            this.toggleGate(open, is_toggling_counterpart, who);
+            base.toggleGate(open, is_toggling_counterpart, who);
         }
 
 

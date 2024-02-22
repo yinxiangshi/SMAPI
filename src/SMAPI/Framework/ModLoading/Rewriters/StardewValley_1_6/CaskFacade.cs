@@ -19,7 +19,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
         *********/
         public bool IsValidCaskLocation(GameLocation location)
         {
-            return this.IsValidCaskLocation();
+            return base.IsValidCaskLocation();
         }
 
 

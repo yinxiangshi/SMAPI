@@ -11,6 +11,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
     /// <summary>Maps Stardew Valley 1.5.6's <see cref="Bush"/> methods to their newer form to avoid breaking older mods.</summary>
     /// <remarks>This is public to support SMAPI rewriting and should never be referenced directly by mods. See remarks on <see cref="ReplaceReferencesRewriter"/> for more info.</remarks>
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = SuppressReasons.MatchesOriginal)]
+    [SuppressMessage("ReSharper", "RedundantBaseQualifier", Justification = SuppressReasons.BaseForClarity)]
     [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = SuppressReasons.UsedViaRewriting)]
     public class BushFacade : Bush, IRewriteFacade
     {
@@ -21,15 +22,15 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
         {
             // call new method if possible
             if (season == Game1.currentSeason && dayOfMonth == Game1.dayOfMonth)
-                return this.inBloom();
+                return base.inBloom();
 
             // else mimic old behavior with 1.6 features
-            if (this.size == Bush.greenTeaBush)
+            if (base.size == Bush.greenTeaBush)
             {
                 return
-                    this.getAge() >= Bush.daysToMatureGreenTeaBush
+                    base.getAge() >= Bush.daysToMatureGreenTeaBush
                     && dayOfMonth >= 22
-                    && (season != "winter" || this.IsSheltered());
+                    && (season != "winter" || base.IsSheltered());
             }
 
             switch (season)

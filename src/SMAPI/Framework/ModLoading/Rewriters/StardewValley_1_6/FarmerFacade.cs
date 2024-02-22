@@ -15,6 +15,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
     /// <remarks>This is public to support SMAPI rewriting and should never be referenced directly by mods. See remarks on <see cref="ReplaceReferencesRewriter"/> for more info.</remarks>
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = SuppressReasons.MatchesOriginal)]
     [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = SuppressReasons.UsedViaRewriting)]
+    [SuppressMessage("ReSharper", "RedundantBaseQualifier", Justification = SuppressReasons.BaseForClarity)]
     public class FarmerFacade : Farmer, IRewriteFacade
     {
         /*********
@@ -34,12 +35,12 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
         *********/
         public void addQuest(int questID)
         {
-            this.addQuest(questID.ToString());
+            base.addQuest(questID.ToString());
         }
 
         public void changePants(Color color)
         {
-            this.changePantsColor(color);
+            base.changePantsColor(color);
         }
 
         public void changePantStyle(int whichPants, bool is_customization_screen = false)
@@ -49,27 +50,27 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
 
         public void changeShirt(int whichShirt, bool is_customization_screen = false)
         {
-            this.changeShirt(whichShirt.ToString());
+            base.changeShirt(whichShirt.ToString());
         }
 
         public void changeShoeColor(int which)
         {
-            this.changeShoeColor(which.ToString());
+            base.changeShoeColor(which.ToString());
         }
 
         public void completeQuest(int questID)
         {
-            this.completeQuest(questID.ToString());
+            base.completeQuest(questID.ToString());
         }
 
         public bool couldInventoryAcceptThisObject(int index, int stack, int quality = 0)
         {
-            return this.couldInventoryAcceptThisItem(index.ToString(), stack, quality);
+            return base.couldInventoryAcceptThisItem(index.ToString(), stack, quality);
         }
 
         public int GetEffectsOfRingMultiplier(int ring_index)
         {
-            return this.GetEffectsOfRingMultiplier(ring_index.ToString());
+            return base.GetEffectsOfRingMultiplier(ring_index.ToString());
         }
 
         public int getItemCount(int item_index, int min_price = 0)
@@ -81,7 +82,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
 
         public bool hasBuff(int whichBuff)
         {
-            return this.hasBuff(whichBuff.ToString());
+            return base.hasBuff(whichBuff.ToString());
         }
 
         public bool hasItemInInventory(int itemIndex, int quantity, int minPrice = 0)
@@ -91,24 +92,24 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
             switch (itemIndex)
             {
                 case 858:
-                    return this.QiGems >= quantity;
+                    return base.QiGems >= quantity;
 
                 case 73:
                     return Game1.netWorldState.Value.GoldenWalnuts >= quantity;
 
                 default:
-                    return this.getItemCount(ItemRegistry.type_object + itemIndex) >= quantity;
+                    return base.getItemCount(ItemRegistry.type_object + itemIndex) >= quantity;
             }
         }
 
         public bool hasQuest(int id)
         {
-            return this.hasQuest(id.ToString());
+            return base.hasQuest(id.ToString());
         }
 
         public bool isWearingRing(int ringIndex)
         {
-            return this.isWearingRing(ringIndex.ToString());
+            return base.isWearingRing(ringIndex.ToString());
         }
 
         public bool removeItemsFromInventory(int index, int stack)
@@ -118,7 +119,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
                 switch (index)
                 {
                     case 858:
-                        this.QiGems -= stack;
+                        base.QiGems -= stack;
                         return true;
 
                     case 73:
@@ -152,7 +153,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
 
         public void removeQuest(int questID)
         {
-            this.removeQuest(questID.ToString());
+            base.removeQuest(questID.ToString());
         }
 
 

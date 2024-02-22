@@ -18,7 +18,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
         *********/
         public void releaseContents(GameLocation location, Farmer who)
         {
-            this.releaseContents(who);
+            base.releaseContents(who);
         }
 
 

@@ -10,6 +10,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
     /// <summary>Maps Stardew Valley 1.5.6's <see cref="FarmAnimal"/> methods to their newer form to avoid breaking older mods.</summary>
     /// <remarks>This is public to support SMAPI rewriting and should never be referenced directly by mods. See remarks on <see cref="ReplaceReferencesRewriter"/> for more info.</remarks>
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = SuppressReasons.MatchesOriginal)]
+    [SuppressMessage("ReSharper", "RedundantBaseQualifier", Justification = SuppressReasons.BaseForClarity)]
     [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = SuppressReasons.UsedViaRewriting)]
     public class FarmAnimalFacade : FarmAnimal, IRewriteFacade
     {
@@ -18,7 +19,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
         *********/
         public bool isCoopDweller()
         {
-            FarmAnimalData? data = this.GetAnimalData();
+            FarmAnimalData? data = base.GetAnimalData();
             return data?.House == "Coop";
         }
 

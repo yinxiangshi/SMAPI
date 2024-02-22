@@ -51,12 +51,12 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
 
         public void destroyAndDropContents(Vector2 pointToDropAt, GameLocation location)
         {
-            this.destroyAndDropContents(pointToDropAt);
+            base.destroyAndDropContents(pointToDropAt);
         }
 
         public void dumpContents(GameLocation location)
         {
-            this.dumpContents();
+            base.dumpContents();
         }
 
 

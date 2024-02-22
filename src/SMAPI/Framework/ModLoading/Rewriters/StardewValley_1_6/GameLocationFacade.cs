@@ -18,6 +18,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = SuppressReasons.MatchesOriginal)]
     [SuppressMessage("ReSharper", "ParameterHidesMember", Justification = SuppressReasons.MatchesOriginal)]
     [SuppressMessage("ReSharper", "PossibleLossOfFraction", Justification = SuppressReasons.MatchesOriginal)]
+    [SuppressMessage("ReSharper", "RedundantBaseQualifier", Justification = SuppressReasons.BaseForClarity)]
     [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = SuppressReasons.UsedViaRewriting)]
     public class GameLocationFacade : GameLocation, IRewriteFacade
     {
@@ -26,7 +27,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
         *********/
         public NetCollection<NPC> getCharacters()
         {
-            return this.characters;
+            return base.characters;
         }
 
         public virtual int getExtraMillisecondsPerInGameMinuteForThisLocation()
@@ -36,17 +37,17 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
 
         public int getNumberBuildingsConstructed(string name)
         {
-            return base.getNumberBuildingsConstructed(name, false);
+            return base.getNumberBuildingsConstructed(name, includeUnderConstruction: false);
         }
 
         public string GetSeasonForLocation()
         {
-            return this.GetSeasonKey();
+            return base.GetSeasonKey();
         }
 
         public bool isTileLocationOpenIgnoreFrontLayers(Location tile)
         {
-            return this.map.RequireLayer("Buildings").Tiles[tile.X, tile.Y] == null && !this.isWaterTile(tile.X, tile.Y);
+            return base.map.RequireLayer("Buildings").Tiles[tile.X, tile.Y] == null && !base.isWaterTile(tile.X, tile.Y);
         }
 
         public bool isTileLocationTotallyClearAndPlaceable(int x, int y)
@@ -57,18 +58,18 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
         public bool isTileLocationTotallyClearAndPlaceable(Vector2 v)
         {
             Vector2 pixel = new Vector2((v.X * Game1.tileSize) + Game1.tileSize / 2, (v.Y * Game1.tileSize) + Game1.tileSize / 2);
-            foreach (Furniture f in this.furniture)
+            foreach (Furniture f in base.furniture)
             {
                 if (f.furniture_type != Furniture.rug && !f.isPassable() && f.GetBoundingBox().Contains((int)pixel.X, (int)pixel.Y) && !f.AllowPlacementOnThisTile((int)v.X, (int)v.Y))
                     return false;
             }
 
-            return this.isTileOnMap(v) && !this.isTileOccupied(v) && this.isTilePassable(new Location((int)v.X, (int)v.Y), Game1.viewport) && base.isTilePlaceable(v);
+            return base.isTileOnMap(v) && !this.isTileOccupied(v) && base.isTilePassable(new Location((int)v.X, (int)v.Y), Game1.viewport) && base.isTilePlaceable(v);
         }
 
         public bool isTileLocationTotallyClearAndPlaceableIgnoreFloors(Vector2 v)
         {
-            return this.isTileOnMap(v) && !this.isTileOccupiedIgnoreFloors(v) && this.isTilePassable(new Location((int)v.X, (int)v.Y), Game1.viewport) && base.isTilePlaceable(v);
+            return base.isTileOnMap(v) && !this.isTileOccupiedIgnoreFloors(v) && base.isTilePassable(new Location((int)v.X, (int)v.Y), Game1.viewport) && base.isTilePlaceable(v);
         }
 
         public bool isTileOccupied(Vector2 tileLocation, string characterToIgnore = "", bool ignoreAllCharacters = false)

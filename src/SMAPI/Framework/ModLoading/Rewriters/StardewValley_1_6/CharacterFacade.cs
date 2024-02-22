@@ -10,6 +10,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
     /// <summary>Maps Stardew Valley 1.5.6's <see cref="Character"/> methods to their newer form to avoid breaking older mods.</summary>
     /// <remarks>This is public to support SMAPI rewriting and should never be referenced directly by mods. See remarks on <see cref="ReplaceReferencesRewriter"/> for more info.</remarks>
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = SuppressReasons.MatchesOriginal)]
+    [SuppressMessage("ReSharper", "RedundantBaseQualifier", Justification = SuppressReasons.BaseForClarity)]
     [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = SuppressReasons.UsedViaRewriting)]
     public class CharacterFacade : Character, IRewriteFacade
     {
@@ -18,37 +19,37 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
         *********/
         public int getStandingX()
         {
-            return this.StandingPixel.X;
+            return base.StandingPixel.X;
         }
 
         public int getStandingY()
         {
-            return this.StandingPixel.Y;
+            return base.StandingPixel.Y;
         }
 
         public Point getStandingXY()
         {
-            return this.StandingPixel;
+            return base.StandingPixel;
         }
 
         public Vector2 getTileLocation()
         {
-            return this.Tile;
+            return base.Tile;
         }
 
         public Point getTileLocationPoint()
         {
-            return this.TilePoint;
+            return base.TilePoint;
         }
 
         public int getTileX()
         {
-            return this.TilePoint.X;
+            return base.TilePoint.X;
         }
 
         public int getTileY()
         {
-            return this.TilePoint.Y;
+            return base.TilePoint.Y;
         }
 
 

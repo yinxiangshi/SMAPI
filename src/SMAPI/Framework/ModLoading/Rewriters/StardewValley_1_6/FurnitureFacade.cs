@@ -29,12 +29,12 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
 
         public void AddLightGlow(GameLocation location)
         {
-            this.AddLightGlow();
+            base.AddLightGlow();
         }
 
         public void addLights(GameLocation environment)
         {
-            this.addLights();
+            base.addLights();
         }
 
         public static Furniture GetFurnitureInstance(int index, Vector2? position = null)
@@ -44,17 +44,17 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
 
         public void removeLights(GameLocation environment)
         {
-            this.removeLights();
+            base.removeLights();
         }
 
         public void RemoveLightGlow(GameLocation location)
         {
-            this.RemoveLightGlow();
+            base.RemoveLightGlow();
         }
 
         public void setFireplace(GameLocation location, bool playSound = true, bool broadcast = false)
         {
-            this.setFireplace(playSound, broadcast);
+            base.setFireplace(playSound, broadcast);
         }
 
 

@@ -12,14 +12,15 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
     /// <summary>Maps Stardew Valley 1.5.6's <see cref="Building"/> methods to their newer form to avoid breaking older mods.</summary>
     /// <remarks>This is public to support SMAPI rewriting and should never be referenced directly by mods. See remarks on <see cref="ReplaceReferencesRewriter"/> for more info.</remarks>
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = SuppressReasons.MatchesOriginal)]
+    [SuppressMessage("ReSharper", "RedundantBaseQualifier", Justification = SuppressReasons.BaseForClarity)]
     [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = SuppressReasons.UsedViaRewriting)]
     public class BuildingFacade : Building, IRewriteFacade
     {
         /*********
         ** Accessors
         *********/
-        public NetRef<Chest> input => NetRefWrapperCache<Chest>.GetCachedWrapperFor(this.GetBuildingChest("Input"));   // Mill
-        public NetRef<Chest> output => NetRefWrapperCache<Chest>.GetCachedWrapperFor(this.GetBuildingChest("Output")); // Mill
+        public NetRef<Chest> input => NetRefWrapperCache<Chest>.GetCachedWrapperFor(base.GetBuildingChest("Input"));   // Mill
+        public NetRef<Chest> output => NetRefWrapperCache<Chest>.GetCachedWrapperFor(base.GetBuildingChest("Output")); // Mill
 
 
         /*********

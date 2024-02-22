@@ -39,7 +39,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
 
         public static SObject Constructor(Vector2 tileLocation, int parentSheetIndex, string? Givenname, bool canBeSetDown, bool canBeGrabbed, bool isHoedirt, bool isSpawnedObject)
         {
-            SObject obj = new SObject(parentSheetIndex.ToString(), 1);
+            SObject obj = new(parentSheetIndex.ToString(), 1);
 
             if (Givenname != null && obj.name is (null or "Error Item"))
                 obj.name = Givenname;
@@ -54,12 +54,12 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
 
         public void ApplySprinkler(GameLocation location, Vector2 tile)
         {
-            this.ApplySprinkler(tile);
+            base.ApplySprinkler(tile);
         }
 
         public void DayUpdate(GameLocation location)
         {
-            this.DayUpdate();
+            base.DayUpdate();
         }
 
         public Rectangle getBoundingBox(Vector2 tileLocation)
@@ -69,32 +69,32 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
 
         public bool isForage(GameLocation location)
         {
-            return this.isForage();
+            return base.isForage();
         }
 
         public bool minutesElapsed(int minutes, GameLocation environment)
         {
-            return this.minutesElapsed(minutes);
+            return base.minutesElapsed(minutes);
         }
 
         public bool onExplosion(Farmer who, GameLocation location)
         {
-            return this.onExplosion(who);
+            return base.onExplosion(who);
         }
 
         public void performRemoveAction(Vector2 tileLocation, GameLocation environment)
         {
-            this.performRemoveAction();
+            base.performRemoveAction();
         }
 
         public bool performToolAction(Tool t, GameLocation location)
         {
-            return this.performToolAction(t);
+            return base.performToolAction(t);
         }
 
         public void updateWhenCurrentLocation(GameTime time, GameLocation environment)
         {
-            this.updateWhenCurrentLocation(time);
+            base.updateWhenCurrentLocation(time);
         }
 
 

@@ -28,12 +28,12 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
 
         public bool CanModifyBed(GameLocation location, Farmer who)
         {
-            return this.CanModifyBed(who);
+            return base.CanModifyBed(who);
         }
 
         public bool IsBeingSleptIn(GameLocation location)
         {
-            return this.IsBeingSleptIn();
+            return base.IsBeingSleptIn();
         }
 
 
