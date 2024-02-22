@@ -23,9 +23,6 @@ namespace StardewModdingAPI.Framework.ModLoading
         /// <summary>Encapsulates monitoring and logging.</summary>
         private readonly IMonitor Monitor;
 
-        /// <summary>Whether to detect paranoid mode issues.</summary>
-        private readonly bool ParanoidMode;
-
         /// <summary>Metadata for mapping assemblies to the current platform.</summary>
         private readonly PlatformAssemblyMap AssemblyMap;
 
@@ -62,7 +59,6 @@ namespace StardewModdingAPI.Framework.ModLoading
         public AssemblyLoader(Platform targetPlatform, IMonitor monitor, bool paranoidMode, bool rewriteMods)
         {
             this.Monitor = monitor;
-            this.ParanoidMode = paranoidMode;
             this.RewriteMods = rewriteMods;
             this.AssemblyMap = this.TrackForDisposal(Constants.GetAssemblyMap(targetPlatform));
 
@@ -86,7 +82,7 @@ namespace StardewModdingAPI.Framework.ModLoading
             }
 
             // init rewriters
-            this.InstructionHandlers = new InstructionMetadata().GetHandlers(this.ParanoidMode, this.RewriteMods).ToArray();
+            this.InstructionHandlers = new InstructionMetadata().GetHandlers(paranoidMode, this.RewriteMods).ToArray();
 
         }
 
