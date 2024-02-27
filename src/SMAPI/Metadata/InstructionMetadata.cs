@@ -55,10 +55,6 @@ namespace StardewModdingAPI.Metadata
             // rewrite for crossplatform compatibility
             if (rewriteMods)
             {
-                // heuristic rewrites
-                yield return new HeuristicFieldRewriter(this.ValidateReferencesToAssemblies);
-                yield return new HeuristicMethodRewriter(this.ValidateReferencesToAssemblies);
-
                 // specific versions
                 yield return new ReplaceReferencesRewriter()
                     /****
@@ -226,6 +222,10 @@ namespace StardewModdingAPI.Metadata
                     .MapMethod("System.Int64 Netcode.NetLong::op_Implicit(Netcode.NetLong)", typeof(NetLongFacade), nameof(NetLongFacade.op_Implicit))
 
                     .MapMethod("!0 StardewValley.Network.NetPausableField`3<Microsoft.Xna.Framework.Vector2,Netcode.NetVector2,Netcode.NetVector2>::op_Implicit(StardewValley.Network.NetPausableField`3<!0,!1,!2>)", typeof(NetPausableFieldFacade<Vector2, NetVector2, NetVector2>), nameof(NetPausableFieldFacade<Vector2, NetVector2, NetVector2>.op_Implicit));
+
+                // heuristic rewrites
+                yield return new HeuristicFieldRewriter(this.ValidateReferencesToAssemblies);
+                yield return new HeuristicMethodRewriter(this.ValidateReferencesToAssemblies);
 
                 // 32-bit to 64-bit in Stardew Valley 1.5.5
                 yield return new ArchitectureAssemblyRewriter();
