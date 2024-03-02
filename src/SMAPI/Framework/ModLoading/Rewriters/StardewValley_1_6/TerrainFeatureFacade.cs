@@ -15,6 +15,22 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
     public class TerrainFeatureFacade : TerrainFeature, IRewriteFacade
     {
         /*********
+        ** Accessors
+        *********/
+        public GameLocation currentLocation
+        {
+            get => base.Location;
+            set => base.Location = value;
+        }
+
+        public Vector2 currentTileLocation
+        {
+            get => base.Tile;
+            set => base.Tile = value;
+        }
+
+
+        /*********
         ** Public methods
         *********/
         public virtual void dayUpdate(GameLocation environment, Vector2 tileLocation)

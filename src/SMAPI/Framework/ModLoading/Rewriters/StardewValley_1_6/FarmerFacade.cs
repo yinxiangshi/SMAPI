@@ -5,6 +5,7 @@ using Netcode;
 using StardewModdingAPI.Framework.ModLoading.Framework;
 using StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6.Internal;
 using StardewValley;
+using SObject = StardewValley.Object;
 
 #pragma warning disable CS0618 // Type or member is obsolete: this is backwards-compatibility code.
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member: This is internal code to support rewriters and shouldn't be called directly.
@@ -13,9 +14,11 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
 {
     /// <summary>Maps Stardew Valley 1.5.6's <see cref="Farmer"/> methods to their newer form to avoid breaking older mods.</summary>
     /// <remarks>This is public to support SMAPI rewriting and should never be referenced directly by mods. See remarks on <see cref="ReplaceReferencesRewriter"/> for more info.</remarks>
+    [SuppressMessage("ReSharper", "IdentifierTypo", Justification = SuppressReasons.MatchesOriginal)]
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = SuppressReasons.MatchesOriginal)]
-    [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = SuppressReasons.UsedViaRewriting)]
+    [SuppressMessage("ReSharper", "ParameterHidesMember", Justification = SuppressReasons.MatchesOriginal)]
     [SuppressMessage("ReSharper", "RedundantBaseQualifier", Justification = SuppressReasons.BaseForClarity)]
+    [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = SuppressReasons.UsedViaRewriting)]
     public class FarmerFacade : Farmer, IRewriteFacade
     {
         /*********
@@ -23,10 +26,53 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
         *********/
         public NetObjectList<Item> items => InventoryToNetObjectList.GetCachedWrapperFor(base.Items);
 
+        public int attack => base.buffs.Attack;
+        public int immunity => base.buffs.Immunity;
+        public int resilience => base.buffs.Defense;
+
+        public float attackIncreaseModifier => base.buffs.AttackMultiplier;
+        public float critChanceModifier => base.buffs.CriticalChanceMultiplier;
+        public float critPowerModifier => base.buffs.CriticalPowerMultiplier;
+        public float knockbackModifier => base.buffs.KnockbackMultiplier;
+        public float weaponPrecisionModifier => base.buffs.WeaponPrecisionMultiplier;
+        public float weaponSpeedModifier => base.buffs.WeaponSpeedMultiplier;
+
         public new IList<Item> Items
         {
             get => base.Items;
             set => base.Items.OverwriteWith(value);
+        }
+
+        public new int toolPower
+        {
+            get => base.toolPower.Value;
+            set => base.toolPower.Value = value;
+        }
+
+        public new int toolHold
+        {
+            get => base.toolHold.Value;
+            set => base.toolHold.Value = value;
+        }
+
+        public int visibleQuestCount
+        {
+            get
+            {
+                int count = 0;
+                foreach (var quest in base.team.specialOrders)
+                {
+                    if (quest?.IsHidden() is false)
+                        count++;
+                }
+
+                foreach (var quest in base.questLog)
+                {
+                    if (quest?.IsHidden() is false)
+                        count++;
+                }
+                return count;
+            }
         }
 
 
@@ -36,6 +82,16 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
         public void addQuest(int questID)
         {
             base.addQuest(questID.ToString());
+        }
+
+        public bool areAllItemsNull()
+        {
+            return base.Items.CountItemStacks() == 0;
+        }
+
+        public bool caughtFish(int index, int size, bool from_fish_pond = false, int numberCaught = 1)
+        {
+            return base.caughtFish(index.ToString(), size, from_fish_pond, numberCaught);
         }
 
         public void changePants(Color color)
@@ -63,9 +119,24 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
             base.completeQuest(questID.ToString());
         }
 
+        public void cookedRecipe(int index)
+        {
+            base.cookedRecipe(index.ToString());
+        }
+
         public bool couldInventoryAcceptThisObject(int index, int stack, int quality = 0)
         {
             return base.couldInventoryAcceptThisItem(index.ToString(), stack, quality);
+        }
+
+        public void foundArtifact(int index, int number)
+        {
+            base.foundArtifact(index.ToString(), number);
+        }
+
+        public void foundMineral(int index)
+        {
+            base.foundMineral(index.ToString());
         }
 
         public int GetEffectsOfRingMultiplier(int ring_index)
@@ -85,6 +156,16 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
             return base.hasBuff(whichBuff.ToString());
         }
 
+        public bool hasGiftTasteBeenRevealed(NPC npc, int item_index)
+        {
+            return base.hasGiftTasteBeenRevealed(npc, item_index.ToString());
+        }
+
+        public bool hasItemBeenGifted(NPC npc, int item_index)
+        {
+            return base.hasItemBeenGifted(npc, item_index.ToString());
+        }
+
         public bool hasItemInInventory(int itemIndex, int quantity, int minPrice = 0)
         {
             // minPrice field was always ignored
@@ -102,14 +183,49 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
             }
         }
 
+        public bool hasItemInInventoryNamed(string? name)
+        {
+            if (name is not null)
+            {
+                foreach (Item item in base.Items)
+                {
+                    if (item?.Name == name)
+                        return true;
+                }
+            }
+
+            return false;
+        }
+
+        public Item? hasItemWithNameThatContains(string name)
+        {
+            foreach (Item item in base.Items)
+            {
+                if (item?.Name is not null && item.Name.Contains(name))
+                    return item;
+            }
+
+            return null;
+        }
+
         public bool hasQuest(int id)
         {
             return base.hasQuest(id.ToString());
         }
 
+        public bool isMarried()
+        {
+            return base.isMarriedOrRoommates();
+        }
+
         public bool isWearingRing(int ringIndex)
         {
             return base.isWearingRing(ringIndex.ToString());
+        }
+
+        public void removeFirstOfThisItemFromInventory(int parentSheetIndexOfItem)
+        {
+            base.removeFirstOfThisItemFromInventory(parentSheetIndexOfItem.ToString());
         }
 
         public bool removeItemsFromInventory(int index, int stack)
@@ -129,7 +245,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
                     default:
                         for (int i = 0; i < base.Items.Count; i++)
                         {
-                            if (base.Items[i] is Object obj && obj.parentSheetIndex == index)
+                            if (base.Items[i] is SObject obj && obj.parentSheetIndex == index)
                             {
                                 if (obj.Stack > stack)
                                 {
@@ -154,6 +270,17 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
         public void removeQuest(int questID)
         {
             base.removeQuest(questID.ToString());
+        }
+
+        public void revealGiftTaste(NPC npc, int parent_sheet_index)
+        {
+            base.revealGiftTaste(npc.Name, parent_sheet_index.ToString());
+        }
+
+        public void revealGiftTaste(NPC npc, SObject item)
+        {
+            if (!item.bigCraftable)
+                base.revealGiftTaste(npc.Name, item.ItemId);
         }
 
 

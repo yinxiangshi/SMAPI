@@ -43,11 +43,15 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
             return new Chest { TileLocation = location };
         }
 
-        public ChestFacade(int parent_sheet_index, Vector2 tile_location, int starting_lid_frame, int lid_frame_count)
-            : base(parent_sheet_index.ToString(), tile_location, starting_lid_frame, lid_frame_count) { }
+        public static Chest Constructor(int parent_sheet_index, Vector2 tile_location, int starting_lid_frame, int lid_frame_count)
+        {
+            return new Chest(parent_sheet_index.ToString(), tile_location, starting_lid_frame, lid_frame_count);
+        }
 
-        public ChestFacade(int coins, List<Item> items, Vector2 location, bool giftbox = false, int giftboxIndex = 0)
-            : base(items, location, giftbox, giftboxIndex) { }
+        public static Chest Constructor(int coins, List<Item> items, Vector2 location, bool giftbox = false, int giftboxIndex = 0)
+        {
+            return new Chest(items, location, giftbox, giftboxIndex);
+        }
 
         public void destroyAndDropContents(Vector2 pointToDropAt, GameLocation location)
         {
@@ -57,6 +61,11 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
         public void dumpContents(GameLocation location)
         {
             base.dumpContents();
+        }
+
+        public void updateWhenCurrentLocation(GameTime time, GameLocation environment)
+        {
+            base.updateWhenCurrentLocation(time);
         }
 
 

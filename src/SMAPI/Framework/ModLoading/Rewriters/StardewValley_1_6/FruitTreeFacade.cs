@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.Xna.Framework;
 using Netcode;
 using StardewModdingAPI.Framework.ModLoading.Framework;
 using StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6.Internal;
 using StardewValley;
+using StardewValley.Objects;
 using StardewValley.TerrainFeatures;
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member: This is internal code to support rewriters and shouldn't be called directly.
@@ -31,6 +33,30 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
 
                 return new ReadOnlyValueToNetString($"{nameof(FruitTree)}.{nameof(this.fruitSeason)}", value);
             }
+        }
+
+
+        /*********
+        ** Public methods
+        *********/
+        public static FruitTree Constructor(int saplingIndex)
+        {
+            return new FruitTree(saplingIndex.ToString());
+        }
+
+        public static FruitTree Constructor(int saplingIndex, int growthStage)
+        {
+            return new FruitTree(saplingIndex.ToString(), growthStage);
+        }
+
+        public bool IsInSeasonHere(GameLocation location)
+        {
+            return base.IsInSeasonHere();
+        }
+
+        public void shake(Vector2 tileLocation, bool doEvenIfStillShaking, GameLocation location)
+        {
+            base.shake(tileLocation, doEvenIfStillShaking);
         }
 
 

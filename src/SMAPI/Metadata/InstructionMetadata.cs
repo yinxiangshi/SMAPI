@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Netcode;
 using StardewModdingAPI.Events;
@@ -16,16 +18,23 @@ using StardewValley.Enchantments;
 using StardewValley.GameData;
 using StardewValley.GameData.FloorsAndPaths;
 using StardewValley.GameData.Movies;
+using StardewValley.GameData.SpecialOrders;
 using StardewValley.Locations;
 using StardewValley.Menus;
+using StardewValley.Minigames;
 using StardewValley.Mods;
+using StardewValley.Network;
 using StardewValley.Objects;
 using StardewValley.Pathfinding;
+using StardewValley.Projectiles;
+using StardewValley.Quests;
 using StardewValley.SpecialOrders;
 using StardewValley.SpecialOrders.Objectives;
 using StardewValley.SpecialOrders.Rewards;
 using StardewValley.TerrainFeatures;
 using StardewValley.Tools;
+using xTile.Layers;
+using static StardewValley.Projectiles.BasicProjectile;
 using SObject = StardewValley.Object;
 
 namespace StardewModdingAPI.Metadata
@@ -74,7 +83,16 @@ namespace StardewModdingAPI.Metadata
                     /****
                     ** Stardew Valley 1.6
                     ****/
-                    // moved types
+                    // moved types (audio)
+                    .MapType("StardewValley.AudioCategoryWrapper", typeof(AudioCategoryWrapper))
+                    .MapType("StardewValley.AudioEngineWrapper", typeof(AudioEngineWrapper))
+                    .MapType("StardewValley.DummyAudioCategory", typeof(DummyAudioCategory))
+                    .MapType("StardewValley.DummyAudioEngine", typeof(DummyAudioEngine))
+                    .MapType("StardewValley.IAudioCategory", typeof(IAudioCategory))
+                    .MapType("StardewValley.IAudioEngine", typeof(IAudioEngine))
+                    .MapType("StardewValley.Network.NetAudio/SoundContext", typeof(SoundContext))
+
+                    // moved types (enchantments)
                     .MapType("StardewValley.AmethystEnchantment", typeof(AmethystEnchantment))
                     .MapType("StardewValley.AquamarineEnchantment", typeof(AquamarineEnchantment))
                     .MapType("StardewValley.ArchaeologistEnchantment", typeof(ArchaeologistEnchantment))
@@ -111,7 +129,9 @@ namespace StardewModdingAPI.Metadata
                     .MapType("StardewValley.VampiricEnchantment", typeof(VampiricEnchantment))
                     .MapType("StardewValley.WateringCanEnchantment", typeof(WateringCanEnchantment))
 
+                    // moved types (special orders)
                     .MapType("StardewValley.SpecialOrder", typeof(SpecialOrder))
+                    .MapType("StardewValley.SpecialOrder/QuestDuration", typeof(QuestDuration))
                     .MapType("StardewValley.SpecialOrder/QuestState", typeof(SpecialOrderStatus))
 
                     .MapType("StardewValley.CollectObjective", typeof(CollectObjective))
@@ -132,11 +152,18 @@ namespace StardewModdingAPI.Metadata
                     .MapType("StardewValley.OrderReward", typeof(OrderReward))
                     .MapType("StardewValley.ResetEventReward", typeof(ResetEventReward))
 
-                    .MapType("StardewValley.IOAudioEngine", typeof(IAudioEngine))
+                    // moved types (other)
+                    .MapType("LocationWeather", typeof(LocationWeather))
+                    .MapType("WaterTiles", typeof(WaterTiles))
+                    .MapType("StardewValley.Game1/MusicContext", typeof(MusicContext))
                     .MapType("StardewValley.ModDataDictionary", typeof(ModDataDictionary))
                     .MapType("StardewValley.ModHooks", typeof(ModHooks))
-                    .MapType("StardewValley.Network.NetAudio/SoundContext", typeof(SoundContext))
+                    .MapType("StardewValley.Network.IWorldState", typeof(NetWorldState))
                     .MapType("StardewValley.PathFindController", typeof(PathFindController))
+                    .MapType("StardewValley.SchedulePathDescription", typeof(SchedulePathDescription))
+
+                    // deleted delegates
+                    .MapType("StardewValley.DelayedAction/delayedBehavior", typeof(Action))
 
                     // field renames
                     .MapFieldName(typeof(FloorPathData), "ID", nameof(FloorPathData.Id))
@@ -149,11 +176,15 @@ namespace StardewModdingAPI.Metadata
 
                     // general API changes
                     // note: types are mapped before members, regardless of the order listed here
-                    .MapType("StardewValley.Buildings.Mill", typeof(Building))
+                    .MapFacade<AbigailGame, AbigailGameFacade>()
+                    .MapFacade<AnimalHouse, AnimalHouseFacade>()
+                    .MapFacade<BasicProjectile, BasicProjectileFacade>()
                     .MapFacade<BedFurniture, BedFurnitureFacade>()
+                    .MapFacade<BoatTunnel, BoatTunnelFacade>()
                     .MapFacade<Boots, BootsFacade>()
                     .MapFacade<BreakableContainer, BreakableContainerFacade>()
                     .MapFacade<Buff, BuffFacade>()
+                    .MapFacade<BuffsDisplay, BuffsDisplayFacade>()
                     .MapFacade<Bush, BushFacade>()
                     .MapFacade<Butterfly, ButterflyFacade>()
                     .MapFacade<Building, BuildingFacade>()
@@ -163,43 +194,76 @@ namespace StardewModdingAPI.Metadata
                     .MapFacade<Chest, ChestFacade>()
                     .MapFacade<Clothing, ClothingFacade>()
                     .MapFacade<ColoredObject, ColoredObjectFacade>()
+                    .MapFacade<CrabPot, CrabPotFacade>()
+                    .MapFacade<CraftingRecipe, CraftingRecipeFacade>()
                     .MapFacade<Crop, CropFacade>()
+                    .MapFacade<DebuffingProjectile, DebuffingProjectileFacade>()
                     .MapFacade<DelayedAction, DelayedActionFacade>()
                     .MapFacade<Dialogue, DialogueFacade>()
                     .MapFacade<DialogueBox, DialogueBoxFacade>()
+                    .MapFacade<DiscreteColorPicker, DiscreteColorPickerFacade>()
                     .MapFacade<Event, EventFacade>()
+                    .MapFacade<Farm, FarmFacade>()
                     .MapFacade<FarmAnimal, FarmAnimalFacade>()
                     .MapFacade<Farmer, FarmerFacade>()
                     .MapFacade<FarmerTeam, FarmerTeamFacade>()
+                    .MapFacade<FarmerRenderer, FarmerRendererFacade>()
                     .MapFacade<Fence, FenceFacade>()
+                    .MapFacade<FishingRod, FishingRodFacade>()
+                    .MapFacade<FishTankFurniture, FishTankFurnitureFacade>()
                     .MapFacade<Forest, ForestFacade>()
                     .MapFacade<Furniture, FurnitureFacade>()
                     .MapFacade<FruitTree, FruitTreeFacade>()
                     .MapFacade<Game1, Game1Facade>()
                     .MapFacade<GameLocation, GameLocationFacade>()
+                    .MapFacade<GiantCrop, GiantCropFacade>()
                     .MapFacade<Hat, HatFacade>()
                     .MapFacade<HoeDirt, HoeDirtFacade>()
                     .MapFacade<HUDMessage, HudMessageFacade>()
                     .MapFacade<IClickableMenu, IClickableMenuFacade>()
                     .MapFacade<Item, ItemFacade>()
                     .MapFacade<JunimoHut, JunimoHutFacade>()
+                    .MapFacade<LargeTerrainFeature, LargeTerrainFeatureFacade>()
+                    .MapFacade<Layer, LayerFacade>()
+                    .MapFacade<LibraryMuseum, LibraryMuseumFacade>()
                     .MapFacade<LocalizedContentManager, LocalizedContentManagerFacade>()
+                    .MapType("StardewValley.Buildings.Mill", typeof(Building))
+                    .MapFacade<MineShaft, MineShaftFacade>()
+                    .MapFacade<Multiplayer, MultiplayerFacade>()
                     .MapFacade<MeleeWeapon, MeleeWeaponFacade>()
+                    .MapFacade<NetFields, NetFieldsFacade>()
+                    .MapFacade<NetWorldState, NetWorldStateFacade>()
                     .MapFacade<NPC, NpcFacade>()
                     .MapFacade<PathFindController, PathFindControllerFacade>()
+                    .MapFacade<Projectile, ProjectileFacade>()
+                    .MapFacade<ProfileMenu, ProfileMenuFacade>()
+                    .MapFacade<Quest, QuestFacade>()
                     .MapFacade<ResourceClump, ResourceClumpFacade>()
                     .MapFacade<Ring, RingFacade>()
                     .MapFacade<ShopMenu, ShopMenuFacade>()
+                    .MapFacade<Sign, SignFacade>()
                     .MapFacade<Slingshot, SlingshotFacade>()
                     .MapFacade<SObject, ObjectFacade>()
+                    .MapFacade<SoundEffect, SoundEffectFacade>()
                     .MapFacade<SpriteText, SpriteTextFacade>()
+                    .MapFacade<Stats, StatsFacade>()
                     .MapFacade<StorageFurniture, StorageFurnitureFacade>()
+                    .MapFacade<TemporaryAnimatedSprite, TemporaryAnimatedSpriteFacade>()
                     .MapFacade<TerrainFeature, TerrainFeatureFacade>()
+                    .MapFacade("StardewValley.Tools.ToolFactory", typeof(ToolFactoryFacade))
                     .MapFacade<Tree, TreeFacade>()
+                    .MapFacade<TV, TvFacade>()
                     .MapFacade<Utility, UtilityFacade>()
                     .MapFacade("Microsoft.Xna.Framework.Graphics.ViewportExtensions", typeof(ViewportExtensionsFacade))
+                    .MapFacade<Wallpaper, WallpaperFacade>()
+                    .MapFacade<WateringCan, WateringCanFacade>()
                     .MapFacade<WorldDate, WorldDateFacade>()
-                    .MapMethod("System.Void StardewValley.BellsAndWhistles.SpriteText::drawString(Microsoft.Xna.Framework.Graphics.SpriteBatch,System.String,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Single,System.Single,System.Boolean,System.Int32,System.String,System.Int32,StardewValley.BellsAndWhistles.SpriteText/ScrollTextAlignment)", typeof(SpriteTextFacade), nameof(SpriteTextFacade.drawString)) // may not get rewritten by the MapFacade above due to the ScrollTextAlignment enum also being de-nested in 1.6 too
+
+                    // Mono.Cecil seems to have trouble resolving rewritten signatures which include a nested type like `StardewValley.BellsAndWhistles.SpriteText/ScrollTextAlignment`
+                    .MapMethod("System.Void StardewValley.BellsAndWhistles.SpriteText::drawString(Microsoft.Xna.Framework.Graphics.SpriteBatch,System.String,System.Int32,System.Int32,System.Int32,System.Int32,System.Int32,System.Single,System.Single,System.Boolean,System.Int32,System.String,System.Int32,StardewValley.BellsAndWhistles.SpriteText/ScrollTextAlignment)", typeof(SpriteTextFacade), nameof(SpriteTextFacade.drawString))
+                    .MapMethod("System.Void StardewValley.BellsAndWhistles.SpriteText::drawStringWithScrollBackground(Microsoft.Xna.Framework.Graphics.SpriteBatch,System.String,System.Int32,System.Int32,System.String,System.Single,System.Int32,StardewValley.BellsAndWhistles.SpriteText/ScrollTextAlignment)", typeof(SpriteTextFacade), nameof(SpriteTextFacade.drawStringWithScrollBackground))
+                    .MapMethod("System.Void StardewValley.Projectiles.BasicProjectile::.ctor(System.Int32,System.Int32,System.Int32,System.Int32,System.Single,System.Single,System.Single,Microsoft.Xna.Framework.Vector2,System.String,System.String,System.Boolean,System.Boolean,StardewValley.GameLocation,StardewValley.Character,System.Boolean,StardewValley.Projectiles.BasicProjectile/onCollisionBehavior)", typeof(BasicProjectileFacade), nameof(BasicProjectileFacade.Constructor), new[] { typeof(int), typeof(int), typeof(int), typeof(int), typeof(float), typeof(float), typeof(float), typeof(Vector2), typeof(string), typeof(string), typeof(bool), typeof(bool), typeof(GameLocation), typeof(Character), typeof(bool), typeof(onCollisionBehavior) })
+                    .MapMethod("System.String StardewValley.LocalizedContentManager::LanguageCodeString(StardewValley.LocalizedContentManager/LanguageCode)", typeof(LocalizedContentManagerFacade), nameof(LocalizedContentManager.LanguageCodeString))
 
                     // BuildableGameLocation merged into GameLocation
                     .MapFacade("StardewValley.Locations.BuildableGameLocation", typeof(BuildableGameLocationFacade))
@@ -220,7 +284,7 @@ namespace StardewModdingAPI.Metadata
                     // implicit NetField conversions removed
                     .MapMethod("Netcode.NetFieldBase`2::op_Implicit", typeof(NetFieldBaseFacade<,>), "op_Implicit")
                     .MapMethod("System.Int64 Netcode.NetLong::op_Implicit(Netcode.NetLong)", typeof(NetLongFacade), nameof(NetLongFacade.op_Implicit))
-
+                    .MapMethod("System.Int32 StardewValley.Network.NetDirection::op_Implicit(StardewValley.Network.NetDirection)", typeof(ImplicitConversionOperators), nameof(ImplicitConversionOperators.NetDirection_ToInt))
                     .MapMethod("!0 StardewValley.Network.NetPausableField`3<Microsoft.Xna.Framework.Vector2,Netcode.NetVector2,Netcode.NetVector2>::op_Implicit(StardewValley.Network.NetPausableField`3<!0,!1,!2>)", typeof(NetPausableFieldFacade<Vector2, NetVector2, NetVector2>), nameof(NetPausableFieldFacade<Vector2, NetVector2, NetVector2>.op_Implicit));
 
                 // heuristic rewrites

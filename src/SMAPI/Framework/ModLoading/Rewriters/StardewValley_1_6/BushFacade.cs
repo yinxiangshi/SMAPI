@@ -18,6 +18,16 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
         /*********
         ** Public methods
         *********/
+        public void draw(Microsoft.Xna.Framework.Graphics.SpriteBatch spriteBatch, Vector2 tileLocation, float yDrawOffset)
+        {
+            base.draw(spriteBatch, yDrawOffset);
+        }
+
+        public void draw(Microsoft.Xna.Framework.Graphics.SpriteBatch spriteBatch, Vector2 tileLocation)
+        {
+            base.draw(spriteBatch);
+        }
+
         public bool inBloom(string season, int dayOfMonth)
         {
             // call new method if possible

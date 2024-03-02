@@ -22,6 +22,15 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
 
 
         /*********
+        ** Public methods
+        *********/
+        public void SetLocalReady(string checkName, bool ready)
+        {
+            Game1.netReady.SetLocalReady(checkName, ready);
+        }
+
+
+        /*********
         ** Private methods
         *********/
         private FarmerTeamFacade()

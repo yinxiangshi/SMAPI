@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Framework.ModLoading.Framework;
 using StardewValley;
@@ -11,14 +13,17 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
     /// <remarks>This is public to support SMAPI rewriting and should never be referenced directly by mods. See remarks on <see cref="ReplaceReferencesRewriter"/> for more info.</remarks>
     [SuppressMessage("ReSharper", "IdentifierTypo", Justification = SuppressReasons.MatchesOriginal)]
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = SuppressReasons.MatchesOriginal)]
+    [SuppressMessage("ReSharper", "LocalVariableHidesMember", Justification = SuppressReasons.MatchesOriginal)]
+    [SuppressMessage("ReSharper", "ParameterHidesMember", Justification = SuppressReasons.MatchesOriginal)]
     [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = SuppressReasons.UsedViaRewriting)]
-    public class Game1Facade : IRewriteFacade
+    public class Game1Facade : Game1, IRewriteFacade
     {
         /*********
         ** Accessors
         *********/
-        [SuppressMessage("ReSharper", "ValueParameterNotUsed")]
-        public static bool menuUp { get; set; } // field was mostly unused and always false
+        public bool gamePadControlsImplemented { get; set; }              // never used
+        public static bool menuUp { get; set; }                           // mostly unused and always false
+        public static Color morningColor { get; set; } = Color.LightBlue; // never used
 
 
         /*********
@@ -29,17 +34,6 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
             return
                 Utility.TryParseEnum(season, out Season parsedSeason)
                 && Game1.canHaveWeddingOnDay(day, parsedSeason);
-        }
-
-        public static NPC getCharacterFromName(string name, bool mustBeVillager = true, bool useLocationsListOnly = false)
-        {
-            return Game1.getCharacterFromName(name, mustBeVillager);
-        }
-
-        public static string GetSeasonForLocation(GameLocation location)
-        {
-            Season season = Game1.GetSeasonForLocation(location);
-            return season.ToString();
         }
 
         public static void createMultipleObjectDebris(int index, int xTile, int yTile, int number)
@@ -87,6 +81,21 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
             Game1.createObjectDebris(objectIndex.ToString(), xTile, yTile, groundLevel, itemQuality, velocityMultiplyer, location);
         }
 
+        public static void createRadialDebris(GameLocation location, int debrisType, int xTile, int yTile, int numberOfChunks, bool resource, int groundLevel = -1, bool item = false, int color = -1)
+        {
+            Game1.createRadialDebris(
+                location: location,
+                debrisType: debrisType,
+                xTile: xTile,
+                yTile: yTile,
+                numberOfChunks: numberOfChunks,
+                resource: resource,
+                groundLevel: groundLevel,
+                item: item,
+                color: Debris.getColorForDebris(color)
+            );
+        }
+
         public static void drawDialogue(NPC speaker, string dialogue)
         {
             Game1.DrawDialogue(new Dialogue(speaker, null, dialogue));
@@ -95,6 +104,42 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
         public static void drawDialogue(NPC speaker, string dialogue, Texture2D overridePortrait)
         {
             Game1.DrawDialogue(new Dialogue(speaker, null, dialogue) { overridePortrait = overridePortrait });
+        }
+
+        public static void drawObjectQuestionDialogue(string dialogue, List<Response>? choices, int width)
+        {
+            Game1.drawObjectQuestionDialogue(dialogue, choices?.ToArray(), width);
+        }
+
+        public static void drawObjectQuestionDialogue(string dialogue, List<Response>? choices)
+        {
+            Game1.drawObjectQuestionDialogue(dialogue, choices?.ToArray());
+        }
+
+        public static NPC getCharacterFromName(string name, bool mustBeVillager = true, bool useLocationsListOnly = false)
+        {
+            return Game1.getCharacterFromName(name, mustBeVillager);
+        }
+
+        public new static string GetSeasonForLocation(GameLocation location)
+        {
+            Season season = Game1.GetSeasonForLocation(location);
+            return season.ToString();
+        }
+
+        public static void playMorningSong()
+        {
+            Game1.playMorningSong();
+        }
+
+        public static void playSound(string cueName)
+        {
+            Game1.playSound(cueName);
+        }
+
+        public static void playSoundPitched(string cueName, int pitch)
+        {
+            Game1.playSound(cueName, pitch);
         }
 
 

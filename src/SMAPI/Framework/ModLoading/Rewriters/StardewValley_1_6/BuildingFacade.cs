@@ -1,7 +1,9 @@
+using System;
 using System.Diagnostics.CodeAnalysis;
 using Netcode;
 using StardewModdingAPI.Framework.ModLoading.Framework;
 using StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6.Internal;
+using StardewValley;
 using StardewValley.Buildings;
 using StardewValley.Objects;
 
@@ -21,6 +23,36 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
         *********/
         public NetRef<Chest> input => NetRefWrapperCache<Chest>.GetCachedWrapperFor(base.GetBuildingChest("Input"));   // Mill
         public NetRef<Chest> output => NetRefWrapperCache<Chest>.GetCachedWrapperFor(base.GetBuildingChest("Output")); // Mill
+
+        public string nameOfIndoors
+        {
+            get
+            {
+                GameLocation? indoorLocation = base.GetIndoors();
+                return indoorLocation is not null
+                    ? indoorLocation.uniqueName.Value
+                    : "null";
+            }
+        }
+
+        public string nameOfIndoorsWithoutUnique => base.GetData()?.IndoorMap ?? "null";
+
+
+        /*********
+        ** Public methods
+        *********/
+        public string getNameOfNextUpgrade()
+        {
+            string type = base.buildingType.Value;
+
+            foreach (var pair in Game1.buildingData)
+            {
+                if (string.Equals(type, pair.Value?.BuildingToUpgrade, StringComparison.OrdinalIgnoreCase))
+                    return pair.Key;
+            }
+
+            return "well"; // previous default
+        }
 
 
         /*********

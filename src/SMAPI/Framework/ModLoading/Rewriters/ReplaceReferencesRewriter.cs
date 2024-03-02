@@ -220,8 +220,11 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters
         /// <typeparam name="TFacade">The facade type to which to point matching references.</typeparam>
         /// <param name="mapDefaultConstructor">If the facade has a public constructor with no parameters, whether to rewrite references to empty constructors to use that one. (This is needed because .NET has no way to distinguish between an implicit and explicit constructor.)</param>
         public ReplaceReferencesRewriter MapFacade<TFromType, TFacade>(bool mapDefaultConstructor = false)
-            where TFacade : IRewriteFacade
+            where TFacade : TFromType, IRewriteFacade
         {
+            if (typeof(IRewriteFacade).IsAssignableFrom(typeof(TFromType)))
+                throw new InvalidOperationException("Can't rewrite a rewrite facade.");
+
             return this.MapFacade(typeof(TFromType).FullName!, typeof(TFacade), mapDefaultConstructor);
         }
 

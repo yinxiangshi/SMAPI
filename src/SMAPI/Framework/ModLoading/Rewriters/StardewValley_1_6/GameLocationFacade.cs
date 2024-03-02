@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Xna.Framework;
 using Netcode;
@@ -23,6 +24,12 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
     public class GameLocationFacade : GameLocation, IRewriteFacade
     {
         /*********
+        ** Accessors
+        *********/
+        public static int CAROLINES_NECKLACE_ITEM => 191;
+
+
+        /*********
         ** Public methods
         *********/
         public NetCollection<NPC> getCharacters()
@@ -35,9 +42,33 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
             return base.ExtraMillisecondsPerInGameMinute;
         }
 
+        public Object? getFish(float millisecondsAfterNibble, int bait, int waterDepth, Farmer who, double baitPotency, Vector2 bobberTile, string? location = null)
+        {
+            return base.getFish(millisecondsAfterNibble, bait.ToString(), waterDepth, who, baitPotency, bobberTile, location) as Object;
+        }
+
+        public Dictionary<string, string> GetLocationEvents()
+        {
+            return base.TryGetLocationEvents(out _, out Dictionary<string, string> events)
+                ? events
+                : new Dictionary<string, string>();
+        }
+
+        public Point GetMapPropertyPosition(string key, int default_x, int default_y)
+        {
+            return base.TryGetMapPropertyAs(key, out Point point)
+                ? point
+                : new Point(default_x, default_y);
+        }
+
         public int getNumberBuildingsConstructed(string name)
         {
             return base.getNumberBuildingsConstructed(name, includeUnderConstruction: false);
+        }
+
+        public Object getObjectAtTile(int x, int y)
+        {
+            return base.getObjectAtTile(x, y);
         }
 
         public string GetSeasonForLocation()
@@ -57,7 +88,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
 
         public bool isTileLocationTotallyClearAndPlaceable(Vector2 v)
         {
-            Vector2 pixel = new Vector2((v.X * Game1.tileSize) + Game1.tileSize / 2, (v.Y * Game1.tileSize) + Game1.tileSize / 2);
+            Vector2 pixel = new((v.X * Game1.tileSize) + Game1.tileSize / 2, (v.Y * Game1.tileSize) + Game1.tileSize / 2);
             foreach (Furniture f in base.furniture)
             {
                 if (f.furniture_type != Furniture.rug && !f.isPassable() && f.GetBoundingBox().Contains((int)pixel.X, (int)pixel.Y) && !f.AllowPlacementOnThisTile((int)v.X, (int)v.Y))
@@ -96,6 +127,11 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
         public void localSoundAt(string audioName, Vector2 position)
         {
             base.localSound(audioName, position);
+        }
+
+        public void OnStoneDestroyed(int indexOfStone, int x, int y, Farmer who)
+        {
+            base.OnStoneDestroyed(indexOfStone.ToString(), x, y, who);
         }
 
         public void playSound(string audioName, SoundContext soundContext = SoundContext.Default)

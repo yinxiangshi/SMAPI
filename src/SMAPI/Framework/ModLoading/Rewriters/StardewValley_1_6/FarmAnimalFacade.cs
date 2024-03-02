@@ -23,6 +23,11 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
             return data?.House == "Coop";
         }
 
+        public void warpHome(Farm f, FarmAnimal a)
+        {
+            base.warpHome();
+        }
+
 
         /*********
         ** Private methods

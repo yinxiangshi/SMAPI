@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.Xna.Framework;
 using StardewModdingAPI.Framework.ModLoading.Framework;
 using StardewValley;
 using StardewValley.TerrainFeatures;
@@ -29,6 +30,11 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
         public bool fertilize(GameLocation location)
         {
             return base.fertilize();
+        }
+
+        public bool instantDestroy(Vector2 tileLocation, GameLocation location)
+        {
+            return base.instantDestroy(tileLocation);
         }
 
 

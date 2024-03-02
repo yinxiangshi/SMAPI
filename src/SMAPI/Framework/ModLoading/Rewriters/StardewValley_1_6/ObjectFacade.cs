@@ -57,9 +57,24 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
             base.ApplySprinkler(tile);
         }
 
+        public void ApplySprinklerAnimation(GameLocation location)
+        {
+            base.ApplySprinklerAnimation();
+        }
+
+        public new void ConsumeInventoryItem(Farmer who, Item drop_in, int amount)
+        {
+            Object.ConsumeInventoryItem(who, drop_in, amount);
+        }
+
         public void DayUpdate(GameLocation location)
         {
             base.DayUpdate();
+        }
+
+        public void farmerAdjacentAction(GameLocation location)
+        {
+            base.farmerAdjacentAction();
         }
 
         public Rectangle getBoundingBox(Vector2 tileLocation)

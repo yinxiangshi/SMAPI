@@ -2,7 +2,6 @@ using System.Diagnostics.CodeAnalysis;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI.Framework.ModLoading.Framework;
 using StardewValley.BellsAndWhistles;
-using static StardewValley.BellsAndWhistles.SpriteText;
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member: This is internal code to support rewriters and shouldn't be called directly.
 
@@ -13,7 +12,7 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
     [SuppressMessage("ReSharper", "IdentifierTypo", Justification = SuppressReasons.MatchesOriginal)]
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = SuppressReasons.MatchesOriginal)]
     [SuppressMessage("ReSharper", "UnusedMember.Global", Justification = SuppressReasons.UsedViaRewriting)]
-    public class SpriteTextFacade : IRewriteFacade
+    public class SpriteTextFacade : SpriteText, IRewriteFacade
     {
         /*********
         ** Public methods
@@ -33,6 +32,20 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
                 junimoText: junimoText,
                 drawBGScroll: drawBGScroll,
                 placeHolderScrollWidthText: placeHolderScrollWidthText,
+                color: color != -1 ? SpriteText.getColorFromIndex(color) : null,
+                scroll_text_alignment: scroll_text_alignment
+            );
+        }
+
+        public static void drawStringWithScrollBackground(SpriteBatch b, string s, int x, int y, string placeHolderWidthText = "", float alpha = 1f, int color = -1, ScrollTextAlignment scroll_text_alignment = ScrollTextAlignment.Left)
+        {
+            SpriteText.drawStringWithScrollBackground(
+                b: b,
+                s: s,
+                x: x,
+                y: y,
+                placeHolderWidthText: placeHolderWidthText,
+                alpha: alpha,
                 color: color != -1 ? SpriteText.getColorFromIndex(color) : null,
                 scroll_text_alignment: scroll_text_alignment
             );
@@ -67,6 +80,24 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
                 scrollType: scrollType,
                 layerDepth: layerDepth,
                 junimoText: junimoText
+            );
+        }
+
+        public static void drawStringHorizontallyCenteredAt(SpriteBatch b, string s, int x, int y, int characterPosition = maxCharacter, int width = -1, int height = maxHeight, float alpha = 1f, float layerDepth = .88f, bool junimoText = false, int color = -1, int maxWidth = 99999)
+        {
+            SpriteText.drawStringHorizontallyCenteredAt(
+                b: b,
+                s: s,
+                x: x,
+                y: y,
+                characterPosition: characterPosition,
+                width: width,
+                height: height,
+                alpha: alpha,
+                layerDepth: layerDepth,
+                junimoText: junimoText,
+                color: color != -1 ? SpriteText.getColorFromIndex(color) : null,
+                maxWidth: maxWidth
             );
         }
 

@@ -17,6 +17,12 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
         /*********
         ** Public methods
         *********/
+        public new int addedSpeed
+        {
+            get => (int)base.addedSpeed;
+            set => base.addedSpeed = value;
+        }
+
         public int getStandingX()
         {
             return base.StandingPixel.X;

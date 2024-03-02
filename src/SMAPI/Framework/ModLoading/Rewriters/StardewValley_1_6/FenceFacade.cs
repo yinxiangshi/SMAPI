@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.Xna.Framework;
 using StardewModdingAPI.Framework.ModLoading.Framework;
 using StardewValley;
 
@@ -15,9 +16,19 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
         /*********
         ** Public methods
         *********/
+        public static Fence Constructor(Vector2 tileLocation, int whichType, bool isGate)
+        {
+            return new Fence(tileLocation, whichType.ToString(), isGate);
+        }
+
         public void toggleGate(GameLocation location, bool open, bool is_toggling_counterpart = false, Farmer? who = null)
         {
             base.toggleGate(open, is_toggling_counterpart, who);
+        }
+
+        public int getDrawSum(GameLocation location)
+        {
+            return base.getDrawSum();
         }
 
 

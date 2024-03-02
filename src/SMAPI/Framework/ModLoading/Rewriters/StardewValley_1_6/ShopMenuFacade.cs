@@ -17,6 +17,16 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
     public class ShopMenuFacade : ShopMenu, IRewriteFacade
     {
         /*********
+        ** Accessors
+        *********/
+        public string storeContext
+        {
+            get => base.ShopId;
+            set => base.ShopId = value;
+        }
+
+
+        /*********
         ** Public methods
         *********/
         public static ShopMenu Constructor(Dictionary<ISalable, int[]> itemPriceAndStock, int currency = 0, string? who = null, Func<ISalable, Farmer, int, bool>? on_purchase = null, Func<ISalable, bool>? on_sell = null, string? context = null)

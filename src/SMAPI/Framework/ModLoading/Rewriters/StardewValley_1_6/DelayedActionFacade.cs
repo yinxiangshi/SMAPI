@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics.CodeAnalysis;
 using StardewModdingAPI.Framework.ModLoading.Framework;
 using StardewValley;
@@ -15,6 +16,11 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
         /*********
         ** Public methods
         *********/
+        public new static void functionAfterDelay(Action func, int timer)
+        {
+            DelayedAction.functionAfterDelay(func, timer);
+        }
+
         public static void playSoundAfterDelay(string soundName, int timer, GameLocation? location = null, int pitch = -1)
         {
             DelayedAction.playSoundAfterDelay(soundName, timer, location, pitch: pitch);

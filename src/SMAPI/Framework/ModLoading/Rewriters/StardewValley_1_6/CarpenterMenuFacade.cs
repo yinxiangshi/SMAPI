@@ -22,6 +22,11 @@ namespace StardewModdingAPI.Framework.ModLoading.Rewriters.StardewValley_1_6
             return new CarpenterMenu(magicalConstruction ? Game1.builder_wizard : Game1.builder_robin);
         }
 
+        public void setNewActiveBlueprint()
+        {
+            base.SetNewActiveBlueprint(base.Blueprint);
+        }
+
 
         /*********
         ** Private methods
